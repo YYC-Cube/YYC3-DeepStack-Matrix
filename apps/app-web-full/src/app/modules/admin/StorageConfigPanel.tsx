@@ -10,13 +10,13 @@
  */
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Label } from "../../components/ui/label";
-import { Switch } from "../../components/ui/switch";
-import { Slider } from "../../components/ui/slider";
-import { Alert, AlertDescription } from "../../components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
+import { Button } from "@yyc3/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3/ui/select";
+import { Label } from "@yyc3/ui/label";
+import { Switch } from "@yyc3/ui/switch";
+import { Slider } from "@yyc3/ui/slider";
+import { Alert, AlertDescription } from "@yyc3/ui/alert";
 import { DatabaseConnectionPanel } from "../ops/DatabaseConnectionPanel";
 import { useI18n } from "../../hooks/useI18n";
 import type { StorageConfig, StorageType } from "../../types/storage";

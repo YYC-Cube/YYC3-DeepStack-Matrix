@@ -36,6 +36,7 @@
     "precommit": "pnpm check:testid && pnpm lint:fix && pnpm type-check"
   },
   "dependencies": {
+    "@yyc3/ui": "workspace:*",
     "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-html": "^6.4.11",
     "@codemirror/lang-javascript": "^6.2.5",
@@ -47,12 +48,7 @@
     "@codemirror/lang-yaml": "^6.1.2",
     "@codemirror/state": "^6.5.4",
     "@codemirror/view": "^6.39.16",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@mlc-ai/web-llm": "^0.2.82",
-    "@mui/icons-material": "^9.0.0",
-    "@mui/material": "^9.0.0",
-    "@popperjs/core": "^2.11.8",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",

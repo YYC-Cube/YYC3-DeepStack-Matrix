@@ -2,9 +2,9 @@
 file: YYC3-四项目实况对比-统一拆分实施流程.md
 description: YYC³ CloudPivot Intelli-Matrix 四个同源项目技术实况对比与统一组件拆分实施流程（基于源码审计 + 69 张运行截图视觉标定）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.4.0
+version: v1.5.0
 created: 2026-10-08
-updated: 2026-10-10（v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
+updated: 2026-10-10（v1.5：Phase 2 进度标记——@yyc3/ui 达成+删 MUI 完成+theme 登记未完；v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
 status: active
 tags: [audit],[comparison],[refactor],[monorepo],[unified-process]
 category: guide
@@ -403,6 +403,10 @@ createHashRouter（适配 Electron file:// 与静态托管）
 **回滚**：apps 目录独立可拆，git revert 即可。
 
 ### Phase 2｜设计令牌 + `@yyc3/ui`
+
+> **进度（2026-10-10，v1.5）**：◐ **部分达成**（详见 [`YYC3-Phase2-执行日志.md`](./YYC3-Phase2-执行日志.md)）。
+> ① `packages/ui` 达成：49 件 git mv 自 P1（台账仲裁基线）+ brand 3 件 + EmptyState 新件，exports 源码直出、peer 双栈显式声明，独立 tsc 0 错；② 四 app 切换达成：126 处 import 重写 + Tailwind v4 `@source` × 4 + 本地 ui/ 删除（P2/P3/P4 旧 chart.tsx 随删即升级安全版）；③ 删 MUI 达成：15 项依赖清除，`pnpm why @mui` 空（源码 files=0 实证在先）；④ 零回归：build 三绿 + P2=7 基线逐字同 + type-check P1=67 精确持平；⑤ **未完登记**：`@yyc3/theme` 三层合一与 ide 引擎下沉、69 张视觉对照、a11y 全量 → 下会话续作。
+> 修正记录：ui 基线取 **P1 版**（本节原文「P4 版 48 件」依 Phase 0 台账仲裁修正；引用面实测 126 处/30 文件而非全库估计）。
 
 **目标**：视觉一处改、四端生效。
 **动作**：

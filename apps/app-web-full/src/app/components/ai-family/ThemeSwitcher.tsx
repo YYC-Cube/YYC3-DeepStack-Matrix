@@ -15,7 +15,7 @@ import { Palette, Check, Sparkles } from "lucide-react";
 import { useFamilyMemberSlice } from "../../store";
 import type { UnifiedFamilyMember } from "../../types";
 import { familyThemeManager, type FamilyTheme } from "../../lib/FamilyMusicThemes";
-import { Button } from "../ui/button";
+import { Button } from "@yyc3/ui/button";
 
 interface ThemeSwitcherProps {
   currentMemberId?: string;

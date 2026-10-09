@@ -10,12 +10,12 @@
  */
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
-import { Progress } from "../../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
+import { Button } from "@yyc3/ui/button";
+import { Badge } from "@yyc3/ui/badge";
+import { Progress } from "@yyc3/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@yyc3/ui/alert";
 import { Clock, RefreshCw, CheckCircle2, XCircle, Database, HardDrive, Wifi, WifiOff } from "lucide-react";
 import { useI18n } from "../../hooks/useI18n";
 import { storageManager } from "../../services/storageManager";

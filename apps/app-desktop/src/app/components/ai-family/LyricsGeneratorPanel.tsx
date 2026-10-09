@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Music, Copy, RefreshCw, Download, Share2 } from "lucide-react";
 import { useFamilyMemberSlice } from "../../store";
 import { lyricsGenerator, type LyricsStyle, type LyricsTheme, type GeneratedLyrics } from "../../lib/LyricsGenerator";
-import { Button } from "../ui/button";
+import { Button } from "@yyc3/ui/button";
 import { useCopyFeedback } from "../../hooks/useCopyFeedback";
 
 // _FAMILY_MEMBERS removed — members now from store

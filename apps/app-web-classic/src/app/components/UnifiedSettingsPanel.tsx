@@ -52,8 +52,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { Progress } from "./ui/progress";
+} from "@yyc3/ui/alert-dialog";
+import { Progress } from "@yyc3/ui/progress";
 
 interface StorageInfo {
   key: string;

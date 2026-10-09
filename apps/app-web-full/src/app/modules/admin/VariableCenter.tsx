@@ -27,14 +27,14 @@ import {
   type VariableValue,
   type VariableExport,
 } from "../../config/variable-center";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Label } from "../../components/ui/label";
-import { Input } from "../../components/ui/input";
-import { Switch } from "../../components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Badge } from "../../components/ui/badge";
-import { ScrollArea } from "../../components/ui/scroll-area";
+import { Button } from "@yyc3/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
+import { Label } from "@yyc3/ui/label";
+import { Input } from "@yyc3/ui/input";
+import { Switch } from "@yyc3/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3/ui/select";
+import { Badge } from "@yyc3/ui/badge";
+import { ScrollArea } from "@yyc3/ui/scroll-area";
 import {
   Server,
   User,

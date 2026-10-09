@@ -10,7 +10,7 @@
  */
 
 import { useState } from "react";
-import { PageHeader } from "./ui/page-header";
+import { PageHeader } from "@yyc3/ui/page-header";
 import { StorageConfigPanel } from "./StorageConfigPanel";
 import { StorageSyncStatus } from "./StorageSyncStatus";
 import { useI18n } from "../hooks/useI18n";

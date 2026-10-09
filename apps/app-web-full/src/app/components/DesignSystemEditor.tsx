@@ -11,12 +11,12 @@
 
 import { useState } from "react";
 import { useDesignSystem } from "../hooks/useDesignSystem";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
+import { Button } from "@yyc3/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
+import { Label } from "@yyc3/ui/label";
+import { Input } from "@yyc3/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
+import { Badge } from "@yyc3/ui/badge";
 import { Palette, RotateCcw, Save, Download, Upload } from "lucide-react";
 
 export function DesignSystemEditor() {

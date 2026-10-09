@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "yyc3-cn-assistant": {
+      "command": "node",
+      "args": ["/Users/my/yyc3-cn-mcp-server.js"],
+      "env": {
+        "TRAE_CN_MODE": "development",
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

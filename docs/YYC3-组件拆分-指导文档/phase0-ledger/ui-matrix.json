@@ -1,0 +1,887 @@
+{
+  "generatedAt": "2026-10-09T16:55:30.636Z",
+  "root": "/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成",
+  "summary": {
+    "counts": {
+      "P1": 49,
+      "P2": 48,
+      "P3": 49,
+      "P4": 49
+    },
+    "union": 49,
+    "byVerdict": {
+      "L0*": 44,
+      "L1": 3,
+      "L0": 2
+    },
+    "notInAll": [
+      {
+        "file": "page-header.tsx",
+        "presence": "P1P3P4",
+        "verdict": "L0"
+      }
+    ],
+    "uniqueBy": {}
+  },
+  "components": [
+    {
+      "file": "accordion.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2286,
+        "P2": 2060,
+        "P3": 2286,
+        "P4": 2286
+      }
+    },
+    {
+      "file": "alert-dialog.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 4098,
+        "P2": 3866,
+        "P3": 4098,
+        "P4": 4098
+      }
+    },
+    {
+      "file": "alert.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1839,
+        "P2": 1621,
+        "P3": 1839,
+        "P4": 1839
+      }
+    },
+    {
+      "file": "aspect-ratio.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 516,
+        "P2": 284,
+        "P3": 516,
+        "P4": 516
+      }
+    },
+    {
+      "file": "avatar.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1324,
+        "P2": 1104,
+        "P3": 1324,
+        "P4": 1324
+      }
+    },
+    {
+      "file": "badge.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1854,
+        "P2": 1636,
+        "P3": 1854,
+        "P4": 1854
+      }
+    },
+    {
+      "file": "breadcrumb.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2596,
+        "P2": 2368,
+        "P3": 2596,
+        "P4": 2596
+      }
+    },
+    {
+      "file": "button.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2326,
+        "P2": 2106,
+        "P3": 2326,
+        "P4": 2326
+      }
+    },
+    {
+      "file": "calendar.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 3328,
+        "P2": 3154,
+        "P3": 3328,
+        "P4": 3328
+      }
+    },
+    {
+      "file": "card.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2204,
+        "P2": 1988,
+        "P3": 2204,
+        "P4": 2204
+      }
+    },
+    {
+      "file": "carousel.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "minJaccard": 0.974,
+      "pairs": [
+        "P1~P2:97%",
+        "P1~P3:100%",
+        "P1~P4:100%",
+        "P2~P3:97%",
+        "P2~P4:97%",
+        "P3~P4:100%"
+      ],
+      "verdict": "L1",
+      "sizeBy": {
+        "P1": 5836,
+        "P2": 5606,
+        "P3": 5836,
+        "P4": 5836
+      }
+    },
+    {
+      "file": "chart.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "minJaccard": 0.981,
+      "pairs": [
+        "P1~P2:98%",
+        "P1~P3:100%",
+        "P1~P4:100%",
+        "P2~P3:98%",
+        "P2~P4:98%",
+        "P3~P4:100%"
+      ],
+      "verdict": "L1",
+      "sizeBy": {
+        "P1": 10479,
+        "P2": 9997,
+        "P3": 10479,
+        "P4": 10479
+      }
+    },
+    {
+      "file": "checkbox.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1468,
+        "P2": 1244,
+        "P3": 1468,
+        "P4": 1468
+      }
+    },
+    {
+      "file": "collapsible.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1036,
+        "P2": 806,
+        "P3": 1036,
+        "P4": 1036
+      }
+    },
+    {
+      "file": "command.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 4884,
+        "P2": 4662,
+        "P3": 4884,
+        "P4": 4884
+      }
+    },
+    {
+      "file": "context-menu.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 8483,
+        "P2": 8251,
+        "P3": 8483,
+        "P4": 8483
+      }
+    },
+    {
+      "file": "dialog.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 4048,
+        "P2": 3828,
+        "P3": 4048,
+        "P4": 4048
+      }
+    },
+    {
+      "file": "drawer.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 4305,
+        "P2": 4085,
+        "P3": 4305,
+        "P4": 4305
+      }
+    },
+    {
+      "file": "dropdown-menu.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 8547,
+        "P2": 8313,
+        "P3": 8547,
+        "P4": 8547
+      }
+    },
+    {
+      "file": "form.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 4001,
+        "P2": 3785,
+        "P3": 4001,
+        "P4": 4001
+      }
+    },
+    {
+      "file": "hover-card.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1765,
+        "P2": 1537,
+        "P3": 1765,
+        "P4": 1765
+      }
+    },
+    {
+      "file": "input-otp.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2508,
+        "P2": 2282,
+        "P3": 2508,
+        "P4": 2508
+      }
+    },
+    {
+      "file": "input.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1181,
+        "P2": 963,
+        "P3": 1181,
+        "P4": 1181
+      }
+    },
+    {
+      "file": "label.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 832,
+        "P2": 614,
+        "P3": 832,
+        "P4": 832
+      }
+    },
+    {
+      "file": "menubar.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 8648,
+        "P2": 8426,
+        "P3": 8648,
+        "P4": 8648
+      }
+    },
+    {
+      "file": "navigation-menu.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 6922,
+        "P2": 6684,
+        "P3": 6922,
+        "P4": 6922
+      }
+    },
+    {
+      "file": "page-header.tsx",
+      "present": {
+        "P1": true,
+        "P2": false,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P3P4",
+      "verdict": "L0",
+      "sizeBy": {
+        "P1": 887,
+        "P3": 887,
+        "P4": 887
+      }
+    },
+    {
+      "file": "pagination.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2937,
+        "P2": 2709,
+        "P3": 2937,
+        "P4": 2937
+      }
+    },
+    {
+      "file": "popover.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1863,
+        "P2": 1641,
+        "P3": 1863,
+        "P4": 1863
+      }
+    },
+    {
+      "file": "progress.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 967,
+        "P2": 743,
+        "P3": 967,
+        "P4": 967
+      }
+    },
+    {
+      "file": "radio-group.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1701,
+        "P2": 1471,
+        "P3": 1701,
+        "P4": 1701
+      }
+    },
+    {
+      "file": "resizable.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0",
+      "sizeBy": {
+        "P1": 2228,
+        "P2": 2228,
+        "P3": 2228,
+        "P4": 2228
+      }
+    },
+    {
+      "file": "scroll-area.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1879,
+        "P2": 1649,
+        "P3": 1879,
+        "P4": 1879
+      }
+    },
+    {
+      "file": "select.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 6495,
+        "P2": 6275,
+        "P3": 6495,
+        "P4": 6495
+      }
+    },
+    {
+      "file": "separator.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 933,
+        "P2": 707,
+        "P3": 933,
+        "P4": 933
+      }
+    },
+    {
+      "file": "sheet.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 4323,
+        "P2": 4105,
+        "P3": 4323,
+        "P4": 4323
+      }
+    },
+    {
+      "file": "sidebar.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "minJaccard": 0.99,
+      "pairs": [
+        "P1~P2:98%",
+        "P1~P3:100%",
+        "P1~P4:100%",
+        "P2~P3:98%",
+        "P2~P4:98%",
+        "P3~P4:100%"
+      ],
+      "verdict": "L1",
+      "sizeBy": {
+        "P1": 21925,
+        "P2": 21663,
+        "P3": 21925,
+        "P4": 21925
+      }
+    },
+    {
+      "file": "skeleton.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 499,
+        "P2": 275,
+        "P3": 499,
+        "P4": 499
+      }
+    },
+    {
+      "file": "slider.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2226,
+        "P2": 2006,
+        "P3": 2226,
+        "P4": 2226
+      }
+    },
+    {
+      "file": "sonner.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 791,
+        "P2": 571,
+        "P3": 791,
+        "P4": 791
+      }
+    },
+    {
+      "file": "switch.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1402,
+        "P2": 1182,
+        "P3": 1402,
+        "P4": 1402
+      }
+    },
+    {
+      "file": "table.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2678,
+        "P2": 2460,
+        "P3": 2678,
+        "P4": 2678
+      }
+    },
+    {
+      "file": "tabs.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2161,
+        "P2": 1945,
+        "P3": 2161,
+        "P4": 2161
+      }
+    },
+    {
+      "file": "textarea.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 991,
+        "P2": 767,
+        "P3": 991,
+        "P4": 991
+      }
+    },
+    {
+      "file": "toggle-group.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2152,
+        "P2": 1920,
+        "P3": 2152,
+        "P4": 2152
+      }
+    },
+    {
+      "file": "toggle.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 1785,
+        "P2": 1565,
+        "P3": 1785,
+        "P4": 1785
+      }
+    },
+    {
+      "file": "tooltip.tsx",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 2119,
+        "P2": 1897,
+        "P3": 2119,
+        "P4": 2119
+      }
+    },
+    {
+      "file": "use-mobile.ts",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 811,
+        "P2": 585,
+        "P3": 811,
+        "P4": 811
+      }
+    },
+    {
+      "file": "utils.ts",
+      "present": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "presence": "P1P2P3P4",
+      "verdict": "L0*",
+      "sizeBy": {
+        "P1": 385,
+        "P2": 169,
+        "P3": 385,
+        "P4": 385
+      }
+    }
+  ]
+}

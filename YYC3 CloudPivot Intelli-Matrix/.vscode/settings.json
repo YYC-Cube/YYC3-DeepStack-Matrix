@@ -1,0 +1,24 @@
+{
+  // Tailwind CSS v4 (@tailwindcss/vite): @theme / @utility / @variant 等为
+  // Tailwind v4 专属 at-rule，VS Code 内置 CSS 语言服务不识别会产生误报。
+  // 关闭内置校验，由 Tailwind CSS Intelligent 扩展提供准确校验与补全。
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+  // Tailwind 类名智能提示
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "cva\\(([^)]*)\\)",
+      "[\"'`]([^\"'`]*)[\"'`]"
+    ]
+  ],
+  // 文件关联: 确保 CSS 文件正确关联 Tailwind 模式
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "markdown.extension.completion.enabled": false,
+  "markdown.extension.tableFormatter.enabled": false
+}

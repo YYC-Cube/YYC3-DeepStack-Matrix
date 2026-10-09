@@ -1,0 +1,17 @@
+# YYC3 CloudPivot Matrix 工作区根 .gitignore（Phase 0 冻结）
+# 依赖与产物
+node_modules/
+dist/
+dist-electron/
+release/
+build/
+*.tsbuildinfo
+
+# 环境与密钥（红线：敏感信息不入库）
+.env
+.env.*
+!.env.example
+
+# 日志与系统文件
+*.log
+.DS_Store

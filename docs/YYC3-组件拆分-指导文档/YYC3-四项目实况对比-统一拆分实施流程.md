@@ -2,9 +2,9 @@
 file: YYC3-四项目实况对比-统一拆分实施流程.md
 description: YYC³ CloudPivot Intelli-Matrix 四个同源项目技术实况对比与统一组件拆分实施流程（基于源码审计 + 69 张运行截图视觉标定）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.3.0
+version: v1.4.0
 created: 2026-10-08
-updated: 2026-10-10（v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
+updated: 2026-10-10（v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
 status: active
 tags: [audit],[comparison],[refactor],[monorepo],[unified-process]
 category: guide
@@ -386,6 +386,9 @@ createHashRouter（适配 Electron file:// 与静态托管）
 **回滚**：纯只读操作，无风险。
 
 ### Phase 1｜Monorepo 底座统一
+
+> **进度（2026-10-10，v1.4）**：✅ **M1 达成**（详见 [`YYC3-Phase1-执行日志.md`](./YYC3-Phase1-执行日志.md)）。
+> ① 结构：四项目 `git mv` 入 `apps/{app-web-full,app-sandbox-lite,app-desktop,app-web-classic}`，根 `pnpm-workspace.yaml`（apps/packages/tools），根锁一锁统管（567KB，P2 pnpm11 残件删除=缺陷 A 消解）；② 改名：`@yyc3/app-*` 消解同名差异 #12；端口 3030/3031/3032/3033 全合规（含 P1 electron wait-on 3218 遗漏修复）；③ DoD 零回归：`pnpm -r build` 三绿 + P2 tsc 7 错（缺陷 B 基线持平）、type-check P3/P4=0 + P1=67 存量持平——**存量偏差登记制达成**；④ 关键沉淀：双 React 大版本（18/19）混栖的 pnpm 提升层穿透 → 根座 `pnpm.packageExtensions` 27 条系统性兜底（P2 错误 2398→7 精确复原，19 栈不受扰）；⑤ 偏差登记：Turborepo 暂缓（`pnpm -r` 满足 DoD）、app 级 overrides 残件与 coverage-v8/vitest 错位留 Phase 4。
 
 **目标**：一仓管理四端，共享规范。
 **动作**：

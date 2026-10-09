@@ -1,5 +1,0 @@
-# pnpm 工作区配置
-# pnpm 11+ 安全策略: 显式批准原生二进制依赖的构建脚本
-allowBuilds:
-  esbuild: true
-  "@tailwindcss/oxide": true

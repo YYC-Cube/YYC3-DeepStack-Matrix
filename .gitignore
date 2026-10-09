@@ -15,5 +15,6 @@ build/
 # 日志与系统文件
 *.log
 .DS_Store
-# 例外：Phase 0 基线证据日志（留档 DoD）
+# 例外：Phase 0/1 证据日志（留档 DoD）
 !docs/YYC3-组件拆分-指导文档/phase0-ledger/attachments/*.log
+!docs/YYC3-组件拆分-指导文档/phase1-ledger/attachments/*.log

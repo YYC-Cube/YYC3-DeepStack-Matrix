@@ -14,7 +14,7 @@
     "build:win": "tsc && electron-builder --win",
     "build:linux": "tsc && electron-builder --linux",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:3218 && electron .\"",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:3032 && electron .\"",
     "electron:build": "tsc && electron-builder -c.extraMetadata.main=dist-electron/main.js",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",

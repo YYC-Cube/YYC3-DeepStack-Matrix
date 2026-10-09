@@ -1,5 +1,5 @@
 {
-  "name": "yyc3-cloudpivot-intelli-matrix",
+  "name": "@yyc3/app-web-full",
   "version": "3.4.1",
   "description": "YYC³ Family 本地闭环多端推理矩阵数据看盘系统",
   "main": "dist-electron/main.js",
@@ -12,7 +12,7 @@
     "build:mac": "tsc -p electron/tsconfig.json && vite build && electron-builder --mac",
     "build:win": "tsc -p electron/tsconfig.json && vite build && electron-builder --win",
     "build:linux": "tsc -p electron/tsconfig.json && vite build && electron-builder --linux",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:3218 && electron .\"",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:3030 && electron .\"",
     "electron:build": "tsc -p electron/tsconfig.json && vite build && electron-builder",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",

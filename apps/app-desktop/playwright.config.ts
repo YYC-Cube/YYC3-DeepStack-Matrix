@@ -12,7 +12,7 @@ export default defineConfig({
     ['list']
   ],
   use: {
-    baseURL: 'http://localhost:3218',
+    baseURL: 'http://localhost:3032',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -33,7 +33,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:3218',
+    url: 'http://localhost:3032',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

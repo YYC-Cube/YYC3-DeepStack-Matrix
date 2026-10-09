@@ -14,7 +14,7 @@
  * - 基础路径配置（./ 用于 Electron 兼容）
  * - 插件配置（React + TailwindCSS）
  * - 路径别名（@/* → ./src/*）
- * - 开发服务器配置（端口 3218）
+ * - 开发服务器配置（端口 3033）
  * - 构建优化（代码分割、压缩）
  *
  * @dependencies: Vite, React, TailwindCSS
@@ -39,7 +39,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3218,
+    port: 3033,
     host: true,
     proxy: {
       '/api/v1/llm/ollama': {

@@ -1,0 +1,341 @@
+apps/app-desktop                         |  WARN  The field "pnpm.overrides" was found in /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-desktop/package.json. This will not take effect. You should configure "pnpm.overrides" at the root of the workspace instead.
+apps/app-web-classic                     |  WARN  The field "pnpm.overrides" was found in /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-web-classic/package.json. This will not take effect. You should configure "pnpm.overrides" at the root of the workspace instead.
+apps/app-web-full                        |  WARN  The field "pnpm.overrides" was found in /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-web-full/package.json. This will not take effect. You should configure "pnpm.overrides" at the root of the workspace instead.
+Scope: 4 of 5 workspace projects
+apps/app-desktop build$ tsc -p electron/tsconfig.json && vite build
+apps/app-sandbox-lite build$ tsc --noEmit && vite build
+apps/app-web-classic build$ tsc -p electron/tsconfig.json && vite build
+apps/app-web-full build$ tsc -p electron/tsconfig.json && vite build
+apps/app-web-full build: (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+apps/app-web-full build:   - ESM syntax in a file loaded as CommonJS (vite.config.ts:25:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+apps/app-web-full build: Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+apps/app-desktop build: (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+apps/app-desktop build:   - ESM syntax in a file loaded as CommonJS (vite.config.ts:25:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+apps/app-desktop build: Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+apps/app-web-full build: vite v8.3.4 building client environment for production...
+apps/app-desktop build: vite v8.3.4 building client environment for production...
+apps/app-desktop build: transforming...
+apps/app-web-full build: transforming...
+apps/app-web-full build: ✓ 3385 modules transformed.
+apps/app-desktop build: ✓ 3374 modules transformed.
+apps/app-web-full build: rendering chunks...
+apps/app-desktop build: rendering chunks...
+apps/app-web-classic build: (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+apps/app-web-classic build:   - ESM syntax in a file loaded as CommonJS (vite.config.ts:25:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+apps/app-web-classic build: Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+apps/app-web-classic build: vite v8.3.4 building client environment for production...
+apps/app-web-classic build: transforming...
+apps/app-desktop build: dist/index.html                                      2.53 kB
+apps/app-desktop build: dist/assets/index-BtibVAvA.css                     222.06 kB
+apps/app-desktop build: dist/assets/progress-D47W6NLs.js                     0.52 kB
+apps/app-desktop build: dist/assets/useClock-B-w-yVwW.js                     0.63 kB
+apps/app-desktop build: dist/assets/FadeIn-_APobUIJ.js                       0.64 kB
+apps/app-desktop build: dist/assets/ui-prefs-slice-lO4jEgU9.js               0.69 kB
+apps/app-desktop build: dist/assets/GlassCard-DK3PshYz.js                    0.71 kB
+apps/app-desktop build: dist/assets/broadcast-channel-COJCE7p-.js            0.72 kB
+apps/app-desktop build: dist/assets/rolldown-runtime-DS2seoW7.js             0.90 kB
+apps/app-desktop build: dist/assets/input-oMI8Q16L.js                        0.92 kB
+apps/app-desktop build: dist/assets/usePersistedState-C8GsV0Uw.js            0.96 kB
+apps/app-desktop build: dist/assets/ollama-url-BmL8LesV.js                   1.03 kB
+apps/app-desktop build: dist/assets/FamilyPageHeader-Fqta1Z4b.js             1.09 kB
+apps/app-desktop build: dist/assets/radix-vendor-dElPcxXZ.js                 1.10 kB
+apps/app-desktop build: dist/assets/tabs-C2mLNBnd.js                         1.41 kB
+apps/app-desktop build: dist/assets/button-Dr-0ZVAM.js                       1.68 kB
+apps/app-desktop build: dist/assets/useModelProvider-BKtZClKO.js             2.05 kB
+apps/app-desktop build: dist/assets/full-backup-Bo1zqtoo.js                  2.16 kB
+apps/app-desktop build: dist/assets/global-store-CstXVtoM.js                 3.53 kB
+apps/app-desktop build: dist/assets/env-config-DYxEo5Bk.js                   3.73 kB
+apps/app-desktop build: dist/assets/yyc3-storage-SxuKLFeN.js                 3.76 kB
+apps/app-desktop build: dist/assets/ConnectionManager-BQXbK9ae.js            4.52 kB
+apps/app-desktop build: dist/assets/CodeEditor-6RV2zRAm.js                   4.64 kB
+apps/app-desktop build: dist/assets/CLITerminal-pG2bdc5Z.js                  4.83 kB
+apps/app-desktop build: dist/assets/AIFamilyRouter-BBkJ1i0Y.js               6.47 kB
+apps/app-desktop build: dist/assets/badge-D2wcoTf2.js                        6.82 kB
+apps/app-desktop build: dist/assets/FamilyShare-Dhwicbsh.js                  8.24 kB
+apps/app-desktop build: dist/assets/FamilyGrowth-D1gfeedF.js                 8.30 kB
+apps/app-desktop build: dist/assets/FamilyLearn-DX3TWZNi.js                  8.62 kB
+apps/app-desktop build: dist/assets/PWAStatusPanel-DNy-s1yY.js               9.01 kB
+apps/app-desktop build: dist/assets/FamilyChat-Do-pJFhW.js                   9.04 kB
+apps/app-desktop build: dist/assets/node-slice-DYXebW93.js                   9.35 kB
+apps/app-desktop build: dist/assets/VariableCenter-BhcDjSlt.js               9.88 kB
+apps/app-desktop build: dist/assets/CommStationPanel-DJ69poGq.js             9.90 kB
+apps/app-desktop build: dist/assets/ConnectionMonitorPanel-dVS5ZHXT.js      10.32 kB
+apps/app-desktop build: dist/assets/FamilyHome-CJjCvBJK.js                  10.55 kB
+apps/app-desktop build: dist/assets/VoiceCommandParser-CvY7CLfw.js          10.71 kB
+apps/app-desktop build: dist/assets/useBigModelSDK-GzE-o0jC.js              11.01 kB
+apps/app-desktop build: dist/assets/FamilyDataHub-CPq-8DXh.js               11.03 kB
+apps/app-desktop build: dist/assets/EnvConfigEditor-D8Xm978f.js             11.07 kB
+apps/app-desktop build: dist/assets/FamilyPhone-DktorDuD.js                 11.98 kB
+apps/app-desktop build: dist/assets/DevGuidePage-BhizOteq.js                12.15 kB
+apps/app-desktop build: dist/assets/api-config-8iux8BJq.js                  12.55 kB
+apps/app-desktop build: dist/assets/AIFamilyCenterPage-BIr8gZd8.js          12.66 kB
+apps/app-desktop build: dist/assets/FamilyEntertainment-BIFnqZCy.js         12.78 kB
+apps/app-desktop build: dist/assets/FamilyCommCenter-BgBRs0Cu.js            13.29 kB
+apps/app-desktop build: dist/assets/ConfigExportCenter-0NvwWR85.js          15.04 kB
+apps/app-desktop build: dist/assets/FamilyHotel-DB6nO4v_.js                 15.22 kB
+apps/app-desktop build: dist/assets/OperationAudit-CU9RuQX1.js              15.26 kB
+apps/app-desktop build: dist/assets/FamilyVoiceSystem-D-w8hoCf.js           16.21 kB
+apps/app-desktop build: dist/assets/AIFamilyPage-BZ5pOXyI.js                16.42 kB
+apps/app-desktop build: dist/assets/SDKChatPanel-Bfa0Oz_G.js                16.59 kB
+apps/app-desktop build: dist/assets/FamilyModelSettings-BuAntSDc.js         18.30 kB
+apps/app-desktop build: dist/assets/PerformanceMonitor-dsXKfJzP.js          18.36 kB
+apps/app-desktop build: dist/assets/FollowUpManager-RBDTeEHr.js             18.86 kB
+apps/app-desktop build: dist/assets/ServiceLoopPanel-CIeoWH7Q.js            19.25 kB
+apps/app-desktop build: dist/assets/ReportExporter-D0Yw_098.js              19.52 kB
+apps/app-desktop build: dist/assets/UserManagement-42nJtyna.js              19.61 kB
+apps/app-desktop build: dist/assets/AIDiagnostics-D71tX6AA.js               20.55 kB
+apps/app-desktop build: dist/assets/OperationCenter-DuH4SAq-.js             21.03 kB
+apps/app-desktop build: dist/assets/PatrolDashboard-zjiZWMXG.js             21.27 kB
+apps/app-desktop build: dist/assets/FamilyActivityCenter-M_tQQZyO.js        21.43 kB
+apps/app-desktop build: dist/assets/FamilyUISettings-DpOKaEx1.js            21.88 kB
+apps/app-desktop build: dist/assets/provider-slice-DtcRc40Y.js              21.89 kB
+apps/app-desktop build: dist/assets/UnifiedSettingsPanel-1naTNGRo.js        23.78 kB
+apps/app-desktop build: dist/assets/DatabaseConnectionPanel-CazrBJE4.js     27.28 kB
+apps/app-desktop build: dist/assets/AISuggestionPanel-CbrIIrTQ.js           28.30 kB
+apps/app-desktop build: dist/assets/FollowUpPanel-qk23U-g7.js               28.88 kB
+apps/app-desktop build: dist/assets/RefactoringReport-BGNHVC2a.js           29.21 kB
+apps/app-desktop build: dist/assets/HostFileManager-BkAm3fYj.js             29.27 kB
+apps/app-desktop build: dist/assets/HotelDashboard-DQopuG3t.js              29.63 kB
+apps/app-desktop build: dist/assets/SecurityMonitor-DvRB5Un-.js             29.98 kB
+apps/app-desktop build: dist/assets/ConfigCenter-CNkEJC4v.js                31.48 kB
+apps/app-desktop build: dist/assets/AlertRulesPanel-CVVd8BLW.js             34.42 kB
+apps/app-desktop build: dist/assets/LocalFileManager-DVlO_K8r.js            34.61 kB
+apps/app-desktop build: dist/assets/ModelProviderPanel-Mvou3cwR.js          34.78 kB
+apps/app-desktop build: dist/assets/ServiceConnectionTest-CX0HxPyl.js       35.06 kB
+apps/app-desktop build: dist/assets/DesignSystemPage-aowdXGzW.js            36.07 kB
+apps/app-desktop build: dist/assets/ThemeCustomizer-BLqA76fv.js             36.10 kB
+apps/app-desktop build: dist/assets/FamilyCluster-Dbam2QIC.js               37.08 kB
+apps/app-desktop build: dist/assets/AIFamilyDesignDoc-BmC7WdUz.js           37.13 kB
+apps/app-desktop build: dist/assets/ArchitectureAudit-DvblhCxN.js           37.59 kB
+apps/app-desktop build: dist/assets/DataMonitoring-C5I31DCt.js              41.37 kB
+apps/app-desktop build: dist/assets/hotel-voice-service-CGDSPAPp.js         43.62 kB
+apps/app-desktop build: dist/assets/StorageManager-QuehZSOZ.js              49.34 kB
+apps/app-desktop build: dist/assets/DatabaseManager-CD6p8kkH.js             59.16 kB
+apps/app-desktop build: dist/assets/DataEditorPanel-BR9foxrk.js             69.31 kB
+apps/app-desktop build: dist/assets/SystemSettings-59ltkIhZ.js              96.23 kB
+apps/app-desktop build: dist/assets/motion-vendor-WwwmEi3l.js              100.55 kB
+apps/app-desktop build: dist/assets/FamilyMusic-CUWbu3Fy.js                113.93 kB
+apps/app-desktop build: dist/assets/IDEPanel-Dktzp6wT.js                   115.55 kB
+apps/app-desktop build: dist/assets/index-iqV612K_.js                      345.43 kB
+apps/app-desktop build: dist/assets/vendor-BUORu18r.js                     431.49 kB
+apps/app-desktop build: dist/assets/react-vendor-DpYuKf6l.js             1,487.27 kB
+apps/app-desktop build: [plugin builtin:vite-reporter] 
+apps/app-desktop build: (!) Some chunks are larger than 600 kB after minification. Consider:
+apps/app-desktop build: - Using dynamic import() to code-split the application
+apps/app-desktop build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+apps/app-desktop build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+apps/app-web-full build: dist/index.html                                      2.28 kB
+apps/app-web-full build: dist/assets/index-q34Ln6QC.css                     222.24 kB
+apps/app-web-full build: dist/assets/progress-9LG87wWV.js                     0.52 kB
+apps/app-web-full build: dist/assets/useClock-BGkkFhsB.js                     0.63 kB
+apps/app-web-full build: dist/assets/FadeIn-CZmuYfSd.js                       0.64 kB
+apps/app-web-full build: dist/assets/GlassCard-CluYtenX.js                    0.71 kB
+apps/app-web-full build: dist/assets/broadcast-channel-COJCE7p-.js            0.72 kB
+apps/app-web-full build: dist/assets/rolldown-runtime-DS2seoW7.js             0.90 kB
+apps/app-web-full build: dist/assets/input-oAuNyR5c.js                        0.92 kB
+apps/app-web-full build: dist/assets/usePersistedState-DCDT1gsS.js            0.96 kB
+apps/app-web-full build: dist/assets/ollama-url-aAGCbL7g.js                   1.03 kB
+apps/app-web-full build: dist/assets/FamilyPageHeader-CnYXQXzN.js             1.09 kB
+apps/app-web-full build: dist/assets/radix-vendor-dElPcxXZ.js                 1.10 kB
+apps/app-web-full build: dist/assets/tabs-CaPJ6A6p.js                         1.41 kB
+apps/app-web-full build: dist/assets/button-VG0uPSg0.js                       1.68 kB
+apps/app-web-full build: dist/assets/useModelProvider-ClAgaUUC.js             2.04 kB
+apps/app-web-full build: dist/assets/full-backup-DiGx95Gz.js                  2.16 kB
+apps/app-web-full build: dist/assets/env-config-C2C2qGEN.js                   3.35 kB
+apps/app-web-full build: dist/assets/global-store-Dc27jjHg.js                 3.49 kB
+apps/app-web-full build: dist/assets/yyc3-storage-SxuKLFeN.js                 3.76 kB
+apps/app-web-full build: dist/assets/ConnectionManager-BQXbK9ae.js            4.52 kB
+apps/app-web-full build: dist/assets/CodeEditor-DNmqLN-j.js                   4.64 kB
+apps/app-web-full build: dist/assets/CLITerminal-DWYRs2oV.js                  4.83 kB
+apps/app-web-full build: dist/assets/AIFamilyRouter-DBS87N7M.js               6.23 kB
+apps/app-web-full build: dist/assets/badge-DnUFCRTr.js                        6.82 kB
+apps/app-web-full build: dist/assets/FamilyShare-DGwC9K-a.js                  8.24 kB
+apps/app-web-full build: dist/assets/FamilyGrowth-DXeG81MI.js                 8.30 kB
+apps/app-web-full build: dist/assets/FamilyLearn-Kj4Azudp.js                  8.62 kB
+apps/app-web-full build: dist/assets/PWAStatusPanel-CSAEMz9h.js               9.01 kB
+apps/app-web-full build: dist/assets/FamilyChat-Dfe7o63g.js                   9.04 kB
+apps/app-web-full build: dist/assets/VariableCenter-8li_l0Qu.js               9.88 kB
+apps/app-web-full build: dist/assets/CommStationPanel-5FopMkCT.js             9.90 kB
+apps/app-web-full build: dist/assets/ConnectionMonitorPanel-DaYDssfy.js      10.33 kB
+apps/app-web-full build: dist/assets/FamilyHome-BYkrVeHv.js                  10.55 kB
+apps/app-web-full build: dist/assets/VoiceCommandParser-CvY7CLfw.js          10.71 kB
+apps/app-web-full build: dist/assets/useBigModelSDK-Dqh2DSx5.js              11.01 kB
+apps/app-web-full build: dist/assets/FamilyDataHub-D7UoVv8n.js               11.03 kB
+apps/app-web-full build: dist/assets/EnvConfigEditor-WU0TIu6r.js             11.07 kB
+apps/app-web-full build: dist/assets/FamilyPhone-D7eg0OZL.js                 12.05 kB
+apps/app-web-full build: dist/assets/DevGuidePage-BXjnm1kX.js                12.15 kB
+apps/app-web-full build: dist/assets/api-config-CoMl6VEP.js                  12.55 kB
+apps/app-web-full build: dist/assets/AIFamilyCenterPage-CgbHHpn8.js          12.66 kB
+apps/app-web-full build: dist/assets/FamilyEntertainment-Bwa8QJAj.js         12.78 kB
+apps/app-web-full build: dist/assets/FamilyCommCenter-BvqnlNkQ.js            13.41 kB
+apps/app-web-full build: dist/assets/ConfigExportCenter-DzHk_IM0.js          15.04 kB
+apps/app-web-full build: dist/assets/FamilyHotel-CI9DVkXW.js                 15.22 kB
+apps/app-web-full build: dist/assets/OperationAudit-8RpNDRbt.js              15.26 kB
+apps/app-web-full build: dist/assets/FamilyVoiceSystem-CgGoh73X.js           16.21 kB
+apps/app-web-full build: dist/assets/AIFamilyPage-pFbzmrQB.js                16.42 kB
+apps/app-web-full build: dist/assets/SDKChatPanel-B_cfT9BS.js                16.54 kB
+apps/app-web-full build: dist/assets/FamilyModelSettings-C0_ckSXd.js         18.26 kB
+apps/app-web-full build: dist/assets/PerformanceMonitor-Azqa0jeW.js          18.35 kB
+apps/app-web-full build: dist/assets/FollowUpManager-B9yy0APU.js             18.86 kB
+apps/app-web-full build: dist/assets/ServiceLoopPanel-B_mnSOqE.js            19.25 kB
+apps/app-web-full build: dist/assets/ReportExporter-CmBa-NfW.js              19.52 kB
+apps/app-web-full build: dist/assets/UserManagement-o0e_Ur8i.js              19.61 kB
+apps/app-web-full build: dist/assets/AIDiagnostics-Cl7FrcJY.js               20.56 kB
+apps/app-web-full build: dist/assets/OperationCenter-DWXkarOt.js             21.03 kB
+apps/app-web-full build: dist/assets/PatrolDashboard-C6Q9Q4WX.js             21.27 kB
+apps/app-web-full build: dist/assets/FamilyActivityCenter-CYsCvHwk.js        21.43 kB
+apps/app-web-full build: dist/assets/FamilyUISettings-DjFkZZv9.js            21.88 kB
+apps/app-web-full build: dist/assets/UnifiedSettingsPanel-DQNd_EYp.js        23.74 kB
+apps/app-web-full build: dist/assets/DatabaseConnectionPanel-Cd629Ohu.js     27.28 kB
+apps/app-web-full build: dist/assets/AISuggestionPanel-DgdjlrI3.js           28.30 kB
+apps/app-web-full build: dist/assets/FollowUpPanel-C2nRnxcI.js               29.01 kB
+apps/app-web-full build: dist/assets/RefactoringReport-QEGTQVi1.js           29.21 kB
+apps/app-web-full build: dist/assets/HostFileManager-B0Sa8_D1.js             29.27 kB
+apps/app-web-full build: dist/assets/HotelDashboard-COiX3PV2.js              29.63 kB
+apps/app-web-full build: dist/assets/SecurityMonitor-CcMYAAfR.js             29.98 kB
+apps/app-web-full build: dist/assets/ConfigCenter-D4KP7SGm.js                31.49 kB
+apps/app-web-full build: dist/assets/LocalFileManager-Ct5twsNM.js            34.61 kB
+apps/app-web-full build: dist/assets/AlertRulesPanel-YRncHmll.js             34.69 kB
+apps/app-web-full build: dist/assets/ModelProviderPanel-T1NjO3vQ.js          34.78 kB
+apps/app-web-full build: dist/assets/ServiceConnectionTest-Clk9HLQr.js       34.98 kB
+apps/app-web-full build: dist/assets/ThemeCustomizer-Ciw_d_At.js             36.06 kB
+apps/app-web-full build: dist/assets/DesignSystemPage-CaTXrr5b.js            36.07 kB
+apps/app-web-full build: dist/assets/FamilyCluster-BReaAnfa.js               37.08 kB
+apps/app-web-full build: dist/assets/AIFamilyDesignDoc-CdqE4Ms4.js           37.13 kB
+apps/app-web-full build: dist/assets/ArchitectureAudit-CkjrnJRB.js           37.59 kB
+apps/app-web-full build: dist/assets/DataMonitoring-DTO-HFn-.js              41.29 kB
+apps/app-web-full build: dist/assets/hotel-knowledge-base-av9fjPn2.js        43.62 kB
+apps/app-web-full build: dist/assets/StorageManager-Bg9p7sYm.js              49.34 kB
+apps/app-web-full build: dist/assets/DatabaseManager-C8mceLFt.js             59.40 kB
+apps/app-web-full build: dist/assets/DataEditorPanel-DqcOhCZC.js             69.28 kB
+apps/app-web-full build: dist/assets/SystemSettings-DGaJQHfx.js              96.19 kB
+apps/app-web-full build: dist/assets/motion-vendor-WwwmEi3l.js              100.55 kB
+apps/app-web-full build: dist/assets/FamilyMusic-sP1eDQx8.js                113.93 kB
+apps/app-web-full build: dist/assets/IDEPanel-COdo1m5Q.js                   115.54 kB
+apps/app-web-full build: dist/assets/index-gcN_MIja.js                      392.44 kB
+apps/app-web-full build: dist/assets/vendor-CNT8hbBH.js                     431.48 kB
+apps/app-web-full build: dist/assets/react-vendor-C1ddLTe6.js             1,487.27 kB
+apps/app-web-full build: [plugin builtin:vite-reporter] 
+apps/app-web-full build: (!) Some chunks are larger than 600 kB after minification. Consider:
+apps/app-web-full build: - Using dynamic import() to code-split the application
+apps/app-web-full build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+apps/app-web-full build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+apps/app-web-classic build: ✓ 3374 modules transformed.
+apps/app-desktop build: ✓ built in 4.41s
+apps/app-web-full build: ✓ built in 4.44s
+apps/app-web-full build: Done
+apps/app-desktop build: Done
+apps/app-web-classic build: rendering chunks...
+apps/app-web-classic build: dist/index.html                                      2.53 kB
+apps/app-web-classic build: dist/assets/index-q34Ln6QC.css                     222.24 kB
+apps/app-web-classic build: dist/assets/progress-D47W6NLs.js                     0.52 kB
+apps/app-web-classic build: dist/assets/useClock-B-w-yVwW.js                     0.63 kB
+apps/app-web-classic build: dist/assets/FadeIn-_APobUIJ.js                       0.64 kB
+apps/app-web-classic build: dist/assets/ui-prefs-slice-lO4jEgU9.js               0.69 kB
+apps/app-web-classic build: dist/assets/GlassCard-DK3PshYz.js                    0.71 kB
+apps/app-web-classic build: dist/assets/broadcast-channel-COJCE7p-.js            0.72 kB
+apps/app-web-classic build: dist/assets/rolldown-runtime-DS2seoW7.js             0.90 kB
+apps/app-web-classic build: dist/assets/input-oMI8Q16L.js                        0.92 kB
+apps/app-web-classic build: dist/assets/usePersistedState-C8GsV0Uw.js            0.96 kB
+apps/app-web-classic build: dist/assets/ollama-url-BMgI_1gz.js                   1.03 kB
+apps/app-web-classic build: dist/assets/FamilyPageHeader-Fqta1Z4b.js             1.09 kB
+apps/app-web-classic build: dist/assets/radix-vendor-dElPcxXZ.js                 1.10 kB
+apps/app-web-classic build: dist/assets/tabs-C2mLNBnd.js                         1.41 kB
+apps/app-web-classic build: dist/assets/button-Dr-0ZVAM.js                       1.68 kB
+apps/app-web-classic build: dist/assets/useModelProvider-BRtA63R_.js             2.05 kB
+apps/app-web-classic build: dist/assets/full-backup-BrXvNjjO.js                  2.16 kB
+apps/app-web-classic build: dist/assets/env-config-DvXh3A5U.js                   3.35 kB
+apps/app-web-classic build: dist/assets/global-store-CCWRLyC_.js                 3.53 kB
+apps/app-web-classic build: dist/assets/yyc3-storage-SxuKLFeN.js                 3.76 kB
+apps/app-web-classic build: dist/assets/ConnectionManager-BQXbK9ae.js            4.52 kB
+apps/app-web-classic build: dist/assets/CodeEditor-6RV2zRAm.js                   4.64 kB
+apps/app-web-classic build: dist/assets/CLITerminal-BU9ugW5K.js                  4.83 kB
+apps/app-web-classic build: dist/assets/AIFamilyRouter-DhoVwdtJ.js               6.47 kB
+apps/app-web-classic build: dist/assets/badge-D2wcoTf2.js                        6.82 kB
+apps/app-web-classic build: dist/assets/FamilyShare-Cjsyi_mb.js                  8.24 kB
+apps/app-web-classic build: dist/assets/FamilyGrowth-DyeGsuDF.js                 8.30 kB
+apps/app-web-classic build: dist/assets/FamilyLearn-DX3TWZNi.js                  8.62 kB
+apps/app-web-classic build: dist/assets/PWAStatusPanel-Bna4xMXW.js               9.01 kB
+apps/app-web-classic build: dist/assets/FamilyChat-DBgz7jwF.js                   9.04 kB
+apps/app-web-classic build: dist/assets/node-slice-DYXebW93.js                   9.35 kB
+apps/app-web-classic build: dist/assets/VariableCenter-BzbKLOeC.js               9.88 kB
+apps/app-web-classic build: dist/assets/CommStationPanel-De0-RJCW.js             9.90 kB
+apps/app-web-classic build: dist/assets/ConnectionMonitorPanel-hUB_BQJW.js      10.32 kB
+apps/app-web-classic build: dist/assets/FamilyHome-BoDOkq2r.js                  10.55 kB
+apps/app-web-classic build: dist/assets/VoiceCommandParser-CvY7CLfw.js          10.71 kB
+apps/app-web-classic build: dist/assets/useBigModelSDK-CKEl4q4T.js              11.01 kB
+apps/app-web-classic build: dist/assets/FamilyDataHub-DZ1GSH7I.js               11.03 kB
+apps/app-web-classic build: dist/assets/EnvConfigEditor-DiLW9hsQ.js             11.07 kB
+apps/app-web-classic build: dist/assets/FamilyPhone-DQd1eTVm.js                 12.05 kB
+apps/app-web-classic build: dist/assets/DevGuidePage-D2awLS8W.js                12.15 kB
+apps/app-web-classic build: dist/assets/api-config-8iux8BJq.js                  12.55 kB
+apps/app-web-classic build: dist/assets/AIFamilyCenterPage-DmKDqgjb.js          12.66 kB
+apps/app-web-classic build: dist/assets/FamilyEntertainment-C9B5v1Z3.js         12.78 kB
+apps/app-web-classic build: dist/assets/FamilyCommCenter-BXXHAC5b.js            13.41 kB
+apps/app-web-classic build: dist/assets/ConfigExportCenter-Ct4M2_BP.js          15.04 kB
+apps/app-web-classic build: dist/assets/FamilyHotel-HgewMMgR.js                 15.22 kB
+apps/app-web-classic build: dist/assets/OperationAudit-CYr6PO18.js              15.26 kB
+apps/app-web-classic build: dist/assets/FamilyVoiceSystem-soSUJMkX.js           16.21 kB
+apps/app-web-classic build: dist/assets/AIFamilyPage-C_WvCn7e.js                16.42 kB
+apps/app-web-classic build: dist/assets/SDKChatPanel-DTOKtpXk.js                16.59 kB
+apps/app-web-classic build: dist/assets/FamilyModelSettings-C9KcHGA0.js         18.30 kB
+apps/app-web-classic build: dist/assets/PerformanceMonitor-Cyxf1_Cs.js          18.36 kB
+apps/app-web-classic build: dist/assets/FollowUpManager-C22zUcL_.js             18.86 kB
+apps/app-web-classic build: dist/assets/ServiceLoopPanel-DyGeiRCl.js            19.25 kB
+apps/app-web-classic build: dist/assets/ReportExporter-DKWhltSv.js              19.52 kB
+apps/app-web-classic build: dist/assets/UserManagement-C6DXQbMr.js              19.61 kB
+apps/app-web-classic build: dist/assets/AIDiagnostics-DxHG6md8.js               20.55 kB
+apps/app-web-classic build: dist/assets/OperationCenter-jk3nn9ry.js             21.03 kB
+apps/app-web-classic build: dist/assets/PatrolDashboard-D8N2lNw8.js             21.27 kB
+apps/app-web-classic build: dist/assets/FamilyActivityCenter-1bwBSawg.js        21.43 kB
+apps/app-web-classic build: dist/assets/FamilyUISettings-BqEqsXlU.js            21.88 kB
+apps/app-web-classic build: dist/assets/provider-slice-DJ5hgfG2.js              21.89 kB
+apps/app-web-classic build: dist/assets/UnifiedSettingsPanel-C7u0JWpH.js        23.78 kB
+apps/app-web-classic build: dist/assets/DatabaseConnectionPanel-BbrmxmJb.js     27.28 kB
+apps/app-web-classic build: dist/assets/AISuggestionPanel-BSTibccu.js           28.30 kB
+apps/app-web-classic build: dist/assets/FollowUpPanel-CSQCW5Yk.js               29.01 kB
+apps/app-web-classic build: dist/assets/RefactoringReport-BGNHVC2a.js           29.21 kB
+apps/app-web-classic build: dist/assets/HostFileManager-C5y5WWj-.js             29.27 kB
+apps/app-web-classic build: dist/assets/HotelDashboard-CJEXWk1A.js              29.63 kB
+apps/app-web-classic build: dist/assets/SecurityMonitor-DOOrkMWu.js             29.98 kB
+apps/app-web-classic build: dist/assets/ConfigCenter-CNkEJC4v.js                31.48 kB
+apps/app-web-classic build: dist/assets/LocalFileManager-CKb_hJJC.js            34.61 kB
+apps/app-web-classic build: dist/assets/AlertRulesPanel-NqNNolnK.js             34.69 kB
+apps/app-web-classic build: dist/assets/ModelProviderPanel-CfZ1zRyU.js          34.78 kB
+apps/app-web-classic build: dist/assets/ServiceConnectionTest-IZfCBLnr.js       35.06 kB
+apps/app-web-classic build: dist/assets/DesignSystemPage-C8wwRdY2.js            36.07 kB
+apps/app-web-classic build: dist/assets/ThemeCustomizer-CxOk582e.js             36.10 kB
+apps/app-web-classic build: dist/assets/FamilyCluster-Hxcg8i8B.js               37.08 kB
+apps/app-web-classic build: dist/assets/AIFamilyDesignDoc-DneiNau_.js           37.13 kB
+apps/app-web-classic build: dist/assets/ArchitectureAudit-BLba3TZ5.js           37.59 kB
+apps/app-web-classic build: dist/assets/DataMonitoring-DYYdXzz4.js              41.37 kB
+apps/app-web-classic build: dist/assets/hotel-voice-service-CGDSPAPp.js         43.62 kB
+apps/app-web-classic build: dist/assets/StorageManager-bbtPsdbp.js              49.34 kB
+apps/app-web-classic build: dist/assets/DatabaseManager-BLuPiWC3.js             59.40 kB
+apps/app-web-classic build: dist/assets/DataEditorPanel-BUaIW6A7.js             69.31 kB
+apps/app-web-classic build: dist/assets/SystemSettings-Cc70tM1V.js              96.23 kB
+apps/app-web-classic build: dist/assets/motion-vendor-WwwmEi3l.js              100.55 kB
+apps/app-web-classic build: dist/assets/FamilyMusic-liUy9lgX.js                113.93 kB
+apps/app-web-classic build: dist/assets/IDEPanel-BZ7yr8mq.js                   115.55 kB
+apps/app-web-classic build: dist/assets/index-ojrJBjNH.js                      345.05 kB
+apps/app-web-classic build: dist/assets/vendor-BUORu18r.js                     431.49 kB
+apps/app-web-classic build: dist/assets/react-vendor-DpYuKf6l.js             1,487.27 kB
+apps/app-web-classic build: [plugin builtin:vite-reporter] 
+apps/app-web-classic build: (!) Some chunks are larger than 600 kB after minification. Consider:
+apps/app-web-classic build: - Using dynamic import() to code-split the application
+apps/app-web-classic build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+apps/app-web-classic build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+apps/app-web-classic build: ✓ built in 2.73s
+apps/app-web-classic build: Done
+apps/app-sandbox-lite build: components/AIFamilyCenterPage.tsx(26,8): error TS2307: Cannot find module './ai-family/shared' or its corresponding type declarations.
+apps/app-sandbox-lite build: components/AIFamilyCenterPage.tsx(110,37): error TS7006: Parameter 'h' implicitly has an 'any' type.
+apps/app-sandbox-lite build: components/AIFamilyCenterPage.tsx(122,39): error TS7006: Parameter 'e' implicitly has an 'any' type.
+apps/app-sandbox-lite build: components/AIFamilyCenterPage.tsx(169,45): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/app-sandbox-lite build: components/AIFamilyCenterPage.tsx(274,34): error TS7006: Parameter 'm' implicitly has an 'any' type.
+apps/app-sandbox-lite build: components/AIFamilyCenterPage.tsx(274,37): error TS7006: Parameter 'i' implicitly has an 'any' type.
+apps/app-sandbox-lite build: routes.ts(46,32): error TS2307: Cannot find module './components/ai-family/AIFamilyRouter' or its corresponding type declarations.
+apps/app-sandbox-lite build: Failed
+/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-sandbox-lite:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @yyc3/app-sandbox-lite@1.0.0 build: `tsc --noEmit && vite build`
+Exit status 2
+BUILD_EXIT=2

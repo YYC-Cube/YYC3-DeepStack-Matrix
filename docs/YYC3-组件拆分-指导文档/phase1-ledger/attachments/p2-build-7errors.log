@@ -1,0 +1,17 @@
+apps/app-desktop                         |  WARN  The field "pnpm.overrides" was found in /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-desktop/package.json. This will not take effect. You should configure "pnpm.overrides" at the root of the workspace instead.
+apps/app-web-classic                     |  WARN  The field "pnpm.overrides" was found in /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-web-classic/package.json. This will not take effect. You should configure "pnpm.overrides" at the root of the workspace instead.
+apps/app-web-full                        |  WARN  The field "pnpm.overrides" was found in /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-web-full/package.json. This will not take effect. You should configure "pnpm.overrides" at the root of the workspace instead.
+
+> @yyc3/app-sandbox-lite@1.0.0 build /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-sandbox-lite
+> tsc --noEmit && vite build
+
+components/AIFamilyCenterPage.tsx(26,8): error TS2307: Cannot find module './ai-family/shared' or its corresponding type declarations.
+components/AIFamilyCenterPage.tsx(110,37): error TS7006: Parameter 'h' implicitly has an 'any' type.
+components/AIFamilyCenterPage.tsx(122,39): error TS7006: Parameter 'e' implicitly has an 'any' type.
+components/AIFamilyCenterPage.tsx(169,45): error TS7006: Parameter 'm' implicitly has an 'any' type.
+components/AIFamilyCenterPage.tsx(274,34): error TS7006: Parameter 'm' implicitly has an 'any' type.
+components/AIFamilyCenterPage.tsx(274,37): error TS7006: Parameter 'i' implicitly has an 'any' type.
+routes.ts(46,32): error TS2307: Cannot find module './components/ai-family/AIFamilyRouter' or its corresponding type declarations.
+/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/apps/app-sandbox-lite:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @yyc3/app-sandbox-lite@1.0.0 build: `tsc --noEmit && vite build`
+Exit status 2

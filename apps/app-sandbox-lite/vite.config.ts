@@ -6,8 +6,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    // YYC³ 团队规范: 开发服务器端口从 3030 起
-    port: 3030,
+    // YYC³ 团队规范: 开发服务器端口从 3030 起（P1=3030, P2=3031, P3=3032, P4=3033）
+    port: 3031,
     host: true,
     strictPort: false,
   },

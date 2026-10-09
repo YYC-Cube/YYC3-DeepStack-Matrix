@@ -1,0 +1,6 @@
+# YYC³ CloudPivot Matrix · pnpm 工作区（M1 Monorepo 底座）
+# 四端应用 + 共享包 + 工具配置
+packages:
+  - apps/*
+  - packages/*
+  - tools/*

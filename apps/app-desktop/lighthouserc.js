@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      url: ['http://localhost:3218'],
+      url: ['http://localhost:3032'],
       numberOfRuns: 3,
       settings: {
         preset: 'desktop',

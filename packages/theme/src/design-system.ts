@@ -38,24 +38,7 @@ export const COLOR_TOKENS: ColorToken[] = [
   { name: "Error", value: "#ff3366", cssVar: "--destructive", usage: "错误 · 异常" },
 ];
 
-export const CHART_COLORS = {
-  chart1: "#00d4ff",
-  chart2: "#00ff88",
-  chart3: "#ff6600",
-  chart4: "#aa55ff",
-  chart5: "#ffdd00",
-};
-
-export const FAMILY_COLORS = {
-  navigator: "#FFD700",
-  thinker: "#FF69B4",
-  prophet: "#00BFFF",
-  bolero: "#FFD700",
-  sentinel: "#00FF88",
-  master: "#FFD700",
-  oracle: "#00BFFF",
-  creator: "#BF00FF",
-};
+// CHART_COLORS / FAMILY_COLORS 已收敛至 colors.generated.ts（token 单源：CSS 变量为源，scripts/gen-colors.mjs 生成）
 
 // ═══════════════════════════════════════════════════════════════
 //  字体排版

@@ -63,4 +63,4 @@ export {
   type ShadowToken,
   type AnimationToken,
   type DesignSystemOverrides,
-} from "./design-system";
+} from "@yyc3/theme";

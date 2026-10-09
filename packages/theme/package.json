@@ -1,0 +1,19 @@
+{
+  "name": "@yyc3/theme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一设计令牌层 — token 单源（CSS 变量为源，TS 常量由 scripts/gen-colors.mjs 生成）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./design-system": "./src/design-system.ts",
+    "./colors": "./src/colors.ts",
+    "./tokens": "./src/colors.generated.ts",
+    "./theme.css": "./src/theme.css"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

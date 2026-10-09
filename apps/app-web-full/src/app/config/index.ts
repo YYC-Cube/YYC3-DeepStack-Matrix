@@ -31,7 +31,6 @@ export {
   type PagePermission,
 } from "./page-config";
 
-// 设计系统
 export {
   COLOR_TOKENS,
   CHART_COLORS,
@@ -63,4 +62,4 @@ export {
   type ShadowToken,
   type AnimationToken,
   type DesignSystemOverrides,
-} from "./design-system";
+} from "@yyc3/theme";

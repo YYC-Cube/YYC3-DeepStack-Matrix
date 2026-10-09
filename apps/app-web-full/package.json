@@ -36,6 +36,7 @@
     "precommit": "pnpm check:testid && pnpm lint:fix && pnpm type-check"
   },
   "dependencies": {
+    "@yyc3/theme": "workspace:*",
     "@yyc3/ui": "workspace:*",
     "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-html": "^6.4.11",

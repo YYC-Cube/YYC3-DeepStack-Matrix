@@ -1,0 +1,2378 @@
+
+ RUN  v4.1.4 /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should create instance with default config
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should create instance with default config
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should create instance with default config
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should accept custom configuration
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should accept custom configuration
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should accept custom configuration
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should detect platform correctly in browser environment
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Initialization & Configuration > should detect platform correctly in browser environment
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Platform Detection > should return valid platform type
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Platform Detection > should return valid platform type
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should initialize successfully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should initialize successfully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should initialize successfully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should get status with mock data
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should get status with mock data
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should get status with mock data
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should return cached status when available
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should return cached status when available
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should return cached status when available
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should force refresh status when requested
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should force refresh status when requested
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should force refresh status when requested
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should handle errors gracefully and return fallback
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should handle errors gracefully and return fallback
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should call onStatusChange callback
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should call onStatusChange callback
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should call onStatusChange callback
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Git Status Management > should call onStatusChange callback
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should return commits with correct structure
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should return commits with correct structure
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should return commits with correct structure
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should respect limit parameter
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should respect limit parameter
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should respect limit parameter
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should respect offset parameter
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should respect offset parameter
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should respect offset parameter
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should cache commits for subsequent calls
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should cache commits for subsequent calls
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should cache commits for subsequent calls
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should force refresh commits when requested
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should force refresh commits when requested
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should force refresh commits when requested
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should return fallback commits on error
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit History > should return fallback commits on error
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should return branches with correct structure
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should return branches with correct structure
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should return branches with correct structure
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should have exactly one current branch
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should have exactly one current branch
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should have exactly one current branch
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should include remote branches
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should include remote branches
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should include remote branches
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should cache branches for subsequent calls
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should cache branches for subsequent calls
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should cache branches for subsequent calls
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should checkout branch successfully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should checkout branch successfully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should checkout branch successfully
+[GitService] Checking out branch: develop
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should checkout branch successfully
+[GitService] ✅ Switched to branch: develop
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should checkout branch successfully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should create new branch successfully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should create new branch successfully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should create new branch successfully
+[GitService] Creating branch: feature/test-branch from current
+[GitService] ✅ Branch created: feature/test-branch
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should create new branch successfully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should call onError when checkout fails
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should call onError when checkout fails
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should call onError when checkout fails
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should call onError when checkout fails
+[GitService] Checking out branch: nonexistent
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Branch Management > should call onError when checkout fails
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage a single file
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage a single file
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage a single file
+[GitService] Staging file: u1
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage a single file
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage a single file
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage a single file
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage a single file
+[GitService] Unstaging file: s1
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage a single file
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage all files
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage all files
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage all files
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should stage all files
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage all files
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage all files
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage all files
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage all files
+[GitService] Unstaging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > File Staging Operations > should unstage all files
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should commit staged changes successfully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should commit staged changes successfully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should commit staged changes successfully
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should commit staged changes successfully
+[GitService] Committing with message: "Test commit message"
+[GitService] ✅ Commit successful: f60f879
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should commit staged changes successfully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should reject empty commit message
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should reject empty commit message
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should reject empty commit message
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should reject commit with no staged changes
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should reject commit with no staged changes
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should reject commit with no staged changes
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should update status after commit
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should update status after commit
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should update status after commit
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should update status after commit
+[GitService] Committing with message: "Test commit"
+[GitService] ✅ Commit successful: f95d95a
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should update status after commit
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should add commit to history
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should add commit to history
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should add commit to history
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should add commit to history
+[GitService] Committing with message: "New feature"
+[GitService] ✅ Commit successful: 48416f8
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should add commit to history
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should call onError when commit fails
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should call onError when commit fails
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should call onError when commit fails
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Commit Operations > should call onError when commit fails
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should pull changes successfully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should pull changes successfully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should pull changes successfully
+[GitService] Pulling latest changes...
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🌟 场景1: VIP铂金会员张先生入住全流程 > 应完成VIP入住完整流程：前台→礼宾→客户关系→经理
+
+================================================================================
+🏨 YYC3智慧酒店 - VIP入住全流程演示
+👤 客户: 张先生 (铂金会员)
+================================================================================
+
+📍 步骤1: 前台接待 (小悦 - ChatGLM3-6B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🌟 场景1: VIP铂金会员张先生入住全流程 > 应完成VIP入住完整流程：前台→礼宾→客户关系→经理
+   ✅ 前台欢迎消息已发送
+   📝 消息ID: msg-1791580458070-79xb6c
+   🤖 使用模型: chatglm3-6b
+
+📍 步骤2: 礼宾服务 (阿明 - CogAgent)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🌟 场景1: VIP铂金会员张先生入住全流程 > 应完成VIP入住完整流程：前台→礼宾→客户关系→经理
+   ✅ 礼宾请求已发送
+   🎯 优先级: high
+   🤖 礼宾使用模型: CogAgent (智能决策)
+
+stderr | src/app/__tests__/ai-family.test.ts > 🌸 AI Family 遥测平台 - 综合功能测试 > 🧠 记忆档案系统 > 应阻止删除永久记忆
+[AIFamilyMemory] Cannot delete permanent memory: mem-1791580458146-yjpeocxi
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🌟 场景1: VIP铂金会员张先生入住全流程 > 应完成VIP入住完整流程：前台→礼宾→客户关系→经理
+
+📍 步骤3: 客户关系关怀 (小雅 - ChatGLM3-6B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🌟 场景1: VIP铂金会员张先生入住全流程 > 应完成VIP入住完整流程：前台→礼宾→客户关系→经理
+   ✅ 客户关系协调已完成
+   ❤️ 小雅的响应风格: 温暖友好 (ChatGLM3特色)
+
+📍 步骤4: 经理最终确认 (李总 - CogAgent)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🌟 场景1: VIP铂金会员张先生入住全流程 > 应完成VIP入住完整流程：前台→礼宾→客户关系→经理
+   ✅ 经理指令已下达
+   👔 李总使用模型: CogAgent (管理层决策)
+   📢 接收者数量: 3个部门
+
+────────────────────────────────────────────────────────────────────────────────
+✅ VIP入住流程完成总结:
+────────────────────────────────────────────────────────────────────────────────
+🎯 涉及角色: 前台(小悦) → 礼宾(阿明) → 客服(小雅) → 经理(李总)
+🤖 使用模型: ChatGLM3 → CogAgent → ChatGLM3 → CogAgent
+💬 消息总数: 4条核心消息 + 自动回复
+⏱️ 协作模式: 专家主导 + 层级决策
+================================================================================
+
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > ⚠️ 场景2: 钻石会员投诉升级处理 > 应演示投诉从一线员工到经理的完整升级流程
+
+================================================================================
+⚠️ YYC3智慧酒店 - 投诉升级处理流程
+😤 客户: 李女士 (钻石会员) - 房间问题严重不满
+================================================================================
+
+📍 步骤1: 前台接收投诉 (小悦 - ChatGLM3-6B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > ⚠️ 场景2: 钻石会员投诉升级处理 > 应演示投诉从一线员工到经理的完整升级流程
+   ⚠️ 投诉已接收
+   🔥 优先级: critical (最高级)
+   📨 消息类型: escalation (升级请求)
+
+📍 步骤2: 客户关系初步安抚 (小雅 - ChatGLM3-6B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > ⚠️ 场景2: 钻石会员投诉升级处理 > 应演示投诉从一线员工到经理的完整升级流程
+   ❤️ 安抚方案已制定
+   🏨 升级方案: 2503 → 3001 总统套房
+
+📍 步骤3: IT/工程支持介入 (Tech哥 - CodeGeeX4-ALL-9B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > ⚠️ 场景2: 钻石会员投诉升级处理 > 应演示投诉从一线员工到经理的完整升级流程
+   🔧 IT诊断请求已发送
+   💻 Tech哥使用模型: CodeGeeX4 (代码分析与系统诊断)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > ⚠️ 场景2: 钻石会员投诉升级处理 > 应演示投诉从一线员工到经理的完整升级流程
+
+📍 步骤4: 经理最终决策与授权 (李总 - CogAgent)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > ⚠️ 场景2: 钻石会员投诉升级处理 > 应演示投诉从一线员工到经理的完整升级流程
+   👔 经理决策已下达
+   ⚡ 决策速度: 即时 (CogAgent快速推理)
+   📊 涉及部门: 3个 (前台+客服+IT)
+   💰 补偿成本: 高 (但维护VIP关系值得)
+
+────────────────────────────────────────────────────────────────────────────────
+✅ 投诉处理流程完成:
+────────────────────────────────────────────────────────────────────────────────
+⏱️ 处理时间: < 5分钟 (AI协作加速)
+👥 参与人员: 4人 (前台+客服+IT+经理)
+🤖 模型使用: ChatGLM3×2 + CodeGeeX4 + CogAgent
+📈 客户挽回率预期: 95%+ (钻石会员特别重视)
+💡 关键成功因素: 快速响应 + 跨部门协作 + 充分授权
+================================================================================
+
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🎊 场景3: 企业团建活动协调 (50人规模) > 应协调多部门完成大型团体活动策划
+
+================================================================================
+🎊 YYC3智慧酒店 - 企业团建活动协调
+🏢 客户: 科技公司A (50人团队建设活动)
+================================================================================
+
+📍 步骤1: 初始需求收集与分析 (阿明 - CogAgent)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🎊 场景3: 企业团建活动协调 (50人规模) > 应协调多部门完成大型团体活动策划
+   📋 需求文档已分发
+   👥 接收部门: 活动协调 + 餐饮部
+   🤖 分析引擎: CogAgent (复杂规划任务)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🎊 场景3: 企业团建活动协调 (50人规模) > 应协调多部门完成大型团体活动策划
+
+📍 步骤2: 活动创意方案设计 (小美 - CogVideoX-5B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🎊 场景3: 企业团建活动协调 (50人规模) > 应协调多部门完成大型团体活动策划
+   🎨 创意方案已提出
+   🎬 视觉内容: CogVideoX生成能力
+   🎯 主题定位: 科技未来感
+
+📍 步骤3: 主厨定制菜单方案 (王师傅 - CodeGeeX4-ALL-9B)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🎊 场景3: 企业团建活动协调 (50人规模) > 应协调多部门完成大型团体活动策划
+   👨‍🍳 菜单方案已完成
+   🔬 数据支撑: CodeGeeX4营养分析 + 成本优化
+   🎨 主题契合度: 高 (科技未来感)
+
+📍 步骤4: 综合方案整合与报价 (多方协作)
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🎊 场景3: 企业团建活动协调 (50人规模) > 应协调多部门完成大型团体活动策划
+   📋 综合方案已提交审批
+   💵 总预算: ¥80,000
+   ⏱️ 方案制作时间: < 10分钟 (传统需2-3天)
+
+────────────────────────────────────────────────────────────────────────────────
+✅ 团建活动协调完成:
+────────────────────────────────────────────────────────────────────────────────
+🎯 项目规模: 50人 × 3天2夜
+👥 核心团队: 礼宾(阿明) + 活动(小美) + 主厨(王师傅) + 经理(李总)
+🤖 模型矩阵:
+   • CogAgent: 需求分析与统筹规划
+   • CogVideoX: 视觉创意与内容生成
+   • CodeGeeX4: 菜单数据分析与成本优化
+   • CogAgent (经理): 最终决策与风险控制
+📈 效率提升: 10倍+ (vs 传统人工协调)
+================================================================================
+
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应 > 应演示紧急情况下的跨部门实时协同响应
+
+================================================================================
+🚨 YYC3智慧酒店 - 紧急事件响应系统
+⚠️ 事件: 15楼厨房烟感探测器报警 (可能是误报或真火警)
+================================================================================
+
+⏱️ T+0秒: 🚨 火警警报触发!
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应 > 应演示紧急情况下的跨部门实时协同响应
+   🔔 警报已广播到 3 个部门
+   ⚡ 响应时间: < 1秒 (AI即时通信)
+
+⏱️ T+30秒: 各部门初始响应
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应 > 应演示紧急情况下的跨部门实时协同响应
+   💻 Tech哥 (CodeGeeX4): 系统诊断完成
+   📊 数据分析: 温度正常 + 烟雾中等
+
+⏱️ T+60秒: 经理统一指挥调度
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应 > 应演示紧急情况下的跨部门实时协同响应
+   👔 李总 (CogAgent): 指令已下达
+   📋 行动项: 4项具体任务
+   ⏱️ 汇报频率: 60秒/次
+
+⏱️ T+120秒: 现场确认结果
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应 > 应演示紧急情况下的跨部门实时协同响应
+   ✅ 误报确认: 厨房油烟导致
+   ⏱️ 总响应时间: 2分钟 (极快!)
+
+⏱️ T+180秒: 解除警报 & 事件总结
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应 > 应演示紧急情况下的跨部门实时协同响应
+   🎉 警报已正式解除
+   📊 事件圆满解决
+
+────────────────────────────────────────────────────────────────────────────────
+✅ 紧急事件响应完成:
+────────────────────────────────────────────────────────────────────────────────
+⏱️ 总耗时: 3分钟 (传统人工需15-20分钟)
+👥 协同部门: 4个 (经理+IT+前台+安保)
+🤖 AI优势:
+   • 即时通信: < 1秒警报广播
+   • 智能决策: CogAgent快速评估与指挥
+   • 数据监控: CodeGeeX4实时分析传感器数据
+   • 并行协作: 多部门同时接收指令并行动
+📈 效率提升: 5-6倍
+🛡️ 安全保障: 显著提升 (快速响应=最小损失)
+================================================================================
+
+
+stdout | src/app/__tests__/ai-family-hotel-scenarios.test.ts > 📊 场景5: 不同模型在酒店场景中的性能对比 > 应对比不同模型在各场景下的适用性
+
+================================================================================
+📊 YYC3智谱AI模型矩阵 - 酒店场景适用性分析
+================================================================================
+
+🎯 场景 vs 模型匹配矩阵:
+────────────────────────────────────────────────────────────────────────────────
+1. 日常对话
+   最佳模型: CHATGLM3-6B
+   适用原因: 自然流畅，适合客服交互
+   使用该模型的员工: 小悦, 小雅, 林老师
+
+2. 技术诊断
+   最佳模型: CODEGEEX4-ALL-9B
+   适用原因: 逻辑分析能力强
+   使用该模型的员工: 王师傅, Tech哥
+
+3. 复杂决策
+   最佳模型: COGAGENT
+   适用原因: 推理和工具调用能力
+   使用该模型的员工: 阿明, 李总
+
+4. 视觉创意
+   最佳模型: COGVIDEOX-5B
+   适用原因: 视频生成和多模态理解
+   使用该模型的员工: 小美
+
+────────────────────────────────────────────────────────────────────────────────
+💡 关键洞察:
+   • ChatGLM3: 面向客户的交互场景 (前台/客服)
+   • CodeGeeX4: 技术和分析场景 (IT/主厨)
+   • CogAgent: 决策和规划场景 (礼宾/经理)
+   • CogVideoX: 创意和视觉场景 (活动协调)
+   • 混合使用: 大多数员工都有备选模型以应对不同任务
+================================================================================
+
+
+ ✓ src/app/__tests__/ai-family-hotel-scenarios.test.ts (5 tests) 755ms
+     ✓ 应完成VIP入住完整流程：前台→礼宾→客户关系→经理  385ms
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle qps_update message
+[DataBus] Unknown message type: qps_update
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle latency_update message
+[DataBus] Unknown message type: latency_update
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle node_status message
+[DataBus] Unknown message type: node_status
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle alert message
+[DataBus] Unknown message type: alert
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should cap alerts at 100 entries
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+[DataBus] Unknown message type: alert
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle throughput_history message
+[DataBus] Unknown message type: throughput_history
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle system_stats message
+[DataBus] Unknown message type: system_stats
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle heartbeat_ack message without error
+[DataBus] Unknown message type: heartbeat_ack
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should handle unknown message type gracefully
+[DataBus] Unknown message type: unknown_type
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > WebSocket 消息处理 > should update lastSyncTime on message
+[DataBus] Unknown message type: heartbeat_ack
+
+stderr | src/app/__tests__/useWebSocketData.test.tsx > useWebSocketData > 公开 API > should clear alerts when clearAlerts called
+[DataBus] Unknown message type: alert
+
+ ✓ src/app/__tests__/useWebSocketData.test.tsx (50 tests) 200ms
+stdout | src/app/__tests__/ai-family.test.ts > 🌸 AI Family 遥测平台 - 综合功能测试 > 🔗 综合集成测试 > 应完整演示 AI Family 工作流程
+✅ AI Family 完整工作流程测试通过！
+
+ ✓ src/app/__tests__/ai-family.test.ts (40 tests) 1145ms
+       ✓ 应执行增量同步  351ms
+ ✓ src/app/__tests__/useTerminal.test.ts (69 tests) 847ms
+       ✓ should execute ai command and auto-execute suggestion  502ms
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应演示 VIP 入住全流程
+
+=== 🏨 YYC3 智慧酒店 - VIP 入住流程演示 ===
+
+📅 **场景**: 铂金会员张先生抵达酒店
+
+1️⃣ **前台接待** (小悦 - ChatGLM3)
+
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应演示 VIP 入住全流程
+   ✅ 消息已发送: msg-17915804...
+
+2️⃣ **礼宾服务** (阿明 - CogAgent)
+
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应演示 VIP 入住全流程
+   ✅ 已请求礼宾服务: msg-17915804...
+   🤖 使用模型: CogAgent
+
+3️⃣ **IT支持** (Tech哥 - CodeGeeX4)
+
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应演示 VIP 入住全流程
+   ✅ 已请求系统检查: msg-17915804...
+   🤖 使用模型: CodeGeeX4-ALL-9B
+
+4️⃣ **主厨** (王师傅 - CodeGeeX4)
+
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应演示 VIP 入住全流程
+   ✅ 已请求准备餐点: msg-17915804...
+   🤖 使用模型: CodeGeeX4-ALL-9B
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should pull changes successfully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should push changes successfully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should push changes successfully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should push changes successfully
+[GitService] Pushing changes...
+
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应演示 VIP 入住全流程
+
+📊 **团队工作状态**:
+   总员工数: 8
+   可用人数: 8
+   在用模型: chatglm3-6b, cogagent, codegeex4-all-9b, cogvideox-5b
+
+📈 **模型调用统计**:
+   chatglm3-6b: 5/5 成功 | 平均延迟: 0ms
+   cogagent: 3/3 成功 | 平均延迟: 0ms
+   codegeex4-all-9b: 1/1 成功 | 平均延迟: 0ms
+
+=== ✨ VIP 入住流程演示完成 ===
+
+
+stdout | src/app/__tests__/ai-family-hotel.test.ts > 🏨 AI Family 酒店人系统 - 多模型协作测试 > 🎭 完整业务场景演示 > 应展示完整的多模型协作能力
+
+🏆 **AI Family 酒店人团队阵容**
+
+📋 **团队成员 & 模型分配**:
+小悦     | ChatGLM3-6B          | 能力: chat, reasoning, translation
+阿明     | CogAgent             | 能力: agent, reasoning, tool-use
+王师傅    | CodeGeeX4-ALL-9B     | 能力: code-generation, code-analysis, reasoning
+Tech哥  | CodeGeeX4-ALL-9B     | 能力: code-generation, code-analysis, reasoning
+小美     | CogVideoX-5B         | 能力: video-generation, video-understanding, vision
+李总     | CogAgent             | 能力: agent, reasoning, tool-use
+小雅     | ChatGLM3-6B          | 能力: chat, reasoning, translation
+林老师    | ChatGLM3-6B          | 能力: chat, reasoning, translation
+
+🤖 **可用模型池**:
+   • ChatGLM3-6B          | zhipu    | 上下文窗口: 32768 tokens
+   • CodeGeeX4-ALL-9B     | zhipu    | 上下文窗口: 65536 tokens
+   • CogAgent             | zhipu    | 上下文窗口: 16384 tokens
+   • CogVideoX-5B         | zhipu    | 上下文窗口: 8192 tokens
+
+💡 **跨模型协作优势**:
+   ✅ 对话理解 → ChatGLM3 (自然语言交互)
+   ✅ 代码分析 → CodeGeeX4 (数据处理与报告)
+   ✅ 智能决策 → CogAgent (复杂任务规划)
+   ✅ 视觉创作 → CogVideoX (多媒体内容)
+
+ ✓ src/app/__tests__/ai-family-hotel.test.ts (23 tests) 1734ms
+       ✓ 应演示 VIP 入住全流程  311ms
+ ✓ src/app/__tests__/DataEditorTables.test.tsx (24 tests) 1282ms
+ ✓ src/app/__tests__/global-data-interoperability.test.ts (23 tests) 2723ms
+     ✓ 应支持节点的完整 CRUD 操作  453ms
+     ✓ 应支持自定义供应商的数据结构  2261ms
+ ✓ src/app/__tests__/AlertRulesPanel.test.tsx (29 tests) 2080ms
+       ✓ should render alert rules panel title  568ms
+       ✓ should switch to events tab  312ms
+stderr | src/app/__tests__/enhanced-features.test.ts > 🎯 综合集成 - 所有增强功能协同工作 > 应在事务中使用验证器
+[Store:test-validation-integration] Validation failed: [ '[name] 不能为空', '[percentage] 必须是 0-100 的数值' ]
+
+ ✓ src/app/__tests__/enhanced-features.test.ts (22 tests) 2274ms
+     ✓ 应导出 BUILTIN_PROVIDERS 常量  2045ms
+ ✓ src/app/__tests__/InlineEditableTable.test.tsx (45 tests) 1885ms
+ ✓ src/app/__tests__/types-audit.test.ts (38 tests) 6ms
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should push changes successfully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should handle pull failure gracefully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Pull/Push Operations > should handle pull failure gracefully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should cache status data
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should cache status data
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should cache status data
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should bypass cache when disabled
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should bypass cache when disabled
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should bypass cache when disabled
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should bypass cache when disabled
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should bypass cache when disabled
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should clear cache on destroy
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should clear cache on destroy
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should clear cache on destroy
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Caching Mechanism > should clear cache on destroy
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should start auto refresh timer
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should start auto refresh timer
+[GitService] Auto-refresh started (10000ms interval)
+[GitService] Initialized on platform: web
+[GitService] Auto-refresh stopped
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should start auto refresh timer
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should stop auto refresh timer
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should stop auto refresh timer
+[GitService] Auto-refresh started (10000ms interval)
+[GitService] Initialized on platform: web
+[GitService] Auto-refresh stopped
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should stop auto refresh timer
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should restart auto refresh with different interval
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should restart auto refresh with different interval
+[GitService] Auto-refresh started (5000ms interval)
+[GitService] Initialized on platform: web
+[GitService] Auto-refresh stopped
+[GitService] Auto-refresh started (5000ms interval)
+[GitService] Auto-refresh stopped
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Auto Refresh > should restart auto refresh with different interval
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should call onError callback when provided
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should call onError callback when provided
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should call onError callback when provided
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should call onError callback when provided
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should call onError callback when provided
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should not throw when onError is not provided
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should not throw when onError is not provided
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should not throw when onError is not provided
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should not throw when onError is not provided
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Error Handling > should not throw when onError is not provided
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Singleton Pattern > should return same instance from getGitService
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Singleton Pattern > should return same instance from getGitService
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Singleton Pattern > should return same instance from getGitService
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Singleton Pattern > should create new instance from createGitService
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Singleton Pattern > should create new instance from createGitService
+[GitService] Initialized on platform: web
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Singleton Pattern > should create new instance from createGitService
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitFileChange structure
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitFileChange structure
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitFileChange structure
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitCommitInfo structure
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitCommitInfo structure
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitCommitInfo structure
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitBranchInfo structure
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitBranchInfo structure
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService > Data Format Validation > should return valid GitBranchInfo structure
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle multiple rapid getStatus calls
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle multiple rapid getStatus calls
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle multiple rapid getStatus calls
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle concurrent commit operations
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle concurrent commit operations
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle concurrent commit operations
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle concurrent commit operations
+[GitService] Committing with message: "Concurrent commit 0"
+[GitService] ✅ Commit successful: a758054
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle concurrent commit operations
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] Checking out branch: develop
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] ✅ Switched to branch: develop
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] Checking out branch: main
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] ✅ Switched to branch: main
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] Checking out branch: feature/ai-family-v2
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] ✅ Switched to branch: feature/ai-family-v2
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should handle branch switching multiple times
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should preserve data integrity through full workflow
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should preserve data integrity through full workflow
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should preserve data integrity through full workflow
+[GitService] Staging all files
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should preserve data integrity through full workflow
+[GitService] Committing with message: "Integration test commit"
+[GitService] ✅ Commit successful: fc7794d
+
+stdout | src/app/__tests__/GitService.test.ts > GitService Edge Cases > should preserve data integrity through full workflow
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/GitService.test.ts (53 tests) 3556ms
+       ✓ should pull changes successfully  1501ms
+       ✓ should push changes successfully  2022ms
+ ✓ src/app/__tests__/store/model-slice.test.ts (27 tests) 8ms
+ ✓ src/app/__tests__/db-queries.test.ts (38 tests) 8ms
+stdout | src/app/__tests__/MusicEventBus.test.ts > MusicEventBus > 调试模式 > should enable debug mode
+[MusicEventBus] Emitting: {
+  type: 'music:command',
+  payload: {
+    command: 'play',
+    params: undefined,
+    source: 'ui',
+    timestamp: 1791580463544
+  }
+}
+
+ ✓ src/app/__tests__/MusicEventBus.test.ts (41 tests) 44ms
+ ✓ src/app/__tests__/store/network-slice.test.ts (27 tests) 7ms
+ ✓ src/app/__tests__/CodeEditor.test.tsx (74 tests) 116ms
+ ❯ src/app/__tests__/e2e-integration.test.ts (18 tests | 1 failed) 1211ms
+     ✓ createLocalStore 完整生命周期 9ms
+     ✓ 所有 10 个 store 有正确的默认数据 14ms
+     ✓ nodeStore 所有节点有 id/status/gpu/mem/temp 1ms
+     ✓ userStore 超级管理员不可批量删除 1ms
+     × 完整的 读取 → 修改 → 持久化 → 重置 闭环 140ms
+     ✓ 所有 31 个环境变量都有默认值 2ms
+     ✓ 导入/导出往返一致性 2ms
+     ✓ 默认配置 → 修改 → 重置闭环 2ms
+     ✓ ENDPOINT_META 包含所有端点的 UI 描述 1ms
+     ✓ 所有核心类型可从 types/index.ts 导入  382ms
+     ✓ zh-CN 和 en-US 顶层键完全一致  654ms
+     ✓ 每个顶层模块的子键也一致 1ms
+     ✓ nav.architecture 键存在于双语包 0ms
+     ✓ figma-error-filter 正确识别 Figma 平台错误 0ms
+     ✓ broadcast-channel 工厂单例一致性 0ms
+     ✓ nodeStore 节点 ID 与 logStore 来源一致 0ms
+     ✓ deployedModelStore 节点引用存在于 nodeStore 0ms
+     ✓ 所有路由路径唯一且无重复 0ms
+ ✓ src/app/__tests__/CreateRuleModal.test.tsx (49 tests) 6145ms
+       ✓ should render close button  527ms
+       ✓ should toggle notification channel when clicking  428ms
+ ✓ src/app/__tests__/lib/yyc3-core-aifamily.test.ts (25 tests) 17ms
+ ✓ src/app/__tests__/core-components-integration.test.tsx (75 tests) 4409ms
+       ✓ 应渲染 KV-Cache 开关  301ms
+       ✓ 切换到 settings.network 应显示对应内容  368ms
+       ✓ 应渲染所有默认用户  522ms
+ ✓ src/app/__tests__/lib/agent-system.test.ts (40 tests) 45ms
+ ✓ src/app/__tests__/integration/integration.test.ts (18 tests) 106ms
+ ✓ src/app/__tests__/core-integration.test.tsx (33 tests) 384ms
+     ✓ getAPIConfig 应返回默认配置  344ms
+ ✓ src/app/__tests__/useMusicPlayer.test.ts (35 tests) 192ms
+ ✓ src/app/__tests__/useLocalFileSystem.test.tsx (37 tests) 293ms
+stdout | src/app/__tests__/utils/test-utils.test.ts > Performance Test Helpers > measurePerformance > should measure synchronous function performance
+[Performance] sync-test: 0.00ms
+
+ ✓ src/app/__tests__/useValidation.test.ts (52 tests) 195ms
+stdout | src/app/__tests__/utils/test-utils.test.ts > Performance Test Helpers > measurePerformance > should measure async function performance
+[Performance] async-test: 13.50ms
+
+stdout | src/app/__tests__/utils/test-utils.test.ts > Performance Test Helpers > createPerformanceBenchmark > should run benchmark and return statistics
+[Benchmark] test-benchmark (10 iterations):
+  Total: 0.02ms
+  Average: 0.00ms
+  Min: 0.00ms
+  Max: 0.01ms
+
+ ✓ src/app/__tests__/utils/test-utils.test.ts (44 tests) 321ms
+ ✓ src/app/__tests__/store/follow-up-slice.test.ts (22 tests) 10ms
+ ✓ src/app/__tests__/ide-mock-data.test.ts (54 tests) 8ms
+ ✓ src/app/__tests__/store/metrics-slice.test.ts (31 tests) 8ms
+ ✓ src/app/__tests__/data-flow-pipeline.test.ts (31 tests) 315ms
+ ✓ src/app/__tests__/types.test.ts (35 tests) 714ms
+ ✓ src/app/__tests__/DatabaseAdapter.integration.test.ts (12 tests) 119ms
+ ✓ src/app/__tests__/settings-model-unified-dataflow.test.ts (24 tests) 258ms
+ ✓ src/app/__tests__/lib/alerting-manager.test.ts (19 tests) 8ms
+ ✓ src/app/__tests__/useAudioEngine.test.tsx (20 tests) 42ms
+ ✓ src/app/__tests__/AIAssistant.test.tsx (29 tests) 1955ms
+stderr | src/app/__tests__/usePerformanceMonitor.test.ts > usePerformanceMonitor > long tasks > should handle PerformanceObserver errors gracefully
+[vitest] The PerformanceObserver mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+ ✓ src/app/__tests__/usePerformanceMonitor.test.ts (23 tests) 368ms
+ ✓ src/app/__tests__/lib/performance-benchmark.test.ts (35 tests) 2299ms
+ ✓ src/app/__tests__/useAISuggestion.test.tsx (17 tests) 7263ms
+       ✓ applied should be true after apply  2188ms
+       ✓ appliedCount should increase after apply  1547ms
+       ✓ lastAnalyzedAt should update after execution  3304ms
+ ✓ src/app/__tests__/useLocalDatabase.test.ts (33 tests) 17152ms
+       ✓ enableBackend=false 时不发起真实网络请求  2019ms
+       ✓ enableBackend=true 时尝试发起 fetch 请求  3858ms
+       ✓ enableBackend=true 但后端不可达时回退 Mock  3620ms
+       ✓ enableBackend=true + maxRetries=0 时只请求一次  2006ms
+       ✓ enableBackend=true + maxRetries=2 且持续失败时最多重试 3 次  3589ms
+       ✓ enableBackend=true + 4xx 错误不重试  2007ms
+stderr | src/app/__tests__/error-handler.test.ts > captureError > should capture Error instance
+[YYC³ UNKNOWN] Test error message Error: Test error message
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:153:19
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+stderr | src/app/__tests__/error-handler.test.ts > captureError > should capture string error
+[YYC³ UNKNOWN] String error 
+
+stderr | src/app/__tests__/error-handler.test.ts > captureError > should capture object with message
+[YYC³ UNKNOWN] Object error 
+
+stderr | src/app/__tests__/error-handler.test.ts > captureError > should use provided category and severity
+[YYC³ AUTH] Test Error: Test
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:176:35
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+stderr | src/app/__tests__/error-handler.test.ts > captureError > should include source when provided
+[YYC³ UNKNOWN] Test Error: Test
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:186:35
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+stderr | src/app/__tests__/error-handler.test.ts > captureError > should include detail when provided
+[YYC³ UNKNOWN] Test Error: Test
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:194:35
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+stderr | src/app/__tests__/error-handler.test.ts > captureValidationError > should capture validation errors
+[YYC³ VALIDATION] [email] Invalid email; [name] Required
+
+stderr | src/app/__tests__/error-handler.test.ts > captureNetworkError > should capture network error
+[YYC³ NETWORK] Network failed
+
+stderr | src/app/__tests__/error-handler.test.ts > captureWSError > should capture WebSocket error
+[YYC³ NETWORK] WS failed
+
+stderr | src/app/__tests__/error-handler.test.ts > captureAuthError > should capture auth error
+[YYC³ AUTH] Auth failed Error: Auth failed
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:254:39
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+stderr | src/app/__tests__/error-handler.test.ts > captureParseError > should capture parse error
+[YYC³ PARSE] Parse failed
+
+stderr | src/app/__tests__/error-handler.test.ts > trySafe > should return error on failure
+[YYC³ UNKNOWN] Failed Error: Failed
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:282:64
+    at Module.trySafe (/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/lib/error-handler.ts:388:26)
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:282:35
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+
+stderr | src/app/__tests__/error-handler.test.ts > trySafeSync > should return error on failure
+[YYC³ UNKNOWN] Failed Error: Failed
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:300:13
+    at Module.trySafeSync (/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/lib/error-handler.ts:401:20)
+    at /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/error-handler.test.ts:299:29
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-%E9%9B%86%E6%88%90/YYC3-CloudPivot%20Intelli-Matrix/node_modules/.pnpm/@vitest+runner@4.1.4/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+
+stdout | src/app/__tests__/error-handler.test.ts > installGlobalErrorListeners > should install listeners only once
+[YYC³] 全局错误监听器已安装
+
+ ✓ src/app/__tests__/error-handler.test.ts (33 tests) 34ms
+ ✓ src/app/__tests__/store/user-mgmt-slice.test.ts (20 tests) 7ms
+ ✓ src/app/__tests__/lib/yyc3-core-agents-impl.test.ts (14 tests) 31ms
+ ✓ src/app/__tests__/core-business-logic.test.ts (28 tests) 9ms
+stderr | src/app/__tests__/ColorPicker.test.tsx > ColorPicker > Canvas交互 > should handle mouse down on SV canvas
+Received NaN for the `value` attribute. If this is expected, cast the value to a string.
+
+ ✓ src/app/__tests__/ColorPicker.test.tsx (30 tests) 847ms
+ ✓ src/app/__tests__/lib/mcp-server.test.ts (31 tests) 19ms
+ ✓ src/app/__tests__/rf-phase2.test.ts (29 tests) 10166ms
+     ✓ NotFound 组件可正确导入  547ms
+     ✓ routes.ts 导出 router 对象  8924ms
+     ✓ useAlertRules 可导入且为函数  510ms
+ ✓ src/app/__tests__/storageManager.test.ts (18 tests) 9ms
+ ✓ src/app/__tests__/useAlertRules.test.ts (21 tests) 172ms
+stdout | src/app/__tests__/yyc3-cluster.test.ts > 🌐 YYC3 全球空间通信基站 - 综合功能测试 > 🚀 综合工作流程演示 > 应完整演示 YYC3 全球空间通信基站工作流
+
+=== 🌐 YYC3 全球空间通信基站启动 ===
+
+✅ 集群已初始化，共 8 个节点
+
+📋 设备清单:
+  ⚫ yyc3-77    | development     | M4           | M4 开发机 (副机/本机)
+  ⚫ yyc3-33    | flagship        | M4 Max       | MacBook M4 Max (旗舰主机)
+  ⚫ yyc3-66    | collaboration   | Intel Core i7 | MateBook (协作终端)
+  ⚫ yyc3-55    | family-station  | M1           | iMac M1 (家庭站)
+  ⚫ yyc3-88    | mobile          | M1 Pro       | MacBook Pro M1 (移动站)
+  ⚫ yyc3-133   | cloud-node      | Xeon         | ECS 亚太节点 (阿里云杭州)
+  ⚫ yyc3-202   | cloud-node      | EPYC         | ECS 全球节点 (AWS 美西)
+  ⚫ yyc3-45    | storage         | Unknown      | NAS 存储中心 (8T 记忆档案库)
+
+🔄 模拟设备上线...
+  ✅ yyc3-77 已上线
+  ✅ yyc3-33 已上线
+  ✅ yyc3-66 已上线
+  ✅ yyc3-55 已上线
+
+🏥 执行集群健康检查...
+
+stdout | src/app/__tests__/yyc3-cluster.test.ts > 🌐 YYC3 全球空间通信基站 - 综合功能测试 > 🚀 综合工作流程演示 > 应完整演示 YYC3 全球空间通信基站工作流
+  ✅ 4/8 节点健康
+
+💾 连接 NAS 记忆档案库...
+
+stdout | src/app/__tests__/yyc3-cluster.test.ts > 🌐 YYC3 全球空间通信基站 - 综合功能测试 > 🚀 综合工作流程演示 > 应完整演示 YYC3 全球空间通信基站工作流
+  ✅ SSH 会话已建立 (ssh-17915804...)
+
+stdout | src/app/__tests__/yyc3-cluster.test.ts > 🌐 YYC3 全球空间通信基站 - 综合功能测试 > 🚀 综合工作流程演示 > 应完整演示 YYC3 全球空间通信基站工作流
+  ✅ 命令执行成功: ls -la /volume1/memory-archive/
+  ✅ SSH 会话已关闭
+
+📊 集群统计:
+  总节点数: 8
+  在线节点: 5
+  总 CPU 核心数: 80
+  总内存: 320 GB
+  总存储: 42.512 TB
+
+💾 NAS 记忆档案配置:
+  每成员配额: 8 TB
+  总容量: 32 TB
+  加密存储: ✅ 已启用
+  版本控制: ✅ 已启用
+  数据去重: ✅ 已启用
+
+=== ✨ YYC3 全球空间通信基站演示完成 ===
+
+
+stdout | src/app/__tests__/yyc3-cluster.test.ts > 🌐 YYC3 全球空间通信基站 - 综合功能测试 > 🚀 综合工作流程演示 > 应展示真实的 YYC3 设备阵容
+
+🏆 **您的 AI Family 物理基础设施**
+
+🏠 本地核心:
+  • yyc3-77    → M4           [development]
+    M4 开发机 (副机/本机)
+    💻 CPU: 10核 | RAM: 24GB | 存储: 0.512TB
+
+  • yyc3-33    → M4 Max       [flagship]
+    MacBook M4 Max (旗舰主机)
+    💻 CPU: 16核 | RAM: 128GB | 存储: 4TB
+
+  • yyc3-66    → Intel Core i7 [collaboration]
+    MateBook (协作终端)
+    💻 CPU: 8核 | RAM: 16GB | 存储: 1TB
+
+  • yyc3-55    → M1           [family-station]
+    iMac M1 (家庭站)
+    💻 CPU: 8核 | RAM: 16GB | 存储: 1TB
+
+  • yyc3-88    → M1 Pro       [mobile]
+    MacBook Pro M1 (移动站)
+    💻 CPU: 10核 | RAM: 32GB | 存储: 1TB
+
+  • yyc3-45    → Unknown      [storage]
+    NAS 存储中心 (8T 记忆档案库)
+    💻 CPU: 4核 | RAM: 8GB | 存储: 32TB
+
+☁️ 云端节点:
+  • yyc3-133   → Xeon         [cloud-node]
+    ECS 亚太节点 (阿里云杭州)
+    📍 Hangzhou, China
+    💻 CPU: 8核 | RAM: 32GB | 存储: 1TB
+
+  • yyc3-202   → EPYC         [cloud-node]
+    ECS 全球节点 (AWS 美西)
+    📍 San Francisco, United States
+    💻 CPU: 16核 | RAM: 64GB | 存储: 2TB
+
+💾 存储中心:
+  • yyc3-45    → Unknown      [storage]
+    NAS 存储中心 (8T 记忆档案库)
+    💻 CPU: 4核 | RAM: 8GB | 存储: 32TB
+
+📊 **总计算能力**:
+   CPU 核心: 80 核
+   内存总计: 320 GB
+   存储总计: 42.5 TB
+   设备总数: 8 台
+
+
+ ✓ src/app/__tests__/yyc3-cluster.test.ts (34 tests) 21564ms
+       ✓ 应创建SSH会话连接到目标节点  1012ms
+       ✓ 应在SSH会话上执行命令  1071ms
+       ✓ 应通过SSH会话传输文件  1479ms
+       ✓ 应关闭SSH会话并记录持续时间  1015ms
+       ✓ 应拒绝连接到离线节点或未启用SSH的节点  1003ms
+       ✓ 应跟踪活跃会话数量  2008ms
+       ✓ 应执行任务并在多个节点上返回结果  3023ms
+       ✓ 应在所有在线节点执行任务  8455ms
+       ✓ 应处理部分失败的任务  1063ms
+       ✓ 应完整演示 YYC3 全球空间通信基站工作流  1054ms
+ ✓ src/app/__tests__/useBigModelSDK.test.ts (22 tests) 15625ms
+       ✓ 应该在 Mock 模式下返回模拟响应  955ms
+       ✓ 应该根据输入内容返回不同的模拟响应  1532ms
+       ✓ 应该更新使用统计  883ms
+       ✓ 应该流式返回模拟响应  5053ms
+       ✓ 应该逐字符更新流式内容  4770ms
+       ✓ 应该处理空消息  693ms
+       ✓ 应该处理没有活跃会话的情况  828ms
+       ✓ 应该计算平均延迟  840ms
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > getBridgeAPI > should return null in web environment
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > readFile > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > writeFile > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > deleteFile > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > exists > should return false when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > listDirectory > should return empty array when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > listDirectory > should support recursive option
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > getFileInfo > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > createDirectory > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > copyFile > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > fileSystemClient > moveFile > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > databaseClient > execute > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > databaseClient > query > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > databaseClient > query > should accept generic type parameter
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > databaseClient > backup > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > databaseClient > restore > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > databaseClient > migrate > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > systemMonitorClient > getCPUInfo > should return default CPU info when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > systemMonitorClient > getMemoryInfo > should return default memory info when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > systemMonitorClient > getDiskInfo > should return empty array when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > systemMonitorClient > getNetworkInfo > should return empty array when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > systemMonitorClient > getProcesses > should return empty array when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > appControlClient > getVersion > should return web version when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > appControlClient > getPath > should return empty string when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > appControlClient > getConfig > should return default config when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > appControlClient > restart > should reload page when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > appControlClient > quit > should try to close window when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > dialogClient > showOpenDialog > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > dialogClient > showSaveDialog > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > dialogClient > showMessage > should use alert and return 0 when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > shellClient > openExternal > should use window.open when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > shellClient > openPath > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/lib/bridge-client-enhanced.test.ts > Bridge Client > shellClient > execute > should throw error when not in Electron
+[Bridge] Not running in Electron environment
+
+ ✓ src/app/__tests__/lib/bridge-client-enhanced.test.ts (34 tests) 44ms
+ ✓ src/app/__tests__/supabaseClient.test.ts (26 tests) 188ms
+ ✓ src/app/__tests__/TopBar.test.tsx (22 tests) 2633ms
+     ✓ should call onToggleMobileMenu when close button is clicked in open drawer  484ms
+ ✓ src/app/__tests__/useModelProvider.test.ts (19 tests) 303ms
+stderr | src/app/__tests__/VinylPhotoPlayer.integration.test.tsx > VinylPhotoPlayer Integration Tests > 播放控制集成 > should have volume control
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should render GitPanel with default props
+[GitService] Auto-refresh started (30000ms interval)
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should render GitPanel with default props
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should render GitPanel with default props
+[GitService] Auto-refresh stopped
+[GitService] Destroyed
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should render in compact mode
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should render in compact mode
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should render in compact mode
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/VinylPhotoPlayer.integration.test.tsx (22 tests) 726ms
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should disable AI integration when configured
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should disable AI integration when configured
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Component Rendering > should disable AI integration when configured
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/lib/api-docs-generator.test.ts (18 tests) 48ms
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Platform Detection > should detect and display platform information on desktop
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Platform Detection > should detect and display platform information on desktop
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Platform Detection > should detect and display platform information on desktop
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/followUpStore.test.ts (25 tests) 8ms
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Tab Navigation > should have tab navigation elements
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Tab Navigation > should have tab navigation elements
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Tab Navigation > should have tab navigation elements
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/ConnectionManager.test.ts (14 tests) 236ms
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Git Operations Integration > should initialize GitService on mount
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Git Operations Integration > should initialize GitService on mount
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Git Operations Integration > should initialize GitService on mount
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/useReportExporter.test.ts (15 tests) 475ms
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Git Operations Integration > should load Git status after initialization
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Git Operations Integration > should load Git status after initialization
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Git Operations Integration > should load Git status after initialization
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/useTerminal.test.tsx (24 tests) 388ms
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Responsive Design > should adapt to different viewports
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Responsive Design > should adapt to different viewports
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Responsive Design > should adapt to different viewports
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Responsive Design > should handle tablet viewport
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Responsive Design > should handle tablet viewport
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Responsive Design > should handle tablet viewport
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should handle Git service errors gracefully
+[GitService] Initialized on platform: web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should handle Git service errors gracefully
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should handle Git service errors gracefully
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should handle Git service errors gracefully
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should recover from network errors
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should recover from network errors
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Error Handling > should recover from network errors
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > AI Family Integration > should display AI care messages when enabled
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > AI Family Integration > should display AI care messages when enabled
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > AI Family Integration > should display AI care messages when enabled
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Performance > should render within acceptable time
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Performance > should render within acceptable time
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Performance > should render within acceptable time
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Performance > should not cause memory leaks on unmount
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Performance > should not cause memory leaks on unmount
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel Integration Tests > Performance > should not cause memory leaks on unmount
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle file staging interactions
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle file staging interactions
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle file staging interactions
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle commit workflow
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle commit workflow
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle commit workflow
+[GitService] Destroyed
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle branch switching
+[GitService] ✅ Initialized successfully
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle branch switching
+[GitPanel] ✅ Initialized on web
+
+stdout | src/app/__tests__/GitPanel.integration.test.tsx > GitPanel User Interactions > should handle branch switching
+[GitService] Destroyed
+
+ ✓ src/app/__tests__/GitPanel.integration.test.tsx (17 tests) 3187ms
+       ✓ should render GitPanel with default props  1437ms
+Not implemented: navigation to another Document
+ ✓ src/app/__tests__/DatabaseConnectionPanel.test.tsx (23 tests) 3096ms
+       ✓ renders panel title  462ms
+       ✓ creates a new connection  392ms
+       ✓ saves edited connection  300ms
+       ✓ executes SELECT query  315ms
+ ✓ src/app/__tests__/yyc3-icons.test.ts (20 tests) 7ms
+ ✓ src/app/__tests__/UserManagement.test.tsx (21 tests) 3527ms
+       ✓ renders user management page  727ms
+       ✓ shows user info in view modal  490ms
+       ✓ creates a new user with valid input  309ms
+ ✓ src/app/__tests__/lib/api-config-enhanced.test.ts (32 tests) 11ms
+ ✓ src/app/__tests__/useValidation.test.tsx (19 tests) 630ms
+ ✓ src/app/__tests__/CreationStudio.integration.test.tsx (19 tests) 746ms
+       ✓ should display creation mode buttons  314ms
+ ❯ src/app/__tests__/env-config.test.ts (38 tests | 1 failed) 15ms
+       ✓ should return default system name 2ms
+       × should return default system version 3ms
+       ✓ should return default API base URL 0ms
+       ✓ should return default WS endpoint 0ms
+       ✓ should return default storage prefix 0ms
+       ✓ should return default IDB name 0ms
+       ✓ should return default IDB version 0ms
+       ✓ should return default mock mode setting 0ms
+       ✓ should return default debug setting 0ms
+       ✓ should return default PWA setting 0ms
+       ✓ should return default session timeout 0ms
+       ✓ should return default max login attempts 0ms
+       ✓ should return default AI model 0ms
+       ✓ should return default AI temperature 0ms
+       ✓ should return default AI max tokens 0ms
+       ✓ should return default DB pool min 0ms
+       ✓ should return default DB pool max 0ms
+       ✓ should return default SQL max history 0ms
+       ✓ should return full config object 0ms
+       ✓ should return readonly config 0ms
+       ✓ should update single config value 0ms
+       ✓ should persist to localStorage 0ms
+       ✓ should merge with existing config 0ms
+       ✓ should update multiple values at once 0ms
+       ✓ should handle localStorage errors gracefully 1ms
+       ✓ should clear localStorage config 0ms
+       ✓ should return default config 0ms
+       ✓ should clear cached config 0ms
+       ✓ should export config as JSON string 0ms
+       ✓ should include export timestamp 0ms
+       ✓ should export current config 0ms
+       ✓ should import valid config JSON 0ms
+       ✓ should import config without wrapper 0ms
+       ✓ should return false for invalid JSON 0ms
+       ✓ should return false for empty string 0ms
+       ✓ should not modify config on import failure 0ms
+       ✓ should load config from localStorage on init 1ms
+       ✓ should handle corrupted localStorage data 1ms
+ ✓ src/app/__tests__/SDKChatPanel.test.tsx (16 tests) 2175ms
+     ✓ 应正确渲染  362ms
+     ✓ 应显示统计数据  434ms
+     ✓ 应显示能力标签  311ms
+ ✓ src/app/__tests__/theme-presets.test.ts (30 tests) 8ms
+ ✓ src/app/__tests__/useKeyboardShortcuts.test.ts (19 tests) 159ms
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+ ✓ src/app/__tests__/Sidebar.test.tsx (20 tests) 4176ms
+     ✓ should render sidebar in expanded state  669ms
+     ✓ should render navigation items directly when expanded  367ms
+     ✓ should render all operations category items  429ms
+     ✓ should render navigation icons  441ms
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+ ✓ src/app/__tests__/useAudioEngine.test.ts (19 tests) 110ms
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > rendering > should render without crashing
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+The tag <Compass> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+The tag <Brain> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > rendering > should render page header
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > rendering > should render provider list
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > rendering > should render family member model assignments
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > API key management > should load API keys from localStorage
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > API key management > should toggle API key visibility
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > API key management > should save API key changes
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > model assignment editing > should load model assignments from localStorage
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > model assignment editing > should display current model assignments
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > model assignment editing > should save model assignment changes
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > model assignment editing > should toggle model enabled state
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > connection testing > should render test connection button
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > provider management > should display all supported providers
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/ai-service-manager.test.ts (10 tests) 2061ms
+       ✓ should handle API errors  1045ms
+       ✓ should handle rate limit with retry  1010ms
+stderr | src/app/__tests__/FamilyModelSettings.test.tsx > FamilyModelSettings > provider management > should show provider models on expand
+<Compass /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<Brain /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/FamilyModelSettings.test.tsx (14 tests) 1835ms
+       ✓ should toggle API key visibility  371ms
+ ✓ src/app/__tests__/api-config.test.ts (20 tests) 32ms
+ ✓ src/app/__tests__/IDEPanel.test.tsx (10 tests) 500ms
+       ✓ 应渲染面板标题  353ms
+stdout | src/app/__tests__/store/node-slice.test.ts > useNodeSlice > CRUD 操作 > updateNode 应该更新指定节点的属性
+[NodeSlice] Edit queued for GPU-A100-01 (offline or no WS)
+
+stderr | src/app/__tests__/store/node-slice.test.ts > useNodeSlice > CRUD 操作 > updateNode 应该更新指定节点的属性
+[DataBus] Cannot send: no WebSocket connection available
+
+stderr | src/app/__tests__/store/node-slice.test.ts > useNodeSlice > CRUD 操作 > addNode 应该添加新节点到列表末尾
+[DataBus] Cannot send: no WebSocket connection available
+
+stderr | src/app/__tests__/store/node-slice.test.ts > useNodeSlice > CRUD 操作 > removeNode 应该删除指定节点
+[DataBus] Cannot send: no WebSocket connection available
+
+stdout | src/app/__tests__/store/node-slice.test.ts > useNodeSlice > 派生状态 (derived) > 派生状态应该在节点更新后自动重新计算
+[NodeSlice] Edit queued for GPU-A100-01 (offline or no WS)
+
+stderr | src/app/__tests__/store/node-slice.test.ts > useNodeSlice > 派生状态 (derived) > 派生状态应该在节点更新后自动重新计算
+[DataBus] Cannot send: no WebSocket connection available
+
+ ✓ src/app/__tests__/store/node-slice.test.ts (24 tests) 16ms
+ ✓ src/app/__tests__/bridge.test.ts (20 tests) 6ms
+ ✓ src/app/__tests__/Login.test.tsx (13 tests) 2819ms
+     ✓ should render login form  506ms
+     ✓ should call onGhostLogin when ghost mode is activated  822ms
+     ✓ should prevent multiple ghost login activations  655ms
+ ✓ src/app/__tests__/config-validator.test.ts (17 tests) 9ms
+ ✓ src/app/__tests__/FileBrowser.test.tsx (15 tests) 406ms
+ ✓ src/app/__tests__/performance-optimizer.test.ts (18 tests) 1252ms
+       ✓ 应该在查询时间过长时提供建议  1105ms
+ ✓ src/app/__tests__/performance-monitor.test.ts (25 tests) 236ms
+ ✓ src/app/__tests__/FamilyUISettings.test.tsx (23 tests) 7444ms
+       ✓ should render without crashing  669ms
+       ✓ should render page header  665ms
+       ✓ should save animation speed changes  752ms
+       ✓ should save info density changes  519ms
+       ✓ should toggle hourly care enabled  356ms
+       ✓ should toggle sound enabled  382ms
+       ✓ should render cache clear button  661ms
+       ✓ should render import config button  317ms
+       ✓ should display ecosystem link status  360ms
+ ✓ src/app/__tests__/color-utils.test.ts (29 tests) 11ms
+ ✓ src/app/__tests__/AIDiagnostics.test.tsx (8 tests) 470ms
+ ✓ src/app/__tests__/create-local-store.test.ts (32 tests) 12ms
+ ✓ src/app/__tests__/figma-error-filter.test.ts (44 tests) 7ms
+ ✓ src/app/__tests__/lib/agent-agents-full.test.ts (20 tests) 11ms
+ ✓ src/app/__tests__/security-audit.test.ts (21 tests) 58ms
+ ✓ src/app/__tests__/FamilyMusic.integration.test.tsx (14 tests) 258ms
+ ✓ src/app/__tests__/PanelToolbar.test.tsx (25 tests) 1716ms
+     ✓ should close panel menu on second click  369ms
+ ✓ src/app/__tests__/state-sync-manager.test.ts (21 tests) 78ms
+ ✓ src/app/__tests__/websocket-manager.test.ts (16 tests) 27ms
+ ✓ src/app/__tests__/useSecurityMonitor.test.tsx (13 tests) 209ms
+ ✓ src/app/__tests__/lib/yyc3-core-processors.test.ts (16 tests) 7ms
+ ✓ src/app/__tests__/lib/yyc3-core-skills.test.ts (16 tests) 7ms
+ ✓ src/app/__tests__/lib/docs-generator.test.ts (19 tests) 9ms
+ ✓ src/app/__tests__/FollowUpDrawer.test.tsx (18 tests) 2365ms
+       ✓ 切换到 AI 建议 tab 应加载建议  1361ms
+ ✓ src/app/__tests__/usePersistedState.test.ts (12 tests) 765ms
+ ✓ src/app/__tests__/lib/yyc3-core-auth.test.ts (25 tests) 294ms
+ ✓ src/app/__tests__/useOfflineMode.test.ts (16 tests) 34ms
+ ✓ src/app/__tests__/ActionRecommender.test.tsx (12 tests) 345ms
+ ✓ src/app/__tests__/Layout.test.tsx (17 tests) 710ms
+ ✓ src/app/__tests__/QueryCache.test.ts (18 tests) 179ms
+ ✓ src/app/__tests__/lib/deployment-manager.test.ts (22 tests) 1782ms
+Warning: A vi.mock("../hooks/useAISuggestion") call in "/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/src/app/__tests__/AISuggestionPanel.test.tsx" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+ ✓ src/app/__tests__/ErrorBoundary.test.tsx (14 tests) 1072ms
+ ✓ src/app/__tests__/store/app-slice.test.ts (23 tests) 9ms
+ ✓ src/app/__tests__/PanelContainer.test.tsx (15 tests) 234ms
+ ✓ src/app/__tests__/MultimodalEmotionEngine.test.ts (19 tests) 13ms
+ ✓ src/app/__tests__/AISuggestionPanel.test.tsx (8 tests) 587ms
+       ✓ 应该渲染标题和副标题  336ms
+ ✓ src/app/__tests__/Panel.test.tsx (13 tests) 611ms
+stderr | src/app/__tests__/integration.test.ts > 集成测试 > 桥接客户端与环境检测集成 > 应该正确检测非 Electron 环境
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/integration.test.ts > 集成测试 > 桥接客户端与环境检测集成 > 应该在非 Electron 环境中提供降级方案
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/integration.test.ts > 集成测试 > 桥接客户端与环境检测集成 > 应该在非 Electron 环境中提供降级方案
+[Bridge] Not running in Electron environment
+
+ ✓ src/app/__tests__/integration.test.ts (12 tests) 301ms
+ ✓ src/app/__tests__/store/log-slice.test.ts (14 tests) 10ms
+ ✓ src/app/__tests__/IntegratedTerminal.test.tsx (18 tests) 1706ms
+       ✓ should render minimize button  419ms
+ ✓ src/app/__tests__/broadcast-channel.test.ts (13 tests) 14ms
+ ✓ src/app/__tests__/network-utils.test.ts (19 tests) 80ms
+ ✓ src/app/__tests__/lib/disaster-recovery.test.ts (21 tests) 3045ms
+       ✓ should run all drills and generate report  1004ms
+ ✓ src/app/__tests__/useMobileView.test.ts (13 tests) 185ms
+ ✓ src/app/__tests__/ollama-url.test.ts (20 tests) 14ms
+ ✓ src/app/__tests__/dependency-scanner.test.ts (18 tests) 8ms
+ ✓ src/app/__tests__/FollowUpCard.test.tsx (17 tests) 1044ms
+       ✓ 点击展开按钮后应显示操作链路  308ms
+ ✓ src/app/__tests__/lib/data-bus-deep.test.ts (17 tests) 6ms
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 环境检测 > 应该在没有桥接 API 时返回 null
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 文件系统客户端 > 应该在非 Electron 环境中抛出错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 文件系统客户端 > 应该在非 Electron 环境中抛出写入错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 文件系统客户端 > 应该在非 Electron 环境中返回 false
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 文件系统客户端 > 应该在非 Electron 环境中返回空数组
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 数据库客户端 > 应该在非 Electron 环境中抛出错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 数据库客户端 > 应该在非 Electron 环境中抛出查询错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 数据库客户端 > 应该在非 Electron 环境中抛出备份错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 系统监控客户端 > 应该在非 Electron 环境中返回默认 CPU 信息
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 系统监控客户端 > 应该在非 Electron 环境中返回默认内存信息
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 系统监控客户端 > 应该在非 Electron 环境中返回空磁盘信息
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 系统监控客户端 > 应该在非 Electron 环境中返回空网络信息
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 系统监控客户端 > 应该在非 Electron 环境中返回空进程信息
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 应用控制客户端 > 应该在非 Electron 环境中返回 web 版本
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 应用控制客户端 > 应该在非 Electron 环境中返回空路径
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 应用控制客户端 > 应该在非 Electron 环境中返回默认配置
+[Bridge] Not running in Electron environment
+
+Not implemented: navigation to another Document
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 应用控制客户端 > 应该在非 Electron 环境中重新加载页面
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 应用控制客户端 > 应该在非 Electron 环境中关闭窗口
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 对话框客户端 > 应该在非 Electron 环境中抛出错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 对话框客户端 > 应该在非 Electron 环境中抛出保存错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > 对话框客户端 > 应该在非 Electron 环境中使用 alert
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > Shell 客户端 > 应该在非 Electron 环境中打开新窗口
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > Shell 客户端 > 应该在非 Electron 环境中抛出路径错误
+[Bridge] Not running in Electron environment
+
+stderr | src/app/__tests__/bridge-client.test.ts > 桥接客户端测试 > Shell 客户端 > 应该在非 Electron 环境中抛出执行错误
+[Bridge] Not running in Electron environment
+
+ ✓ src/app/__tests__/lib/yyc3-core-mcp.test.ts (19 tests) 66ms
+ ✓ src/app/__tests__/bridge-client.test.ts (25 tests) 90ms
+ ✓ src/app/__tests__/usePushNotifications.test.ts (14 tests) 247ms
+ ✓ src/app/__tests__/NodeDetailModal.test.tsx (16 tests) 730ms
+ ✓ src/app/__tests__/usePatrol.test.tsx (16 tests) 1818ms
+       ✓ 运行巡查后应产生结果  433ms
+       ✓ 巡查结果应包含检查项  439ms
+       ✓ 巡查结果应正确统计各状态数  418ms
+       ✓ auto 触发类型应正确记录  433ms
+ ✓ src/app/__tests__/PatrolReport.test.tsx (15 tests) 457ms
+ ✓ src/app/__tests__/usePWAManager.test.ts (15 tests) 113ms
+ ✓ src/app/__tests__/useOperationCenter.test.tsx (17 tests) 6018ms
+       ✓ 执行后应更新操作状态和添加日志  1920ms
+       ✓ runTemplate 应更新 lastUsed  4028ms
+ ✓ src/app/__tests__/useAIDiagnostics.test.ts (15 tests) 351ms
+ ✓ src/app/__tests__/useSettingsStore.test.tsx (13 tests) 33ms
+ ✓ src/app/__tests__/LogViewer.test.tsx (11 tests) 281ms
+ ✓ src/app/__tests__/useSettingsStore.test.ts (12 tests) 134ms
+ ✓ src/app/__tests__/useResponsive.test.ts (12 tests) 266ms
+ ✓ src/app/__tests__/useHostFileSystem.test.ts (15 tests) 210ms
+ ✓ src/app/__tests__/PatrolScheduler.test.tsx (12 tests) 388ms
+ ✓ src/app/__tests__/store/db-conn-slice.test.ts (13 tests) 7ms
+ ✓ src/app/__tests__/SmartPlaylistGenerator.test.ts (13 tests) 6ms
+ ✓ src/app/__tests__/YYC3Logo.test.tsx (16 tests) 650ms
+ ✓ src/app/__tests__/lib/penetration-tester.test.ts (19 tests) 7ms
+ ✓ src/app/__tests__/useSecurityMonitor.test.ts (10 tests) 90ms
+ ✓ src/app/__tests__/usePatrol.test.ts (14 tests) 417ms
+ ✓ src/app/__tests__/lib/mcp-context.test.ts (18 tests) 67ms
+ ✓ src/app/__tests__/dmusic-resources.test.ts (23 tests) 9ms
+ ✓ src/app/__tests__/useInstallPrompt.test.ts (10 tests) 171ms
+ ✓ src/app/__tests__/IDELayout.test.tsx (16 tests) 1225ms
+       ✓ should toggle search on Ctrl+Shift+F  457ms
+ ✓ src/app/__tests__/FamilyVoiceSystem.test.tsx (10 tests) 2490ms
+       ✓ should render without crashing  772ms
+       ✓ should render all 8 family member voice cards  370ms
+       ✓ should reset to default profiles  336ms
+       ✓ should stop speaking when stop button clicked  329ms
+ ✓ src/app/__tests__/lib/broadcast-channel.test.ts (21 tests) 9ms
+ ✓ src/app/__tests__/ReportGenerator.test.tsx (13 tests) 810ms
+       ✓ 应渲染标题  381ms
+stderr | src/app/__tests__/Dashboard.test.tsx > Dashboard > should render dashboard page
+The tag <stop> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+The tag <linearGradient> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+The tag <defs> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+
+stderr | src/app/__tests__/Dashboard.test.tsx > Dashboard > should render chart tabs on mobile
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/Dashboard.test.tsx > Dashboard > should render refresh button
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/useEmotionMusic.test.ts (11 tests) 22ms
+stderr | src/app/__tests__/Dashboard.test.tsx > Dashboard > should render panorama button
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/Dashboard.test.tsx (4 tests) 1390ms
+     ✓ should render dashboard page  1092ms
+ ✓ src/app/__tests__/lib/create-local-store.test.ts (23 tests) 13ms
+ ✓ src/app/__tests__/OperationTemplate.test.tsx (9 tests) 389ms
+stdout | src/app/__tests__/supabaseClientReal.test.ts
+[Supabase] 认证模式: mock
+
+stderr | src/app/__tests__/supabaseClientReal.test.ts
+[Supabase] 使用 Mock 模式 - 请配置 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY
+
+ ✓ src/app/__tests__/useAISuggestion.test.ts (13 tests) 2676ms
+       ✓ should complete analysis and set isAnalyzing back to false  2581ms
+ ✓ src/app/__tests__/supabaseClientReal.test.ts (15 tests) 136ms
+ ✓ src/app/__tests__/SystemSettings.test.tsx (6 tests) 852ms
+     ✓ should render system settings page  336ms
+ ✓ src/app/__tests__/CreationStudio.test.tsx (12 tests) 1044ms
+     ✓ should not render when closed  302ms
+ ✓ src/app/__tests__/HotelDashboard.test.tsx (7 tests) 810ms
+     ✓ should render successfully  370ms
+ ✓ src/app/__tests__/PatrolHistory.test.tsx (9 tests) 1392ms
+       ✓ 应渲染巡查历史标题  447ms
+       ✓ 默认应显示最近 10 条（或全部不足 10 条时）  468ms
+ ✓ src/app/__tests__/CLITerminal.test.tsx (14 tests) 472ms
+ ✓ src/app/__tests__/useModelProvider.test.tsx (11 tests) 158ms
+ ✓ src/app/__tests__/lib/cache-manager.test.ts (21 tests) 294ms
+ ✓ src/app/__tests__/useServiceLoop.test.ts (16 tests) 165ms
+ ✓ src/app/__tests__/OperationLogStream.test.tsx (10 tests) 589ms
+ ✓ src/app/__tests__/useKeyboardShortcuts.test.tsx (13 tests) 66ms
+ ✓ src/app/__tests__/useYYC3Head.test.ts (9 tests) 131ms
+ ✓ src/app/__tests__/lib/yyc3-core-multimodal.test.ts (12 tests) 18ms
+ ✓ src/app/__tests__/AddModelModal.test.tsx (12 tests) 482ms
+ ✓ src/app/__tests__/hooks/useInference.test.ts (8 tests) 226ms
+ ✓ src/app/__tests__/IDEStatusBar.test.tsx (14 tests) 452ms
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > getSyncQueue > should return stored queue
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > addToSyncQueue > should add item with generated id and timestamp
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > addToSyncQueue > should persist to localStorage
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > processSyncQueue > should process all items successfully
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > processSyncQueue > should retry items that fail sync
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > processSyncQueue > should not retry items after max retries
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > registerBackgroundSync > should return false when serviceWorker is not available
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > registerBackgroundSync > should return false when SyncManager is not available
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > clearSyncQueue > should remove all items from queue
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+stdout | src/app/__tests__/backgroundSync.test.ts > backgroundSync > getSyncQueueStats > should return correct stats for populated queue
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+[BackgroundSync] 浏览器不支持后台同步，将使用在线时主动同步
+
+ ✓ src/app/__tests__/LoopStageCard.test.tsx (11 tests) 462ms
+       ✓ 应渲染阶段标签  403ms
+ ✓ src/app/__tests__/backgroundSync.test.ts (14 tests) 429ms
+ ✓ src/app/__tests__/lib/yyc3-core-skills-builtin.test.ts (9 tests) 5ms
+ ✓ src/app/__tests__/rf002-error-log-dual-write.test.ts (8 tests) 21ms
+ ✓ src/app/__tests__/useI18n.test.tsx (13 tests) 80ms
+ ✓ src/app/__tests__/ConnectionStatus.test.tsx (13 tests) 316ms
+ ✓ src/app/__tests__/VinylPhotoPlayer.test.tsx (14 tests) 1411ms
+     ✓ should render vinyl photo player component  616ms
+ ✓ src/app/__tests__/FileExplorer.test.tsx (12 tests) 1267ms
+       ✓ should render new file button  379ms
+ ✓ src/app/__tests__/QuickActionGrid.test.tsx (8 tests) 297ms
+ ✓ src/app/__tests__/security-types.test.ts (15 tests) 8ms
+ ✓ src/app/__tests__/PWAStatusPanel.test.tsx (11 tests) 553ms
+ ✓ src/app/__tests__/TabBar.test.tsx (10 tests) 725ms
+ ✓ src/app/__tests__/useNetworkConfig.test.ts (9 tests) 39ms
+ ✓ src/app/__tests__/lib/mcp-bridge-tools.test.ts (13 tests) 8ms
+ ✓ src/app/__tests__/i18n-consistency.test.ts (52 tests) 113ms
+ ✓ src/app/__tests__/useOperationCenter.test.ts (12 tests) 6028ms
+     ✓ should execute action  1750ms
+     ✓ should run template  4078ms
+ ✓ src/app/__tests__/usePWAManager.test.tsx (16 tests) 5590ms
+       ✓ 更新后版本应变为 1.5.0  2006ms
+       ✓ 清空后 cacheEntries 应为空  1532ms
+       ✓ 应移除指定缓存条目  807ms
+       ✓ 刷新后 lastUpdated 应更新  1203ms
+ ✓ src/app/__tests__/hooks/useMCP.test.ts (6 tests) 290ms
+ ✓ src/app/__tests__/yyc3-storage.test.ts (16 tests) 254ms
+ ✓ src/app/__tests__/AlertBanner.test.tsx (11 tests) 638ms
+     ✓ should render alert banner with latest title  387ms
+ ✓ src/app/__tests__/ComponentShowcase.test.tsx (13 tests) 580ms
+       ✓ 应渲染主容器  306ms
+ ✓ src/app/__tests__/storage.test.ts (11 tests) 35ms
+ ✓ src/app/__tests__/CommandPalette.test.tsx (11 tests) 1942ms
+     ✓ should render command palette when open  431ms
+     ✓ should call onClose when close button is clicked  778ms
+ ✓ src/app/__tests__/rf003-figma-error-dedup.test.ts (7 tests) 12ms
+ ✓ src/app/__tests__/PatternAnalyzer.test.tsx (10 tests) 919ms
+ ✓ src/app/__tests__/hooks/usePageConfig.test.tsx (6 tests) 423ms
+ ✓ src/app/__tests__/EnvConfigEditor.test.tsx (11 tests) 1981ms
+     ✓ should render env config editor page  305ms
+     ✓ should render storage group  313ms
+     ✓ should render import button  413ms
+ ✓ src/app/__tests__/DesignTokens.test.tsx (16 tests) 545ms
+       ✓ 应渲染主容器  303ms
+ ✓ src/app/__tests__/network-utils-core.test.ts (14 tests) 5ms
+ ✓ src/app/__tests__/lib/crdt.test.ts (15 tests) 5ms
+ ✓ src/app/__tests__/followup-types.test.ts (8 tests) 4ms
+ ✓ src/app/__tests__/LocalFileManager.test.tsx (5 tests) 221ms
+ ✓ src/app/__tests__/useI18n.test.ts (12 tests) 22ms
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render performance monitor page
+The tag <stop> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+The tag <linearGradient> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+The tag <defs> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render web vitals section
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render memory section
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render fps section
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render resources section
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render storage section
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render alerts section
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render refresh button
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render export button
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/OperationChain.test.tsx (8 tests) 624ms
+stderr | src/app/__tests__/PerformanceMonitor.test.tsx > PerformanceMonitor > should render alert toggle
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/PerformanceMonitor.test.tsx (10 tests) 1073ms
+ ✓ src/app/__tests__/StageReview.test.tsx (14 tests) 721ms
+       ✓ 应渲染主容器  393ms
+ ✓ src/app/__tests__/LanguageSwitcher.test.tsx (9 tests) 217ms
+ ✓ src/app/__tests__/HostFileManager.test.tsx (6 tests) 372ms
+ ✓ src/app/__tests__/DataFlowDiagram.test.tsx (10 tests) 369ms
+ ✓ src/app/__tests__/DatabaseManager.test.tsx (4 tests) 363ms
+     ✓ should render database manager page  312ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ src/app/__tests__/ColorSwatch.test.tsx (9 tests) 450ms
+     ✓ should toggle color picker on click  326ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ src/app/__tests__/i18n-packs.test.ts (10 tests) 348ms
+ ✓ src/app/__tests__/ServiceLoopPanel.test.tsx (6 tests) 221ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ src/app/__tests__/a11y-audit.test.tsx (5 tests) 679ms
+ ✓ src/app/__tests__/OfflineIndicator.test.tsx (5 tests) 254ms
+ ✓ src/app/__tests__/DataEditorPanel.test.tsx (8 tests) 872ms
+ ✓ src/app/__tests__/PWAInstallPrompt.test.tsx (6 tests) 649ms
+     ✓ should call promptInstall when install button is clicked  395ms
+ ✓ src/app/__tests__/NetworkConfig.test.tsx (6 tests) 218ms
+ ✓ src/app/__tests__/BottomNav.test.tsx (9 tests) 696ms
+       ✓ 应渲染 5 个按钮（4 个导航 + 1 个更多）  427ms
+ ✓ src/app/__tests__/i18n-loop-devguide.test.ts (12 tests) 304ms
+ ✓ src/app/__tests__/operation-types.test.ts (11 tests) 4ms
+ ✓ src/app/__tests__/useMobileView.test.tsx (8 tests) 24ms
+ ✓ src/app/__tests__/security-i18n.test.ts (17 tests) 6ms
+ ✓ src/app/__tests__/ModelProviderPanel.test.tsx (7 tests) 461ms
+ ✓ src/app/__tests__/test-infrastructure.test.ts (11 tests) 49ms
+ ✓ src/app/__tests__/QuickActionGroup.test.tsx (6 tests) 2520ms
+       ✓ 应渲染 5 个按钮元素  362ms
+       ✓ 点击一键修复应触发 onQuickFix  628ms
+       ✓ 点击标记解决应触发 onMarkResolved  616ms
+       ✓ 点击查看详情应触发 onViewDetail  655ms
+ ✓ src/app/__tests__/rf001-ws-url-unification.test.ts (5 tests) 308ms
+ ✓ src/app/__tests__/EmotionVisualizer.test.tsx (8 tests) 569ms
+     ✓ should render emotion visualizer component  464ms
+ ✓ src/app/__tests__/NotFound.test.tsx (11 tests) 548ms
+ ✓ src/app/__tests__/filesystem-types.test.ts (10 tests) 26ms
+ ✓ src/app/__tests__/GlassCard.test.tsx (9 tests) 408ms
+stderr | src/app/__tests__/OperationAudit.test.tsx > OperationAudit > should render operation audit page
+The tag <stop> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+The tag <linearGradient> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+The tag <defs> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+
+stderr | src/app/__tests__/OperationAudit.test.tsx > OperationAudit > should render search input
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/OperationAudit.test.tsx > OperationAudit > should render filter buttons
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+stderr | src/app/__tests__/OperationAudit.test.tsx > OperationAudit > should render audit logs table
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/ReportExporter.test.tsx (5 tests) 435ms
+stderr | src/app/__tests__/OperationAudit.test.tsx > OperationAudit > should render export button
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/DesignSystemPage.test.tsx (6 tests) 1111ms
+     ✓ 应渲染页面标题  646ms
+     ✓ 点击组件库应切换到 ComponentShowcase  344ms
+stderr | src/app/__tests__/OperationAudit.test.tsx > OperationAudit > should render summary cards
+<linearGradient /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+
+ ✓ src/app/__tests__/OperationAudit.test.tsx (6 tests) 1349ms
+     ✓ should render operation audit page  713ms
+     ✓ should render audit logs table  337ms
+ ✓ src/app/__tests__/OperationCategory.test.tsx (7 tests) 105ms
+ ✓ src/app/__tests__/ServiceConnectionTest.test.tsx (4 tests) 336ms
+ ✓ src/app/__tests__/lib/migrate-storage.test.ts (9 tests) 9ms
+ ✓ src/app/__tests__/OperationCenter.test.tsx (5 tests) 742ms
+     ✓ should render operation center page  592ms
+ ✓ src/app/__tests__/ConfigExportCenter.test.tsx (5 tests) 683ms
+     ✓ should render config export center page  532ms
+ ✓ src/app/__tests__/lib/network-utils.test.ts (8 tests) 6ms
+ ✓ src/app/__tests__/RefactoringReport.test.tsx (6 tests) 1669ms
+     ✓ should render refactoring report page  775ms
+     ✓ should render category labels in severity distribution  411ms
+ ✓ src/app/__tests__/PanelContent.test.tsx (8 tests) 82ms
+ ✓ src/app/__tests__/useServiceLoop.test.tsx (21 tests) 51465ms
+       ✓ 完整闭环后 history 应有 1 条记录  9056ms
+       ✓ 完整闭环后 6 个阶段均为 completed  7428ms
+       ✓ 每个阶段应有 summary 和 details  8333ms
+       ✓ trigger 应记录触发方式  8977ms
+       ✓ 运行后 totalRuns 应增加  8937ms
+       ✓ 清空后 history 应为空  8598ms
+ ✓ src/app/__tests__/ai-types.test.ts (7 tests) 5ms
+ ✓ src/app/__tests__/service-loop-types.test.ts (6 tests) 3ms
+ ✓ src/app/__tests__/hooks/useDbData.test.ts (3 tests) 450ms
+stdout | src/app/__tests__/lib/cross-tab-sync.test.ts > cross-tab-sync > should broadcast node update without error
+[CrossTabSync] Initialized tab tab-1791580551061-8ho0p
+
+stdout | src/app/__tests__/lib/cross-tab-sync.test.ts > cross-tab-sync > should broadcast node add without error
+[CrossTabSync] Initialized tab tab-1791580551061-8ho0p
+
+stdout | src/app/__tests__/lib/cross-tab-sync.test.ts > cross-tab-sync > should broadcast node remove without error
+[CrossTabSync] Initialized tab tab-1791580551061-8ho0p
+
+stdout | src/app/__tests__/lib/cross-tab-sync.test.ts > cross-tab-sync > should destroy cleanly
+[CrossTabSync] Initialized tab tab-1791580551061-8ho0p
+
+ ✓ src/app/__tests__/lib/cross-tab-sync.test.ts (8 tests) 6ms
+ ✓ src/app/__tests__/Workspace.test.tsx (5 tests) 508ms
+     ✓ should render workspace container  462ms
+ ✓ src/app/__tests__/ArchitectureAudit.test.tsx (6 tests) 701ms
+ ✓ src/app/__tests__/hooks/zero-coverage-hooks.test.ts (3 tests) 701ms
+     ✓ should return variables interface  379ms
+ ✓ src/app/__tests__/SecurityMonitor.test.tsx (6 tests) 467ms
+     ✓ should render security monitor page  330ms
+ ✓ src/app/__tests__/ThemeCustomizer.test.tsx (8 tests) 1500ms
+ ✓ src/app/__tests__/DevGuidePage.test.tsx (6 tests) 654ms
+     ✓ should render dev guide page  396ms
+ ✓ src/app/__tests__/PatrolDashboard.test.tsx (5 tests) 371ms
+     ✓ should render patrol dashboard page  306ms
+ ✓ src/app/__tests__/lib/family-db-bridge.test.ts (7 tests) 30ms
+ ✓ src/app/__tests__/lib/canvas-perf-registry.test.ts (4 tests) 6ms
+ ✓ src/app/__tests__/pwa-i18n-types.test.ts (5 tests) 8ms
+ ✓ src/app/__tests__/lib/crypto-vault.test.ts (4 tests) 115ms
+ ✓ src/app/__tests__/DataMonitoring.test.tsx (2 tests) 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/app/__tests__/e2e-integration.test.ts > E2E: env-config 配置闭环 > 完整的 读取 → 修改 → 持久化 → 重置 闭环
+AssertionError: expected '3.4.1' to be '3.3.0' // Object.is equality
+
+Expected: "3.3.0"
+Received: "3.4.1"
+
+ ❯ src/app/__tests__/e2e-integration.test.ts:172:35
+    170|     // 1. 默认值
+    171|     expect(env("SYSTEM_NAME")).toBe("YYC³ Cloud Intelli-Matrix");
+    172|     expect(env("SYSTEM_VERSION")).toBe("3.3.0");
+       |                                   ^
+    173|     expect(env("ENABLE_MOCK_MODE")).toBe(true);
+    174|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/app/__tests__/env-config.test.ts > env-config > env() > should return default system version
+AssertionError: expected '3.4.1' to be '3.3.0' // Object.is equality
+
+Expected: "3.3.0"
+Received: "3.4.1"
+
+ ❯ src/app/__tests__/env-config.test.ts:43:23
+     41|     it("should return default system version", () => {
+     42|       const version = env("SYSTEM_VERSION");
+     43|       expect(version).toBe("3.3.0");
+       |                       ^
+     44|     });
+     45|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 263 passed (265)
+      Tests  2 failed | 4645 passed (4647)
+   Start at  05:14:13
+   Duration  99.97s (transform 71.70s, setup 200.40s, import 137.28s, tests 299.86s, environment 564.44s)
+
+P3_TEST_EXIT=1

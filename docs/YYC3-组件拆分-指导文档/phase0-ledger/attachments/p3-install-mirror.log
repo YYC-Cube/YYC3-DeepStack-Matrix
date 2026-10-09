@@ -1,0 +1,5 @@
+.../node_modules/electron postinstall$ node install.js
+.../node_modules/electron postinstall: Done
+
+Done in 13.1s
+P3_INSTALL3_EXIT=0

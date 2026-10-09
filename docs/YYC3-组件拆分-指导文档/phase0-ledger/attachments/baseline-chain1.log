@@ -1,0 +1,67 @@
+=== PHASE0 BASELINE CHAIN START 2026-10-10 04:59:31 ===
+
+########## P2 (YYC3 CloudPivot Intelli-Matrix) ##########
+--- P2 install --frozen-lockfile ---
+ ERROR  packages field missing or empty
+For help, run: pnpm help install
+P2 INSTALL_EXIT=1
+--- P2 build ---
+ ERROR  packages field missing or empty
+For help, run: pnpm help run
+P2 BUILD_EXIT=1
+
+########## P3 (YYC3-CloudPivot Intelli-Matrix) ##########
+--- P3 install --frozen-lockfile ---
+.../node_modules/electron postinstall$ node install.js
+.../node_modules/electron-winstaller install$ node ./script/select-7z-arch.js
+.../node_modules/electron-winstaller install: Selecting 7-Zip for arch arm64
+.../node_modules/electron-winstaller install: Done
+.../node_modules/electron postinstall: HTTPError: Response code 400 (Bad Request)
+.../node_modules/electron postinstall:     at Request._onResponseBase (/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/node_modules/.pnpm/got@11.8.6/node_modules/got/dist/source/core/index.js:913:31)
+.../node_modules/electron postinstall:     at Request._onResponse (/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/node_modules/.pnpm/got@11.8.6/node_modules/got/dist/source/core/index.js:948:24)
+.../node_modules/electron postinstall:     at ClientRequest.<anonymous> (/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/node_modules/.pnpm/got@11.8.6/node_modules/got/dist/source/core/index.js:962:23)
+.../node_modules/electron postinstall:     at Object.onceWrapper (node:events:633:26)
+.../node_modules/electron postinstall:     at ClientRequest.emit (node:events:530:35)
+.../node_modules/electron postinstall:     at origin.emit (/Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix/node_modules/.pnpm/@szmarczak+http-timer@4.0.6/node_modules/@szmarczak/http-timer/dist/source/index.js:43:20)
+.../node_modules/electron postinstall:     at HTTPParser.parserOnIncomingClient (node:_http_client:716:27)
+.../node_modules/electron postinstall:     at HTTPParser.parserOnHeadersComplete (node:_http_common:117:17)
+.../node_modules/electron postinstall:     at TLSSocket.socketOnData (node:_http_client:558:22)
+.../node_modules/electron postinstall:     at TLSSocket.emit (node:events:518:28)
+.../node_modules/electron postinstall: Failed
+ ELIFECYCLE  Command failed with exit code 1.
+P3 INSTALL_EXIT=1
+--- P3 build ---
+
+> yyc3-cloudpivot-intelli-matrix@3.4.1 build /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot Intelli-Matrix
+> tsc -p electron/tsconfig.json && vite build
+
+electron/tsconfig.json(4,25): error TS5107: Option 'moduleResolution=node10' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+  Visit https://aka.ms/ts6 for migration information.
+electron/tsconfig.json(5,5): error TS5011: The common source directory of 'tsconfig.json' is '..'. The 'rootDir' setting must be explicitly set to this or another path to adjust your output's file layout.
+  Visit https://aka.ms/ts6 for migration information.
+ ELIFECYCLE  Command failed with exit code 2.
+P3 BUILD_EXIT=2
+
+########## P4 (YYC3-CloudPivot-Intelli-Matrix) ##########
+--- P4 install --frozen-lockfile ---
+ ERR_PNPM_LOCKFILE_CONFIG_MISMATCH  Cannot proceed with the frozen installation. The current "overrides" configuration doesn't match the value found in the lockfile
+
+Update your lockfile using "pnpm install --no-frozen-lockfile"
+P4 INSTALL_EXIT=1
+--- P4 build ---
+
+> yyc3-cloudpivot-intelli-matrix@3.4.1 build /Users/yanyu/Downloads/YYC3-CloudPivot-Matrix-集成/YYC3-CloudPivot-Intelli-Matrix
+> tsc -p electron/tsconfig.json && vite build
+
+error TS2688: Cannot find type definition file for 'node'.
+  The file is in the program because:
+    Entry point of type library 'node' specified in compilerOptions
+electron/tsconfig.json(4,25): error TS5107: Option 'moduleResolution=node10' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+  Visit https://aka.ms/ts6 for migration information.
+electron/tsconfig.json(5,5): error TS5011: The common source directory of 'tsconfig.json' is '..'. The 'rootDir' setting must be explicitly set to this or another path to adjust your output's file layout.
+  Visit https://aka.ms/ts6 for migration information.
+ ELIFECYCLE  Command failed with exit code 2.
+ WARN   Local package.json exists, but node_modules missing, did you mean to install?
+P4 BUILD_EXIT=2
+
+=== CHAIN DONE 2026-10-10 04:59:45 ===

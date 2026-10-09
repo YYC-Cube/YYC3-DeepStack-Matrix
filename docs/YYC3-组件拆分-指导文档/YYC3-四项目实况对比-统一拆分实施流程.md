@@ -2,9 +2,9 @@
 file: YYC3-四项目实况对比-统一拆分实施流程.md
 description: YYC³ CloudPivot Intelli-Matrix 四个同源项目技术实况对比与统一组件拆分实施流程（基于源码审计 + 69 张运行截图视觉标定）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.2.0
+version: v1.3.0
 created: 2026-10-08
-updated: 2026-10-08（v1.2：P1 首页切换 AI Family 时钟环同步；v1.1：补入截图视觉证据 5.3 节）
+updated: 2026-10-10（v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
 status: active
 tags: [audit],[comparison],[refactor],[monorepo],[unified-process]
 category: guide
@@ -86,7 +86,7 @@ category: guide
 | 测试 | vitest **400+ 文件** | vitest 122 文件（**混入 50+ 修复脚本**） | vitest 400+（bun shim **绝对路径失效**） | vitest 300+（bun shim 可用 + a11y 审计 + zero-coverage 看门） | 统一 vitest+playwright+bun shim |
 | E2E | Playwright | Playwright 3 specs | Playwright 3 引擎（**e2e 断言 /data-monitor 已失配**） | Playwright 5 specs | 统一 5 specs 修除断言 |
 | CI/CD | `workflows/ci.yml` 简版 | ❌ 无 | **9-job 全流水线**+Docker GHCR 双架构+Lighthouse+CodeQL/Trivy | ❌ 无 .github（仅 deploy/ 脚本+launchd） | 以 P3 为模板推广 |
-| dev 端口 | 3218 | **3030（✅团队规范）** | 3218（部署 3118/容器 8080） | 3218 | 统一 3030 起（团队红线） |
+| dev 端口 | **3030（✅已合规）** | **3030（✅团队规范）** | 3218（部署 3118/容器 8080） | 3218 | 统一 3030 起（团队红线） |
 | 路径别名 | `@ → ./src` | ❌ 无（全相对路径） | `@ → ./src` | `@ → ./src` | 统一 `@` 别名 |
 
 ---
@@ -185,7 +185,7 @@ createHashRouter（适配 Electron file:// 与静态托管）
 
 | 类别 | 实况 |
 | ---- | ---- |
-| shadcn 基础件 | 46~50 件高度重合（accordion…tooltip 全集）；P1/P3/P4/P2 均含自研 `page-header`；P4 另有完整 48 件版 |
+| shadcn 基础件 | 46~50 件高度重合（accordion…tooltip 全集）；P1/P3/P4 均含自研 `page-header`（**P2 缺失**，Phase 0 台账实证，随 `@yyc3/ui` 补齐）；P4 另有完整 48 件版 |
 | 品牌组件 | `GlassCard`（forwardRef 毛玻璃+发光边框+glowColor 注入）、`YYC3Logo`/`YYC3LogoSvg`（五档尺寸+状态点）四项目同名同源 |
 | 布局骨架 | `Layout/Sidebar/TopBar/BottomNav/CommandPalette(cmdk)/AIAssistant/IntegratedTerminal` 四项目一致 |
 | 已知病灶 | P1/P3/P4 内联 `style={{...}}` 硬编码色与 token 体系脱节；MUI 与 shadcn 双栈并存（P2 已纯净）；根目录游离 `default_shadcn_theme.css`（P1/P4） |
@@ -370,6 +370,9 @@ createHashRouter（适配 Electron file:// 与静态托管）
 > 每阶段含：目标 / 动作 / DoD（验收标准）/ 回滚策略。阶段内任务可并行，阶段间串行依赖。
 
 ### Phase 0｜实况盘点与基线冻结（不写业务代码）
+
+> **进度（2026-10-10，v1.3）**：✅ **M0 达成**（详见 [`YYC3-Phase0-执行日志.md`](./YYC3-Phase0-执行日志.md)）。
+> ① 冻结：工作区根**单一 git 仓库**一次冻结（commit `2e88c40` + tag `pre-unification`，纯本地无 remote；原"四项目分别建仓"登记偏差作废）；② ui 台账：49 件全覆盖 L0=2/L0\*=44/L1=3/L2=0，P1≡P3≡P4，`chart.tsx` 安全版为唯一功能差异；③ 基线：P1/P3 install+build 全绿（dist 151M/168M），P2 存量缺陷 A/B、P4 存量缺陷 C 已定性留档（M1 消解）——台账 100% 覆盖 DoD 达成。
 
 **目标**：以代码为准绳建立迁移基线，杜绝盲改。
 **动作**：

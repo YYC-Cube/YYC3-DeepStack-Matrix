@@ -17,7 +17,7 @@
 > **Words Initiate Quadrants, Language Serves as Core for the Future**
 > **万象归元于云枢 · 深栈智启新纪元**
 
-**YYC³ CloudPivot Intelli-Matrix** 是「YYC³ Family 本地闭环多端推理矩阵数据看盘系统」——由四个同源历史项目（P1 结构范式 / P2 沙箱韧性 / P3 工程门禁 / P4 功能纵深）经统一拆分收敛而成的 **pnpm Monorepo**：四端应用共享 **@yyc3/* 十二包**，覆盖 AI Family 智能体矩阵、监控中心、运维管理、智慧酒店、通讯基站、IDE 开发工具等八大业务域。
+**YYC³ CloudPivot Intelli-Matrix** 是「YYC³ Family 本地闭环多端推理矩阵数据看盘系统」——由四个同源历史项目（P1 结构范式 / P2 沙箱韧性 / P3 工程门禁 / P4 功能纵深）经统一拆分收敛而成的 **pnpm Monorepo**：四端应用共享 **@yyc3/* 十二包**，覆盖 AI Family 智能体矩阵、监控中心、运维管理、智慧酒店、通讯基站、IDE 开发工具等八大业务域。工作区目录名 **YYC3-DeepStack-Matrix（深栈矩阵）**——出处「深栈智启新纪元」：十二包深栈能力层托举四端。
 
 ---
 
@@ -59,7 +59,7 @@ pnpm --filter @yyc3/app-web-full test -- --run
 ## 二、仓库拓扑：四端 + 十二包
 
 ```text
-YYC3-CloudPivot-Matrix-集成/
+YYC3-DeepStack-Matrix/
 ├── apps/                          # 四端应用（同源四形态）
 │   ├── app-web-full/              # P1 完整版 —— 结构最规范（modules 域组织 + 首页时钟环）
 │   ├── app-sandbox-lite/          # P2 沙箱版 —— Figma Make 特化（React 18 独立演进）

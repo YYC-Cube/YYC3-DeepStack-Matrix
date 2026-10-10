@@ -46,7 +46,7 @@ vi.mock("../hooks/useModelProvider", () => ({
   }),
 }));
 
-vi.mock("../store/slices/provider-slice", () => ({
+vi.mock("@yyc3/store/provider-slice", () => ({
   useProviderSlice: () => ({
     configuredModels: [
       { id: "cm-1", model: "Qwen-72B", providerId: "ollama", providerLabel: "Ollama" },

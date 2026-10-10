@@ -28,7 +28,7 @@ import { GlassCard } from "../shared/GlassCard";
 import { ViewContext } from "../../lib/view-context";
 import { connectionManager } from "../../../database/ConnectionManager";
 import type { ConnectionInfo, HealthCheckResult, PoolStats } from "../../../database/types";
-import { useDbConnSlice } from "../../store/slices/db-conn-slice";
+import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 
 interface ConnectionMonitorProps {
   connectionId?: string;

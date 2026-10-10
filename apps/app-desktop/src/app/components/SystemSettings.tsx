@@ -56,7 +56,7 @@ import {
   setAPIConfig,
   type APIEndpoints,
 } from "@yyc3/core/api-config";
-import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "../lib/connection-test-engine";
+import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "@yyc3/core/connection-test-engine";
 import { DesignSystemPage } from "./design-system/DesignSystemPage";
 import { GlassCard } from "./GlassCard";
 import { NetworkConfig } from "./NetworkConfig";

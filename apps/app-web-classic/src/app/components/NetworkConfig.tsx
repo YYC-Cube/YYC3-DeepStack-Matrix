@@ -34,7 +34,7 @@ import { useNetworkConfig } from "../hooks/useNetworkConfig";
 import type { TestStatus } from "../types";
 import { toast } from "sonner";
 import type { WifiAutoReconnectSettings } from "../types";
-import { useNetworkSlice } from "../store/slices/network-slice";
+import { useNetworkSlice } from "@yyc3/store/network-slice";
 
 interface NetworkConfigProps {
   open: boolean;

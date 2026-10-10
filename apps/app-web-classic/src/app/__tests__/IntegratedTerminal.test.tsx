@@ -51,7 +51,7 @@ vi.mock("motion/react", () => ({
 }));
 
 // ── Import the Zustand store after mocks ───────────────────────
-import { useUIPrefsSlice } from "../store/slices/ui-prefs-slice";
+import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 
 describe("IntegratedTerminal", () => {
   const mockOnClose = vi.fn();

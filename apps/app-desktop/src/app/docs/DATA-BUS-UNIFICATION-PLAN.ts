@@ -420,7 +420,7 @@ export const PHASE_4 = {
       title: '迁移 global-data-interoperability.test.ts 中 nodeStore 用例',
       file: 'src/app/__tests__/global-data-interoperability.test.ts',
       migrationMap: {
-        'import { nodeStore }': 'import { useNodeSlice } from "../store/slices/node-slice"',
+        'import { nodeStore }': 'import { useNodeSlice } from "@yyc3/store/node-slice"',
         'nodeStore.getAll()': 'useNodeSlice.getState().nodes',
         'nodeStore.add(x)': 'useNodeSlice.getState().addNode(x)',
         'nodeStore.update(id, x)': 'useNodeSlice.getState().updateNode(id, x)',

@@ -32,7 +32,9 @@
     "./dmusic-resources": "./src/dmusic-resources.ts",
     "./i18n": "./src/i18n/index.ts",
     "./i18n/zh-CN": "./src/i18n/zh-CN.ts",
-    "./i18n/en-US": "./src/i18n/en-US.ts"
+    "./i18n/en-US": "./src/i18n/en-US.ts",
+    "./connection-test-engine": "./src/connection-test-engine.ts",
+    "./variable-center": "./src/variable-center.ts"
   },
   "peerDependencies": {
     "react": "^18 || ^19"

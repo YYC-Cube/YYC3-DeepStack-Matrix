@@ -19,7 +19,7 @@ vi.mock("@yyc3/core/ollama-url", () => ({
   getOllamaTagsUrl: vi.fn(() => "http://localhost:11434/api/tags"),
 }));
 
-vi.mock("../lib/connection-test-engine", () => ({
+vi.mock("@yyc3/core/connection-test-engine", () => ({
   testAIConnection: vi.fn(async () => ({
     overallStatus: "pass",
     steps: [],
@@ -32,7 +32,7 @@ global.fetch = vi.fn();
 // ── Import store and hook after mocks ─────────────────────────
 
 import { useModelProvider } from "../hooks/useModelProvider";
-import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "../store/slices/provider-slice";
+import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "@yyc3/store/provider-slice";
 
 describe("useModelProvider", () => {
   beforeEach(() => {

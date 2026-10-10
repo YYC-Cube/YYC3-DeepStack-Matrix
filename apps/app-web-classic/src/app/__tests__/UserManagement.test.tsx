@@ -15,7 +15,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { UserManagement } from "../components/UserManagement";
-import { useUserMgmtSlice } from "../store/slices/user-mgmt-slice";
+import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
 import { toast } from "sonner";
 
 vi.mock("sonner", () => ({

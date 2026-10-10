@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useContext, useRef, useState } from "react";
 import { ViewContext } from "../../lib/view-context";
-import { useUIPrefsSlice } from "../../store/slices/ui-prefs-slice";
+import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 import { GlassCard } from "../shared/GlassCard";
 import { YYC3Logo } from "../shared/YYC3Logo";
 import { ColorSwatch } from "./theme/ColorSwatch";

@@ -13,7 +13,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ModelPerfEntry, ModelDistEntry, RadarEntry } from '../../types';
+import type { ModelPerfEntry, ModelDistEntry, RadarEntry } from '@yyc3/core/types';
 
 // Re-export for backward compatibility
 export type { ModelPerfEntry, ModelDistEntry, RadarEntry };

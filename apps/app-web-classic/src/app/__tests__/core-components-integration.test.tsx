@@ -271,7 +271,7 @@ describe("SystemSettings 集成测试", () => {
 // ============================================================
 
 import { UserManagement } from "../components/UserManagement";
-import { useUserMgmtSlice } from "../store/slices/user-mgmt-slice";
+import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
 
 describe("UserManagement 集成测试", () => {
   beforeEach(() => {

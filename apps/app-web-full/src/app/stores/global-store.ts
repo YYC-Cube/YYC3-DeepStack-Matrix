@@ -157,8 +157,8 @@ export const useChat = () => useGlobalStore(useShallow((state) => ({
 // 聚合选择器 — 从 Slice 读取
 // ============================================================
 
-import { useDbConnSlice } from '../store/slices/db-conn-slice';
-import { useFollowUpSlice } from '../store/slices/follow-up-slice';
+import { useDbConnSlice } from '@yyc3/store/db-conn-slice';
+import { useFollowUpSlice } from '@yyc3/store/follow-up-slice';
 
 /** 从 follow-up-slice 聚合读取告警数据 + 暴露操作方法 */
 export const useAlerts = () => {
@@ -234,7 +234,7 @@ export const useDatabase = () => {
 // 数据导出/导入（含 provider-slice 数据）
 // ============================================================
 
-import { useProviderSlice } from '../store/slices/provider-slice';
+import { useProviderSlice } from '@yyc3/store/provider-slice';
 
 export function exportStoreData(): string {
   const state = useGlobalStore.getState();

@@ -19,7 +19,7 @@ import { GlassCard } from "../shared/GlassCard";
 import { useI18n } from "@yyc3/core/i18n";
 import { toast } from "sonner";
 import type { UserRecord } from "../../types";
-import { useUserMgmtSlice } from "../../store/slices/user-mgmt-slice";
+import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
 import { useShallow } from "zustand/shallow";
 
 const ROLE_LIST = ["超级管理员", "运维工程师", "开发者", "数据分析师", "测试工程师", "AI 研究员", "系统服务", "自动化运维"];

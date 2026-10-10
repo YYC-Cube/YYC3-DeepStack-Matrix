@@ -10,9 +10,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useAppSlice } from '../../store/slices/app-slice';
+import { useAppSlice } from '@yyc3/store/app-slice';
 import type { AlertData } from '../../types';
-import type { RecentOpEntry } from '../../store/slices/app-slice';
+import type { RecentOpEntry } from '@yyc3/store/app-slice';
 
 describe('useAppSlice', () => {
   const mockAlert: AlertData = {

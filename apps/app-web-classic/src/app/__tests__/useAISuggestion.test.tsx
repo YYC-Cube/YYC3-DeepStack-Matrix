@@ -34,7 +34,7 @@ vi.mock("sonner", () => ({
 }));
 
 // ── Import the Zustand slice and hook after mocks ──────────────
-import { useAISuggestionSlice } from "../store/slices/ai-suggestion-slice";
+import { useAISuggestionSlice } from "@yyc3/store/ai-suggestion-slice";
 import { useAISuggestion } from "../hooks/useAISuggestion";
 
 describe("useAISuggestion", () => {

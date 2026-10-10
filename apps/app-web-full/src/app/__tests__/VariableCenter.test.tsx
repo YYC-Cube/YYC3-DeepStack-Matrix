@@ -22,7 +22,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../config/variable-center", () => {
+vi.mock("@yyc3/core/variable-center", () => {
   const sampleVariables = [
     {
       key: "device.name",

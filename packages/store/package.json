@@ -1,0 +1,44 @@
+{
+  "name": "@yyc3/store",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一状态库 — Zustand Slices 单源（主文档 Phase 4 M4-3）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ai-suggestion-slice": "./src/ai-suggestion-slice.ts",
+    "./app-slice": "./src/app-slice.ts",
+    "./db-conn-slice": "./src/db-conn-slice.ts",
+    "./follow-up-slice": "./src/follow-up-slice.ts",
+    "./fs-slice": "./src/fs-slice.ts",
+    "./log-slice": "./src/log-slice.ts",
+    "./metrics-slice": "./src/metrics-slice.ts",
+    "./model-slice": "./src/model-slice.ts",
+    "./network-slice": "./src/network-slice.ts",
+    "./node-slice": "./src/node-slice.ts",
+    "./offline-slice": "./src/offline-slice.ts",
+    "./provider-slice": "./src/provider-slice.ts",
+    "./sdk-session-slice": "./src/sdk-session-slice.ts",
+    "./settings-ssot-slice": "./src/settings-ssot-slice.ts",
+    "./ui-prefs-slice": "./src/ui-prefs-slice.ts",
+    "./user-mgmt-slice": "./src/user-mgmt-slice.ts"
+  },
+  "peerDependencies": {
+    "immer": "^11",
+    "sonner": "^1.7 || ^2",
+    "zustand": "^5"
+  },
+  "dependencies": {
+    "@yyc3/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "immer": "^11.1.4",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3",
+    "zustand": "^5.0.12"
+  }
+}

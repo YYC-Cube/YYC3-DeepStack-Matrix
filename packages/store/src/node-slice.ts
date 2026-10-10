@@ -20,7 +20,7 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { NodeData } from '../../types';
+import type { NodeData } from '@yyc3/core/types';
 import { dataBus, type DataSource } from '@yyc3/core/data-bus';
 
 const DEFAULT_NODES: NodeData[] = [

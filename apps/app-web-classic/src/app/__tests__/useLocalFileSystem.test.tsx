@@ -13,7 +13,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useLocalFileSystem } from "../hooks/useLocalFileSystem";
-import { useFSSlice } from "../store/slices/fs-slice";
+import { useFSSlice } from "@yyc3/store/fs-slice";
 
 vi.mock("sonner", () => ({
   toast: {

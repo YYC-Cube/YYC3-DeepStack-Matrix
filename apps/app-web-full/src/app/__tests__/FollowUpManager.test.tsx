@@ -28,8 +28,8 @@ import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import type { FollowUpRecord } from "../types";
-import { useFollowUpSlice } from "../store/slices/follow-up-slice";
-import { useUserMgmtSlice } from "../store/slices/user-mgmt-slice";
+import { useFollowUpSlice } from "@yyc3/store/follow-up-slice";
+import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
 
 // ──────────────────────────────────────────────────────────────────
 // Mock

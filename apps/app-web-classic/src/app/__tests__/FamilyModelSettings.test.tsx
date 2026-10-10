@@ -25,7 +25,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),
 }));
 
-vi.mock("../store/slices/provider-slice", () => ({
+vi.mock("@yyc3/store/provider-slice", () => ({
   useProviderSlice: () => ({
     providers: [
       { id: "openai", label: "OpenAI", baseUrl: "https://api.openai.com/v1", models: ["gpt-4o", "gpt-4o-mini"], isLocal: false },

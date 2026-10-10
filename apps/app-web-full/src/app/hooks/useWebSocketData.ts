@@ -36,7 +36,7 @@ import type {
 
 import { getAPIConfig } from "@yyc3/core/api-config";
 import { dataBus } from "@yyc3/core/data-bus";
-import { useNodeSlice } from "../store/slices/node-slice";
+import { useNodeSlice } from "@yyc3/store/node-slice";
 
 // ============================================================
 // Simulated Data Generator — 从 useNodeSlice 读取初始数据

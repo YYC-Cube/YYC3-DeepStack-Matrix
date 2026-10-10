@@ -39,10 +39,10 @@ interface RecentOpEntry {
   status: "pending" | "success" | "error" | "warning" | "running";
 }
 import type { RadarEntry, ModelDistEntry, StoredLogEntry } from "../../types";
-import { useNodeSlice } from "../../store/slices/node-slice";
-import { useMetricsSlice } from "../../store/slices/metrics-slice";
-import { useAppSlice } from "../../store/slices/app-slice";
-import { useLogSlice } from "../../store/slices/log-slice";
+import { useNodeSlice } from "@yyc3/store/node-slice";
+import { useMetricsSlice } from "@yyc3/store/metrics-slice";
+import { useAppSlice } from "@yyc3/store/app-slice";
+import { useLogSlice } from "@yyc3/store/log-slice";
 
 // ── 样式常量 ──
 const toastStyle = {

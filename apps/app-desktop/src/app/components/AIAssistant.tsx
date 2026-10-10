@@ -52,10 +52,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useCopyFeedback } from "../hooks/useCopyFeedback";
 import { useSettingsStore } from "../hooks/useSettingsStore";
 import { useWebSocketData } from "../hooks/useWebSocketData";
-import { runFullSystemDiagnostic, testAIConnection, type AIConnectionConfig, type SystemDiagnosticResult } from "../lib/connection-test-engine";
-import { useNodeSlice } from "../store/slices/node-slice";
-import { useProviderSlice } from "../store/slices/provider-slice";
-import { useUIPrefsSlice } from "../store/slices/ui-prefs-slice";
+import { runFullSystemDiagnostic, testAIConnection, type AIConnectionConfig, type SystemDiagnosticResult } from "@yyc3/core/connection-test-engine";
+import { useNodeSlice } from "@yyc3/store/node-slice";
+import { useProviderSlice } from "@yyc3/store/provider-slice";
+import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 import type { ChatMessage, CommandCategory } from "../types";
 import { YYC3LogoSvg } from "./YYC3LogoSvg";
 

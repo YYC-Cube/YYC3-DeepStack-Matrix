@@ -26,7 +26,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { PROVIDER_CAPABILITIES, useBigModelSDK } from "../../hooks/useBigModelSDK";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../../lib/view-context";
-import { useProviderSlice } from "../../store/slices/provider-slice";
+import { useProviderSlice } from "@yyc3/store/provider-slice";
 import type { ChatMessage, ConfiguredModel, SDKConnectionStatus } from "../../types";
 import { GlassCard } from "../shared/GlassCard";
 import { UnifiedModelSelector } from "./UnifiedModelSelector";

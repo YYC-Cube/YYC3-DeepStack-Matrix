@@ -13,7 +13,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { idbPut, idbGetAll, idbDelete } from "@yyc3/core/yyc3-storage";
 import { getAPIConfig } from "@yyc3/core/api-config";
-import { useFSSlice } from "../store/slices/fs-slice";
+import { useFSSlice } from "@yyc3/store/fs-slice";
 import type { HostFileEntry, FileVersion, RecentFile } from "../types";
 
 // ============================================================

@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useModelSlice } from '../../store/slices/model-slice';
+import { useModelSlice } from '@yyc3/store/model-slice';
 import type { DeployedModel } from '../../types';
 
 const DEFAULT_MODELS: DeployedModel[] = [

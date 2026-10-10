@@ -19,7 +19,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { toast } from 'sonner';
-import type { DetectedPattern, AIRecommendation } from '../../types';
+import type { DetectedPattern, AIRecommendation } from '@yyc3/core/types';
 import { migrateKey } from '@yyc3/core/migrate-storage';
 
 // ============================================================

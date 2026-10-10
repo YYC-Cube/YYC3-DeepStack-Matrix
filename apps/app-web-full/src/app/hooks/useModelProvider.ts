@@ -20,7 +20,7 @@ import type {
   ConfiguredModel,
   OllamaModel,
 } from "../types";
-import { useProviderSlice, BUILTIN_PROVIDERS as SLICE_BUILTIN_PROVIDERS } from "../store/slices/provider-slice";
+import { useProviderSlice, BUILTIN_PROVIDERS as SLICE_BUILTIN_PROVIDERS } from "@yyc3/store/provider-slice";
 
 // ============================================================
 // 兼容性导出 — 供测试和外部代码使用

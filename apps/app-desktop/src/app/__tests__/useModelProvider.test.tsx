@@ -20,7 +20,7 @@ vi.mock("@yyc3/core/ollama-url", () => ({
   getOllamaTagsUrl: vi.fn(() => "http://localhost:11434/api/tags"),
 }));
 
-vi.mock("../lib/connection-test-engine", () => ({
+vi.mock("@yyc3/core/connection-test-engine", () => ({
   testAIConnection: vi.fn(async () => ({
     overallStatus: "pass",
     steps: [],
@@ -32,7 +32,7 @@ vi.mock("../lib/connection-test-engine", () => ({
 global.fetch = vi.fn(() => { throw new Error("Network error"); }) as any;
 
 // Reset the Zustand store state between tests
-import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "../store/slices/provider-slice";
+import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "@yyc3/store/provider-slice";
 
 // Import hook after mocks
 import { MODEL_PROVIDERS, useModelProvider } from "../hooks/useModelProvider";

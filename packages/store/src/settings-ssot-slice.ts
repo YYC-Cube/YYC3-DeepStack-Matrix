@@ -29,7 +29,7 @@ import {
   saveVariableValues,
   validateVariable,
   type VariableValue,
-} from '../../config/variable-center';
+} from '@yyc3/core/variable-center';
 import {
   DEFAULT_WS_ENDPOINT,
   getAPIConfig,

@@ -102,7 +102,7 @@ const mockModels: ConfiguredModel[] = [
 
 let mockProvidersReturn: any;
 
-vi.mock("../store/slices/provider-slice", () => ({
+vi.mock("@yyc3/store/provider-slice", () => ({
   useProviderSlice: (_selector?: any) => mockProvidersReturn,
   BUILTIN_PROVIDERS: [
     { id: "zhipu", label: "Z.ai" },

@@ -33,7 +33,7 @@ import { useTerminal } from "../hooks/useTerminal";
 import { ViewContext } from "../lib/view-context";
 import { AuthContext } from "../lib/authContext";
 import { isGhostMode } from "@yyc3/core/supabaseClient";
-import { useUIPrefsSlice } from "../store/slices/ui-prefs-slice";
+import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 
 /* ── 常量 ─────────────────────────────── */
 const MIN_HEIGHT = 180;

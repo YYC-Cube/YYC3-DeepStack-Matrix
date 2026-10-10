@@ -38,7 +38,7 @@ import {
   formatSearchResultForAI,
   searchKnowledge,
 } from "../../lib/local-knowledge-base";
-import { useProviderSlice } from "../../store/slices/provider-slice";
+import { useProviderSlice } from "@yyc3/store/provider-slice";
 import type { ConfiguredModel } from "../../types";
 import { MOCK_CHAT_HISTORY } from "./ide-mock-data";
 import type { ChatMessage } from "./ide-types";

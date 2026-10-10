@@ -152,6 +152,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../../packages/store
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -748,6 +751,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../../packages/store
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -1103,6 +1109,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../../packages/store
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -1345,6 +1354,31 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  packages/store:
+    dependencies:
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.9.9
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.3.0
+      immer:
+        specifier: ^11.1.4
+        version: 11.1.21
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      zustand:
+        specifier: ^5.0.12
+        version: 5.0.15(@types/react@19.3.0)(immer@11.1.21)(react@19.3.0)(use-sync-external-store@1.7.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react@19.3.0))
 
   packages/theme:
     devDependencies:

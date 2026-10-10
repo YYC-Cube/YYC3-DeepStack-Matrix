@@ -36,9 +36,9 @@ import { toast } from "sonner";
 import { env } from "@yyc3/core/env-config";
 import { getOllamaChatUrl, getOllamaEndpointInfo, getOllamaTagsUrl } from "@yyc3/core/ollama-url";
 import { ViewContext } from "../../lib/view-context";
-import { useDbConnSlice } from "../../store/slices/db-conn-slice";
-import { useProviderSlice } from "../../store/slices/provider-slice";
-import { useUIPrefsSlice } from "../../store/slices/ui-prefs-slice";
+import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
+import { useProviderSlice } from "@yyc3/store/provider-slice";
+import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 import type { DBConnection } from "../../types";
 import { GlassCard } from "../shared/GlassCard";
 

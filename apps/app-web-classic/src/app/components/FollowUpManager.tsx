@@ -26,8 +26,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useI18n } from "@yyc3/core/i18n";
-import { useFollowUpSlice } from "../store/slices/follow-up-slice";
-import { useUserMgmtSlice } from "../store/slices/user-mgmt-slice";
+import { useFollowUpSlice } from "@yyc3/store/follow-up-slice";
+import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
 import type { FollowUpRecord } from "../types";
 import { FollowUpEditDialog } from "./FollowUpEditDialog";
 import { GlassCard } from "./GlassCard";

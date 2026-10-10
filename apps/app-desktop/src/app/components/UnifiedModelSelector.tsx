@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useProviderSlice } from "../store/slices/provider-slice";
+import { useProviderSlice } from "@yyc3/store/provider-slice";
 import type { ConfiguredModel } from "../types";
 import { GlassCard } from "./GlassCard";
 

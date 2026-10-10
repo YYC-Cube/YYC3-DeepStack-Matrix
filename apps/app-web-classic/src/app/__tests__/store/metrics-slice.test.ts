@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { useMetricsSlice } from '../../store/slices/metrics-slice';
-import type { ModelPerfEntry, ModelDistEntry, RadarEntry } from '../../store/slices/metrics-slice';
+import { useMetricsSlice } from '@yyc3/store/metrics-slice';
+import type { ModelPerfEntry, ModelDistEntry, RadarEntry } from '@yyc3/store/metrics-slice';
 
 describe('useMetricsSlice', () => {
   beforeEach(() => {

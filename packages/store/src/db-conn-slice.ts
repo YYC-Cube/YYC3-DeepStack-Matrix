@@ -17,7 +17,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { DBConnection } from '../../types';
+import type { DBConnection } from '@yyc3/core/types';
 import { migrateKeyWithMerge, migrateKeyAsArray } from '@yyc3/core/migrate-storage';
 
 // ============================================================

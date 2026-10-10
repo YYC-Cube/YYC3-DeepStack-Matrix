@@ -26,7 +26,7 @@ import {
   type VariableDefinition,
   type VariableValue,
   type VariableExport,
-} from "../../config/variable-center";
+} from "@yyc3/core/variable-center";
 import { Button } from "@yyc3/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
 import { Label } from "@yyc3/ui/label";

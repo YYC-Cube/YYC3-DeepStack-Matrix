@@ -41,7 +41,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
 
 import { connectionManager } from "../../database/ConnectionManager";
 import { ConnectionMonitorPanel } from "../modules/ops/ConnectionMonitorPanel";
-import { useDbConnSlice } from "../store/slices/db-conn-slice";
+import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 
 // ─── Helpers ───────────────────────────────────────────────
 

@@ -20,7 +20,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { useAISuggestionSlice } from '../store/slices/ai-suggestion-slice';
+import { useAISuggestionSlice } from '@yyc3/store/ai-suggestion-slice';
 import type { PatternSeverity } from '../types';
 
 export function useAISuggestion() {

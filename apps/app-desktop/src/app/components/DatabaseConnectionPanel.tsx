@@ -18,8 +18,8 @@ import {
 import { GlassCard } from "./GlassCard";
 import { SQLEditor } from "./CodeEditor";
 import { ViewContext } from "../lib/view-context";
-import { useDbConnSlice } from "../store/slices/db-conn-slice";
-import type { PoolConfig } from "../store/slices/db-conn-slice";
+import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
+import type { PoolConfig } from "@yyc3/store/db-conn-slice";
 import type { DBConnection } from "../types";
 import { env } from "@yyc3/core/env-config";
 import { toast } from "sonner";

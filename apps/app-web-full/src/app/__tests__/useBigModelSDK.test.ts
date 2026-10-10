@@ -27,7 +27,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, cleanup, waitFor } from "@testing-library/react";
 import { useBigModelSDK } from "../hooks/useBigModelSDK";
-import { useSDKSessionSlice } from "../store/slices/sdk-session-slice";
+import { useSDKSessionSlice } from "@yyc3/store/sdk-session-slice";
 import type { ConfiguredModel, SDKCapability } from "../types";
 
 // Mock ollama-url to avoid environment-dependent code

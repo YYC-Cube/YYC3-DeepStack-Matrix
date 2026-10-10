@@ -15,7 +15,7 @@ import { render, screen, fireEvent, waitFor, act, cleanup } from "@testing-libra
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { DatabaseConnectionPanel } from "../components/DatabaseConnectionPanel";
-import { useDbConnSlice } from "../store/slices/db-conn-slice";
+import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 import { toast } from "sonner";
 
 vi.mock("@yyc3/core/env-config", () => ({

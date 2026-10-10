@@ -40,7 +40,7 @@ describe("useClock", () => {
 
 describe("useVariables", () => {
   it("should return variables interface", async () => {
-    vi.doMock("../../config/variable-center", () => ({
+    vi.doMock("@yyc3/core/variable-center", () => ({
       VARIABLE_DEFINITIONS: [],
       getVariableDefinition: vi.fn(() => undefined),
       getVariablesByCategory: vi.fn(() => []),

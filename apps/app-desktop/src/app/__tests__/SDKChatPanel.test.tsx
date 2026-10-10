@@ -80,7 +80,7 @@ vi.mock("../hooks/useModelProvider", () => ({
   MODEL_PROVIDERS: [],
 }));
 
-vi.mock("../store/slices/provider-slice", () => ({
+vi.mock("@yyc3/store/provider-slice", () => ({
   useProviderSlice: () => ({
     configuredModels: mockConfiguredModels,
     providers: [],

@@ -11,7 +11,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { WifiNetwork, WifiAutoReconnectSettings } from '../../types';
+import type { WifiNetwork, WifiAutoReconnectSettings } from '@yyc3/core/types';
 
 const DEFAULT_NETWORKS: WifiNetwork[] = [];
 const DEFAULT_AUTO_RECONNECT: WifiAutoReconnectSettings = {

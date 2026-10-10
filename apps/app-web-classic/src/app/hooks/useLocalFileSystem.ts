@@ -12,7 +12,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { env } from "@yyc3/core/env-config";
-import { useFSSlice } from "../store/slices/fs-slice";
+import { useFSSlice } from "@yyc3/store/fs-slice";
 import type {
   FileItem,
   LogEntry,

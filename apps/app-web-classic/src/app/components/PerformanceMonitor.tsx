@@ -22,7 +22,7 @@ import {
 } from "recharts";
 import { env } from "@yyc3/core/env-config";
 import { toast } from "sonner";
-import { useUIPrefsSlice } from "../store/slices/ui-prefs-slice";
+import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 
 // ── 样式 ──
 const f = { xs: "0.62rem", sm: "0.72rem", md: "0.82rem", lg: "0.95rem" };

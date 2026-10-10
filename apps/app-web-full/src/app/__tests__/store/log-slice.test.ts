@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useLogSlice } from '../../store/slices/log-slice';
+import { useLogSlice } from '@yyc3/store/log-slice';
 import type { StoredLogEntry } from '../../types';
 
 const DEFAULT_LOGS: StoredLogEntry[] = [

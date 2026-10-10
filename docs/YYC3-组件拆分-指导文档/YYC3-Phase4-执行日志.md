@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase4-执行日志.md
-description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收达成
+description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收达成
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.0.0
+version: v1.1.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase4],[business],[i18n],[arbitration],[handoff]
+tags: [phase4],[business],[i18n],[store],[arbitration],[handoff]
 category: report
 ---
 
@@ -22,6 +22,39 @@ category: report
 | M4-1 规划 | ✅ | 分批策略 M4-2~8 落盘，试点域 = ai |
 | M4-2a i18n 上收 | ✅ | `@yyc3/core/i18n` 达成（4 件 L0 + 三端切换 ~220 处）；**Phase 3 登记「i18n 语言包上收」兑现** |
 | M4-2b ai 域包化 | ⏸ | 重新定性：与 zustand store 上收绑定（见偏差 #2），随 M4-3 |
+| **M4-3 store 上收** | ✅ | **`@yyc3/store` 新包达成**（16 件 L0 + 依赖链两 lib 入 core + 27 类型补录 + 三端切换 232 处）；**五域包化硬前置解除** |
+
+## M4-3 关键实证（2026-10-10 第二轮）
+
+### store 30 件仲裁（远优于总体分布）
+
+- **17 件共有**：16 件 L0 三端逐字节同；仅 ide-settings-slice「纯路径差」2 行（ide-types 源文件 md5 全同）
+- **13 件 family-\***：11 件 L0；family-member/message「纯深度差」各 4 行（`../types` vs `../../types`）
+- **结论：30 件逻辑内容三端 100% 同源**——193 件总体 126 件 L1 的「小异」在 store 域完全消失
+
+### 单根范式评估（D6：不做合并）
+
+- 每 slice 独立 `create<T>()(persist(devtools(immer(...))))` 模块级单例，无单根组合
+- **主 barrel 消费面：P3/P4 零引用、P1 仅 ai-family/index.ts 引自身** —— barrel 为名义入口
+- 独立 create 迁移零语义风险；单根合并改动巨大且无消费收益
+
+### 决策落地（phase4-ledger/01 D1-D6）
+
+| 决策 | 落地 |
+| ---- | ---- |
+| D1 独立 `@yyc3/store` 包 | 新建 packages/store（zustand/immer/sonner peer + @yyc3/core dep；exports 16 条显式逐条） |
+| D2 16 件上收、ide-settings 暂缓 | ide-types（227L）拽 M4-7 `@yyc3/ide`，斩断域类型拖拽链 |
+| D3 family 13 件不动 | 留端侧，随 M4-6 `@yyc3/ai-family` |
+| D4 两 lib 上收 core | connection-test-engine（522L 零 import 自包含）+ variable-center（869L 仅引 core/api-config）git mv 入 core，exports +2 条 |
+| D5 类型按需复制 | core/types.ts +27 类型（store 域 19 + 依赖链 AnomalyPatternType/PatternSeverity/FileItemType/DatabaseType/DBConnectionStatus/ChatMessage + OllamaModel/OllamaTagsResponse） |
+| D6 不做单根合并 | 见上 |
+
+### 三端切换实测
+
+- **232 处引用切换**（45 处单引号首轮 + **159 处双引号补杀** + 28 处两 lib 切引）
+- P3/P4 各删 16 件 slices（剩 14：ide-settings + 13 family）
+- 三端 store/index.ts 重写：16 件从 `@yyc3/store` re-export + ide-settings 端侧 + family 原路径 + useUnifiedStore 组合 hook 保留
+- P1 tsc = 67 基线精确持平、P3/P4 = 0、P2 build = 7 基线；P1/P3/P4 build 三绿（617/686/595ms）
 
 ## 关键实证（M4-0）
 
@@ -74,31 +107,43 @@ category: report
 | 2 | **ai 域包化与 store 上收绑定**：域 hooks 拽 zustand 链（原以为 ai 域 store 0 直引可先行） | M4-2b 并入 M4-3（zustand 上收方案先行）；试点域改判：**i18n 上收为 Phase 4 首个达成件** |
 | 3 | i18n/index.ts 原文 @notes 提及 I18nProvider 但无此导出 | 核删 barrel 引用；I18nProvider 包装逻辑实际由 useI18nProvider + app 端 Provider 承担（后续上收时补齐） |
 | 4 | `./hooks/useI18n` 单层前缀首轮漏杀（模式只覆盖 `../` 深度） | 补刀脚本；教训：**切换模式必须枚举 `./` 与 `../` 两种深度**（Phase 3 同类教训 #6 再现） |
+| 5 | **引用勘察 grep 只匹配单引号**：`from '...'` 模式漏掉 modules/components 层全部双引号引用（50 行 vs 实际 200+ 处） | 补杀 159 处；教训：**引用面勘察 pattern 必须含 `["']` 双引号类**（prettier 格式化端/modules 层全为双引号） |
+| 6 | **多行 import 具名提取漏**：类型清单 grep 单行 sed 提取漏 OllamaModel/OllamaTagsResponse（多行 import 块） | tsc TS2305 暴露后补录；教训：**具名清单提取需 awk 多行态或以 tsc 错误闭环** |
+| 7 | zsh 终端间歇性 PATH 污染（cp/md5 触发 `__safe_rm_realpath` 钩子 → dirname not found） | 绕过：Write 工具直写文件；教训：**shell 异常时优先工具链替代，勿反复重试同一命令** |
 
 ## 后续登记
 
-- **M4-3 zustand store 上收方案**（17 slices 分域归属 + 单根范式）→ 解锁 admin/monitor/ops/ai 四域包化
-- **M4-6/7 特深域**：ai-family（24 独有件）、ide（Phase 2 theme-presets 引擎登记项）
-- **反向独有 5 件定性**（M4-8）
+- **M4-2b/3 ai+business+ops 域包化**：store 前置已解除，域 hooks（useModelProvider 等）引 `@yyc3/store` 即可包化；business 含智慧酒店双版本 L1 仲裁样板
+- **M4-4 admin+monitor 域**
+- **M4-5 shared 域定性**（部分属 Phase 5 壳层）
+- **M4-6/7 特深域**：ai-family（24 独有件 + family-* 13 slices）、ide（ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项）
+- **M4-8**：反向独有 5 件定性 + NavRegistry 单源 + PageShell 七型谱
 - **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
-- **types 单源收敛**（app 28 分件 vs core 按需，Phase 3 登记）
+- **types 单源收敛**（app 28 分件 vs core 按需 +29 件重复定义，Phase 3 登记、M4-3 扩容）
 
 ## 交接快照
 
 ```bash
 # 复验矩阵（全绿可复现）
 cd packages/core && pnpm exec tsc --noEmit          # 0 错
+cd packages/store && pnpm exec tsc --noEmit         # 0 错（M4-3 新增）
 cd apps/app-web-full    && pnpm exec tsc --noEmit   # 67（基线）
 cd apps/app-desktop     && pnpm exec tsc --noEmit   # 0
 cd apps/app-web-classic && pnpm exec tsc --noEmit   # 0
-# build：P1/P3/P4 三绿；P2 = 7 基线
+# build：P1 617ms / P3 686ms / P4 595ms 三绿；P2 = 7 基线
+
+# 包拓扑（M4-3 后）
+# apps/app-web-full    → @yyc3/ui + @yyc3/theme + @yyc3/core + @yyc3/store
+# apps/app-desktop     → 同上
+# apps/app-web-classic → 同上
+# apps/app-sandbox-lite → 无 @yyc3 依赖（P2 基线隔离）
 
 # 下次会话起点
-# → M4-3 zustand store 上收方案定型（17 slices 分域 + 单根范式评估）
-# → 随后 M4-2b/3 ai+business+ops 域包化
+# → M4-2b/3：ai + business + ops 域包化（store 前置已解除）
+# → 域 hooks 引 @yyc3/store；business 域先行（智慧酒店双版本 L1 仲裁样板）
 ```
 
 ---
 
 **会话状态**: ✅ 正常结束
-**Phase 4 定性**: 勘察/规划/i18n 上收达成；域包化整体与 store 上收协同推进
+**Phase 4 定性**: 勘察/规划/i18n 上收/store 上收达成；域包化前置全解除，进入域包化实施期

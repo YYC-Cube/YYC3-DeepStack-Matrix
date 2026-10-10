@@ -11,7 +11,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { DeployedModel } from '../../types';
+import type { DeployedModel } from '@yyc3/core/types';
 
 const DEFAULT_MODELS: DeployedModel[] = [
   { id: "dm-1", name: "LLaMA-70B",    version: "v2.1", size: "140GB", status: "deployed",  gpu: "GPU-A100-01" },

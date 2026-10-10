@@ -253,3 +253,264 @@ export interface ModelStats {
   totalTokens: number;
   successRate: number;
 }
+
+// ── Store 域类型（源: apps 下各端 src/app/types/ 7 个分件，随 M4-3 store 上收按需复制）──
+// 重复定义待「types 单源收敛」阶段清理（phase4-ledger/01 决策 D5）
+
+// dashboard-types.ts
+/** 模型性能评估条目 */
+export interface ModelPerfEntry {
+  id: string;
+  model: string;
+  accuracy: number;
+  speed: number;
+  memory: number;
+  cost: number;
+}
+
+/** 模型分布条目 */
+export interface ModelDistEntry {
+  id: string;
+  name: string;
+  value: number;
+}
+
+/** 雷达图数据条目 */
+export interface RadarEntry {
+  id: string;
+  metric: string;
+  A: number;
+  B: number;
+}
+
+/** 持久化日志条目 */
+export interface StoredLogEntry {
+  id: string;
+  timestamp: number;
+  level: LogLevel;
+  source: string;
+  message: string;
+}
+
+/** 已部署模型条目 */
+export interface DeployedModel {
+  id: string;
+  name: string;
+  version: string;
+  size: string;
+  status: "deployed" | "deploying" | "standby" | "error";
+  gpu: string;
+}
+
+/** WiFi 网络条目 */
+export interface WifiNetwork {
+  id: string;
+  ssid: string;
+  signal: number;
+  security: string;
+  connected: boolean;
+  password?: string;
+  lastConnectedAt?: number;
+}
+
+/** 用户管理记录 */
+export interface UserRecord {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  role: string;
+  status: "online" | "offline";
+  lastLogin: string;
+  sessions: number;
+  apiCalls: number;
+  locked: boolean;
+}
+
+/** WiFi 自动重连设置 */
+export interface WifiAutoReconnectSettings {
+  id: string;
+  enabled: boolean;
+  preferStrongestSignal: boolean;
+  intervalSeconds: number;
+  maxRetries: number;
+  preferredSsid: string;
+  lastUpdatedAt: number;
+}
+
+/** 跟进任务记录 */
+export interface FollowUpRecord {
+  id: string;
+  taskId: string;
+  taskName: string;
+  assignee: string;
+  assigneeName: string;
+  priority: "low" | "medium" | "high" | "critical";
+  status: "pending" | "in_progress" | "completed" | "cancelled";
+  dueDate: number;
+  completedAt?: number;
+  notes?: string;
+  createdAt: number;
+  updatedAt: number;
+  category: "maintenance" | "optimization" | "security" | "feature" | "bugfix";
+}
+
+// filesystem-types.ts
+/** 文件类型 */
+export type FileItemType = "file" | "directory";
+
+/** 文件条目 */
+export interface FileItem {
+  id: string;
+  name: string;
+  type: FileItemType;
+  size?: number;
+  modifiedAt: number;
+  path: string;
+  extension?: string;
+  children?: FileItem[];
+}
+
+/** 日志级别 */
+export type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
+
+/** 最近访问文件 */
+export interface RecentFile {
+  id: string;
+  name: string;
+  path: string;
+  size?: number;
+  accessedAt: number;
+}
+
+// ai-analysis-types.ts
+/** 异常模式类型 */
+export type AnomalyPatternType =
+  | "latency_spike"
+  | "memory_pressure"
+  | "gpu_overheat"
+  | "throughput_drop"
+  | "error_burst"
+  | "storage_near_full";
+
+/** 异常模式严重级别 */
+export type PatternSeverity = "low" | "medium" | "high" | "critical";
+
+/** 检测到的异常模式 */
+export interface DetectedPattern {
+  id: string;
+  type: AnomalyPatternType;
+  severity: PatternSeverity;
+  title: string;
+  description: string;
+  source: string;
+  metric: string;
+  detectedAt: number;
+  occurrences: number;
+  trend: "rising" | "stable" | "declining";
+}
+
+/** AI 推荐操作 */
+export interface AIRecommendation {
+  id: string;
+  patternId: string;
+  action: string;
+  description: string;
+  impact: "low" | "medium" | "high";
+  confidence: number;
+  autoExecutable: boolean;
+  applied?: boolean;
+}
+
+// sdk-types.ts（ChatMessage 源: ui-types.ts，依赖 ModelProviderId 已在上方）
+/** 聊天会话 */
+export interface ChatSession {
+  id: string;
+  title: string;
+  modelId: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** SDK 使用统计 */
+export interface SDKUsageStats {
+  totalRequests: number;
+  totalTokensIn: number;
+  totalTokensOut: number;
+  avgLatencyMs: number;
+  lastRequestAt: number | null;
+  errorCount: number;
+}
+
+/** 聊天消息 */
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  timestamp: number;
+  model?: string;
+  provider?: ModelProviderId;
+  tokens?: { input: number; output: number };
+}
+
+// websocket-types.ts（AlertLevel = BaseSeverity 别名，BaseSeverity 已在上方）
+/** 告警严重级别 — RF-005: BaseSeverity 别名 */
+export type AlertLevel = BaseSeverity;
+
+/** 告警通知数据 */
+export interface AlertData {
+  id: string;
+  level: AlertLevel;
+  message: string;
+  source: string;
+  timestamp: number;
+}
+
+// database-types.ts
+/** 数据库类型 */
+export type DatabaseType = "postgresql" | "mysql" | "sqlite" | "redis" | "mongodb" | "custom";
+
+/** 数据库连接状态 */
+export type DBConnectionStatus = "disconnected" | "connecting" | "connected" | "error" | "testing" | "reconnecting";
+
+/** 数据库连接配置 */
+export interface DBConnection {
+  id: string;
+  name: string;
+  type: DatabaseType;
+  host: string;
+  port: number;
+  database: string;
+  username: string;
+  /** 加密存储, 前端仅做 mask 展示 */
+  password: string;
+  status: DBConnectionStatus;
+  lastConnected?: number | null;
+  lastTestAt?: number;
+  createdAt?: number;
+  color?: string;
+  options?: string;
+}
+
+// model-provider-types.ts
+/** Ollama 本地模型条目（/api/tags） */
+export interface OllamaModel {
+  name: string;
+  model: string;
+  modified_at: string;
+  size: number;
+  digest: string;
+  details: {
+    parent_model: string;
+    format: string;
+    family: string;
+    parameter_size: string;
+    quantization_level: string;
+  };
+}
+
+/** Ollama /api/tags 响应 */
+export interface OllamaTagsResponse {
+  models: OllamaModel[];
+}

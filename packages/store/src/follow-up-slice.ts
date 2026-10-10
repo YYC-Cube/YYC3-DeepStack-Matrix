@@ -11,7 +11,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { FollowUpRecord } from '../../types';
+import type { FollowUpRecord } from '@yyc3/core/types';
 
 const DEFAULT_FOLLOWUPS: FollowUpRecord[] = [
   { id: "fu-001", taskId: "TASK-042", taskName: "GPU-A100-03 温度告警处理", assignee: "ops_li", assigneeName: "李运维", priority: "high", status: "in_progress", dueDate: Date.now() + 86400000, notes: "需要检查散热系统", createdAt: Date.now() - 3600000, updatedAt: Date.now(), category: "maintenance" },

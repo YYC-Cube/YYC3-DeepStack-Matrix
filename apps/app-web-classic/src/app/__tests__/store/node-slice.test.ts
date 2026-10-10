@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useNodeSlice } from '../../store/slices/node-slice';
+import { useNodeSlice } from '@yyc3/store/node-slice';
 import type { NodeData } from '../../types';
 
 const TEST_NODES: NodeData[] = [

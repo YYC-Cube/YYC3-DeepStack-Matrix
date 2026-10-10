@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
 import { useOfflineMode } from "../hooks/useOfflineMode";
 import { LOCALSTORAGE_KEYS } from "@yyc3/core/yyc3-storage";
-import { useOfflineSlice } from "../store/slices/offline-slice";
+import { useOfflineSlice } from "@yyc3/store/offline-slice";
 
 describe("useOfflineMode", () => {
   beforeEach(() => {

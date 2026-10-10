@@ -30,7 +30,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useFamilyMemberSlice } from "../../store";
 import { useFamilySettingsSlice } from "../../store/slices/family-settings-slice";
-import { useProviderSlice } from "../../store/slices/provider-slice";
+import { useProviderSlice } from "@yyc3/store/provider-slice";
 import type { UnifiedFamilyMember } from "../../types";
 import { GlassCard } from "../GlassCard";
 import { FadeIn } from "./FadeIn";

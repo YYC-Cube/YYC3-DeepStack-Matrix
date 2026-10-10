@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useFollowUpSlice } from '../../store/slices/follow-up-slice';
+import { useFollowUpSlice } from '@yyc3/store/follow-up-slice';
 import type { FollowUpRecord } from '../../types';
 
 describe('useFollowUpSlice', () => {

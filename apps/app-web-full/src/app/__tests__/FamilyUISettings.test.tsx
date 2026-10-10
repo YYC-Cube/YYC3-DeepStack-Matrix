@@ -42,7 +42,7 @@ const defaultConfig = {
   locale: "zh-CN",
 };
 
-import { FamilyUISettings } from "../modules/ai-family/components/FamilyUISettings";
+import { FamilyUISettings } from "@yyc3/ai-family/family-ui-settings";
 
 describe("FamilyUISettings", () => {
   beforeEach(() => {

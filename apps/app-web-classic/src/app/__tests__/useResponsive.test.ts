@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useResponsive } from "../hooks/useResponsive";
+import { useResponsive } from "@yyc3/ai-family/hooks/use-responsive";
 
 describe("useResponsive", () => {
   const originalInnerWidth = window.innerWidth;

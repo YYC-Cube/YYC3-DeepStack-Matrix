@@ -146,7 +146,7 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
 
   describe("📦 AI Family 类型系统", () => {
     it("应正确导出所有类型", async () => {
-      const typesModule = await import("../lib/ai-family.types");
+      const typesModule = await import("@yyc3/ai-family/lib/ai-family.types");
 
       // 验证关键常量导出正确
       expect(typesModule.PERSONAL_SPACE_QUOTA_TB).toBe(8);
@@ -196,10 +196,10 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
   // ============================================================
 
   describe("📞 遥测通讯系统", () => {
-    let telemetryManager: InstanceType<typeof import("../lib/ai-family-telemetry").AIFamilyTelemetryManager>;
+    let telemetryManager: InstanceType<typeof import("@yyc3/ai-family/lib/ai-family-telemetry").AIFamilyTelemetryManager>;
 
     beforeEach(async () => {
-      const { AIFamilyTelemetryManager } = await import("../lib/ai-family-telemetry");
+      const { AIFamilyTelemetryManager } = await import("@yyc3/ai-family/lib/ai-family-telemetry");
       telemetryManager = new AIFamilyTelemetryManager();
     });
 
@@ -413,13 +413,13 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
   // ============================================================
 
   describe("🧠 记忆档案系统", () => {
-    let memoryManager: InstanceType<typeof import("../lib/ai-family-memory").AIFamilyMemoryManager>;
+    let memoryManager: InstanceType<typeof import("@yyc3/ai-family/lib/ai-family-memory").AIFamilyMemoryManager>;
 
     beforeEach(async () => {
       // 先清理localStorage以确保测试隔离
       localStorage.clear();
 
-      const { AIFamilyMemoryManager } = await import("../lib/ai-family-memory");
+      const { AIFamilyMemoryManager } = await import("@yyc3/ai-family/lib/ai-family-memory");
       memoryManager = new AIFamilyMemoryManager();
       memoryManager.setMemberContext("test-member-1");
     });
@@ -641,10 +641,10 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
   // ============================================================
 
   describe("📱 多端同步引擎", () => {
-    let syncEngine: InstanceType<typeof import("../lib/ai-family-sync").AIFamilySyncEngine>;
+    let syncEngine: InstanceType<typeof import("@yyc3/ai-family/lib/ai-family-sync").AIFamilySyncEngine>;
 
     beforeEach(async () => {
-      const { AIFamilySyncEngine } = await import("../lib/ai-family-sync");
+      const { AIFamilySyncEngine } = await import("@yyc3/ai-family/lib/ai-family-sync");
       syncEngine = new AIFamilySyncEngine({
         autoSync: false, // 禁用自动同步以便手动控制测试
         syncIntervalMs: 10000,
@@ -793,9 +793,9 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
   describe("🔗 综合集成测试", () => {
     it("应完整演示 AI Family 工作流程", async () => {
       // 1. 初始化所有管理器
-      const { AIFamilyTelemetryManager } = await import("../lib/ai-family-telemetry");
-      const { AIFamilyMemoryManager } = await import("../lib/ai-family-memory");
-      const { AIFamilySyncEngine } = await import("../lib/ai-family-sync");
+      const { AIFamilyTelemetryManager } = await import("@yyc3/ai-family/lib/ai-family-telemetry");
+      const { AIFamilyMemoryManager } = await import("@yyc3/ai-family/lib/ai-family-memory");
+      const { AIFamilySyncEngine } = await import("@yyc3/ai-family/lib/ai-family-sync");
 
       const telemetry = new AIFamilyTelemetryManager();
       const memory = new AIFamilyMemoryManager();
@@ -846,7 +846,7 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
     });
 
     it("应支持多人同时在线协作", async () => {
-      const { AIFamilyTelemetryManager } = await import("../lib/ai-family-telemetry");
+      const { AIFamilyTelemetryManager } = await import("@yyc3/ai-family/lib/ai-family-telemetry");
       
       const manager1 = new AIFamilyTelemetryManager();
       const manager2 = new AIFamilyTelemetryManager();
@@ -885,7 +885,7 @@ describe("🌸 AI Family 遥测平台 - 综合功能测试", () => {
     });
 
     it("应保证数据持久化和一致性", async () => {
-      const { AIFamilyMemoryManager } = await import("../lib/ai-family-memory");
+      const { AIFamilyMemoryManager } = await import("@yyc3/ai-family/lib/ai-family-memory");
       
       const memory1 = new AIFamilyMemoryManager();
       memory1.setMemberContext("user-1");

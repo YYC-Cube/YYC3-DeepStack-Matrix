@@ -13,9 +13,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
-import { EmotionVisualizer } from "../modules/ai-family/components/EmotionVisualizer";
+import { EmotionVisualizer } from "@yyc3/ai-family/emotion-visualizer";
 
-vi.mock("../modules/ai-family/hooks/useEmotionMusic", () => ({
+vi.mock("@yyc3/ai-family/hooks/use-emotion-music", () => ({
   useEmotionMusic: () => ({
     currentEmotion: {
       type: "happy",

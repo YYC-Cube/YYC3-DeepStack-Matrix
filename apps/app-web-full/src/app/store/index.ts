@@ -51,8 +51,8 @@ export type {
 export { useIDESettingsSlice } from './slices/ide-settings-slice';
 
 // ── family 域（modules/ai-family，随 M4-6 @yyc3/ai-family 上收）──
-export { useFamilyMemberSlice, useFamilyMessageSlice, useFamilySettingsSlice } from '../modules/ai-family/store';
-export type { VoiceProfile, VoiceConversation, FamilyMessage, FamilyUIConfig, MemberModelAssignment, CreatedWork } from '../modules/ai-family/store/family-settings-slice';
+export { useFamilyMemberSlice, useFamilyMessageSlice, useFamilySettingsSlice } from '@yyc3/ai-family/store';
+export type { VoiceProfile, VoiceConversation, FamilyMessage, FamilyUIConfig, MemberModelAssignment, CreatedWork } from '@yyc3/ai-family/store/family-settings-slice';
 
 // ── 共享类型 ──
 export type { NodeData } from '../types';
@@ -60,7 +60,7 @@ export type { NodeData } from '../types';
 import { useNodeSlice } from '@yyc3/store';
 import { useMetricsSlice } from '@yyc3/store';
 import { useAppSlice } from '@yyc3/store';
-import { useFamilyMemberSlice, useFamilyMessageSlice } from '../modules/ai-family/store';
+import { useFamilyMemberSlice, useFamilyMessageSlice } from '@yyc3/ai-family/store';
 
 /**
  * 组合 Hook — 一次性获取多个 Slice 状态（按需使用）

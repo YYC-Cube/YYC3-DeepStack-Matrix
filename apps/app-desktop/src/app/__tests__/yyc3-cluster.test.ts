@@ -41,7 +41,7 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
 
   describe("📦 YYC3 类型系统", () => {
     it("应正确解析 yyc3 设备ID", async () => {
-      const { parseYYC3DeviceID } = await import("../lib/yyc3-cluster.types");
+      const { parseYYC3DeviceID } = await import("@yyc3/ai-family/lib/yyc3-cluster.types");
 
       const id1 = parseYYC3DeviceID("yyc3-77");
       expect(id1).not.toBeNull();
@@ -58,7 +58,7 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
     });
 
     it("应验证设备ID格式", async () => {
-      const { isValidYYC3DeviceID } = await import("../lib/yyc3-cluster.types");
+      const { isValidYYC3DeviceID } = await import("@yyc3/ai-family/lib/yyc3-cluster.types");
 
       expect(isValidYYC3DeviceID("yyc3-77")).toBe(true);
       expect(isValidYYC3DeviceID("yyc3-33")).toBe(true);
@@ -72,7 +72,7 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
     });
 
     it("应生成正确的设备ID", async () => {
-      const { generateYYC3NodeId } = await import("../lib/yyc3-cluster.types");
+      const { generateYYC3NodeId } = await import("@yyc3/ai-family/lib/yyc3-cluster.types");
 
       const id1 = generateYYC3NodeId("88");
       expect(id1.prefix).toBe("yyc3");
@@ -84,7 +84,7 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
     });
 
     it("应导出关键常量", async () => {
-      const typesModule = await import("../lib/yyc3-cluster.types");
+      const typesModule = await import("@yyc3/ai-family/lib/yyc3-cluster.types");
 
       expect(typesModule.DEFAULT_SSH_PORT).toBe(22);
       expect(typesModule.HEARTBEAT_INTERVAL_MS).toBe(30000);
@@ -98,10 +98,10 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
   // ============================================================
 
   describe("🖥️ 集群管理器核心", () => {
-    let clusterManager: InstanceType<typeof import("../lib/yyc3-cluster-manager").YYC3ClusterManager>;
+    let clusterManager: InstanceType<typeof import("@yyc3/ai-family/lib/yyc3-cluster-manager").YYC3ClusterManager>;
 
     beforeEach(async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance(); // 确保每次测试都是新实例
       clusterManager = getYYC3ClusterInstance();
     });
@@ -209,10 +209,10 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
   // ============================================================
 
   describe("🔗 SSH 多机互联", () => {
-    let clusterManager: InstanceType<typeof import("../lib/yyc3-cluster-manager").YYC3ClusterManager>;
+    let clusterManager: InstanceType<typeof import("@yyc3/ai-family/lib/yyc3-cluster-manager").YYC3ClusterManager>;
 
     beforeEach(async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance();
       clusterManager = getYYC3ClusterInstance();
       
@@ -332,10 +332,10 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
   // ============================================================
 
   describe("📋 分布式任务调度", () => {
-    let clusterManager: InstanceType<typeof import("../lib/yyc3-cluster-manager").YYC3ClusterManager>;
+    let clusterManager: InstanceType<typeof import("@yyc3/ai-family/lib/yyc3-cluster-manager").YYC3ClusterManager>;
 
     beforeEach(async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance();
       clusterManager = getYYC3ClusterInstance();
       
@@ -449,10 +449,10 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
   // ============================================================
 
   describe("💾 NAS 记忆档案存储", () => {
-    let clusterManager: InstanceType<typeof import("../lib/yyc3-cluster-manager").YYC3ClusterManager>;
+    let clusterManager: InstanceType<typeof import("@yyc3/ai-family/lib/yyc3-cluster-manager").YYC3ClusterManager>;
 
     beforeEach(async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance();
       clusterManager = getYYC3ClusterInstance();
     });
@@ -497,10 +497,10 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
   // ============================================================
 
   describe("📊 健康检查与监控", () => {
-    let clusterManager: InstanceType<typeof import("../lib/yyc3-cluster-manager").YYC3ClusterManager>;
+    let clusterManager: InstanceType<typeof import("@yyc3/ai-family/lib/yyc3-cluster-manager").YYC3ClusterManager>;
 
     beforeEach(async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance();
       clusterManager = getYYC3ClusterInstance();
       
@@ -560,10 +560,10 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
   // ============================================================
 
   describe("🎯 事件系统", () => {
-    let clusterManager: InstanceType<typeof import("../lib/yyc3-cluster-manager").YYC3ClusterManager>;
+    let clusterManager: InstanceType<typeof import("@yyc3/ai-family/lib/yyc3-cluster-manager").YYC3ClusterManager>;
 
     beforeEach(async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance();
       clusterManager = getYYC3ClusterInstance();
     });
@@ -644,7 +644,7 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
 
   describe("🚀 综合工作流程演示", () => {
     it("应完整演示 YYC3 全球空间通信基站工作流", async () => {
-      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("../lib/yyc3-cluster-manager");
+      const { getYYC3ClusterInstance, destroyYYC3ClusterInstance } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
       destroyYYC3ClusterInstance();
       
       const cluster = getYYC3ClusterInstance();
@@ -720,7 +720,7 @@ describe("🌐 YYC3 全球空间通信基站 - 综合功能测试", () => {
     });
 
     it("应展示真实的 YYC3 设备阵容", async () => {
-      const { YYC3_PREDEFINED_DEVICES } = await import("../lib/yyc3-cluster-manager");
+      const { YYC3_PREDEFINED_DEVICES } = await import("@yyc3/ai-family/lib/yyc3-cluster-manager");
 
       console.info("\n🏆 **您的 AI Family 物理基础设施**\n");
 

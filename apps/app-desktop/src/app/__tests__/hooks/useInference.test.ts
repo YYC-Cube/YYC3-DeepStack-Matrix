@@ -31,7 +31,7 @@ const mockSwitchBackend = vi.fn();
 const mockAbort = vi.fn();
 const mockLoadModel = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("../../lib/inference-engine", () => ({
+vi.mock("@yyc3/ai-family/lib/inference-engine", () => ({
   getInferenceEngine: () => ({
     generate: mockGenerate,
     getStatus: mockGetStatus,

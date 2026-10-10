@@ -21,7 +21,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../../lib/MusicEventBus", () => ({
+vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   default: {
     emit: vi.fn(),
     on: vi.fn(),
@@ -29,11 +29,11 @@ vi.mock("../../lib/MusicEventBus", () => ({
   },
 }));
 
-vi.mock("../../lib/VoiceCommandParser", () => ({
+vi.mock("@yyc3/ai-family/lib/VoiceCommandParser", () => ({
   parseVoiceCommand: vi.fn(() => ({ command: null, params: {} })),
 }));
 
-vi.mock("../../lib/EmotionMusicBridge", () => ({
+vi.mock("@yyc3/ai-family/lib/EmotionMusicBridge", () => ({
   default: {
     detectEmotion: vi.fn(() => "neutral"),
     onEmotionChange: vi.fn(),
@@ -82,7 +82,7 @@ const mockSpeechRecognition = vi.fn(() => ({
 vi.stubGlobal("webkitSpeechRecognition", mockSpeechRecognition);
 vi.stubGlobal("SpeechRecognition", mockSpeechRecognition);
 
-import { FamilyVoiceSystem } from "../components/ai-family/FamilyVoiceSystem";
+import { FamilyVoiceSystem } from "@yyc3/ai-family/family-voice-system";
 
 const STORAGE_KEY = "yyc3-family-voice-profiles";
 

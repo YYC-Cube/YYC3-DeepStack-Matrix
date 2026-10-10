@@ -31,8 +31,8 @@ import React from "react";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 
-import { useFamilyMemberSlice } from "../modules/ai-family/store";
-import type { UnifiedFamilyMember } from "../modules/ai-family/types";
+import { useFamilyMemberSlice } from "@yyc3/ai-family/store";
+import type { UnifiedFamilyMember } from "@yyc3/ai-family/types";
 
 // ──────────────────────────────────────────────────────────────────
 // Mock 依赖
@@ -43,11 +43,11 @@ vi.mock("../modules/shared/GlassCard", () => ({
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
-vi.mock("../modules/ai-family/components/FadeIn", () => ({
+vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: any) => React.createElement(React.Fragment, null, children),
 }));
 
-vi.mock("../modules/ai-family/components/FamilyPageHeader", () => ({
+vi.mock("@yyc3/ai-family/family-page-header", () => ({
   FamilyPageHeader: ({ icon: Icon, iconColor, title, subtitle, backLabel }: any) =>
     React.createElement(
       "div",
@@ -65,7 +65,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),
 }));
 
-import { FamilyPhone } from "../modules/ai-family/components/FamilyPhone";
+import { FamilyPhone } from "@yyc3/ai-family/family-phone";
 
 // ──────────────────────────────────────────────────────────────────
 // 种子数据

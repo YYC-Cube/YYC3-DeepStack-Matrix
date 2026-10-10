@@ -12,9 +12,9 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useMusicPlayer } from "../modules/ai-family/hooks/useMusicPlayer";
+import { useMusicPlayer } from "@yyc3/ai-family/hooks/use-music-player";
 
-vi.mock("../lib/MusicEventBus", () => ({
+vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   default: {
     subscribe: vi.fn(() => () => {}),
     emit: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock("../lib/MusicEventBus", () => ({
   },
 }));
 
-vi.mock("../lib/VoiceCommandParser", () => ({
+vi.mock("@yyc3/ai-family/lib/VoiceCommandParser", () => ({
   parseVoiceCommand: vi.fn(() => ({
     command: "play",
     confidence: 0.9,

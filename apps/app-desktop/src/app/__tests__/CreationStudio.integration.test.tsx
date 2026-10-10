@@ -78,7 +78,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../lib/MusicEventBus", () => ({
+vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   default: {
     subscribe: vi.fn(() => vi.fn()),
     emit: vi.fn(),

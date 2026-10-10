@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase4-执行日志.md
-description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化 + M4-5 shared 域定性达成
+description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化 + M4-5 shared 域定性 + M4-6 ai-family 特深域包化达成
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.6.0
+version: v1.7.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[shared],[handoff]
+tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[shared],[ai-family],[handoff]
 category: report
 ---
 
@@ -28,6 +28,29 @@ category: report
 | **M4-2/3 ops 域包化** | ✅ | **`@yyc3/ops` 新包达成**（首批 9 组件 + 6 域 hooks 随包 + core/types ops 段 +37 类型；暂缓 9 件跨域障碍定性留端侧）；**M4-0「真全异」定性翻转：OperationChain/DatabaseManager 实为 P1≡P4 同源 + P3 单端滞后**；OperationChain 随包即 P3 升级 |
 | **M4-4 admin+monitor 域包化** | ✅ | **`@yyc3/admin` + `@yyc3/monitor` 双新包达成**（10+20 组件、4+3 域 hooks 随包 + core/types admin/monitor 段 +54 类型 + store 收编 useSettingsStore/useBigModelSDK/global-store + useCopyFeedback 入 core）；**M4-0「真全异」归零**（CreateRuleModal 翻转 P1≡P4 同源）；三端切换 123 文件 + 端侧删 38 件/端；七包 tsc=0 + P1=67 基线 + build 三绿 |
 | **M4-5 shared 域定性** | ✅ | **品牌 3 件消重（= @yyc3/ui 逐字节同）+ ops 二次包化 4 件（OperationCenter/ServiceLoopPanel 解锁 + QuickActionGrid/DataFlowDiagram）+ Phase 3 漏网 5 lib 收编 core + P2 同窗仲裁（切 2 留 3）**；DataFlowDiagram「反向独有」误登修正 4→3；九包 tsc=0 + P1 67→48（品牌断引修复正向）+ P2 基线逐字同 + build 三绿 |
+| **M4-6 ai-family 特深域包化** | ✅ | **`@yyc3/ai-family` 新包达成（86 件 / exports 90 条：组件 37 + Page + slices 13 + hooks 5 + types 3 + lib 26 含 hotel-bridge）** + P1 死副本 36 件清障（tsc 48→0）+ P2 断链修复（tsc 7→0 + build 首绿）+ useClock 入 core + inference 6 类型并入 + MEMBERS_MAP 破环（store-backed 闭环包内）+ HotelDashboard 切包；**四端 tsc=0 / build 全绿——Phase 4 首次全零全绿** |
+
+## M4-6 ai-family 特深域关键实证（2026-10-10 第八轮，方案 [`phase4-ledger/07`](./phase4-ledger/07-M4-6-ai-family域包化方案.md)）
+
+### 死副本错链诊断（P1 48 错 + P2 7 错同窗根因）
+
+- **P1 双层同名副本**：modules/ai-family/components（活层）与 components/ai-family（死副本 36 件）——**死副本 ≡ P3/P4 md5 逐字节全同**（引用按 P3/P4 结构写 `../../store/slices/` 在 P1 落空）且**零外部引用** → P1 48 错（TS2307×13 + 连锁×35）全源于死代码，git rm 后 **tsc 一次归零**
+- **P2 断链**：`components/ai-family/` 空目录被 routes 引（AIFamilyRouter TS2307 + 15 条路由）；AIFamilyCenterPage/DesignDoc 引 `./ai-family/shared` 断链但**零消费方**（死代码删）；P2 AIFamilyPage 823L 引本地 useI18n = **P2 独走异构留端**，Router 切包
+
+### 建包与四层仲裁落地
+
+- **组件 37**：L0×8 + L1 纯路径差×25 + P1 独有 AgentSkills + P1 独走新版×2（FamilyCommCenter +97L/FamilyPhone +149L，P3/P4 随包升级——P1/P4 功能最全双源基线再现）；AIFamilyPage L1 纯路径差
+- **slices 13**（11 L0 + 2 纯深度差）+ **hooks 5**（含新暴露 useResponsive）+ **lib 26**（19 域 lib 三端 13 L0/6 L1 + family-data-accessor + hotel-bridge 137L L0 + 新暴露 canvasPerfRegistry/yyc3-cluster×2/AchievementSystem 四件 L0 零外部消费随包）
+- **MEMBERS_MAP 破环实证**：shared.ts L230 已内置 store-backed 重建机制（订阅 useFamilyMemberSlice + Object.keys 清重建 + getDynamicMembersMap）——slices 与 shared 同包后闭环包内自洽，M4-2b D4「运行时可变触点」障碍实测不成立；HotelDashboard 三端切 `@yyc3/ai-family/shared`
+- **useClock 三端 L0 入 core**（AIFamilyPage 唯一端侧 hook 依赖）；**inference 6 类型并入 core/types**（1458→1583L，inference-types.ts 三端 L0）；ai-service-manager/inference-engine 改引 `@yyc3/core/types`；routes.tsx 删（aiFamilyRoutes 零端侧消费，壳层 ErrorBoundary 依赖随解）
+- **peer 按实扫**：react/lucide-react/motion/react-router/zustand + clsx + **@mlc-ai/web-llm**（inference-engine 动态 import 运行时可选）；dep core/store/ui/business 四包（hotel-engines 单向无环）
+
+### 验证矩阵与偏差（#23-#25）
+
+- **十包 tsc=0**（theme/core/store/ui/business/ai/ops/admin/monitor/ai-family）；**四端 tsc=0**（P1 48→0 / P3=P4=0 保持 / P2 7→0）；**四端 build 全绿**（813/776/779ms + **P2 存量 7 错基线首次归零**——routes 断链为唯一 build 阻断源实锤）
+- P2 vitest 1813 通过（rf-phase2 29/29 全绿含 RF-011 断链连带修复；52 失败全存量：Layout jsdom/DesignSystemPage/DevGuidePage/ModelProviderPanel/PWAStatusPanel 零本批改动）；P1 ai-family 抽测 136 例绿
+- 偏差 #23 **perl 捕获组错位**（#17 同族第五犯：`(\.\./)+lib/(ALT)` 的 `$1` 指前缀组 → 56 文件 `lib/../` 损坏，checkout 恢复 + `$2` 修复版重切）；#24 grep 筛选断言误写（`yyc3-cluster|` 候选与 `"` 断言不匹配 `.types` 后缀漏筛 39 错三端）；#25 相对无段形态三漏（`./modules/ai-family/lib/`、`../ai-family/` 无 modules 段、`./slices/` barrel 内引——#6/#8 族教训固化：无段形态三类必枚举）
+- **技术债登记**：失效 vi.mock 残留（M4-5 品牌删 + 本批 mv 后失联静默通过，TabBar/CLITerminal/Sidebar/TopBar 等 ~6 处）→ M4-7/M4-8 清扫
 
 ## M4-5 shared 域定性关键实证（2026-10-10 第七轮，方案 [`phase4-ledger/06`](./phase4-ledger/06-M4-5-shared域定性方案.md)）
 
@@ -271,14 +294,17 @@ category: report
 | 20 | **perl `-i -p` 与脚本内嵌 `while(<>){print;}` 双重循环**：13 文件首行 `/**` 错位丢失（P3/P4 各 6 + P1 UnifiedModelManager，tsc 爆 100/100/20 语法错） | 判据检出（diff 含 `^-/\*\*$`）→ checkout 恢复 → 裸语句脚本重切一次成型；教训：**-p 脚本内严禁 while/print，替换逻辑裸语句化** |
 | 21 | 交替组前缀吞尾：`(GlassCard\|YYC3Logo\|YYC3LogoSvg)` 匹配 YYC3Logo 后剩余 Svg → `@yyc3/uiSvg` 13 处 | `s{\@yyc3/uiSvg}{\@yyc3/ui}g` 定长修复；教训：**交替组含前缀关系时长名优先或加边界** |
 | 22 | **单引号引用盲区三犯**（#5 同族）：HotelDashboard `from './GlassCard'` 漏切 | 手工切 3 处；教训固化：**pattern 引号类 `["']` 枚举或双轮跑** |
+| 23 | **perl 捕获组错位**（#17 同族第五犯）：`s{(\.\./)+lib/(ALT)}{\@yyc3/ai-family/lib/$1}` 的 $1 指向前缀组而非 ALT 组 → 56 文件产出 `@yyc3/ai-family/lib/../`（ALT 内容丢弃），三端 tsc 75/49/49 爆发 | 判据检出（grep `ai-family/lib/\.\./`）→ checkout 恢复 56 件 → `$2` 修复版重切归零；教训：**多捕获组替换前先数组序，前缀组+目标组结构从 $2 起用** |
+| 24 | **grep 筛选断言误写**：首轮清单 pattern `yyc3-cluster\|zhipu-ai-service)"` 中 `yyc3-cluster` 后 `"` 断言不匹配 `.types` 后缀 → yyc3-cluster.test 首轮漏筛，mv 后 39 错/端 | 精确 ALT 全名重切；教训：**前缀关系候选（X 与 X.types）必须全列，断言边界逐字对齐** |
+| 25 | **相对无段形态三漏**（#6/#8 族）：`./modules/ai-family/lib/`（App.tsx 单点）、`../ai-family/`（modules 互引无 modules 段：HotelDashboard/AISuggestionPanel）、`./slices/`（P3/P4 store barrel 内引） | 三轮补刀归零；教训固化：**路径形态枚举必含「同目录单层 / 上级无段 / barrel 内引」三类无段形态** |
 
 ## 后续登记
 
 - **M4-2/3 ops 域包化**：✅ 已达成（第五轮）——首批 9 组件 + 6 hooks 入 `@yyc3/ops`；**暂缓 9 件二次包化路线已绑定**：OperationCenter/ServiceLoopPanel→M4-5（QuickActionGrid/DataFlowDiagram）、LocalFileManager/HostFileManager/DatabaseConnectionPanel→M4-7 或 ui 扩容（CodeEditor）、DatabaseManager（双障碍+P3 滞后 227 行定性；M4-4 已切 `@yyc3/admin/inline-editable-table`）/ConfigExportCenter→M4-4、ConnectionMonitorPanel→src/database 引擎层专项
 - **M4-4 admin+monitor 域**：✅ 已达成（第六轮）——`@yyc3/admin`（10 组件 + 4 hooks）+ `@yyc3/monitor`（20 组件 + 3 hooks）双包达成；暂缓 10 件留端（admin 9 + AISuggestionPanel，含端侧 barrel re-export 衔接）；「真全异」归零、反向独有 5→4
 - **M4-5 shared 域定性**：✅ 已达成（第七轮）——品牌 3 件消重 + ops 二包 4 件（OperationCenter/ServiceLoopPanel 解锁）+ Phase 3 漏网 5 lib 收编 core + P2 切 2 留 3；壳层 9 + 路由级 3 留端 Phase 5；反向独有 4→3
-- **M4-6 特深域 ai-family（扩容）**：24 独有件 + family-* 13 slices + **HotelDashboard 包化（MEMBERS_MAP 破环：ai-family shared.ts members 静态数据模块化）+ hotel-bridge 裁断 + 智慧酒店双版本 L1 视觉融合样板（density="compact"）+ ai-family types 跨端仲裁**——M4-2b D4/D7 移交项集中于此；**P1 剩余 48 错（ai-family store 路径断引）与 P2 routes 断链/Rf-011 余败同窗修复**
-- **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项（useWebSocketData 已入 store，ide-mock-data 注解引用不阻）
+- **M4-6 ai-family 特深域**：✅ 已达成（第八轮）——`@yyc3/ai-family` 86 件 / exports 90 条；P1 死副本 36 清障（48→0）+ P2 断链修复（7→0 + build 首绿）+ MEMBERS_MAP 破环 + HotelDashboard 切包 + useClock 入 core + inference 6 类型并入；P2 AIFamilyPage 独走留端；智慧酒店 L1 视觉融合（density="compact"）归 Phase 5 专项
+- **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项（useWebSocketData 已入 store，ide-mock-data 注解引用不阻）+ **失效 vi.mock 清扫（M4-6 技术债）**
 - **M4-8**：反向独有 3 件定性（CodeEditor/DesignSystemEditor/ImageWithFallback；DataFlowDiagram 经 M4-5 修正随 ops 入包）+ NavRegistry 单源 + PageShell 七型谱
 - **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
 - **types 单源收敛**（app 28 分件 vs core 按需 +141 件（M4-3 +27 / M4-2/3 ai +21 诊断·websocket·layout 系 / M4-2/3 ops +37 六语义段 + ChainEvent / M4-4 admin·monitor +54 九语义段），Phase 3 登记；桥接模式已立（diagnostic/websocket/layout/view-context 四桥），收敛=桥原地翻正）
@@ -286,33 +312,34 @@ category: report
 ## 交接快照
 
 ```bash
-# 复验矩阵（全绿可复现）
-cd packages/core && pnpm exec tsc --noEmit          # 0 错
-cd packages/store && pnpm exec tsc --noEmit         # 0 错
-cd packages/ui && pnpm exec tsc --noEmit            # 0 错
-cd packages/business && pnpm exec tsc --noEmit      # 0 错
-cd packages/ai && pnpm exec tsc --noEmit            # 0 错
-cd packages/ops && pnpm exec tsc --noEmit           # 0 错（M4-5 二包后 13 组件 + 6 hooks）
-cd packages/admin && pnpm exec tsc --noEmit         # 0 错
-cd packages/monitor && pnpm exec tsc --noEmit       # 0 错
-cd apps/app-web-full    && pnpm exec tsc --noEmit   # 48（M4-5 后基线：67−19 品牌断引修复；ai-family 存量归 M4-6）
-cd apps/app-desktop     && pnpm exec tsc --noEmit   # 0
-cd apps/app-web-classic && pnpm exec tsc --noEmit   # 0
-cd apps/app-sandbox-lite && pnpm exec tsc --noEmit  # 7（基线逐字同）
-# build：P1 858ms / P3 831ms / P4 812ms 三绿；P2 = 7 基线
-# P2 vitest：1811 通过 / 54 存量失败（Layout jsdom + 包组件渲染 + rf-011 断链连带）
+# 复验矩阵（M4-6 后：四端全零全绿首态）
+cd packages/theme && pnpm exec tsc --noEmit       # 0 错
+cd packages/core && pnpm exec tsc --noEmit        # 0 错（useClock 入包后 34 件 + i18n）
+cd packages/store && pnpm exec tsc --noEmit       # 0 错
+cd packages/ui && pnpm exec tsc --noEmit          # 0 错
+cd packages/business && pnpm exec tsc --noEmit    # 0 错
+cd packages/ai && pnpm exec tsc --noEmit          # 0 错
+cd packages/ops && pnpm exec tsc --noEmit         # 0 错
+cd packages/admin && pnpm exec tsc --noEmit       # 0 错
+cd packages/monitor && pnpm exec tsc --noEmit     # 0 错
+cd packages/ai-family && pnpm exec tsc --noEmit   # 0 错（M4-6 新包 86 件）
+cd apps/app-web-full && pnpm exec tsc --noEmit    # 0（48→0 死副本清障）
+cd apps/app-desktop && pnpm exec tsc --noEmit     # 0
+cd apps/app-web-classic && pnpm exec tsc --noEmit # 0
+cd apps/app-sandbox-lite && pnpm exec tsc --noEmit # 0（7→0 断链修复，史上首零）
+# build：P1 813ms / P3 776ms / P4 779ms / P2 全绿（存量 7 错基线首零）——四端 build 全绿
+# P2 vitest：1813 通过（rf-phase2 29/29）；P1 ai-family 抽测 136 例绿
 
-# 包拓扑（M4-5 后）
-# @yyc3/ops：13 组件 + 6 hooks，exports 17 条（+operation-center/service-loop-panel/quick-action-grid/data-flow-diagram）
-# @yyc3/core：src 32 件 + i18n，exports 45 条（+authContext/backgroundSync/local-knowledge-base/network-utils/yyc3-icons），types 1525L
-# @yyc3/ui：品牌件唯一源（三端 shared/components 副本已删）
-# P1 端：modules/shared 13 件（壳层 9 + 路由级 3 + index）留端 Phase 5；modules/ops 7 暂缓件
-# P2 端：lib 5 件全行为异构留端；@yyc3/core 引用 12 件
+# 包拓扑（M4-6 后：十包）
+# @yyc3/ai-family：86 件（组件 37 + Page + slices 13 + hooks 5 + types 3 + lib 26），exports 90 条
+#   peer：react/lucide-react/motion/react-router/zustand/clsx/@mlc-ai/web-llm；dep：core/store/ui/business
+# @yyc3/core：34 件 + i18n，exports 46 条（+useClock），types 1583L（+inference 6）
+# 端侧：P1 modules/ 目录 ai-family 整域消失；P3/P4 components/ai-family 清空；P2 AIFamilyPage 独走留端
 
 # 下次会话起点
-# → M4-6 ai-family 扩容（family-* 13 slices + HotelDashboard/hotel-bridge + P1 剩 48 错 + P2 routes 断链同窗）
-# → M4-7 @yyc3/ide / M4-8 反向独有 3 件 + NavRegistry + PageShell
-# → ops 暂缓件清空（ServiceConnectionTest 依赖已通 + ConfigExportCenter）随下批
+# → M4-7 @yyc3/ide（ide-settings-slice + ide-types + theme-presets 引擎 + 失效 vi.mock 清扫）
+# → M4-8 反向独有 3 件 + NavRegistry + PageShell
+# → Phase 5 壳层（shared 留端 12 件 + 智慧酒店 L1 视觉融合）
 ```
 
 ---

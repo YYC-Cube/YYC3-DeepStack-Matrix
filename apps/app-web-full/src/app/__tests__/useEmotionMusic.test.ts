@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useEmotionMusic } from "../modules/ai-family/hooks/useEmotionMusic";
+import { useEmotionMusic } from "@yyc3/ai-family/hooks/use-emotion-music";
 
 const mockEmotionState = {
   type: "happy" as const,
@@ -31,7 +31,7 @@ const mockMusicMapping = {
   description: "欢快愉悦",
 };
 
-vi.mock("../lib/EmotionMusicBridge", () => ({
+vi.mock("@yyc3/ai-family/lib/EmotionMusicBridge", () => ({
   default: {
     getCurrentEmotion: vi.fn(() => null),
     getEmotionHistory: vi.fn(() => []),
@@ -44,7 +44,7 @@ vi.mock("../lib/EmotionMusicBridge", () => ({
   },
 }));
 
-vi.mock("../lib/MusicEventBus", () => ({
+vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   default: {
     subscribe: vi.fn(() => () => {}),
     emit: vi.fn(),

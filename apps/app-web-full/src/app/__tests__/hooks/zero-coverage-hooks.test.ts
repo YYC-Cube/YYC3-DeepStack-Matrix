@@ -22,13 +22,13 @@ describe("useClock", () => {
   });
 
   it("should return a Date object", async () => {
-    const { useClock } = await import("../../hooks/useClock");
+    const { useClock } = await import("@yyc3/core/useClock");
     const { result } = renderHook(() => useClock());
     expect(result.current).toBeInstanceOf(Date);
   });
 
   it("should update over time", async () => {
-    const { useClock } = await import("../../hooks/useClock");
+    const { useClock } = await import("@yyc3/core/useClock");
     const { result } = renderHook(() => useClock());
     const initial = result.current.getTime();
     act(() => {

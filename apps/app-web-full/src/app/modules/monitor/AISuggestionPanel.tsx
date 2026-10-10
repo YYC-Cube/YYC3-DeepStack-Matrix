@@ -26,7 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useContext, useState } from "react";
-import { useAIFamilyNav } from "../ai-family/hooks/useAIFamilyNav";
+import { useAIFamilyNav } from "@yyc3/ai-family/hooks/use-aifamily-nav";
 import { useAISuggestion } from "@yyc3/monitor/hooks/use-ai-suggestion";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../../lib/view-context";

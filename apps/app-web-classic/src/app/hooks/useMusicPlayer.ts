@@ -15,8 +15,8 @@ import musicEventBus, {
   type Track,
   type MusicCommand,
   type MusicEventListener,
-} from "../lib/MusicEventBus";
-import { parseVoiceCommand, type ParsedCommand } from "../lib/VoiceCommandParser";
+} from "@yyc3/ai-family/lib/MusicEventBus";
+import { parseVoiceCommand, type ParsedCommand } from "@yyc3/ai-family/lib/VoiceCommandParser";
 
 const DEFAULT_PLAYLIST: Track[] = [
   { id: 1, title: "Family AI — 智慧工坊", artist: "YYC3 Family", duration: "4:32", color: "#FF69B4" },

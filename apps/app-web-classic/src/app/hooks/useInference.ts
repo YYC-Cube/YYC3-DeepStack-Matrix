@@ -22,7 +22,7 @@ import {
   getInferenceEngine,
   detectGPU,
   WEBGPU_PRESETS,
-} from "../lib/inference-engine";
+} from "@yyc3/ai-family/lib/inference-engine";
 import type {
   InferenceBackendType,
   InferenceBackendStatus,

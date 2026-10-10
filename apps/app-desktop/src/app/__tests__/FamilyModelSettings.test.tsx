@@ -48,7 +48,7 @@ vi.mock("@yyc3/store/provider-slice", () => ({
   }),
 }));
 
-vi.mock("../store/slices/family-settings-slice", () => {
+vi.mock("@yyc3/ai-family/store/../", () => {
   const state = {
     modelAssignments: [],
     voiceProfiles: [],
@@ -83,7 +83,7 @@ const defaultAssignments = [
   { memberId: "creator", provider: "claude", model: "claude-3-5-haiku-20241022", enabled: true },
 ];
 
-import { FamilyModelSettings } from "../components/ai-family/FamilyModelSettings";
+import { FamilyModelSettings } from "@yyc3/ai-family/family-model-settings";
 
 describe("FamilyModelSettings", () => {
   beforeEach(() => {

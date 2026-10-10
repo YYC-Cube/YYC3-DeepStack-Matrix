@@ -10,7 +10,7 @@
  */
 
 import { FamilyDataAccessor } from "./family-data-accessor";
-import type { FamilyMember } from "../components/ai-family/shared";
+import type { FamilyMember } from "@yyc3/ai-family/shared";
 
 /** 运行时从 store 或 shared.ts fallback 获取成员列表 */
 const FAMILY_MEMBERS = FamilyDataAccessor.getMembers();

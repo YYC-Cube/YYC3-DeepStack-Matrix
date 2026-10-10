@@ -12,7 +12,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import React from "react";
-import { CreationStudio } from "../components/ai-family/CreationStudio";
+import { CreationStudio } from "@yyc3/ai-family/creation-studio";
 import type { MusicTrack } from "@yyc3/core/dmusic-resources";
 
 const mockPlaylist: MusicTrack[] = [

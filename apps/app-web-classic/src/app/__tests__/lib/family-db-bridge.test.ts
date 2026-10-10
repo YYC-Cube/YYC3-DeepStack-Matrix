@@ -15,7 +15,7 @@ import {
   fetchPerformanceMetrics,
   fetchAlerts,
   fetchDashboardStats,
-} from "../../lib/family-db-bridge";
+} from "@yyc3/ai-family/lib/family-db-bridge";
 
 describe("family-db-bridge", () => {
   beforeEach(() => {

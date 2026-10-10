@@ -22,7 +22,7 @@ vi.mock('@yyc3/business/hotel-engines/ai-family-hotel-manager', () => ({
   }),
 }));
 
-vi.mock('../lib/zhipu-ai-service', () => ({
+vi.mock('@yyc3/ai-family/lib/zhipu-ai-service', () => ({
   getZhipuAIService: vi.fn().mockReturnValue({
     chat: vi.fn(),
     chatStream: vi.fn(),

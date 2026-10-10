@@ -19,7 +19,7 @@ import {
   type DbPerformanceMetric,
   type DbAlert,
   type DbDashboardStats,
-} from "../lib/family-db-bridge";
+} from "@yyc3/ai-family/lib/family-db-bridge";
 
 interface DbDataState {
   nodes: DbNodeStatus[];

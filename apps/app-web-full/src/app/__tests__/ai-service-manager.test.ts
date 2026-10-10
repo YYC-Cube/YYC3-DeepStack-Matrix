@@ -11,7 +11,7 @@
 
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { AIServiceManager, getAIServiceManager, resetAIServiceManager } from "../lib/ai-service-manager";
+import { AIServiceManager, getAIServiceManager, resetAIServiceManager } from "@yyc3/ai-family/lib/ai-service-manager";
 import type { ConfiguredModel } from "../types";
 
 // Mock fetch

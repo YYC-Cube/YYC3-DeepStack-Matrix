@@ -23,7 +23,7 @@
  */
 
 import { useCallback, useMemo, useState } from "react";
-import { FAMILY_MEMBERS, MEMBERS_MAP, type FamilyMember } from "../components/ai-family/shared";
+import { FAMILY_MEMBERS, MEMBERS_MAP, type FamilyMember } from "@yyc3/ai-family/shared";
 import {
   searchKnowledge,
   type DevKnowledgeCategory,

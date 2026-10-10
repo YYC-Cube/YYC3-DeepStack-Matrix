@@ -10,13 +10,13 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import musicEventBus from "../lib/MusicEventBus";
+import musicEventBus from "@yyc3/ai-family/lib/MusicEventBus";
 import emotionMusicBridge, {
   type EmotionType,
   type EmotionState,
   type EmotionMusicMapping,
   type UserBehavior,
-} from "../lib/EmotionMusicBridge";
+} from "@yyc3/ai-family/lib/EmotionMusicBridge";
 
 export interface UseEmotionMusicOptions {
   autoDetect?: boolean;

@@ -35,10 +35,10 @@ import {
 } from "lucide-react";
 
 import type { UnifiedFamilyMember } from "../types";
-import { useFamilyMemberSlice } from "../modules/ai-family/store";
-import { useFamilySettingsSlice, type FamilyMessage } from "../modules/ai-family/store/family-settings-slice";
-import { useFamilyCallLogSlice } from "../modules/ai-family/store/family-calllog-slice";
-import { useFamilyMessageSlice } from "../modules/ai-family/store/family-message-slice";
+import { useFamilyMemberSlice } from "@yyc3/ai-family/store";
+import { useFamilySettingsSlice, type FamilyMessage } from "@yyc3/ai-family/store/family-settings-slice";
+import { useFamilyCallLogSlice } from "@yyc3/ai-family/store/family-calllog-slice";
+import { useFamilyMessageSlice } from "@yyc3/ai-family/store/family-message-slice";
 
 // ──────────────────────────────────────────────────────────────────
 // Mock
@@ -50,7 +50,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
   ),
 }));
 
-vi.mock("../modules/ai-family/components/FadeIn", () => ({
+vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children, delay }: any) =>
     React.createElement("div", { "data-testid": "yyc3-fadein", "data-delay": delay }, children),
 }));
@@ -210,7 +210,7 @@ function getMemberBarButton(shortName: string | "全部"): HTMLElement {
 // 测试集
 // ──────────────────────────────────────────────────────────────────
 
-import { FamilyCommCenter } from "../modules/ai-family/components/FamilyCommCenter";
+import { FamilyCommCenter } from "@yyc3/ai-family/family-comm-center";
 
 describe("FamilyCommCenter", () => {
   let spies: ReturnType<typeof seedStores>;

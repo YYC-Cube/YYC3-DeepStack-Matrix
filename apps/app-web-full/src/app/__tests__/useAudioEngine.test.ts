@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useAudioEngine, type AudioTrack } from "../modules/ai-family/hooks/useAudioEngine";
+import { useAudioEngine, type AudioTrack } from "@yyc3/ai-family/hooks/use-audio-engine";
 
 const mockAudioContext = {
   createAnalyser: vi.fn(function(this: typeof mockAudioContext) {

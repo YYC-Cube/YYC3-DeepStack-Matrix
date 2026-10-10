@@ -23,21 +23,28 @@
 
 // @vitest-environment jsdom
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import React from "react";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import type { UnifiedFamilyMember } from "../modules/ai-family/types";
-import { useFamilyMemberSlice } from "../modules/ai-family/store";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useFamilyMemberSlice } from "@yyc3/ai-family/store";
+import type { UnifiedFamilyMember } from "@yyc3/ai-family/types";
 import {
-  Ear, Brain, Eye, Star, Network, Shield, Scale, Lightbulb,
+  Brain,
+  Ear,
+  Eye,
+  Lightbulb,
+  Network,
+  Scale,
+  Shield,
+  Star,
 } from "lucide-react";
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ──────────────────────────────────────────────────────────────────
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
@@ -50,7 +57,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-import { AIFamilyDesignDoc } from "../modules/ai-family/components/AIFamilyDesignDoc";
+import { AIFamilyDesignDoc } from "@yyc3/ai-family/ai-family-design-doc";
 
 // ──────────────────────────────────────────────────────────────────
 // 种子数据（8 位 AI Family 成员最小集）

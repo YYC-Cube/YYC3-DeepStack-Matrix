@@ -43,7 +43,7 @@ import { EnvConfigEditor } from "./components/EnvConfigEditor";
 import { DatabaseConnectionPanel } from "./components/DatabaseConnectionPanel";
 import { ArchitectureAudit } from "./components/ArchitectureAudit";
 import { AIFamilyPage } from "./components/AIFamilyPage";
-import { AIFamilyRouter } from "./components/ai-family/AIFamilyRouter";
+import { AIFamilyRouter } from "@yyc3/ai-family/ai-family-router";
 import { ServiceConnectionTest } from "./components/ServiceConnectionTest";
 import { NotFound } from "./components/NotFound";
 

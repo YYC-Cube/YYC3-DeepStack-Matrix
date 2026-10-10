@@ -12,7 +12,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 
-vi.mock("../../lib/family-db-bridge", () => ({
+vi.mock("@yyc3/ai-family/lib/family-db-bridge", () => ({
   fetchNodeStatus: vi.fn().mockResolvedValue([
     { id: "n1", hostname: "node-1", gpu_util: 50, mem_util: 32, temp_celsius: 45, model_deployed: "test", active_tasks: 2, status: "active" },
   ]),
@@ -54,7 +54,7 @@ describe("useDbData", () => {
   });
 
   it("should handle fetch errors", async () => {
-    const bridge = await import("../../lib/family-db-bridge");
+    const bridge = await import("@yyc3/ai-family/lib/family-db-bridge");
     (bridge.fetchNodeStatus as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Network error"));
 
     const { useDbData } = await import("../../hooks/useDbData");

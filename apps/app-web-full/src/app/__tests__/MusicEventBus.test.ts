@@ -10,14 +10,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import musicEventBus from "../lib/MusicEventBus";
+import musicEventBus from "@yyc3/ai-family/lib/MusicEventBus";
 import type {
   MusicCommand,
   MusicEventType,
   MusicEvent,
   MusicState,
   Track,
-} from "../lib/MusicEventBus";
+} from "@yyc3/ai-family/lib/MusicEventBus";
 
 describe("MusicEventBus", () => {
   beforeEach(() => {

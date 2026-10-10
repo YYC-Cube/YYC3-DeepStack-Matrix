@@ -33,9 +33,9 @@ import { useYYC3Head } from "./hooks/useYYC3Head";
 import { useI18nProvider, I18nContext } from "@yyc3/core/i18n";
 import { AuthContext } from "@yyc3/core/authContext";
 import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
-import { FamilyDataAccessor } from "./modules/ai-family/lib/family-data-accessor";
+import { FamilyDataAccessor } from "@yyc3/ai-family/lib/family-data-accessor";
 import { useFamilyMemberSlice } from "./store";
-import { refreshFromStore } from "./modules/ai-family/components/shared";
+import { refreshFromStore } from "@yyc3/ai-family/shared";
 import type { UserRole, AppSession } from "./types";
 
 // ────────────────────────────────────────────────────────────────

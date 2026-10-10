@@ -14,8 +14,8 @@ import smartPlaylistGenerator, {
   type TrackInfo,
   type PlaylistConfig,
   type PlaylistGenerationOptions,
-} from "../lib/SmartPlaylistGenerator";
-import { type EmotionState } from "../lib/EmotionMusicBridge";
+} from "@yyc3/ai-family/lib/SmartPlaylistGenerator";
+import { type EmotionState } from "@yyc3/ai-family/lib/EmotionMusicBridge";
 
 describe("SmartPlaylistGenerator", () => {
   const sampleTracks: TrackInfo[] = [

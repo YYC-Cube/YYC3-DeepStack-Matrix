@@ -33,9 +33,9 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 // ============================================================
 // 1. Seed 数据: family-member-slice + family-activities-slice
 // ============================================================
-import "../modules/ai-family/store/family-member-slice";
-import "../modules/ai-family/store/family-activities-slice";
-import { useFamilyActivitiesSlice } from "../modules/ai-family/store/family-activities-slice";
+import "@yyc3/ai-family/store/family-member-slice";
+import "@yyc3/ai-family/store/family-activities-slice";
+import { useFamilyActivitiesSlice } from "@yyc3/ai-family/store/family-activities-slice";
 
 // ============================================================
 // 2. Stub window.devicePixelRatio = 1
@@ -85,7 +85,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
 // ============================================================
 // 5. Mock FadeIn (避免动画干扰)
 // ============================================================
-vi.mock("../modules/ai-family/components/FadeIn", () => ({
+vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: { children: React.ReactNode; delay?: number }) => (
     <div data-testid="fade-in">{children}</div>
   ),
@@ -102,7 +102,7 @@ import type {
   NodeStatus,
   YYC3DeviceRole,
   YYC3Capability,
-} from "../lib/yyc3-cluster.types";
+} from "@yyc3/ai-family/lib/yyc3-cluster.types";
 
 function makeNode(
   fullName: string,
@@ -192,7 +192,7 @@ const MOCK_SESSIONS: SSHSession[] = [
   },
 ];
 
-vi.mock("../lib/yyc3-cluster-manager", () => ({
+vi.mock("@yyc3/ai-family/lib/yyc3-cluster-manager", () => ({
   YYC3ClusterManager: vi.fn(function (this: unknown) {
     (this as Record<string, unknown>).getAllNodes = vi.fn().mockReturnValue(MOCK_NODES);
     (this as Record<string, unknown>).getClusterStatistics = vi.fn().mockReturnValue(MOCK_STATS);
@@ -204,7 +204,7 @@ vi.mock("../lib/yyc3-cluster-manager", () => ({
 // ============================================================
 // 7. 导入被测组件 (必须在所有 vi.mock 之后)
 // ============================================================
-import { FamilyCluster } from "../modules/ai-family/components/FamilyCluster";
+import { FamilyCluster } from "@yyc3/ai-family/family-cluster";
 
 // ============================================================
 // 8. 测试套件

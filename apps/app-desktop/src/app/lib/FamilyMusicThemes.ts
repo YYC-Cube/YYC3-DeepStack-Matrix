@@ -9,7 +9,7 @@
  * @tags: [lib]
  */
 
-import type { FamilyMember } from "../components/ai-family/shared";
+import type { FamilyMember } from "@yyc3/ai-family/shared";
 import { FamilyDataAccessor } from "./family-data-accessor";
 
 export interface FamilyTheme {

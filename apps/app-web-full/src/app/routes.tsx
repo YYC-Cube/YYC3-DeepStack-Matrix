@@ -150,10 +150,10 @@ const ArchitectureAudit = lazy(() =>
   import("./modules/dev/ArchitectureAudit").then((m) => ({ default: m.ArchitectureAudit })),
 );
 const AIFamilyPage = lazy(() =>
-  import("./modules/ai-family/AIFamilyPage").then((m) => ({ default: m.AIFamilyPage })),
+  import("@yyc3/ai-family/ai-family-page").then((m) => ({ default: m.AIFamilyPage })),
 );
 const AIFamilyRouter = lazy(() =>
-  import("./modules/ai-family/components/AIFamilyRouter").then((m) => ({ default: m.AIFamilyRouter })),
+  import("@yyc3/ai-family/ai-family-router").then((m) => ({ default: m.AIFamilyRouter })),
 );
 const ServiceConnectionTest = lazy(() =>
   import("./modules/ops/ServiceConnectionTest").then((m) => ({ default: m.ServiceConnectionTest })),

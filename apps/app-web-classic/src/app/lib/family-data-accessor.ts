@@ -13,8 +13,8 @@
  *         接受 UnifiedFamilyMember（store）或 FamilyMember（shared.ts）。
  */
 
-import type { FamilyMember } from "../components/ai-family/shared";
-import { FAMILY_MEMBERS as SHARED_MEMBERS } from "../components/ai-family/shared";
+import type { FamilyMember } from "@yyc3/ai-family/shared";
+import { FAMILY_MEMBERS as SHARED_MEMBERS } from "@yyc3/ai-family/shared";
 import type { UnifiedFamilyMember } from "../types";
 
 /**

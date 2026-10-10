@@ -78,7 +78,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../modules/ai-family/hooks/useEmotionMusic", () => ({
+vi.mock("@yyc3/ai-family/hooks/use-emotion-music", () => ({
   useEmotionMusic: () => ({
     currentEmotion: { type: "neutral", confidence: 0.8, intensity: 0.5 },
     emotionHistory: [],
@@ -96,7 +96,7 @@ vi.mock("../modules/ai-family/hooks/useEmotionMusic", () => ({
   }),
 }));
 
-vi.mock("../lib/MusicEventBus", () => ({
+vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   default: {
     subscribe: vi.fn(() => vi.fn()),
     emit: vi.fn(),
@@ -144,7 +144,7 @@ vi.mock("./GlassCard", () => ({
   ),
 }));
 
-vi.mock("../../lib/SmartPlaylistGenerator", () => ({
+vi.mock("@yyc3/ai-family/lib/SmartPlaylistGenerator", () => ({
   default: {
     generatePlaylist: vi.fn(() => ({
       tracks: [],

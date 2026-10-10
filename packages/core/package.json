@@ -42,7 +42,8 @@
     "./backgroundSync": "./src/backgroundSync.ts",
     "./local-knowledge-base": "./src/local-knowledge-base.ts",
     "./network-utils": "./src/network-utils.ts",
-    "./yyc3-icons": "./src/yyc3-icons.ts"
+    "./yyc3-icons": "./src/yyc3-icons.ts",
+    "./useClock": "./src/useClock.ts"
   },
   "peerDependencies": {
     "react": "^18 || ^19"

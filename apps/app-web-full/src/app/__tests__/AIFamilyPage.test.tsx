@@ -48,14 +48,14 @@ vi.mock("@yyc3/core/i18n", () => ({
 // ============================================================
 //  Mock: useClockMinutes — 返回固定时间对象
 // ============================================================
-vi.mock("../hooks/useClock", () => ({
+vi.mock("@yyc3/core/useClock", () => ({
   useClockMinutes: vi.fn(() => new Date("2026-04-08T09:00:00")),
 }));
 
 // ============================================================
 //  Mock: useFamilyMemberSlice — 返回 8 位默认家人
 // ============================================================
-vi.mock("../modules/ai-family/store/family-member-slice", () => ({
+vi.mock("@yyc3/ai-family/store/family-member-slice", () => ({
   useFamilyMemberSlice: vi.fn(() => ({
     members: [
       {
@@ -206,7 +206,7 @@ afterEach(() => {
 // ============================================================
 //  测试套件
 // ============================================================
-import { AIFamilyPage } from "../modules/ai-family/AIFamilyPage";
+import { AIFamilyPage } from "@yyc3/ai-family/ai-family-page";
 
 describe("AIFamilyPage", () => {
 

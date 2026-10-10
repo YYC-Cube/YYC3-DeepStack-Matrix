@@ -15,9 +15,9 @@ import multimodalEmotionEngine, {
   type TextModalityData,
   type VoiceModalityData,
   type BehaviorModalityData,
-} from "../lib/MultimodalEmotionEngine";
+} from "@yyc3/ai-family/lib/MultimodalEmotionEngine";
 
-vi.mock("../lib/MusicEventBus", () => ({
+vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   default: {
     emit: vi.fn(),
     subscribe: vi.fn(() => vi.fn()),

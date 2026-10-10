@@ -27,7 +27,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { useFamilyMemberSlice } from "../modules/ai-family/store";
+import { useFamilyMemberSlice } from "@yyc3/ai-family/store";
 import type { UnifiedFamilyMember } from "../types";
 import {
   Ear, Brain, Eye, Star, Network, Shield, Scale, Lightbulb,
@@ -42,7 +42,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
-vi.mock("../modules/ai-family/components/FadeIn", () => ({
+vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: any) => React.createElement(React.Fragment, null, children),
 }));
 
@@ -56,7 +56,7 @@ vi.mock("../modules/ai-family/components/FadeIn", () => ({
 // vi.mock 内部共享的可变状态（在 hoisted 的 vi.mock factory 和 runtime syncSharedMock 之间）
 const __yyc3SharedState: { converted: any[]; map: Record<string, any> } = { converted: [], map: {} };
 
-vi.mock("../modules/ai-family/components/shared", async (importOriginal) => {
+vi.mock("@yyc3/ai-family/shared", async (importOriginal) => {
   const real: any = await importOriginal();
   const getMember = (id: string) => __yyc3SharedState.map[id];
   const getTodayReporter = () => {
@@ -122,7 +122,7 @@ function syncSharedMockMembers(seedMembers: UnifiedFamilyMember[]) {
   __yyc3SharedState.map = Object.fromEntries(converted.map((x) => [x.id, x]));
 }
 
-vi.mock("../modules/ai-family/components/FamilyPageHeader", () => ({
+vi.mock("@yyc3/ai-family/family-page-header", () => ({
   FamilyPageHeader: ({ title, subtitle }: any) =>
     React.createElement("div", { "data-testid": "yyc3-family-page-header" },
       React.createElement("h1", { "data-testid": "yyc3-header-title" }, title),
@@ -130,7 +130,7 @@ vi.mock("../modules/ai-family/components/FamilyPageHeader", () => ({
     ),
 }));
 
-import { FamilyActivityCenter } from "../modules/ai-family/components/FamilyActivityCenter";
+import { FamilyActivityCenter } from "@yyc3/ai-family/family-activity-center";
 
 // ──────────────────────────────────────────────────────────────────
 // 种子数据：仅 seed useFamilyMemberSlice.members

@@ -26,7 +26,7 @@ export type {
   MessageDeliveryStatus,
   UnifiedFamilyMessage,
   FamilyConversation,
-} from "../modules/ai-family/types";
+} from "@yyc3/ai-family/types";
 
 // ── Foundation ──
 export type { BaseSeverity } from "./common-types";

@@ -23,7 +23,7 @@ import { getAILearningEngine } from '@yyc3/business/hotel-engines/ai-learning-en
 import { getHotelKnowledgeBase } from '@yyc3/business/hotel-engines/hotel-knowledge-base';
 import { HotelVoiceService, getHotelVoiceService } from '@yyc3/business/hotel-engines/hotel-voice-service';
 import { GlassCard } from '@yyc3/ui';
-import { MEMBERS_MAP, type FamilyMember } from './ai-family/shared';
+import { MEMBERS_MAP, type FamilyMember } from '@yyc3/ai-family/shared';
 
 // ============================================================
 // 类型定义

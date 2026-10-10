@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { getCanvasPerf, setCanvasPerf } from "../../lib/canvasPerfRegistry";
+import { getCanvasPerf, setCanvasPerf } from "@yyc3/ai-family/lib/canvasPerfRegistry";
 
 describe("canvasPerfRegistry", () => {
   const REGISTRY_KEY = "__yyc3_canvas_perf__";

@@ -1,31 +1,23 @@
+# YYC³ Monorepo Web 镜像（v2 monorepo 化：build context = 仓库根）
+# 构建: docker build -f apps/app-desktop/Dockerfile -t yyc3-matrix .
+# 说明: 十二包为源码直编模式（exports → src/index.ts），无包级 dist 构建步；
+#       app build 由 vite 直接编译 workspace 源码。
 ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-alpine AS base
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable pnpm && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod=false
+RUN corepack enable pnpm && corepack prepare pnpm@9 --activate
+WORKDIR /repo
 
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+# monorepo 全仓复制（workspace:* 依赖 + 包源码直编所需）
 COPY . .
-
-RUN corepack enable pnpm && corepack prepare pnpm@latest --activate
 RUN pnpm install --frozen-lockfile
-RUN pnpm build
+RUN pnpm --filter @yyc3/app-desktop build
 
 ARG VERSION=0.0.1
 ARG BUILD_DATE
 ARG VCS_REF
-
-ENV NODE_ENV=production
-ENV VERSION=${VERSION}
-ENV BUILD_DATE=${BUILD_DATE}
-ENV VCS_REF=${VCS_REF}
 
 FROM nginx:alpine AS runner
 RUN apk add --no-cache curl
@@ -42,8 +34,8 @@ LABEL org.opencontainers.image.created=${BUILD_DATE}
 LABEL org.opencontainers.image.revision=${VCS_REF}
 LABEL org.opencontainers.image.vendor="YanYuCloudCube"
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY apps/app-desktop/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /repo/apps/app-desktop/dist /usr/share/nginx/html
 
 RUN echo "Build Info:" > /usr/share/nginx/html/build-info.txt && \
     echo "Version: ${VERSION}" >> /usr/share/nginx/html/build-info.txt && \

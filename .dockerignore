@@ -1,0 +1,31 @@
+# YYC³ Monorepo Docker 构建忽略（context = 仓库根，配套 apps/app-desktop/Dockerfile v2）
+# 依赖与产物（builder 阶段自行 install/build）
+node_modules
+**/node_modules
+dist
+**/dist
+dist-electron
+**/dist-electron
+.vite
+coverage
+test-results
+playwright-report
+.lighthouseci
+
+# 版本控制与文档
+.git
+.github
+.vscode
+docs
+*.md
+!apps/app-desktop/LICENSE
+
+# 截图资产归档（仅文档比对用，不参与构建）
+public
+
+# 环境与本地文件
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log

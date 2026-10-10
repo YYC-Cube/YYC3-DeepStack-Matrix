@@ -1,0 +1,93 @@
+[
+ {
+  "route": "/",
+  "file": "00-home.png",
+  "bytes": 250888,
+  "body_len": 1173,
+  "404": false
+ },
+ {
+  "route": "patrol",
+  "file": "01-patrol.png",
+  "bytes": 256116,
+  "body_len": 336,
+  "404": false
+ },
+ {
+  "route": "operations",
+  "file": "02-operations.png",
+  "bytes": 237009,
+  "body_len": 950,
+  "404": false
+ },
+ {
+  "route": "ai-diagnosis",
+  "file": "03-ai-diagnosis.png",
+  "bytes": 367326,
+  "body_len": 221,
+  "404": false
+ },
+ {
+  "route": "alerts",
+  "file": "04-alerts.png",
+  "bytes": 376370,
+  "body_len": 567,
+  "404": false
+ },
+ {
+  "route": "ai-family",
+  "file": "05-ai-family.png",
+  "bytes": 505794,
+  "body_len": 321,
+  "404": false
+ },
+ {
+  "route": "database",
+  "file": "06-database.png",
+  "bytes": 406830,
+  "body_len": 199,
+  "404": false
+ },
+ {
+  "route": "users",
+  "file": "07-users.png",
+  "bytes": 259190,
+  "body_len": 661,
+  "404": false
+ },
+ {
+  "route": "settings",
+  "file": "08-settings.png",
+  "bytes": 173208,
+  "body_len": 451,
+  "404": false
+ },
+ {
+  "route": "security",
+  "file": "09-security.png",
+  "bytes": 450946,
+  "body_len": 115,
+  "404": false
+ },
+ {
+  "route": "loop",
+  "file": "10-loop.png",
+  "bytes": 270188,
+  "body_len": 656,
+  "404": false
+ },
+ {
+  "route": "ide",
+  "file": "11-ide.png",
+  "bytes": 208693,
+  "body_len": 1109,
+  "404": false
+ },
+ {
+  "route": "design-system",
+  "file": "12-design-system.png",
+  "bytes": 272425,
+  "body_len": 863,
+  "404": false
+ }
+]

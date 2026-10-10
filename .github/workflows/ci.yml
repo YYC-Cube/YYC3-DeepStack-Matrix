@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   gates:
     runs-on: ubuntu-latest
@@ -24,4 +27,51 @@ jobs:
         run: bash scripts/verify-gates.sh
       - name: 测试（vitest 分片）
         run: pnpm --filter @yyc3/app-web-full test -- --run && pnpm --filter @yyc3/app-sandbox-lite test -- --run
-      # 后续阶段（按需启用）：SAST / Lighthouse ≥0.9 / Electron 三平台 / Docker GHCR / 视觉快照比对（69 截图基线）
+
+  # ── SAST（静态应用安全测试）────────────────────────────
+  sast:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          config-file: apps/app-desktop/.github/codeql/codeql-config.yml
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:javascript-typescript'
+
+  # ── Lighthouse（performance ≥0.9 断言，lighthouserc.js）──
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 构建（app-desktop @ 3032）
+        run: pnpm --filter @yyc3/app-desktop build
+      - name: 起服 + Lighthouse CI 断言
+        working-directory: apps/app-desktop
+        run: |
+          npx vite preview --port 3032 --strictPort &
+          npx wait-on http://localhost:3032 --timeout 60000
+          npx lhci autorun
+      - name: 归档 Lighthouse 报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: apps/app-desktop/.lighthouseci
+          if-no-files-found: ignore
+
+  # 发布产物管线（Electron 三平台 / Docker GHCR）→ .github/workflows/release.yml（tag v* 触发）

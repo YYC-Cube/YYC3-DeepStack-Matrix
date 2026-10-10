@@ -36,7 +36,7 @@ node scripts/mock-audit.mjs apps/app-web-full/src/app/__tests__ apps/app-desktop
 check $? "vi.mock STALE=0（$(head -1 /tmp/gate-mock.log)）"
 
 step "G5 i18n 裸键扫描"
-node scripts/i18n-bare-key-scan.mjs apps/app-web-full/src/app packages/shell/src packages/monitor/src packages/ops/src packages/admin/src > /tmp/gate-i18n.log 2>&1
+node scripts/i18n-bare-key-scan.mjs apps/app-web-full/src/app apps/app-desktop/src/app apps/app-web-classic/src/app packages/shell/src packages/monitor/src packages/ops/src packages/admin/src packages/business/src packages/ai/src packages/ai-family/src packages/ide/src > /tmp/gate-i18n.log 2>&1
 g5=$?
 if [ $g5 -eq 0 ]; then echo "✅ i18n 裸键 0";
 elif [ $g5 -eq 1 ]; then echo "⚠️ $(grep BARE_KEY_COUNT /tmp/gate-i18n.log | head -1)（存量登记待清，不阻断；清单见 /tmp/gate-i18n.log）";

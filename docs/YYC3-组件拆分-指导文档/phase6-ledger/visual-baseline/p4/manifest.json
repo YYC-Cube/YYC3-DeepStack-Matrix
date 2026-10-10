@@ -1,0 +1,114 @@
+[
+ {
+  "route": "/",
+  "file": "00-home.png",
+  "bytes": 172821,
+  "body_len": 1284,
+  "404": false
+ },
+ {
+  "route": "data-monitoring",
+  "file": "01-data-monitoring.png",
+  "bytes": 447169,
+  "body_len": 165,
+  "404": true
+ },
+ {
+  "route": "patrol",
+  "file": "02-patrol.png",
+  "bytes": 251876,
+  "body_len": 334,
+  "404": false
+ },
+ {
+  "route": "operations",
+  "file": "03-operations.png",
+  "bytes": 226418,
+  "body_len": 784,
+  "404": false
+ },
+ {
+  "route": "ai-diagnosis",
+  "file": "04-ai-diagnosis.png",
+  "bytes": 305947,
+  "body_len": 216,
+  "404": false
+ },
+ {
+  "route": "alerts",
+  "file": "05-alerts.png",
+  "bytes": 241627,
+  "body_len": 562,
+  "404": false
+ },
+ {
+  "route": "ai-family",
+  "file": "06-ai-family.png",
+  "bytes": 507233,
+  "body_len": 316,
+  "404": false
+ },
+ {
+  "route": "database",
+  "file": "07-database.png",
+  "bytes": 367431,
+  "body_len": 194,
+  "404": false
+ },
+ {
+  "route": "users",
+  "file": "08-users.png",
+  "bytes": 181277,
+  "body_len": 486,
+  "404": false
+ },
+ {
+  "route": "settings",
+  "file": "09-settings.png",
+  "bytes": 192807,
+  "body_len": 763,
+  "404": false
+ },
+ {
+  "route": "security",
+  "file": "10-security.png",
+  "bytes": 401049,
+  "body_len": 90,
+  "404": false
+ },
+ {
+  "route": "loop",
+  "file": "11-loop.png",
+  "bytes": 270766,
+  "body_len": 649,
+  "404": false
+ },
+ {
+  "route": "ide",
+  "file": "12-ide.png",
+  "bytes": 213605,
+  "body_len": 1044,
+  "404": false
+ },
+ {
+  "route": "design-system",
+  "file": "13-design-system.png",
+  "bytes": 270252,
+  "body_len": 817,
+  "404": false
+ },
+ {
+  "route": "hotel-dashboard",
+  "file": "14-hotel-dashboard.png",
+  "bytes": 382529,
+  "body_len": 338,
+  "404": false
+ },
+ {
+  "route": "comm-station",
+  "file": "15-comm-station.png",
+  "bytes": 334275,
+  "body_len": 307,
+  "404": false
+ }
+]

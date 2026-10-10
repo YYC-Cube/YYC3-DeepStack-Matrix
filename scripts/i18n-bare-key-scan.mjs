@@ -47,8 +47,8 @@ const localeObj = eval(`(${localeSrc.slice(objStart, end + 1)})`);
 const keys = flatten(localeObj);
 console.log(`locale keys: ${keys.size}`);
 
-// 扫描源码 t("a.b") / t('a.b') 调用
-const files = execSync(`find ${roots.join(" ")} -name '*.tsx' -o -name '*.ts' | grep -v node_modules`, { encoding: "utf8" })
+// 扫描源码 t("a.b") / t('a.b') 调用（豁免测试文件：__tests__/ 与 *.test.* / *.spec.*——nonexistent.* 类键为 fallback 行为测试意图）
+const files = execSync(`find ${roots.join(" ")} -name '*.tsx' -o -name '*.ts' | grep -v node_modules | grep -vE '__tests__/|\\.(test|spec)\\.'`, { encoding: "utf8" })
   .split("\n").filter(Boolean);
 const missing = [];
 const re = /\bt\(\s*["']([a-zA-Z][\w.]*)["']/g;

@@ -1,0 +1,109 @@
+name: 发布管线
+# YYC³ Monorepo Phase 6 持续发布（Electron 三平台 + Docker GHCR；触发：tag v* 或手动）
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ── 门禁前置（发布必过质量关）──────────────────────────
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: 质量门禁（G1-G6）
+        run: bash scripts/verify-gates.sh
+
+  # ── Electron 三平台（mac dmg / win nsis / linux AppImage+deb）──
+  electron:
+    needs: gates
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: --mac
+          - os: windows-latest
+            target: --win
+          - os: ubuntu-latest
+            target: --linux
+    runs-on: ${{ matrix.os }}
+    env:
+      # CI 无签名证书：禁用自动发现，出未签名产物（正式发布另配 CSC_LINK/APPLE_ID secrets）
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: 构建 + 打包（electron-builder ${{ matrix.target }}）
+        working-directory: apps/app-desktop
+        run: |
+          pnpm exec tsc -p electron/tsconfig.json
+          pnpm exec vite build
+          pnpm exec electron-builder ${{ matrix.target }} --publish never
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-${{ matrix.os }}
+          path: apps/app-desktop/dist-electron/*.*
+          if-no-files-found: error
+
+  # ── Docker 镜像 → GHCR ─────────────────────────────────
+  docker:
+    needs: gates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: 构建并推送（apps/app-desktop/Dockerfile，context=仓库根）
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/app-desktop/Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── 通知（发布结果汇总；失败时 GitHub 默认邮件通知维护者）──
+  notify:
+    needs: [electron, docker]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 发布结果汇总
+        run: |
+          echo "electron: ${{ needs.electron.result }}"
+          echo "docker:   ${{ needs.docker.result }}"
+          [ "${{ needs.electron.result }}" = "success" ] && [ "${{ needs.docker.result }}" = "success" ] || exit 1

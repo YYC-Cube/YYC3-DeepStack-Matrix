@@ -35,7 +35,7 @@ import type {
   WebSocketDataState,
 } from "../types";
 
-import { getAPIConfig } from "../lib/api-config";
+import { getAPIConfig } from "@yyc3/core/api-config";
 import { nodeStore } from "../stores/dashboard-stores";
 
 // ============================================================
@@ -256,6 +256,7 @@ export function useWebSocketData(): WebSocketDataState {
 
   return {
     connectionState,
+    isSimulated: connectionState === "simulated",
     reconnectCount,
     lastSyncTime,
     liveQPS,

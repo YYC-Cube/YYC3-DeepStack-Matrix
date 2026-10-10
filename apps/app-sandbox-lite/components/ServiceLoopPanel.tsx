@@ -19,7 +19,7 @@ import { LoopStageCard } from "./LoopStageCard";
 import { DataFlowDiagram } from "./DataFlowDiagram";
 import { useServiceLoop } from "../hooks/useServiceLoop";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;

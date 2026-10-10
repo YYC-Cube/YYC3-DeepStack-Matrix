@@ -519,6 +519,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@yyc3/ui':
         specifier: workspace:*
         version: link:../../packages/ui

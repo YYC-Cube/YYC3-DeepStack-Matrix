@@ -23,7 +23,7 @@ import { GlassCard } from "./GlassCard";
 import { useModelProvider } from "../hooks/useModelProvider";
 import { useBigModelSDK, PROVIDER_CAPABILITIES } from "../hooks/useBigModelSDK";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { YYC3LogoSvg } from "./YYC3LogoSvg";
 import type { ChatMessage, SDKConnectionStatus, ConfiguredModel } from "../types";
 

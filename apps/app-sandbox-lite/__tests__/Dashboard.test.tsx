@@ -21,7 +21,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 // ── Mocks ──
 
 // Mock view-context FIRST (before other imports that might depend on it)
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "lg", isTouch: false }),
   WebSocketContext: React.createContext(null),
 }));
@@ -94,7 +94,7 @@ vi.mock("../components/GlassCard", () => ({
 }));
 
 // ── Context setup ──
-import { ViewContext, WebSocketContext } from "../lib/view-context";
+import { ViewContext, WebSocketContext } from "@yyc3/core/view-context";
 import type { WebSocketDataState, ViewState, NodeData } from "../types";
 import { Dashboard } from "../components/Dashboard";
 
@@ -107,6 +107,7 @@ const mockNodes: NodeData[] = [
 function createWsData(overrides: Partial<WebSocketDataState> = {}): WebSocketDataState {
   return {
     connectionState: "connected",
+    isSimulated: false,
     reconnectCount: 0,
     lastSyncTime: "14:30:00",
     manualReconnect: vi.fn(),

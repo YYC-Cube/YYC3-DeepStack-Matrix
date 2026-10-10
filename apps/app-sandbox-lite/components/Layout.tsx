@@ -14,7 +14,7 @@ import { useWebSocketData } from "../hooks/useWebSocketData";
 import { useMobileView } from "../hooks/useMobileView";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { AuthContext } from "../lib/authContext";
-import { WebSocketContext, ViewContext } from "../lib/view-context";
+import { WebSocketContext, ViewContext } from "@yyc3/core/view-context";
 
 /**
  * 路由懒加载 Suspense fallback — 赛博朋克风格加载指示器

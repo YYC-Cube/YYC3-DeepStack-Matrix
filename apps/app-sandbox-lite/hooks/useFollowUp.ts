@@ -8,7 +8,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { createLocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
 import type { FollowUpItem, FollowUpStatus } from "../types";
 
 // ============================================================

@@ -21,7 +21,7 @@ import { useLocalDatabase } from "../hooks/useLocalDatabase";
 import type { SQLTemplate } from "../types";
 import { SQLEditor } from "./CodeEditor";
 import { InlineEditableTable } from "./InlineEditableTable";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import type { DatabaseType, DBConnection } from "../types";
 import { toast } from "sonner";
 

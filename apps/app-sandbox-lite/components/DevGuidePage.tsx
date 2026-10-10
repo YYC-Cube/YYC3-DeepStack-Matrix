@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 /* ============================================================
  *  10.1 技术选型

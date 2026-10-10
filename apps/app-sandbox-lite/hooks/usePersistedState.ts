@@ -20,7 +20,7 @@ import {
   idbDelete,
   idbClear,
   onStorageChange,
-} from "../lib/yyc3-storage";
+} from "@yyc3/core/yyc3-storage";
 import type { StoreName } from "../types";
 
 /**

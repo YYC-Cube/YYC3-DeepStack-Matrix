@@ -40,7 +40,7 @@ vi.mock("sonner", () => ({
   toast: mockToast,
 }));
 
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbGetAll: vi.fn().mockResolvedValue([]),
   idbPut: vi.fn().mockResolvedValue(undefined),
   idbDelete: vi.fn().mockResolvedValue(undefined),
@@ -545,7 +545,7 @@ describe("InlineEditableTable", () => {
     });
 
     it("IndexedDB 持久化: 提交时调用 idbPut", async () => {
-      const storageModule = await import("../lib/yyc3-storage");
+      const storageModule = await import("@yyc3/core/yyc3-storage");
       const idbPut = vi.spyOn(storageModule, "idbPut") as unknown as Mock;
       const onExecuteSQL = vi.fn().mockResolvedValue({ ok: true });
       render(<InlineEditableTable columns={mockColumns} rows={mockRows} tableName="core.models" primaryKey="id" editable={true} onExecuteSQL={onExecuteSQL} />);

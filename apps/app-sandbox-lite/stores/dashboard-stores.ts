@@ -13,7 +13,7 @@
  * - 数据库连接 (dbConnections)
  */
 
-import { createLocalStore, type LocalStore } from "../lib/create-local-store";
+import { createLocalStore, type LocalStore } from "@yyc3/core/create-local-store";
 import type { NodeData, LogEntry, LogLevel } from "../types";
 
 // ============================================================

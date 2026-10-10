@@ -4,7 +4,7 @@
  * IndexedDB 存储层测试
  *
  * 覆盖范围:
- *  - StoreName 类型完整性 (所有 14 个 store 均已注册)
+ *  - StoreName 类型完整性 (所有 24 个 store 均已注册，@yyc3/core 契约)
  *  - CRUD 操作 (idbPut/idbGet/idbGetAll/idbDelete/idbClear/idbCount)
  *  - 批量写入 (idbPutMany)
  *  - exportAllData / importAllData
@@ -16,7 +16,7 @@ import React from "react";
  */
 
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -32,22 +32,22 @@ Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 
 // IndexedDB 在 jsdom 中不完全可用，测试静态结构和降级行为
 import {
-  idbPut,
-  idbGet,
-  idbGetAll,
-  idbPutMany,
-  idbDelete,
-  idbClear,
-  idbCount,
-  exportAllData,
-  importAllData,
-  getStorageStats,
-  onStorageChange,
+  ALL_STORES,
   LOCALSTORAGE_KEYS,
   clearAllLocalStorage,
   clearAllStorage,
-  ALL_STORES,
-} from "../lib/yyc3-storage";
+  exportAllData,
+  getStorageStats,
+  idbClear,
+  idbCount,
+  idbDelete,
+  idbGet,
+  idbGetAll,
+  idbPut,
+  idbPutMany,
+  importAllData,
+  onStorageChange,
+} from "@yyc3/core/yyc3-storage";
 import type { StoreName } from "../types";
 
 describe("yyc3-storage", () => {
@@ -60,8 +60,9 @@ describe("yyc3-storage", () => {
   // ──────────────────────────────────────
 
   describe("StoreName 注册完整性", () => {
-    it("所有 14 个 store 名称类型可用", () => {
-      expect(ALL_STORES.length).toBe(14);
+    it("所有 24 个 store 名称类型可用", () => {
+      // @yyc3/core 契约：14 运维/监控 store + 10 AI family/推理/音乐/通讯 store
+      expect(ALL_STORES.length).toBe(24);
     });
 
     it("新增的 6 个 Hook 依赖 store 均已注册", () => {
@@ -149,7 +150,7 @@ describe("yyc3-storage", () => {
     it("exportAllData 返回所有 store 数据", async () => {
       const data = await exportAllData();
       expect(typeof data).toBe("object");
-      // 应包含所有 14 个 store
+      // 应包含所有 24 个 store（@yyc3/core 主基线全集）
       const keys = Object.keys(data);
       expect(keys).toContain("alertRules");
       expect(keys).toContain("patrolHistory");
@@ -161,7 +162,7 @@ describe("yyc3-storage", () => {
       expect(keys).toContain("dbConnections");
       expect(keys).toContain("queryHistory");
       expect(keys).toContain("committedChanges");
-      expect(keys.length).toBe(14);
+      expect(keys.length).toBe(24);
     });
 
     it("importAllData 接受空数据", async () => {
@@ -189,7 +190,7 @@ describe("yyc3-storage", () => {
   describe("getStorageStats", () => {
     it("返回所有 store 的统计信息", async () => {
       const stats = await getStorageStats();
-      expect(stats.stores.length).toBe(14);
+      expect(stats.stores.length).toBe(24);
       expect(typeof stats.totalRecords).toBe("number");
 
       // 每个 store 都有 name 和 count

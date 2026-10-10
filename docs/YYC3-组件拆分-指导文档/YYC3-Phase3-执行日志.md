@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase3-执行日志.md
-description: Phase 3 @yyc3/core 逻辑核心库 — 20 件收编 + db-adapter + 四端切换零回归（types B' 方案修订）
+description: Phase 3 @yyc3/core 逻辑核心库 — 20 件收编 + db-adapter + 四端切换零回归（types B' 方案修订）；第二轮 M3-P2 P2 沙箱端对接（10 件切包 / 2 异构留端 / 197 测试全绿）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.0.0
+version: v1.1.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase3],[core-package],[db-adapter],[l0-arbitration],[handoff]
+tags: [phase3],[core-package],[db-adapter],[l0-arbitration],[p2-integration],[handoff]
 category: report
 ---
 
@@ -74,13 +74,56 @@ category: report
 | 6 | **勘察漏计 app 侧互引**：登记 2 处实际 3 文件 4 处（漏 full-backup→yyc3-storage）；且 `lib/mcp/` 子目录 `../data-bus` 无 `lib/` 段主模式漏网 | 模式 C 补杀；教训：**引用面勘察必须覆盖动态 import 与子目录相对深度** |
 | 7 | **barrel TS2308 四处歧义**（同 Phase 2 theme 包教训再现） | 命名空间 `export * as` 隔离 4 件（语义不同/双实现不可仲裁）；theme 包当时用单源收敛——两手法按冲突性质选用 |
 
+---
+
+## 第二轮：M3-P2 P2 沙箱端 core 对接（2026-10-10）
+
+> 方案文档：[`phase3-ledger/01-P2沙箱端core对接方案.md`](./phase3-ledger/01-P2沙箱端core对接方案.md)（v1.1.0，含仲裁表/决策表/实测回填）
+>
+> 兑现首轮「后续登记」第 5 条：P2 `app-sandbox-lite/lib` 17 件异构轻量版逐件仲裁，补齐**第四端** core 覆盖（首轮 P2 零引用隔离）。
+
+### 达成总览
+
+| 项 | 结果 |
+| -- | ---- |
+| 仲裁范围 | P2 lib 17 件：10 件达 L0 切包 ／ 2 件行为异构留端（GitService、supabaseClient）／ 5 件 core 未收不动 |
+| 切换规模 | **79 文件**三型引用（静态 from / 动态 import() / vi.mock()）perl 批量重写，lib 10 件 git rm |
+| 测试实证 | 11 个受影响专测 **197 例全绿**；6 消费集成件 158 绿；Layout 15 失败实证为存量 jsdom 问题（HEAD 干净树逐字一致） |
+| 类型基线 | P2 tsc **7 错逐字同基线**（AIFamilyCenterPage×6 + routes.ts×1）；core tsc = 0 |
+| 无扰验证 | P1=67 精确持平、P3=0、P4=0；vite build 仍阻断于存量 routes.ts 缺件（非本批引入） |
+| 依赖面 | P2 package.json 增 `"@yyc3/core": "workspace:*"`；core 零外部运行时依赖（纯 Mock 件不引 @supabase/supabase-js），无新增传递依赖 |
+
+### 仲裁结论（10 切 / 2 留 / 5 不动）
+
+- **10 件切包**：view-context、figma-error-filter、ollama-url、env-config、api-config、broadcast-channel、error-handler、yyc3-storage、create-local-store、db-queries
+- **2 件异构留端**：
+  - `GitService.ts` — 真异构（P2 沙箱轻量实现 vs P1 线 Electron/完整版），L1 反向特化
+  - `supabaseClient.ts` — **二次仲裁翻转**（偏差 #11）：静态 md5/API 面为超集，运行时凭据契约不兼容 → 恢复留端
+- **5 件 core 未收不动**：authContext、backgroundSync、local-knowledge-base、network-utils、yyc3-icons（随 M4-5/M4-6 域制定性）
+- **双单例豁免实证**：supabaseClient 双份共存不切——db-queries 仅消费 core 版查询面，两端 SESSION_KEY 同为 `yyc3_session` 共享 localStorage，auth 态不分裂
+
+### 偏差登记（#8–#11）
+
+| # | 事项 | 处置 |
+| -- | ---- | ---- |
+| 8 | **React 18/19 类型双版本**（~24 个 TS2345/TS2786）：core 以 @types/react@19 实例化 Context，P2 是四端唯一 React 18.3.1 异类 | P2 tsconfig `paths` 将 react/jsx-runtime/react-dom 四入口钉至端侧 @types@18.3.18；仅影响 tsc（vite 无 tsconfig-paths 插件，运行时零影响）；TS 5.7 弃用 baseUrl → 删 baseUrl，paths 相对 tsconfig 目录解析 |
+| 9 | **WebSocketDataState 缺 isSimulated**（~9 个 TS2741）：core types 契约含该字段，P2 单文件 types 未跟进 | 定点补齐：types/index.ts 加字段 + useWebSocketData 由 `connectionState === "simulated"` 派生 + 2 处测试 mock 补值；拒绝「as any 消音」 |
+| 10 | **perl one-liner 替换再次失败**（与 M3 #2、M4-4 #17 同族）：shell 双引号嵌套 + `\x27`/`\@` 转义被破坏 | 固化纪律：写 /tmp 脚本文件，`s{}{}` 形态、替换串 `$1…$3` 直拼、`@` 写 `\@`、xargs -0 喂文件清单，一次成型 |
+| 11 | **supabaseClient 静态超集误判 → 运行时翻转**（本批最关键）：md5/导出面判定可切，vitest 实证 7 例 auth 测试全挂——core 凭据 env 驱动默认空串，P2 固定 admin123/dev123 沙箱开箱登录被阻断 | 二次仲裁翻转为 L1 反向特化：git checkout 恢复源件、11 处引用回切（4 源码+6 测试+1 文档）、null 守卫回退；**教训：形（md5/API 面）只能初筛，Mock 凭据/默认值/校验阈值等行为契约必须 vitest 实证兜底** |
+
+### 断言对齐（L1 取全：接受 core 契约，改测试不改产物）
+
+- env-config 6 例：SYSTEM_NAME=`YYC³ Cloud Intelli-Matrix`、SYSTEM_VERSION=`3.4.1`、API_BASE_URL=`localhost:3113/api`、DEFAULT_AI_MODEL=`codegeex4:latest`；ENABLE_DEBUG 改 env 优先期望式（实测 true 源自 P2 `.env.local` 的 `VITE_YYC3_ENABLE_DEBUG=true`，core 行为正确）
+- api-config 1 例：timeout 999→15000（core 校验器下限 1000ms，999 被拒）
+- yyc3-storage 3 例：store 数 14→24（core 主基线全集：14 运维/监控 + 10 AI family/推理/音乐/通讯）
+
 ## 后续登记（Phase 4 及以后）
 
 - **types 体系单源收敛**：app 端 28 分件 barrel vs core 按需 types.ts 双轨 → Phase 4 定单源归属（含 ai-family 跨域处置）
 - **zustand 单根 store 上收**：P1 ide 26 store 体量大，登记专项评估
 - **i18n 运行时上收**：随 ui/theme 消费面定
 - **storageManager 收编**：依赖外溢 `database/`，不满足 L0 闭环，留待依赖面收敛
-- **P2 lib 对接**：17 件异构轻量版逐件比对，达 L0 后切换
+- **P2 lib 对接**：**主体已兑现（M3-P2，2026-10-10）**——10 件接包、GitService/supabaseClient 2 件行为异构留端；余 5 件 core 未收（authContext/backgroundSync/local-knowledge-base/network-utils/yyc3-icons），随 M4-5 shared 域定性 / M4-6 评估
 - **db-adapter 消费接线**：`createBackend()` 在 app 侧 DatabaseProvider/bridge 层接入三态
 
 ## 交接快照
@@ -91,10 +134,13 @@ cd packages/core && pnpm exec tsc --noEmit          # 0 错
 cd apps/app-web-full    && pnpm exec tsc --noEmit   # 67（基线持平）
 cd apps/app-desktop     && pnpm exec tsc --noEmit   # 0
 cd apps/app-web-classic && pnpm exec tsc --noEmit   # 0
-# build：三端 pnpm build 全绿；P2 build=7 错为基线
+cd apps/app-sandbox-lite && pnpm exec tsc --noEmit  # 7 错逐字同基线（M3-P2 后持平）
+# build：P1/P3/P4 pnpm build 全绿；P2 build=7 错为存量基线（routes.ts 缺件）
+# P2 行为实证：cd apps/app-sandbox-lite && pnpm exec vitest run（11 专测 197 例全绿）
 
 # 下次会话起点
-# → 主文档 Phase 4（ide 域包 / types 单源收敛 / 视觉对照与 a11y 专项）
+# → M4-5 shared 域定性（解锁 OperationCenter/ServiceLoopPanel 二次包化）
+# → P2 余 5 件 lib（authContext/backgroundSync/local-knowledge-base/network-utils/yyc3-icons）随域定性评估
 ```
 
 ---

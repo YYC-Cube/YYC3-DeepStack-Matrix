@@ -13,7 +13,7 @@ import {
 import { GlassCard } from "./GlassCard";
 import { NodeDetailModal } from "./NodeDetailModal";
 import { AlertBanner } from "./AlertBanner";
-import { WebSocketContext, ViewContext } from "../lib/view-context";
+import { WebSocketContext, ViewContext } from "@yyc3/core/view-context";
 import { useI18n } from "../hooks/useI18n";
 import type { NodeData } from "../types";
 import { useSwipeable } from "react-swipeable";

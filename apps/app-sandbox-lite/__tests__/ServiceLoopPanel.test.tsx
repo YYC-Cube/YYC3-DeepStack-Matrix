@@ -54,7 +54,7 @@ vi.mock("../components/DataFlowDiagram", () => ({
 }));
 
 // Mock View context
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "lg", isTouch: false }),
 }));
 

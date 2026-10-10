@@ -28,7 +28,7 @@ const localStorageMock = {
 };
 (globalThis as any).localStorage = localStorageMock;
 
-import { createLocalStore, type LocalStore } from "../lib/create-local-store";
+import { createLocalStore, type LocalStore } from "@yyc3/core/create-local-store";
 
 interface TestItem {
   id: string;

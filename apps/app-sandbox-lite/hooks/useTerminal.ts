@@ -17,7 +17,7 @@ import type { TerminalHistoryEntry } from "../types";
 import {
   env, getEnvConfig, setEnvConfig, resetEnvConfig, exportEnvConfig,
   type EnvConfig,
-} from "../lib/env-config";
+} from "@yyc3/core/env-config";
 
 // ============================================================
 // Command Registry

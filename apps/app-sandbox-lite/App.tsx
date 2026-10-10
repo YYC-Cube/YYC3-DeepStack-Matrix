@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { installGlobalErrorListeners } from "@yyc3/core/error-handler";
+import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
+import { useCallback, useEffect, useState } from "react";
 import { RouterProvider } from "react-router";
-import { router } from "./routes";
-import { Login } from "./components/Login";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { installGlobalErrorListeners } from "./lib/error-handler";
-import { supabase, ghostSignIn, isGhostMode } from "./lib/supabaseClient";
+import { Login } from "./components/Login";
+import { I18nContext, useI18nProvider } from "./hooks/useI18n";
 import { useYYC3Head } from "./hooks/useYYC3Head";
-import { useI18nProvider, I18nContext } from "./hooks/useI18n";
 import { AuthContext } from "./lib/authContext";
-import { isFigmaPlatformError } from "./lib/figma-error-filter";
-import type { UserRole, AppSession } from "./types";
+import { ghostSignIn, isGhostMode, supabase } from "./lib/supabaseClient";
+import { router } from "./routes";
+import type { AppSession, UserRole } from "./types";
 
 // ────────────────────────────────────────────────────────────────
 // RF-003: Figma 平台 iframe 通信错误静默拦截
@@ -133,7 +133,7 @@ export default function App() {
     setAuthenticated(true);
   }, []);
 
-  /** ��灵登录 · 跳过认证直接进入 */
+  /** 👻灵登录 · 跳过认证直接进入 */
   const handleGhostLogin = useCallback(() => {
     const session = ghostSignIn();
     setUserEmail(session.user.email);

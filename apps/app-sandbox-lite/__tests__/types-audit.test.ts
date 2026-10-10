@@ -14,7 +14,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 // Mock yyc3-storage module since it uses browser APIs (indexedDB)
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   ALL_STORES: [
     "alertRules",
     "alertEvents",

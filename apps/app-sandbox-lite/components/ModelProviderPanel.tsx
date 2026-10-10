@@ -21,7 +21,7 @@ import { AddModelModal } from "./AddModelModal";
 import { ProviderEditorModal } from "./ProviderEditorModal";
 import { useModelProvider } from "../hooks/useModelProvider";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 function formatSize(bytes: number): string {
   if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)}GB`;

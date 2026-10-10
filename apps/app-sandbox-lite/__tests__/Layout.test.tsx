@@ -151,13 +151,13 @@ vi.mock("../lib/authContext", () => ({
 }));
 
 // Mock view-context
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "xl", isTouch: false }),
   WebSocketContext: React.createContext(null),
 }));
 
 import { Layout } from "../components/Layout";
-import { WebSocketContext, ViewContext } from "../lib/view-context";
+import { WebSocketContext, ViewContext } from "@yyc3/core/view-context";
 
 describe("Layout", () => {
   beforeEach(() => {

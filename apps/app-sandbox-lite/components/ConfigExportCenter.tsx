@@ -23,8 +23,8 @@ import { useSettingsStore } from "../hooks/useSettingsStore";
 import {
   exportDbData, importDbData,
   resetDbModels, resetDbAgents, resetDbNodes,
-} from "../lib/db-queries";
-import { exportEnvConfig, importEnvConfig, resetEnvConfig } from "../lib/env-config";
+} from "@yyc3/core/db-queries";
+import { exportEnvConfig, importEnvConfig, resetEnvConfig } from "@yyc3/core/env-config";
 import { toast } from "sonner";
 
 // ── 样式常量 ──

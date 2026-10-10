@@ -51,7 +51,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: () => ({
     enableBackend: false,
     timeout: 15000,

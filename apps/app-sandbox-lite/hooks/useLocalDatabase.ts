@@ -26,8 +26,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { idbGetAll, idbPut, idbPutMany, idbDelete, idbClear } from "../lib/yyc3-storage";
-import { getAPIConfig } from "../lib/api-config";
+import { idbGetAll, idbPut, idbPutMany, idbDelete, idbClear } from "@yyc3/core/yyc3-storage";
+import { getAPIConfig } from "@yyc3/core/api-config";
 import type {
   DatabaseType,
   DBConnection,

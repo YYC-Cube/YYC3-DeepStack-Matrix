@@ -18,7 +18,7 @@ import { PatrolReport } from "./PatrolReport";
 import { PatrolHistory } from "./PatrolHistory";
 import { usePatrol } from "../hooks/usePatrol";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 export function PatrolDashboard() {
   const view = useContext(ViewContext);

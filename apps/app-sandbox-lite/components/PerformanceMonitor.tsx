@@ -25,7 +25,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, CartesianGrid, ReferenceLine,
 } from "recharts";
-import { env } from "../lib/env-config";
+import { env } from "@yyc3/core/env-config";
 import { toast } from "sonner";
 
 // ── 样式 ──

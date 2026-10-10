@@ -17,7 +17,7 @@ import { FollowUpCard } from "./FollowUpCard";
 import { FollowUpDrawer } from "./FollowUpDrawer";
 import { useFollowUp } from "../hooks/useFollowUp";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 export function FollowUpPanel() {
   const view = useContext(ViewContext);

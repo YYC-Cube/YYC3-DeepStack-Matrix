@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { isFigmaPlatformError } from "../lib/figma-error-filter";
+import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
 
 describe("figma-error-filter", () => {
   // ----------------------------------------------------------

@@ -16,7 +16,7 @@ import { OperationTemplate } from "./OperationTemplate";
 import { OperationLogStream } from "./OperationLogStream";
 import { useOperationCenter } from "../hooks/useOperationCenter";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 export function OperationCenter() {
   const view = useContext(ViewContext);

@@ -54,7 +54,7 @@ describe("E2E: Store CRUD 闭环", () => {
 
   it("createLocalStore 完整生命周期", async () => {
     vi.resetModules();
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface Item { id: string; name: string; value: number }
     const defaults: Item[] = [
@@ -173,7 +173,7 @@ describe("E2E: env-config 配置闭环", () => {
 
   it("完整的 读取 → 修改 → 持久化 → 重置 闭环", async () => {
     vi.resetModules();
-    const { env, getEnvConfig, setEnvConfig, resetEnvConfig } = await import("../lib/env-config");
+    const { env, getEnvConfig, setEnvConfig, resetEnvConfig } = await import("@yyc3/core/env-config");
 
     // 1. 默认值
     expect(env("SYSTEM_NAME")).toBe("YYC³ CloudPivot Intelli-Matrix");
@@ -199,7 +199,7 @@ describe("E2E: env-config 配置闭环", () => {
 
   it("所有 31 个环境变量都有默认值", async () => {
     vi.resetModules();
-    const { getEnvConfig } = await import("../lib/env-config");
+    const { getEnvConfig } = await import("@yyc3/core/env-config");
     const config = getEnvConfig();
 
     const requiredKeys = [
@@ -223,7 +223,7 @@ describe("E2E: env-config 配置闭环", () => {
 
   it("导入/导出往返一致性", async () => {
     vi.resetModules();
-    const { setEnvConfig, exportEnvConfig, importEnvConfig, getEnvConfig } = await import("../lib/env-config");
+    const { setEnvConfig, exportEnvConfig, importEnvConfig, getEnvConfig } = await import("@yyc3/core/env-config");
 
     setEnvConfig({ CLUSTER_ID: "E2E-TEST-CLUSTER" });
     const exported = exportEnvConfig();
@@ -232,7 +232,7 @@ describe("E2E: env-config 配置闭环", () => {
     // 重置再导入
     vi.resetModules();
     localStorageMock.clear();
-    const mod2 = await import("../lib/env-config");
+    const mod2 = await import("@yyc3/core/env-config");
     expect(mod2.importEnvConfig(exported)).toBe(true);
     expect(mod2.getEnvConfig().CLUSTER_ID).toBe("E2E-TEST-CLUSTER");
   });
@@ -250,7 +250,7 @@ describe("E2E: api-config 端点闭环", () => {
 
   it("默认配置 → 修改 → 重置闭环", async () => {
     vi.resetModules();
-    const { getAPIConfig, setAPIConfig, resetAPIConfig } = await import("../lib/api-config");
+    const { getAPIConfig, setAPIConfig, resetAPIConfig } = await import("@yyc3/core/api-config");
 
     // 默认
     const defaults = getAPIConfig();
@@ -268,7 +268,7 @@ describe("E2E: api-config 端点闭环", () => {
 
   it("ENDPOINT_META 包含所有端点的 UI 描述", async () => {
     vi.resetModules();
-    const { ENDPOINT_META } = await import("../lib/api-config");
+    const { ENDPOINT_META } = await import("@yyc3/core/api-config");
 
     expect(ENDPOINT_META.length).toBeGreaterThanOrEqual(8);
     for (const meta of ENDPOINT_META) {
@@ -355,7 +355,7 @@ describe("E2E: i18n 双语覆盖度", () => {
 
 describe("E2E: 错误处理工具链", () => {
   it("figma-error-filter 正确识别 Figma 平台错误", async () => {
-    const { isFigmaPlatformError } = await import("../lib/figma-error-filter");
+    const { isFigmaPlatformError } = await import("@yyc3/core/figma-error-filter");
 
     // 应被拦截
     expect(isFigmaPlatformError("IframeMessageAbortError", "", "", "")).toBe(true);
@@ -369,7 +369,7 @@ describe("E2E: 错误处理工具链", () => {
 
   it("broadcast-channel 工厂单例一致性", async () => {
     vi.resetModules();
-    const { getSharedChannel, closeAllChannels } = await import("../lib/broadcast-channel");
+    const { getSharedChannel, closeAllChannels } = await import("@yyc3/core/broadcast-channel");
 
     const ch1 = getSharedChannel("test-e2e");
     const ch2 = getSharedChannel("test-e2e");

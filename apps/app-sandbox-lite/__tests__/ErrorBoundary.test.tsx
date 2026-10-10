@@ -19,7 +19,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 
 // Mock error-handler 以避免 localStorage 问题
-vi.mock("../lib/error-handler", () => ({
+vi.mock("@yyc3/core/error-handler", () => ({
   captureError: vi.fn(() => ({
     id: "err_test_001",
     category: "RUNTIME",

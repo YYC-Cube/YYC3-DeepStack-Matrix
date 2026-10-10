@@ -53,7 +53,7 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock env
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   env: (key: string) => {
     const defaults: Record<string, any> = {
       SYSTEM_NAME: "YYC\u00B3 Test",
@@ -70,7 +70,7 @@ vi.mock("../lib/env-config", () => ({
 }));
 
 // Mock ViewContext
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false }),
 }));
 

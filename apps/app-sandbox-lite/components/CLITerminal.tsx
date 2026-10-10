@@ -10,7 +10,7 @@ import { Terminal, ChevronRight } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useTerminal } from "../hooks/useTerminal";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { useNavigate } from "react-router";
 
 export function CLITerminal() {

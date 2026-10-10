@@ -19,7 +19,7 @@ import type {
   OllamaModel,
   OllamaTagsResponse,
 } from "../types";
-import { getOllamaTagsUrl } from "../lib/ollama-url";
+import { getOllamaTagsUrl } from "@yyc3/core/ollama-url";
 
 // ============================================================
 // 内置服务商默认值 (仅首次初始化时写入 localStorage)

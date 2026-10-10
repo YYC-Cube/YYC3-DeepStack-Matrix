@@ -15,7 +15,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { DevGuidePage } from "../components/DevGuidePage";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { I18nContext } from "../hooks/useI18n";
 import zhCN from "../i18n/zh-CN";
 

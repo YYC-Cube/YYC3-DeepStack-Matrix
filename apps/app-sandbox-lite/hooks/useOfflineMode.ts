@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { LOCALSTORAGE_KEYS } from "../lib/yyc3-storage";
+import { LOCALSTORAGE_KEYS } from "@yyc3/core/yyc3-storage";
 
 /** 保存仪表盘状态快照到 localStorage (供离线恢复) */
 function saveDashboardState(data: Record<string, unknown>) {

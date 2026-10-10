@@ -20,7 +20,7 @@ import { GlassCard } from "../GlassCard";
 import { DesignTokens } from "./DesignTokens";
 import { ComponentShowcase } from "./ComponentShowcase";
 import { StageReview } from "./StageReview";
-import { ViewContext } from "../../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { useI18n } from "../../hooks/useI18n";
 
 export function DesignSystemPage() {

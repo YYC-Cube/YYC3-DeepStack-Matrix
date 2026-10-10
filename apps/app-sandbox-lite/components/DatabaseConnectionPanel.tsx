@@ -20,9 +20,9 @@ import {
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { SQLEditor } from "./CodeEditor";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { dbConnectionStore, type DBConnection } from "../stores/dashboard-stores";
-import { env } from "../lib/env-config";
+import { env } from "@yyc3/core/env-config";
 import { toast } from "sonner";
 
 const toastStyle = {

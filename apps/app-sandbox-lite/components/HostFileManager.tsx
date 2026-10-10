@@ -17,7 +17,7 @@ import {
 import { GlassCard } from "./GlassCard";
 import { useHostFileSystem, getFileTypeInfo } from "../hooks/useHostFileSystem";
 import { CodeEditor, getLanguageLabel } from "./CodeEditor";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import type { HostFileEntry } from "../types";
 
 // ── 样式常量 ──

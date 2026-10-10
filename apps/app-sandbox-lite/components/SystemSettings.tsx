@@ -28,7 +28,7 @@ import {
   getAPIConfig, setAPIConfig, resetAPIConfig as resetAPIConfigDefaults,
   onAPIConfigChange, ENDPOINT_META,
   type APIEndpoints,
-} from "../lib/api-config";
+} from "@yyc3/core/api-config";
 import { useModelProvider } from "../hooks/useModelProvider";
 import { useSettingsStore } from "../hooks/useSettingsStore";
 import { deployedModelStore, type DeployedModel } from "../stores/dashboard-stores";

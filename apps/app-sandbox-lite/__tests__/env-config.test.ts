@@ -14,7 +14,7 @@ import React from "react";
  * - 所有 31 个环境变量默认值验证
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock localStorage (node 环境无 localStorage)
 const store: Record<string, string> = {};
@@ -31,7 +31,7 @@ const localStorageMock = {
 // 每次测试前重置模块 (因为 _envConfig 是单例缓存)
 async function freshImport() {
   vi.resetModules();
-  return import("../lib/env-config");
+  return import("@yyc3/core/env-config");
 }
 
 describe("env-config", () => {
@@ -44,17 +44,17 @@ describe("env-config", () => {
   describe("defaults", () => {
     it("should return default SYSTEM_NAME", async () => {
       const { env } = await freshImport();
-      expect(env("SYSTEM_NAME")).toBe("YYC\u00B3 CloudPivot Intelli-Matrix");
+      expect(env("SYSTEM_NAME")).toBe("YYC\u00B3 Cloud Intelli-Matrix");
     });
 
     it("should return default SYSTEM_VERSION", async () => {
       const { env } = await freshImport();
-      expect(env("SYSTEM_VERSION")).toBe("3.2.0");
+      expect(env("SYSTEM_VERSION")).toBe("3.4.1");
     });
 
     it("should return default API_BASE_URL", async () => {
       const { env } = await freshImport();
-      expect(env("API_BASE_URL")).toBe("http://192.168.3.1:3118/api");
+      expect(env("API_BASE_URL")).toBe("http://localhost:3113/api");
     });
 
     it("should return default WS_ENDPOINT", async () => {
@@ -80,7 +80,9 @@ describe("env-config", () => {
 
     it("should return default ENABLE_DEBUG as false", async () => {
       const { env } = await freshImport();
-      expect(env("ENABLE_DEBUG")).toBe(false);
+      // core 契约：import.meta.env（.env.local 等）优先于 DEFAULTS
+      const expected = import.meta.env.VITE_YYC3_ENABLE_DEBUG === "true";
+      expect(env("ENABLE_DEBUG")).toBe(expected);
     });
 
     it("should return default DB_POOL_MIN/MAX", async () => {
@@ -106,7 +108,7 @@ describe("env-config", () => {
 
     it("should return default AI config values", async () => {
       const { env } = await freshImport();
-      expect(env("DEFAULT_AI_MODEL")).toBe("gpt-4o");
+      expect(env("DEFAULT_AI_MODEL")).toBe("codegeex4:latest");
       expect(env("DEFAULT_AI_TEMPERATURE")).toBe(0.7);
       expect(env("DEFAULT_AI_MAX_TOKENS")).toBe(2048);
       expect(env("DEFAULT_AI_TIMEOUT")).toBe(30000);
@@ -182,7 +184,7 @@ describe("env-config", () => {
       setEnvConfig({ SYSTEM_VERSION: "0.0.1" });
       expect(env("SYSTEM_VERSION")).toBe("0.0.1");
       resetEnvConfig();
-      expect(env("SYSTEM_VERSION")).toBe("3.2.0");
+      expect(env("SYSTEM_VERSION")).toBe("3.4.1");
     });
 
     it("should remove localStorage entry", async () => {

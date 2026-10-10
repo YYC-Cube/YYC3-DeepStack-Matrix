@@ -24,7 +24,7 @@ import type {
   SDKCapability,
   SDKProviderCapabilities,
 } from "../types";
-import { getOllamaChatUrl, getOllamaUrl } from "../lib/ollama-url";
+import { getOllamaChatUrl, getOllamaUrl } from "@yyc3/core/ollama-url";
 
 // ============================================================
 // 常量

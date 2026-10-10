@@ -32,7 +32,7 @@ import React from "react";
 async function loadModule() {
   // 清除模块缓存以获得干净状态
   vi.resetModules();
-  return import("../lib/api-config");
+  return import("@yyc3/core/api-config");
 }
 
 describe("api-config", () => {
@@ -116,10 +116,10 @@ describe("api-config", () => {
       const listener = vi.fn();
       const unsubscribe = onAPIConfigChange(listener);
 
-      setAPIConfig({ timeout: 999 });
+      setAPIConfig({ timeout: 15000 });
 
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener.mock.calls[0][0].timeout).toBe(999);
+      expect(listener.mock.calls[0][0].timeout).toBe(15000);
 
       unsubscribe();
     });

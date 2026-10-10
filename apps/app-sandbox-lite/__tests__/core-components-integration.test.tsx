@@ -65,7 +65,7 @@ vi.mock("../components/NetworkConfig", () => ({
   NetworkConfig: () => <div data-testid="network-config-mock" />,
 }));
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: () => ({
     enableBackend: false,
     timeout: 15000,
@@ -459,7 +459,7 @@ describe("UserManagement 集成测试", () => {
 // 3. createLocalStore 集成测试
 // ============================================================
 
-import { createLocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
 
 describe("createLocalStore 集成测试", () => {
   beforeEach(() => localStorage.clear());
@@ -711,7 +711,7 @@ describe("Dashboard stores 集成测试", () => {
 
 describe("api-config 类型导出验证", () => {
   it("getAPIConfig 应返回完整配置对象", async () => {
-    const { getAPIConfig } = await vi.importMock<any>("../lib/api-config");
+    const { getAPIConfig } = await vi.importMock<any>("@yyc3/core/api-config");
     const config = getAPIConfig();
     expect(config).toHaveProperty("enableBackend");
     expect(config).toHaveProperty("timeout");
@@ -722,7 +722,7 @@ describe("api-config 类型导出验证", () => {
   });
 
   it("ENDPOINT_META 应包含正确的元数据结构", async () => {
-    const { ENDPOINT_META } = await vi.importMock<any>("../lib/api-config");
+    const { ENDPOINT_META } = await vi.importMock<any>("@yyc3/core/api-config");
     expect(ENDPOINT_META.length).toBeGreaterThan(0);
     ENDPOINT_META.forEach((meta: any) => {
       expect(meta).toHaveProperty("key");

@@ -18,7 +18,7 @@ import {
 import { GlassCard } from "./GlassCard";
 import { usePWAManager } from "../hooks/usePWAManager";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import type { SWStatus } from "../types";
 
 const swStatusConfig: Record<SWStatus, { color: string; icon: React.ElementType }> = {

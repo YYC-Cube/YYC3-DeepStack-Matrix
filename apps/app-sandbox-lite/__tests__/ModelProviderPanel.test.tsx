@@ -6,7 +6,7 @@
  */
 
 // Mock env-config before ollama-url
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   env: (key: string) => {
     const defaults: Record<string, string> = {
       OLLAMA_BASE_URL: "http://localhost:11434",
@@ -17,7 +17,7 @@ vi.mock("../lib/env-config", () => ({
 }));
 
 // Mock ollama-url to avoid window is not defined error
-vi.mock("../lib/ollama-url", () => ({
+vi.mock("@yyc3/core/ollama-url", () => ({
   isLocalDeployment: () => false,
   shouldUseProxy: () => false,
   getOllamaChatUrl: () => "http://localhost:11434/api/chat",
@@ -49,7 +49,7 @@ import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { ModelProviderPanel } from "../components/ModelProviderPanel";
-import { ViewContext } from "../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { I18nContext } from "../hooks/useI18n";
 import zhCN from "../i18n/zh-CN";
 

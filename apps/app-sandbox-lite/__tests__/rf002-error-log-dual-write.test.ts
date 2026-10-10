@@ -14,13 +14,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 
 // Mock IndexedDB 操作（yyc3-storage）
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbPut: vi.fn().mockResolvedValue(undefined),
   idbGetAll: vi.fn().mockResolvedValue([]),
   idbClear: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { idbPut, idbGetAll, idbClear } from "../lib/yyc3-storage";
+import { idbPut, idbGetAll, idbClear } from "@yyc3/core/yyc3-storage";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -40,7 +40,7 @@ import {
   getErrorLog,
   clearErrorLog,
   getFullErrorLog,
-} from "../lib/error-handler";
+} from "@yyc3/core/error-handler";
 
 describe("RF-002: 错误日志 localStorage + IndexedDB 双写", () => {
   beforeEach(() => {

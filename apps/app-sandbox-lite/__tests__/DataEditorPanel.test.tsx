@@ -21,12 +21,12 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock ViewContext
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false }),
 }));
 
 // Mock db-queries (async calls)
-vi.mock("../lib/db-queries", () => ({
+vi.mock("@yyc3/core/db-queries", () => ({
   getActiveModels: vi.fn(async () => ({ data: [] })),
   getNodesStatus: vi.fn(async () => ({ data: [] })),
   getAllAgents: vi.fn(async () => ({ data: [] })),

@@ -147,8 +147,8 @@ declare module "dompurify" {
   }
 }
 
-// css 副作用导入声明（CLI/IDE 双上下文兼容）
-declare module "*.css";
+// css 副作用导入声明已移至独立文件 src/css.d.ts（本文件含顶层 import 为外部模块，
+// 模块文件内的 declare module 为模块增强而非环境声明，不生效）
 
 import type { MessageContent as BaseMessageContent } from "@yyc3/business/hotel-engines/ai-family-hotel.types";
 

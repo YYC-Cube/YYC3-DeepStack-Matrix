@@ -15,7 +15,7 @@ import {
   ChevronRight, BarChart3, Shield, ClipboardList, Layers,
 } from "lucide-react";
 import { GlassCard } from "../shared/GlassCard";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useReportExporter } from "../../hooks/useReportExporter";
 import type { ExportReportType as ReportType, TimeRange, ExportFormat } from "../../types";
 import {

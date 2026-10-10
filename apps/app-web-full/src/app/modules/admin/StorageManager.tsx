@@ -13,7 +13,7 @@ import { useState } from "react";
 import { PageHeader } from "@yyc3/ui/page-header";
 import { StorageConfigPanel } from "./StorageConfigPanel";
 import { StorageSyncStatus } from "./StorageSyncStatus";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { storageManager } from "../../services/storageManager";
 import type { StorageConfig } from "../../types/storage";
 

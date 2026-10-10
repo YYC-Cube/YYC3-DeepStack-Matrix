@@ -26,7 +26,7 @@ import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { DesignSystemPage } from "../modules/dev/design-system/DesignSystemPage";
 import { ViewContext } from "../lib/view-context";
-import { I18nContext } from "../hooks/useI18n";
+import { I18nContext } from "@yyc3/core/i18n";
 
 function renderPage() {
   const viewValue = {

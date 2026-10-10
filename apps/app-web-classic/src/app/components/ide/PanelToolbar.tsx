@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { useI18n } from '../../hooks/useI18n';
+import { useI18n } from "@yyc3/core/i18n";
 import type { PanelType } from './ide-layout-types';
 import { useLayoutContext } from './LayoutContext';
 

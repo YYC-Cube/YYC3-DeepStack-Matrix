@@ -26,7 +26,7 @@ import {
   Upload,
 } from "lucide-react";
 import React, { useContext, useState } from "react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useModelProvider } from "../../hooks/useModelProvider";
 import { ViewContext } from "../../lib/view-context";
 import { AddModelModal } from "./AddModelModal";

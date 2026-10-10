@@ -28,7 +28,7 @@ import type { FollowUpItem } from "../types";
 // Mock 共享层（与 SDKChatPanel.test.tsx 保持一致）
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

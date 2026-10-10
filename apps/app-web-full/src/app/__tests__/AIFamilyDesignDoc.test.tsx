@@ -42,7 +42,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string) => k,
     locale: "zh-CN",

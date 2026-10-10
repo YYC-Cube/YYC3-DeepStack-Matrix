@@ -133,7 +133,7 @@ const mockT = (key: string) => {
   return translations[key] || key;
 };
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({ t: mockT }),
 }));
 

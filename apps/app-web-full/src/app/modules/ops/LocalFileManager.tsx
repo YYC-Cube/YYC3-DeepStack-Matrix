@@ -20,7 +20,7 @@ import { LogViewer } from "./LogViewer";
 import { ReportGenerator } from "./ReportGenerator";
 import { CodeEditor, getLanguageLabel } from "../../components/CodeEditor";
 import { useLocalFileSystem } from "../../hooks/useLocalFileSystem";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useLogSlice } from "../../store/slices/log-slice";
 import { ViewContext } from "../../lib/view-context";
 

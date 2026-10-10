@@ -20,9 +20,9 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { AddModelModal } from "../modules/ai/AddModelModal";
-import { I18nContext } from "../hooks/useI18n";
+import { I18nContext } from "@yyc3/core/i18n";
 import { MODEL_PROVIDERS } from "../hooks/useModelProvider";
-import zhCN from "../i18n/zh-CN";
+import zhCN from "@yyc3/core/i18n/zh-CN";
 
 function getNestedValue(obj: Record<string, any>, path: string): string {
   const keys = path.split(".");

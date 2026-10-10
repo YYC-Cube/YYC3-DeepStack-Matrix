@@ -18,7 +18,7 @@ import { GlassCard } from "../shared/GlassCard";
 import { LoopStageCard } from "./LoopStageCard";
 import { DataFlowDiagram } from "../../components/DataFlowDiagram";
 import { useServiceLoop } from "../../hooks/useServiceLoop";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../../lib/view-context";
 
 function formatDuration(ms: number): string {

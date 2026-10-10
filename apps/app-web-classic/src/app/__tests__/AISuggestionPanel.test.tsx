@@ -65,7 +65,7 @@ vi.mock("../components/Layout", () => ({
   ViewContext: React.createContext({ isMobile: false, theme: "dark" as const }),
 }));
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string, params?: Record<string, unknown>) => {
       const translations: Record<string, string> = {

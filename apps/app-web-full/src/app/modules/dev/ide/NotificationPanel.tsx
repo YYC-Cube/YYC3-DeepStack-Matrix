@@ -15,7 +15,7 @@ import {
   X, Bell, Check, CheckCheck, AlertTriangle,
   Info, XCircle,
 } from "lucide-react";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { MOCK_NOTIFICATIONS } from "./ide-mock-data";
 import type { IDENotification } from "./ide-types";
 

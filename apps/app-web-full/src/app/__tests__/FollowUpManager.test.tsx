@@ -74,7 +74,7 @@ vi.mock("../modules/monitor/FollowUpEditDialog", () => ({
   },
 }));
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

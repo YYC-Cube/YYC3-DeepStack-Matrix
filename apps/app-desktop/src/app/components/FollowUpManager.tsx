@@ -25,7 +25,7 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useFollowUpSlice } from "../store/slices/follow-up-slice";
 import { useUserMgmtSlice } from "../store/slices/user-mgmt-slice";
 import type { FollowUpRecord } from "../types";

@@ -32,7 +32,7 @@ const configState = {
   conflictResolution: "local" as const,
 };
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string, params?: Record<string, string>) => {
       if (params) {

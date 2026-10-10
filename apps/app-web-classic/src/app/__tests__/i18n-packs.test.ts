@@ -11,7 +11,7 @@
 
 import { describe, it, expect } from "vitest";
 import React from "react";
-import { zhCN, enUS } from "../i18n";
+import { zhCN, enUS } from "@yyc3/core/i18n";
 
 /** 递归获取所有叶子节点 key */
 function getAllKeys(obj: Record<string, unknown>, prefix = ""): string[] {

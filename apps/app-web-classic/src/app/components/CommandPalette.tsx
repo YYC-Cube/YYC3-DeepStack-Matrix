@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { SHORTCUT_LIST } from "../hooks/useKeyboardShortcuts";
 
 const iconMap: Record<string, React.ElementType> = {

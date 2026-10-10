@@ -16,7 +16,7 @@ import {
   Eye, XCircle, Save, X, Plus, Check, RotateCcw
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { toast } from "sonner";
 import type { UserRecord } from "../types";
 import { useUserMgmtSlice } from "../store/slices/user-mgmt-slice";

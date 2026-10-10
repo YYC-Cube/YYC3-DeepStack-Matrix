@@ -15,7 +15,7 @@ import {
   X, Plus, Trash2, Server, Globe, Key, Cpu,
   ChevronDown, Save, RotateCcw,
 } from "lucide-react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import type { ModelProviderDef } from "../../types";
 
 // ============================================================

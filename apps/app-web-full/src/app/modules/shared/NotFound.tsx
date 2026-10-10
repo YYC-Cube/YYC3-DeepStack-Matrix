@@ -12,7 +12,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Home, ArrowLeft, AlertTriangle } from "lucide-react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 
 export function NotFound() {
   const navigate = useNavigate();

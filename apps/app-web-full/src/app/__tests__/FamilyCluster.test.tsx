@@ -51,7 +51,7 @@ afterAll(() => {
 // ============================================================
 // 3. Mock useI18n: t(key) => key (避免依赖 i18n context)
 // ============================================================
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN" as const,

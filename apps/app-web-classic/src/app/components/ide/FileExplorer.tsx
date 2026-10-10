@@ -18,7 +18,7 @@ import {
   FilePlus, FolderPlus, Pencil, Trash2, Copy,
   GitBranch,
 } from "lucide-react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { MOCK_FILE_TREE } from "./ide-mock-data";
 import { GitPanel } from "./GitPanel";
 import type { IDEFile } from "./ide-types";

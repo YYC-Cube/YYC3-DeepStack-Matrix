@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "../GlassCard";
 import { FadeIn } from "./FadeIn";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";
 
 import { AIFamilyHotelManager } from "../../lib/ai-family-hotel-manager";

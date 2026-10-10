@@ -11,7 +11,7 @@
 
 import { AlertTriangle, Info, Plus, ShieldAlert, Trash2, X } from "lucide-react";
 import React, { useCallback, useState } from "react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import type {
   AlertCondition,
   AlertMetric,

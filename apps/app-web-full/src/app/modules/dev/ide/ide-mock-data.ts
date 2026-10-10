@@ -167,7 +167,7 @@ import {
   Monitor, AlertTriangle, Shield, Search,
   Database, Settings, ChevronDown,
 } from "lucide-react";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 
 const NAV_GROUPS = [
   {
@@ -193,7 +193,7 @@ export function Sidebar() {
 }`,
   "dashboard-tsx": `import React from "react";
 import { GlassCard } from "./GlassCard";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import {
   AreaChart, Area, XAxis, YAxis,
   Tooltip, ResponsiveContainer,
@@ -304,8 +304,8 @@ export default defineConfig({
   },
 });`,
   "use-i18n": `import { useState, useCallback, useMemo } from "react";
-import zhCN from "../i18n/zh-CN";
-import enUS from "../i18n/en-US";
+import zhCN from "@yyc3/core/i18n/zh-CN";
+import enUS from "@yyc3/core/i18n/en-US";
 
 type Lang = "zh-CN" | "en-US";
 

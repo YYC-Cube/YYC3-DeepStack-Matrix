@@ -30,7 +30,7 @@ import { Ear, Brain, Eye, Star, Network, Shield, Scale, Lightbulb } from "lucide
 // ============================================================
 //  Mock: useI18n
 // ============================================================
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => {
       const map: Record<string, string> = {

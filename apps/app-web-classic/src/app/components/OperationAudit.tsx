@@ -38,7 +38,7 @@ import {
   XAxis, YAxis
 } from "recharts";
 import { toast } from "sonner";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useLogSlice } from "../store/slices/log-slice";
 import type { StoredLogEntry } from "../types";
 import { GlassCard } from "./GlassCard";

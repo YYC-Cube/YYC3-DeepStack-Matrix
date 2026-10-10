@@ -29,7 +29,13 @@
     "./migrate-storage": "./src/migrate-storage.ts",
     "./music-storage": "./src/music-storage.ts",
     "./api-config": "./src/api-config.ts",
-    "./dmusic-resources": "./src/dmusic-resources.ts"
+    "./dmusic-resources": "./src/dmusic-resources.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./i18n/zh-CN": "./src/i18n/zh-CN.ts",
+    "./i18n/en-US": "./src/i18n/en-US.ts"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
@@ -37,6 +43,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
     "typescript": "^5.9.3"
   }
 }

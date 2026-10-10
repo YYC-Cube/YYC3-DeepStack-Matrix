@@ -18,7 +18,7 @@ import {
   useI18n,
   I18nContext,
   SUPPORTED_LOCALES,
-} from "../hooks/useI18n";
+} from "@yyc3/core/i18n";
 
 describe("SUPPORTED_LOCALES", () => {
   it("should have zh-CN locale", () => {

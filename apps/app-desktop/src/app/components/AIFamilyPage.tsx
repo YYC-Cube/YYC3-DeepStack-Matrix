@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useClockMinutes } from "../hooks/useClock";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useFamilyMemberSlice } from "../store";
 import type { UnifiedFamilyMember } from "../types";
 

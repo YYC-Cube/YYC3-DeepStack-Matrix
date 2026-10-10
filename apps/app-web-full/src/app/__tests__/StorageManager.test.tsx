@@ -135,7 +135,7 @@ vi.mock("../modules/admin/StorageConfigPanel", () => ({
 // Mock: useI18n（按组件实际调用的 t key 填充中文 map）
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

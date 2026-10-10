@@ -14,10 +14,10 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { AIDiagnostics } from "../modules/ai/AIDiagnostics";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useWebSocketData } from "../hooks/useWebSocketData";
 
-vi.mock("../hooks/useI18n");
+vi.mock("@yyc3/core/i18n");
 vi.mock("../hooks/useWebSocketData");
 vi.mock("../hooks/useAIDiagnostics", () => ({
   useAIDiagnostics: vi.fn(),

@@ -77,7 +77,7 @@ describe("GlassCard a11y", () => {
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 // Mock useI18n
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     locale: "zh-CN",
     setLocale: vi.fn(),

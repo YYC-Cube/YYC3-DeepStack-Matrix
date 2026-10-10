@@ -28,7 +28,7 @@ import {
 import { useContext, useState } from "react";
 import { useAIFamilyNav } from "../hooks/useAIFamilyNav";
 import { useAISuggestion } from "../hooks/useAISuggestion";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";
 import { ActionRecommender } from "./ActionRecommender";
 import { GlassCard } from "./GlassCard";

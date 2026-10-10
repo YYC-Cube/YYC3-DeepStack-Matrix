@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { usePWAManager } from "../hooks/usePWAManager";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";
 import type { SWStatus } from "../types";
 

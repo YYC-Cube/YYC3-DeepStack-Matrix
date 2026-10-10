@@ -27,8 +27,8 @@ import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { PWAStatusPanel } from "../components/PWAStatusPanel";
 import { ViewContext } from "../lib/view-context";
-import { I18nContext } from "../hooks/useI18n";
-import { zhCN } from "../i18n";
+import { I18nContext } from "@yyc3/core/i18n";
+import { zhCN } from "@yyc3/core/i18n";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), info: vi.fn(), error: vi.fn() },

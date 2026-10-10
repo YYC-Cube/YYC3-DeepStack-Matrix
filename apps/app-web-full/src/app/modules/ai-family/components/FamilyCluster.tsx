@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "../../shared/GlassCard";
 import { FadeIn } from "./FadeIn";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";
 
 import { YYC3ClusterManager } from "../../../lib/yyc3-cluster-manager";

@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { usePersistedList } from "../hooks/usePersistedState";
 import { GlassCard } from "./GlassCard";
 

@@ -16,6 +16,22 @@
 // ── 通用（源: common-types.ts）──
 export type BaseSeverity = "info" | "warning" | "error" | "critical";
 
+// ── 国际化（源: i18n-types.ts，随 i18n 上收 @yyc3/core/i18n）──
+export type Locale = "zh-CN" | "en-US";
+
+export interface LocaleInfo {
+  code: Locale;
+  label: string;
+  nativeLabel: string;
+}
+
+export interface I18nContextValue {
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+  t: (key: string, vars?: Record<string, string | number>) => string;
+  locales: LocaleInfo[];
+}
+
 // ── 节点与集群（源: node-types.ts）──
 export type NodeStatusType = "active" | "warning" | "inactive";
 

@@ -13,7 +13,7 @@ import React, { useState, useCallback } from "react";
 import {
   X, Plus, Trash2, AlertTriangle, ShieldAlert, Info,
 } from "lucide-react";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import type {
   AlertSeverity, AlertMetric, AlertCondition,
   AlertThreshold, EscalationPolicy, EscalationLevel,

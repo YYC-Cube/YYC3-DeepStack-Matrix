@@ -18,7 +18,7 @@ import { DesignTokens } from "./DesignTokens";
 import { ComponentShowcase } from "./ComponentShowcase";
 import { StageReview } from "./StageReview";
 import { ViewContext } from "../../../lib/view-context";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 
 export function DesignSystemPage() {
   const view = useContext(ViewContext);

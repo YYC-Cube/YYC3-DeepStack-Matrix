@@ -19,7 +19,7 @@ import {
   ArrowLeft, Settings2, Upload, Disc3,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useI18n } from '../../hooks/useI18n';
+import { useI18n } from "@yyc3/core/i18n";
 import { MUSIC_LIBRARY, type MusicTrack, getRandomPhoto } from '@yyc3/core/dmusic-resources';
 import { useCopyFeedback } from '../../hooks/useCopyFeedback';
 import { useFamilySettingsSlice } from '../../store/slices/family-settings-slice';

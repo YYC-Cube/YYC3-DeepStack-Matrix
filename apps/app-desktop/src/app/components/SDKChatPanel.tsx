@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { PROVIDER_CAPABILITIES, useBigModelSDK } from "../hooks/useBigModelSDK";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";
 import { useProviderSlice } from "../store/slices/provider-slice";
 import type { ChatMessage, ConfiguredModel, SDKConnectionStatus } from "../types";

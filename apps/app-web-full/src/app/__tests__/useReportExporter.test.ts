@@ -24,7 +24,7 @@ vi.mock("../hooks/usePersistedState", () => ({
   }),
 }));
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",

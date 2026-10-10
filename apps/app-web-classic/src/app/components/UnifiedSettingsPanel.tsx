@@ -31,7 +31,7 @@ import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCopyFeedback } from "../hooks/useCopyFeedback";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { isCryptoAvailable } from "../lib/crypto-vault";
 import { downloadFullBackup, importFullBackup } from "../lib/full-backup";
 import { useProviderSlice, useSettingsSSOT } from "../store";

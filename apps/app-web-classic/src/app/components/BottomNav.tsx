@@ -51,7 +51,7 @@ import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 
 /* ── 底部 4 核心 Tab ──────────────────────────── */
 const PRIMARY_TABS = [

@@ -18,7 +18,7 @@
 import React, { type ReactElement } from "react";
 import { render, type RenderOptions, type RenderResult } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { I18nContext } from "../../hooks/useI18n";
+import { I18nContext } from "@yyc3/core/i18n";
 import type { Locale, LocaleInfo } from "../../types/i18n-types";
 
 // Re-export commonly used testing utilities

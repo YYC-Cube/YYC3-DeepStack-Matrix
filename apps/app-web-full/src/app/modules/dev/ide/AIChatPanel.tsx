@@ -32,7 +32,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBigModelSDK } from "../../../hooks/useBigModelSDK";
 import { useCopyFeedback } from "../../../hooks/useCopyFeedback";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import type { KnowledgeSearchResult } from "../../../lib/local-knowledge-base";
 import {
   formatSearchResultForAI,

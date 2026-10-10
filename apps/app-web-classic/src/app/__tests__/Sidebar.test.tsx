@@ -17,7 +17,7 @@ import * as React from "react";
 import { BrowserRouter } from "react-router";
 import { Sidebar } from "../components/Sidebar";
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",

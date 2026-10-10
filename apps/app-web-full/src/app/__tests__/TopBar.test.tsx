@@ -19,7 +19,7 @@ import { TopBar } from "../modules/shared/TopBar";
 import { isGhostMode } from "@yyc3/core/supabaseClient";
 import type { ConnectionState } from "../types";
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",

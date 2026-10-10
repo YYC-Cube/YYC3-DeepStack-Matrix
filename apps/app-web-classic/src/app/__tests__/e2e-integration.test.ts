@@ -312,8 +312,8 @@ describe("E2E: 类型系统完整性", () => {
 
 describe("E2E: i18n 双语覆盖度", () => {
   it("zh-CN 和 en-US 顶层键完全一致", async () => {
-    const { default: zhCN } = await import("../i18n/zh-CN");
-    const { default: enUS } = await import("../i18n/en-US");
+    const { default: zhCN } = await import("@yyc3/core/i18n/zh-CN");
+    const { default: enUS } = await import("@yyc3/core/i18n/en-US");
 
     const zhKeys = Object.keys(zhCN).sort();
     const enKeys = Object.keys(enUS).sort();
@@ -322,8 +322,8 @@ describe("E2E: i18n 双语覆盖度", () => {
   });
 
   it("每个顶层模块的子键也一致", async () => {
-    const { default: zhCN } = await import("../i18n/zh-CN");
-    const { default: enUS } = await import("../i18n/en-US");
+    const { default: zhCN } = await import("@yyc3/core/i18n/zh-CN");
+    const { default: enUS } = await import("@yyc3/core/i18n/en-US");
 
     for (const key of Object.keys(zhCN)) {
       const zhSub = Object.keys((zhCN as any)[key]).sort();
@@ -333,8 +333,8 @@ describe("E2E: i18n 双语覆盖度", () => {
   });
 
   it("nav.architecture 键存在于双语包", async () => {
-    const { default: zhCN } = await import("../i18n/zh-CN");
-    const { default: enUS } = await import("../i18n/en-US");
+    const { default: zhCN } = await import("@yyc3/core/i18n/zh-CN");
+    const { default: enUS } = await import("@yyc3/core/i18n/en-US");
 
     expect(zhCN.nav.architecture).toBe("架构审计");
     expect(enUS.nav.architecture).toBe("Architecture");

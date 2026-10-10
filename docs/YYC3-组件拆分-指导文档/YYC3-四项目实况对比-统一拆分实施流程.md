@@ -2,9 +2,9 @@
 file: YYC3-四项目实况对比-统一拆分实施流程.md
 description: YYC³ CloudPivot Intelli-Matrix 四个同源项目技术实况对比与统一组件拆分实施流程（基于源码审计 + 69 张运行截图视觉标定）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.7.0
+version: v1.8.0
 created: 2026-10-08
-updated: 2026-10-10（v1.7：Phase 3 工程面全达成——@yyc3/core 20 件 L0 收编+db-adapter 注册表+四端切换零回归，types 改 B' 方案；v1.6：Phase 2 工程面全达成——@yyc3/theme 落地+四端 barrel 切换+零回归复验，ide 引擎改登记 Phase 4；v1.5：Phase 2 进度标记——@yyc3/ui 达成+删 MUI 完成；v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
+updated: 2026-10-10（v1.8：Phase 4 开局——三端 193 件仲裁实证修正 L2 规则 + i18n 上收 @yyc3/core 达成 + 分批规划落盘；v1.7：Phase 3 工程面全达成——@yyc3/core 20 件 L0 收编+db-adapter 注册表+四端切换零回归，types 改 B' 方案；v1.6：Phase 2 工程面全达成——@yyc3/theme 落地+四端 barrel 切换+零回归复验，ide 引擎改登记 Phase 4；v1.5：Phase 2 进度标记——@yyc3/ui 达成+删 MUI 完成；v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
 status: active
 tags: [audit],[comparison],[refactor],[monorepo],[unified-process]
 category: guide
@@ -445,6 +445,10 @@ createHashRouter（适配 Electron file:// 与静态托管）
 **回滚**：core 独立版本化，app 端 alias 可临时指回本地 lib。
 
 ### Phase 4｜`@yyc3/business`（业务域模块化）
+
+> **进度（2026-10-10，v1.8）**：◐ **勘察 + 规划 + i18n 上收达成**（详见 [`YYC3-Phase4-执行日志.md`](./YYC3-Phase4-执行日志.md) 与 [`phase4-ledger`](./phase4-ledger/00-Phase4-任务规划与节点目标.md)）。
+> ① 勘察实证：三端 193 件仲裁（L0=28 / L1「P3=P4 同、P1 独走」=126 / 真全异=3 / P1 独有=33 / 反向独有=5）——**本节动作 2 的 L2 双 API 条款实测 0 件适用**，131 疑似 L2 实为二元仲裁，仲裁基线实证修正为「P1/P4 功能最全双源」（真全异 3 件均为 P3 版本滞后 72~506 行）；② 依赖面测绘：modules→store 66 处 + →hooks 109 处，**域包化被 hooks→zustand 链约束**，store 上收（动作 3）从「并行项」升级为 admin/monitor/ops/ai 四域包化的**硬前置**；③ **i18n 上收达成**（动作 4 兑现）：`@yyc3/core/i18n`（4 件 L0 + react peer 首引 + zh-CN 类型源机制），三端切换 ~220 处零回归（core tsc 0 错 + P1=67 持平 + P3/P4=0 + build 三绿 + P2=7 基线）；④ 未完：M4-3 zustand 上收 → ai/business/ops → admin/monitor → shared 定性 → 特深域 ai-family/ide 单列 → NavRegistry 与 PageShell 沉淀。
+> 修正记录：动作 1 的「每域 pages/+components/+hooks/+store/+routes」结构按依赖测绘调整为「域包 hooks 随域走、通用 hooks 与 store 先行上收」；动作 2 仲裁优先级 P4>P3>P1>P2 字面序修正为逐件 diff 实证方向。
 
 **目标**：功能域「即插即用」。
 **动作**：

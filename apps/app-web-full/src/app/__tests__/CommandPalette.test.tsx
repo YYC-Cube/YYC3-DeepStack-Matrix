@@ -15,7 +15,7 @@ import { render, screen, fireEvent, cleanup, within } from "@testing-library/rea
 import * as React from "react";
 import { CommandPalette } from "../modules/shared/CommandPalette";
 
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
 const mockNavigate = vi.fn();
@@ -25,7 +25,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",

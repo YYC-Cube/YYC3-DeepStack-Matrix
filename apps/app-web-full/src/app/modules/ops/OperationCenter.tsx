@@ -17,7 +17,7 @@ import { QuickActionGrid } from "../shared/QuickActionGrid";
 import { OperationTemplate } from "./OperationTemplate";
 import { OperationLogStream } from "./OperationLogStream";
 import { useOperationCenter } from "../../hooks/useOperationCenter";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../../lib/view-context";
 
 export function OperationCenter() {

@@ -23,7 +23,7 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useContext } from "react";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { usePatrol } from "../hooks/usePatrol";
 import { useWebSocketData } from "../hooks/useWebSocketData";
 import { ViewContext } from "../lib/view-context";

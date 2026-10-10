@@ -25,8 +25,8 @@
  */
 
 import { useState, useCallback, useMemo, createContext, useContext } from "react";
-import { zhCN, enUS } from "../i18n";
-import type { TranslationKeys } from "../i18n";
+import { zhCN, enUS } from "./index";
+import type { TranslationKeys } from "./index";
 import type { Locale, LocaleInfo, I18nContextValue } from "../types";
 
 // RF-011: Re-export 已移除

@@ -14,7 +14,7 @@ import {
   GitBranch, AlertTriangle, XCircle, Info,
   Check, Wifi, WifiOff, Zap,
 } from "lucide-react";
-import { useI18n } from "../../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { MOCK_GIT_BRANCHES } from "./ide-mock-data";
 import type { OpenTab } from "./ide-types";
 import { getLanguageLabel } from "../../../components/CodeEditor";

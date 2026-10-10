@@ -60,7 +60,7 @@ const mockUsePageConfigResult = {
   storageKeys: ["yyc3-test-page", "yyc3-test-cache"],
 };
 
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
   })),

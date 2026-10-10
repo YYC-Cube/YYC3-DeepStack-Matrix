@@ -12,7 +12,7 @@
 import * as React from "react";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Terminal, Plus, X, ChevronUp, ChevronDown, Wifi, WifiOff } from "lucide-react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import {
   createTerminalBackend,
   DEFAULT_XTERM_OPTIONS,

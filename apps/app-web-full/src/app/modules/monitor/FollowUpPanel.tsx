@@ -20,7 +20,7 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useWebSocketData } from "../../hooks/useWebSocketData";
 import { ViewContext } from "../../lib/view-context";
 import { useAlerts } from "../../stores/global-store";

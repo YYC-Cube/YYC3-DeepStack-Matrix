@@ -17,7 +17,7 @@ import {
   Filter, Zap, Settings, ArrowUpRight, Pencil, Wifi,
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
-import { useI18n } from "../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import { useAlertRules } from "../hooks/useAlertRules";
 import type { AlertSeverity, AlertRule, AlertEvent } from "../types";
 import { useWebSocketData } from "../hooks/useWebSocketData";

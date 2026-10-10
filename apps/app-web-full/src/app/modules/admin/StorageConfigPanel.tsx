@@ -18,7 +18,7 @@ import { Switch } from "@yyc3/ui/switch";
 import { Slider } from "@yyc3/ui/slider";
 import { Alert, AlertDescription } from "@yyc3/ui/alert";
 import { DatabaseConnectionPanel } from "../ops/DatabaseConnectionPanel";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@yyc3/core/i18n";
 import type { StorageConfig, StorageType } from "../../types/storage";
 import type { DatabaseConfig } from "../../../database/types";
 

@@ -11,8 +11,8 @@
 
 import { describe, it, expect } from "vitest";
 import React from "react";
-import zhCN from "../i18n/zh-CN";
-import enUS from "../i18n/en-US";
+import zhCN from "@yyc3/core/i18n/zh-CN";
+import enUS from "@yyc3/core/i18n/en-US";
 
 function getNestedKeys(obj: Record<string, any>, prefix = ""): string[] {
   const keys: string[] = [];

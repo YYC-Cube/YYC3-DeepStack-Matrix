@@ -150,7 +150,7 @@ vi.mock("../hooks/useBigModelSDK", () => ({
 }));
 
 // Mock useI18n
-vi.mock("../hooks/useI18n", () => ({
+vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

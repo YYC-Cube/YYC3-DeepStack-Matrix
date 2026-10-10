@@ -284,7 +284,7 @@ function VoiceConversationPanel({
       setIsListening(false);
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: YYC3SpeechRecognitionErrorEvent) => {
       console.warn("Speech recognition error:", event.error);
       setIsListening(false);
     };

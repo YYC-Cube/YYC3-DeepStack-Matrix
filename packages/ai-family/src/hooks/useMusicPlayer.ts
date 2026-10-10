@@ -522,7 +522,7 @@ export function useVoiceMusicControl(
       setIsListening(false);
     };
 
-    recognition.onerror = (_event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (_event: YYC3SpeechRecognitionErrorEvent) => {
       setIsListening(false);
     };
 

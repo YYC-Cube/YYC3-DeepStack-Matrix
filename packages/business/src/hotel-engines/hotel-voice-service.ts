@@ -17,9 +17,18 @@
 
 // ============================================================
 // Web Speech API Type Declarations (浏览器原生API扩展)
+// 注：错误事件接口定名 YYC3SpeechRecognitionErrorEvent——新版 TS lib.dom
+//    自带同名 SpeechRecognitionErrorEvent（error: SpeechRecognitionErrorCode），
+//    自有名避免接口合并类型冲突，旧/新 lib 双兼容。
 // ============================================================
 
 declare global {
+  /** 语音识别错误事件（error 宽化为 string：兼容旧 lib 与运行时厂商差异） */
+  interface YYC3SpeechRecognitionErrorEvent extends Event {
+    readonly error: string;
+    readonly message: string;
+  }
+
   interface SpeechRecognitionEvent extends Event {
     readonly resultIndex: number;
     readonly results: SpeechRecognitionResultList;
@@ -43,11 +52,6 @@ declare global {
     readonly confidence: number;
   }
 
-  interface SpeechRecognitionErrorEvent extends Event {
-    readonly error: string;
-    readonly message: string;
-  }
-
   interface SpeechRecognition extends EventTarget {
     continuous: boolean;
     interimResults: boolean;
@@ -65,7 +69,7 @@ declare global {
     onaudioend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
     onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown) | null;
     onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown) | null;
-    onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => unknown) | null;
+    onerror: ((this: SpeechRecognition, ev: YYC3SpeechRecognitionErrorEvent) => unknown) | null;
     onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
   }
 

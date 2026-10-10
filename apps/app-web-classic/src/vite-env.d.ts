@@ -140,12 +140,15 @@ declare module "dompurify" {
     ALLOWED_ATTR?: string[];
     ADD_ATTR?: string[];
   }
-  
+
   export default class DOMPurify {
     static sanitize(dirty: string, config?: DOMPurifyConfig): string;
     sanitize(dirty: string, config?: DOMPurifyConfig): string;
   }
 }
+
+// css 副作用导入声明（CLI/IDE 双上下文兼容）
+declare module "*.css";
 
 import type { MessageContent as BaseMessageContent } from "@yyc3/business/hotel-engines/ai-family-hotel.types";
 

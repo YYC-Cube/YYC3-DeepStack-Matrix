@@ -22,14 +22,14 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbPut: vi.fn(),
   idbGetAll: vi.fn(() => []),
   idbDelete: vi.fn(),
   idbPutMany: vi.fn(),
 }));
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: vi.fn(() => ({
     fsBase: "http://localhost:3000/api/fs",
     enableBackend: false,

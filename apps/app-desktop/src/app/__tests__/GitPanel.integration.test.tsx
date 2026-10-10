@@ -188,7 +188,7 @@ describe("GitPanel Integration Tests", () => {
   describe("Git Operations Integration", () => {
     it("should initialize GitService on mount", async () => {
       const { GitPanel } = await import("../components/ide/GitPanel");
-      const { getGitService } = await import("../lib/GitService");
+      const { getGitService } = await import("@yyc3/core/GitService");
 
       render(React.createElement(GitPanel));
 
@@ -257,7 +257,7 @@ describe("GitPanel Integration Tests", () => {
       const { GitPanel } = await import("../components/ide/GitPanel");
 
       const onError = vi.fn();
-      const { createGitService } = await import("../lib/GitService");
+      const { createGitService } = await import("@yyc3/core/GitService");
       createGitService({ onError });
 
       render(React.createElement(GitPanel));
@@ -298,7 +298,7 @@ describe("GitPanel Integration Tests", () => {
 
     it("should not cause memory leaks on unmount", async () => {
       const { GitPanel } = await import("../components/ide/GitPanel");
-      const { getGitService } = await import("../lib/GitService");
+      const { getGitService } = await import("@yyc3/core/GitService");
 
       const { unmount } = render(React.createElement(GitPanel));
       const serviceBeforeUnmount = getGitService();

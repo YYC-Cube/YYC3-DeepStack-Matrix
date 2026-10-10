@@ -18,7 +18,7 @@ import { GlassCard } from "../shared/GlassCard";
 import {
   getEnvConfig, setEnvConfig, resetEnvConfig,
   exportEnvConfig, importEnvConfig, type EnvConfig,
-} from "../../lib/env-config";
+} from "@yyc3/core/env-config";
 import { toast } from "sonner";
 
 const f = { xs: "0.62rem", sm: "0.72rem", md: "0.82rem", lg: "0.95rem" };

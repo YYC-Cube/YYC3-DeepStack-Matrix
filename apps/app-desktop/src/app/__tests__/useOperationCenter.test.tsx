@@ -35,7 +35,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbPut: vi.fn(),
   idbGetAll: vi.fn(() => Promise.resolve([])),
   idbDelete: vi.fn(),

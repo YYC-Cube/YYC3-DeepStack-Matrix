@@ -11,7 +11,7 @@
 
 import React, { useState, useCallback } from "react";
 import { Lock, Mail, Eye, EyeOff, AlertCircle, Zap, Ghost } from "lucide-react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "@yyc3/core/supabaseClient";
 import { YYC3Logo } from "./YYC3Logo";
 
 interface LoginProps {

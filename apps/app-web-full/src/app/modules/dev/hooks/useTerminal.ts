@@ -17,7 +17,7 @@ import {
   resetEnvConfig,
   setEnvConfig,
   type EnvConfig,
-} from "../../../lib/env-config";
+} from "@yyc3/core/env-config";
 import type { TerminalHistoryEntry } from "../../../types";
 
 // ============================================================

@@ -39,7 +39,7 @@ vi.mock("../lib/authContext", () => ({
   AuthContext: React.createContext({ userEmail: "admin@yyc3.com" }),
 }));
 
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("@yyc3/core/supabaseClient", () => ({
   isGhostMode: () => false,
 }));
 

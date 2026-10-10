@@ -74,7 +74,7 @@ describe("📦 TypeScript 类型导出 - 增强功能测试", () => {
 
 describe("✅ 数据校验增强 - Validators 测试", () => {
   it("应正确验证 URL 格式", async () => {
-    const { isValidUrl, validateUrl } = await import("../lib/validators");
+    const { isValidUrl, validateUrl } = await import("@yyc3/core/validators");
 
     // 有效 URL
     expect(isValidUrl("https://api.openai.com/v1")).toBe(true);
@@ -97,7 +97,7 @@ describe("✅ 数据校验增强 - Validators 测试", () => {
   });
 
   it("应正确验证邮箱格式", async () => {
-    const { isValidEmail, validateEmail } = await import("../lib/validators");
+    const { isValidEmail, validateEmail } = await import("@yyc3/core/validators");
 
     // 有效邮箱
     expect(isValidEmail("user@example.com")).toBe(true);
@@ -119,7 +119,7 @@ describe("✅ 数据校验增强 - Validators 测试", () => {
   });
 
   it("应正确验证 ID 格式", async () => {
-    const { isValidId, validateId } = await import("../lib/validators");
+    const { isValidId, validateId } = await import("@yyc3/core/validators");
 
     // 有效 ID
     expect(isValidId("valid-id_123")).toBe(true);
@@ -132,7 +132,7 @@ describe("✅ 数据校验增强 - Validators 测试", () => {
   });
 
   it("应正确验证百分比数值", async () => {
-    const { isValidPercentage, validatePercentage } = await import("../lib/validators");
+    const { isValidPercentage, validatePercentage } = await import("@yyc3/core/validators");
 
     // 有效百分比
     expect(isValidPercentage(0)).toBe(true);
@@ -154,7 +154,7 @@ describe("✅ 数据校验增强 - Validators 测试", () => {
   });
 
   it("应正确验证 API Key 格式", async () => {
-    const { isValidApiKey, validateApiKey } = await import("../lib/validators");
+    const { isValidApiKey, validateApiKey } = await import("@yyc3/core/validators");
 
     // 有效 API Key
     expect(isValidApiKey("sk-1234567890abcdef1234567890abcdef")).toBe(true);
@@ -174,7 +174,7 @@ describe("✅ 数据校验增强 - Validators 测试", () => {
   });
 
   it("应支持 ModelProviderDef 验证", async () => {
-    const { validateModelProvider } = await import("../lib/validators");
+    const { validateModelProvider } = await import("@yyc3/core/validators");
 
     // 有效 Provider
     const validProvider = {
@@ -202,7 +202,7 @@ describe("✅ 数据校验增强 - Validators 测试", () => {
   });
 
   it("应支持 ConfiguredModel 验证", async () => {
-    const { validateConfiguredModel } = await import("../lib/validators");
+    const { validateConfiguredModel } = await import("@yyc3/core/validators");
 
     // 有效 Model
     const validModel = {
@@ -240,7 +240,7 @@ describe("🔄 批量操作优化 - 事务机制测试", () => {
   });
 
   it("应支持基本事务操作", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface TestItem { id: string; name: string; value: number; }
 
@@ -269,7 +269,7 @@ describe("🔄 批量操作优化 - 事务机制测试", () => {
   });
 
   it("应支持事务中的更新和删除", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface TestItem { id: string; name: string; value: number; }
 
@@ -296,7 +296,7 @@ describe("🔄 批量操作优化 - 事务机制测试", () => {
   });
 
   it("应支持事务回滚", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface TestItem { id: string; name: string; }
 
@@ -319,7 +319,7 @@ describe("🔄 批量操作优化 - 事务机制测试", () => {
   });
 
   it("应跟踪事务变更记录", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface TestItem { id: string; name: string; }
 
@@ -341,7 +341,7 @@ describe("🔄 批量操作优化 - 事务机制测试", () => {
   });
 
   it("应支持批量删除事务", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface TestItem { id: string; name: string; }
 
@@ -374,7 +374,7 @@ describe("⚡ 缓存策略 - 内存缓存层测试", () => {
   });
 
   it("应使用内存缓存减少 localStorage 读取", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface CacheItem { id: string; data: string; }
 
@@ -402,7 +402,7 @@ describe("⚡ 缓存策略 - 内存缓存层测试", () => {
   });
 
   it("应支持清除缓存", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface CacheItem { id: string; data: string; }
 
@@ -425,7 +425,7 @@ describe("⚡ 缓存策略 - 内存缓存层测试", () => {
   });
 
   it("应正确统计写入次数", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface WriteItem { id: string; value: number; }
 
@@ -442,7 +442,7 @@ describe("⚡ 缓存策略 - 内存缓存层测试", () => {
   });
 
   it("应记录最后同步时间", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface SyncItem { id: string; data: string; }
 
@@ -461,7 +461,7 @@ describe("⚡ 缓存策略 - 内存缓存层测试", () => {
   });
 
   it("应支持防抖保存优化频繁写入", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     interface DebounceItem { id: string; value: number; }
 
@@ -495,8 +495,8 @@ describe("🎯 综合集成 - 所有增强功能协同工作", () => {
   });
 
   it("应在事务中使用验证器", async () => {
-    const { createLocalStore } = await import("../lib/create-local-store");
-    const { validatePercentage } = await import("../lib/validators");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
+    const { validatePercentage } = await import("@yyc3/core/validators");
 
     interface ValidatedItem {
       id: string;
@@ -534,8 +534,8 @@ describe("🎯 综合集成 - 所有增强功能协同工作", () => {
   it("应结合类型导出、验证和事务的完整流程", async () => {
     // 导入类型
     const { BUILTIN_PROVIDERS } = await import("../hooks/useModelProvider");
-    const { validateModelProvider } = await import("../lib/validators");
-    const { createLocalStore } = await import("../lib/create-local-store");
+    const { validateModelProvider } = await import("@yyc3/core/validators");
+    const { createLocalStore } = await import("@yyc3/core/create-local-store");
 
     // 验证内置供应商
     expect(BUILTIN_PROVIDERS.length).toBeGreaterThan(0);

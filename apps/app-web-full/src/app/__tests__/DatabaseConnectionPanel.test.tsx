@@ -18,7 +18,7 @@ import { DatabaseConnectionPanel } from "../modules/ops/DatabaseConnectionPanel"
 import { useDbConnSlice } from "../store/slices/db-conn-slice";
 import { toast } from "sonner";
 
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   env: vi.fn((key: string) => {
     if (key === "SQL_TEST_SIMULATE_DELAY") return 50;
     if (key === "SYSTEM_NAME") return "YYC3";

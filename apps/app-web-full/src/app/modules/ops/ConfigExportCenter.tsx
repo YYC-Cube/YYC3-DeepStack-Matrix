@@ -32,8 +32,8 @@ import {
   resetDbAgents,
   resetDbModels,
   resetDbNodes,
-} from "../../lib/db-queries";
-import { exportEnvConfig, importEnvConfig, resetEnvConfig } from "../../lib/env-config";
+} from "@yyc3/core/db-queries";
+import { exportEnvConfig, importEnvConfig, resetEnvConfig } from "@yyc3/core/env-config";
 import { exportFullBackup, importFullBackup } from "../../lib/full-backup";
 import { GlassCard } from "../shared/GlassCard";
 

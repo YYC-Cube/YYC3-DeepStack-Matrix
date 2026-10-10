@@ -32,7 +32,7 @@ import { useNavigate } from "react-router";
 import { useTerminal } from "../hooks/useTerminal";
 import { ViewContext } from "../lib/view-context";
 import { AuthContext } from "../lib/authContext";
-import { isGhostMode } from "../lib/supabaseClient";
+import { isGhostMode } from "@yyc3/core/supabaseClient";
 import { useUIPrefsSlice } from "../store/slices/ui-prefs-slice";
 
 /* ── 常量 ─────────────────────────────── */

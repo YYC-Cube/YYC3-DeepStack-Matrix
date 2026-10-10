@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useTerminal } from "../hooks/useTerminal";
 
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   env: vi.fn((key) => {
     const defaults: Record<string, string> = {
       SYSTEM_NAME: "CP-IM Cloud",
@@ -41,7 +41,7 @@ vi.mock("../lib/env-config", () => ({
   exportEnvConfig: vi.fn(() => JSON.stringify({ SYSTEM_NAME: "CP-IM Cloud" }, null, 2)),
 }));
 
-import { env, getEnvConfig, setEnvConfig, resetEnvConfig, exportEnvConfig } from "../lib/env-config";
+import { env, getEnvConfig, setEnvConfig, resetEnvConfig, exportEnvConfig } from "@yyc3/core/env-config";
 
 describe("useTerminal", () => {
   beforeEach(() => {

@@ -16,7 +16,7 @@ import * as React from "react";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DataEditorPanel } from "../components/DataEditorPanel";
 
-vi.mock("../lib/db-queries", () => ({
+vi.mock("@yyc3/core/db-queries", () => ({
   getActiveModels: vi.fn(() => ({ data: [] })),
   getNodesStatus: vi.fn(() => ({ data: [] })),
   getAllAgents: vi.fn(() => ({ data: [] })),

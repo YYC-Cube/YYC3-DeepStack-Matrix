@@ -54,7 +54,7 @@ class MockWebSocket {
 
 let mockWSInstance: MockWebSocket | null = null;
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: () => ({
     wsEndpoint: "ws://localhost:3113/ws",
   }),

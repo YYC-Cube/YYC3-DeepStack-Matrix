@@ -30,7 +30,7 @@ import {
   detectErrorCode,
   ERROR_RECOVERY_SUGGESTIONS,
   type ValidationErrorDetail,
-} from "../lib/error-handler";
+} from "@yyc3/core/error-handler";
 
 vi.mock("./yyc3-storage", () => ({
   idbPut: vi.fn(),

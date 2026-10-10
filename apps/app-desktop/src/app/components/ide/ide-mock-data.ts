@@ -133,7 +133,7 @@ export const ENV = {
   CACHE_TTL: 3600,
   LOG_LEVEL: "info",
 } as const;`,
-  "dashboard-stores": `import { createLocalStore } from "../lib/create-local-store";
+  "dashboard-stores": `import { createLocalStore } from "@yyc3/core/create-local-store";
 import type { NodeData } from "../types";
 
 const DEFAULT_NODES = [

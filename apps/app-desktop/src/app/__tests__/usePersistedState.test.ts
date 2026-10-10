@@ -21,7 +21,7 @@ const mockIdbDelete = vi.fn();
 const mockIdbClear = vi.fn();
 const mockOnStorageChange = vi.fn();
 
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbGetAll: () => mockIdbGetAll(),
   idbPut: (...args: unknown[]) => mockIdbPut(...args),
   idbPutMany: (...args: unknown[]) => mockIdbPutMany(...args),

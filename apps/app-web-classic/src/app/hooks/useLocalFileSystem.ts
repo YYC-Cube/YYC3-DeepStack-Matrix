@@ -11,7 +11,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { env } from "../lib/env-config";
+import { env } from "@yyc3/core/env-config";
 import { useFSSlice } from "../store/slices/fs-slice";
 import type {
   FileItem,

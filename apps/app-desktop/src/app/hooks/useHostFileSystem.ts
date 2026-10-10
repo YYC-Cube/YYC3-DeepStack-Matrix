@@ -11,8 +11,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { idbPut, idbGetAll, idbDelete } from "../lib/yyc3-storage";
-import { getAPIConfig } from "../lib/api-config";
+import { idbPut, idbGetAll, idbDelete } from "@yyc3/core/yyc3-storage";
+import { getAPIConfig } from "@yyc3/core/api-config";
 import { useFSSlice } from "../store/slices/fs-slice";
 import type { HostFileEntry, FileVersion, RecentFile } from "../types";
 

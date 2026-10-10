@@ -38,7 +38,7 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock the IndexedDB-backed storage to prevent state pollution across tests
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbGetAll: vi.fn().mockResolvedValue([]),
   idbPut: vi.fn().mockResolvedValue(undefined),
   idbPutMany: vi.fn().mockResolvedValue(undefined),
@@ -51,7 +51,7 @@ vi.mock("../lib/yyc3-storage", () => ({
 }));
 
 // Also mock broadcast-channel to avoid cross-test pollution
-vi.mock("../lib/broadcast-channel", () => ({
+vi.mock("@yyc3/core/broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => null),
 }));
 

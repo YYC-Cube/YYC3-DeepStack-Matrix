@@ -21,7 +21,7 @@ import type {
   InferenceLog,
   NodeStatusRecord,
   ModelStats,
-} from "../types/index";
+} from "./types";
 
 // ============================================================
 // Storage Keys

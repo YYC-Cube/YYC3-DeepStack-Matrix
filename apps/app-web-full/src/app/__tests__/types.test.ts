@@ -410,7 +410,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("db-queries 模块应导出查询函数", async () => {
-    const mod = await import("../lib/db-queries");
+    const mod = await import("@yyc3/core/db-queries");
     expect(typeof mod.getActiveModels).toBe("function");
     expect(typeof mod.getNodesStatus).toBe("function");
     expect(typeof mod.getRecentLogs).toBe("function");
@@ -419,7 +419,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("error-handler 模块应导出错误处理函数", async () => {
-    const mod = await import("../lib/error-handler");
+    const mod = await import("@yyc3/core/error-handler");
     expect(typeof mod.captureError).toBe("function");
     expect(typeof mod.captureNetworkError).toBe("function");
     expect(typeof mod.captureWSError).toBe("function");

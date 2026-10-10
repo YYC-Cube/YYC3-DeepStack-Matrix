@@ -39,7 +39,7 @@ vi.mock("../hooks/useSettingsStore", () => ({
   })),
 }));
 
-vi.mock("../lib/db-queries", () => ({
+vi.mock("@yyc3/core/db-queries", () => ({
   exportDbData: vi.fn(() => "{}"),
   importDbData: vi.fn(() => true),
   resetDbModels: vi.fn(),
@@ -47,7 +47,7 @@ vi.mock("../lib/db-queries", () => ({
   resetDbNodes: vi.fn(),
 }));
 
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   exportEnvConfig: vi.fn(() => "{}"),
   importEnvConfig: vi.fn(() => true),
   resetEnvConfig: vi.fn(),

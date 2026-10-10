@@ -57,7 +57,7 @@ import { AnimatePresence, motion } from "motion/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useI18n } from "../hooks/useI18n";
-import { isGhostMode } from "../lib/supabaseClient";
+import { isGhostMode } from "@yyc3/core/supabaseClient";
 import type { ConnectionState } from "../types";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { LanguageSwitcher } from "./LanguageSwitcher";

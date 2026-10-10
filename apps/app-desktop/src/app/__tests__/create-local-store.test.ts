@@ -11,7 +11,7 @@
 
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { createLocalStore, type LocalStore } from "../lib/create-local-store";
+import { createLocalStore, type LocalStore } from "@yyc3/core/create-local-store";
 
 interface TestItem {
   id: string;

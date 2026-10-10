@@ -26,7 +26,7 @@ vi.mock("../hooks/useModelProvider", () => ({
   })),
 }));
 
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   env: vi.fn((key: string) => {
     const envMap: Record<string, string> = {
       OLLAMA_BASE_URL: "http://localhost:11434",
@@ -36,7 +36,7 @@ vi.mock("../lib/env-config", () => ({
   }),
 }));
 
-vi.mock("../lib/ollama-url", () => ({
+vi.mock("@yyc3/core/ollama-url", () => ({
   getOllamaEndpointInfo: vi.fn(() => ({
     mode: "proxy",
     chatUrl: "/api/v1/llm/ollama/chat",

@@ -24,7 +24,7 @@
  * @exports: DataBus singleton, MergeStrategy, DataSource, WSSyncConfig
  */
 
-import type { NodeData } from "../types";
+import type { NodeData } from "./types";
 
 // ============================================================
 // 类型定义

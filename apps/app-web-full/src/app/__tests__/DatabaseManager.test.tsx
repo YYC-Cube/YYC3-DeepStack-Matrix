@@ -86,7 +86,7 @@ vi.mock("../modules/admin/InlineEditableTable", () => ({
   InlineEditableTable: () => <div data-testid="inline-editable-table" />,
 }));
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: vi.fn(() => ({ enableBackend: false })),
 }));
 

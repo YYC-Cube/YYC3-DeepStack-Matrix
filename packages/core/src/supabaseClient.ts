@@ -20,7 +20,7 @@
  * @exports: supabase, signIn, signOut, getSession, onAuthStateChange
  * @notes: 切换到真实 Supabase 时需替换 MockSupabaseClient 为 createClient()
  */
-import type { AppSession, AppUser } from "../types";
+import type { AppSession, AppUser } from "./types";
 
 // RF-011: Legacy type aliases (MockUser/MockSession) 已移除
 // 所有类型统一从 types/index.ts 导入 AppUser / AppSession

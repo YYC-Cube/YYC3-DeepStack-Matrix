@@ -43,7 +43,7 @@ import { useEmotionMusic } from "../hooks/useEmotionMusic";
 import musicEventBus, { type MusicCommand } from "../../../lib/MusicEventBus";
 import smartPlaylistGenerator, { type PlaylistConfig, type TrackInfo } from "../../../lib/SmartPlaylistGenerator";
 import { type ParsedCommand } from "../../../lib/VoiceCommandParser";
-import { DMUSIC_PHOTOS, DMUSIC_VIDEOS, MUSIC_LIBRARY, type MusicTrack } from "../../../lib/dmusic-resources";
+import { DMUSIC_PHOTOS, DMUSIC_VIDEOS, MUSIC_LIBRARY, type MusicTrack } from "@yyc3/core/dmusic-resources";
 import { useFamilySettingsSlice } from "../store/family-settings-slice";
 import { GlassCard } from "../../shared/GlassCard";
 import { CoverFlow, type MusicTrack as CoverFlowTrack } from "./CoverFlow";

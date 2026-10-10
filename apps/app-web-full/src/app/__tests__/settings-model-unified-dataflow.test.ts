@@ -23,7 +23,7 @@ Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 
 import { describe, it, expect, beforeEach } from "vitest";
 import React from "react";
-import { createLocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
 import type { SettingsValues } from "../hooks/useSettingsStore";
 
 // ============================================================
@@ -245,7 +245,7 @@ describe("env-config — 环境变量可编辑", () => {
   });
 
   it("env() 读取默认 AI 配置", async () => {
-    const { env, resetEnvConfig } = await import("../lib/env-config");
+    const { env, resetEnvConfig } = await import("@yyc3/core/env-config");
     resetEnvConfig();
 
     expect(env("OLLAMA_BASE_URL")).toBe("http://localhost:11434");
@@ -254,7 +254,7 @@ describe("env-config — 环境变量可编辑", () => {
   });
 
   it("setEnvConfig 可修改 AI 默认配置", async () => {
-    const { env, setEnvConfig, resetEnvConfig } = await import("../lib/env-config");
+    const { env, setEnvConfig, resetEnvConfig } = await import("@yyc3/core/env-config");
     resetEnvConfig();
 
     setEnvConfig({ DEFAULT_AI_MODEL: "custom-model", OLLAMA_BASE_URL: "http://192.168.3.45:11434" });
@@ -263,7 +263,7 @@ describe("env-config — 环境变量可编辑", () => {
   });
 
   it("getEnvConfig 包含所有必要字段", async () => {
-    const { getEnvConfig, resetEnvConfig } = await import("../lib/env-config");
+    const { getEnvConfig, resetEnvConfig } = await import("@yyc3/core/env-config");
     resetEnvConfig();
 
     const config = getEnvConfig();
@@ -278,7 +278,7 @@ describe("env-config — 环境变量可编辑", () => {
   });
 
   it("exportEnvConfig / importEnvConfig round-trip", async () => {
-    const { exportEnvConfig, importEnvConfig, resetEnvConfig } = await import("../lib/env-config");
+    const { exportEnvConfig, importEnvConfig, resetEnvConfig } = await import("@yyc3/core/env-config");
     resetEnvConfig();
 
     const json = exportEnvConfig();

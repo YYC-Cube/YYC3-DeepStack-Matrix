@@ -18,7 +18,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DBConnection } from '../../types';
-import { migrateKeyWithMerge, migrateKeyAsArray } from '../../lib/migrate-storage';
+import { migrateKeyWithMerge, migrateKeyAsArray } from '@yyc3/core/migrate-storage';
 
 // ============================================================
 // 类型定义

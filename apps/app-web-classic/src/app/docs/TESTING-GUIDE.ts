@@ -151,7 +151,7 @@
  *    vi.mock("recharts", () => ({ LineChart: div, ... }));
  *
  * 7. Supabase — Login.test.tsx:
- *    vi.mock("../lib/supabaseClient", () => ({ supabase: { auth: ... } }));
+ *    vi.mock("@yyc3/core/supabaseClient", () => ({ supabase: { auth: ... } }));
  *
  * ============================================================
  *  六、GitHub Actions CI

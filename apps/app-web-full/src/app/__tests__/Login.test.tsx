@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { Login } from "../modules/shared/Login";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "@yyc3/core/supabaseClient";
 
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("@yyc3/core/supabaseClient", () => ({
   supabase: {
     auth: {
       signInWithPassword: vi.fn(),

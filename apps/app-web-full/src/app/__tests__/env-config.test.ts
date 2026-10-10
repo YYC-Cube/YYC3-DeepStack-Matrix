@@ -18,7 +18,7 @@ import {
   resetEnvConfig,
   exportEnvConfig,
   importEnvConfig,
-} from "../lib/env-config";
+} from "@yyc3/core/env-config";
 
 const ENV_STORAGE_KEY = "yyc3_env_config";
 
@@ -277,14 +277,14 @@ describe("env-config", () => {
         JSON.stringify({ SYSTEM_NAME: "Stored Name" })
       );
       vi.resetModules();
-      const { env: envReloaded } = await import("../lib/env-config");
+      const { env: envReloaded } = await import("@yyc3/core/env-config");
       expect(envReloaded("SYSTEM_NAME")).toBe("Stored Name");
     });
 
     it("should handle corrupted localStorage data", async () => {
       localStorage.setItem(ENV_STORAGE_KEY, "invalid json");
       vi.resetModules();
-      const { env: envReloaded } = await import("../lib/env-config");
+      const { env: envReloaded } = await import("@yyc3/core/env-config");
       expect(envReloaded("SYSTEM_NAME")).toBe("YYC³ Cloud Intelli-Matrix");
     });
   });

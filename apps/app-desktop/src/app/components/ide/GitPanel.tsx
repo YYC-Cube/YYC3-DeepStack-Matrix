@@ -33,7 +33,7 @@ import {
   type GitFileChange,
   type GitCommitInfo,
   type GitBranchInfo,
-} from "../../lib/GitService";
+} from "@yyc3/core/GitService";
 
 type GitTab = "changes" | "commits" | "branches";
 

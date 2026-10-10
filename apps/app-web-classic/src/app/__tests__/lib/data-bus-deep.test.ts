@@ -10,8 +10,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { DataChangeEvent } from "../../lib/data-bus";
-import { dataBus } from "../../lib/data-bus";
+import type { DataChangeEvent } from "@yyc3/core/data-bus";
+import { dataBus } from "@yyc3/core/data-bus";
 import type { NodeData } from "../../types";
 
 function createMockNode(overrides?: Partial<NodeData>): NodeData {

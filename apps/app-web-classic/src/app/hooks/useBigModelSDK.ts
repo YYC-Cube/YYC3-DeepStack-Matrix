@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { getOllamaChatUrl, getOllamaUrl } from "../lib/ollama-url";
+import { getOllamaChatUrl, getOllamaUrl } from "@yyc3/core/ollama-url";
 import { useSDKSessionSlice } from "../store/slices/sdk-session-slice";
 import type {
   ChatMessage,

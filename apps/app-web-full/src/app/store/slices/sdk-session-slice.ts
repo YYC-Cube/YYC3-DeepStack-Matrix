@@ -18,7 +18,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ChatSession, SDKUsageStats } from '../../types';
-import { migrateKey } from '../../lib/migrate-storage';
+import { migrateKey } from '@yyc3/core/migrate-storage';
 
 // ============================================================
 // Default Stats

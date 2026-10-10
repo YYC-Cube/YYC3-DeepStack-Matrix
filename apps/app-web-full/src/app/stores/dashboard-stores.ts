@@ -18,7 +18,7 @@
  * - useAISuggestion.ts 已于 Phase U 迁移至 ai-suggestion-slice.ts (createLocalStore 生产消费者归零)
  */
 
-import { createLocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
 import type { NodeData } from "../types";
 
 // 从统一类型文件 re-export，保持向后兼容

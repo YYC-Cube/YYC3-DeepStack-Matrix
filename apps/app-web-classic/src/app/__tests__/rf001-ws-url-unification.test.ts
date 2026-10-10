@@ -37,12 +37,12 @@ describe("RF-001: WebSocket URL 三源统一", () => {
 
   describe("api-config 权威源", () => {
     it("默认 wsEndpoint 应为 ws://localhost:3113/ws", async () => {
-      const { getAPIConfig } = await import("../lib/api-config");
+      const { getAPIConfig } = await import("@yyc3/core/api-config");
       expect(getAPIConfig().wsEndpoint).toBe("ws://localhost:3113/ws");
     });
 
     it("setAPIConfig 应能修改 wsEndpoint", async () => {
-      const { getAPIConfig, setAPIConfig } = await import("../lib/api-config");
+      const { getAPIConfig, setAPIConfig } = await import("@yyc3/core/api-config");
       setAPIConfig({ wsEndpoint: "ws://192.168.3.45:3113/ws" });
       expect(getAPIConfig().wsEndpoint).toBe("ws://192.168.3.45:3113/ws");
     });
@@ -76,7 +76,7 @@ describe("RF-001: WebSocket URL 三源统一", () => {
     it("源代码中不应包含硬编码的 WS_URL 常量", async () => {
       // 通过检查模块导出验证：getAPIConfig 被导入
       // 这是一个静态分析验证 — 如果 WS_URL 还在，模块不会调用 getAPIConfig
-      const { getAPIConfig, setAPIConfig } = await import("../lib/api-config");
+      const { getAPIConfig, setAPIConfig } = await import("@yyc3/core/api-config");
 
       // 设置自定义 WS 端点
       const customUrl = "ws://custom-host:9999/ws";

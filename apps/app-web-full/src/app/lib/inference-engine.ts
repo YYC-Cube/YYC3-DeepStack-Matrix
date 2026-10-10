@@ -28,8 +28,8 @@ import type {
   ChatRole,
   SDKChatResponse,
 } from "../types";
-import { getOllamaChatUrl } from "./ollama-url";
-import { getEnvConfig } from "./env-config";
+import { getOllamaChatUrl } from "@yyc3/core/ollama-url";
+import { getEnvConfig } from "@yyc3/core/env-config";
 
 // ============================================================
 // 预置 WebGPU 模型

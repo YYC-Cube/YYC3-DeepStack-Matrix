@@ -27,7 +27,7 @@ import {
   clearAllLocalStorage,
   clearAllStorage,
   onStorageChange,
-} from "../lib/yyc3-storage";
+} from "@yyc3/core/yyc3-storage";
 
 vi.mock("./broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => ({

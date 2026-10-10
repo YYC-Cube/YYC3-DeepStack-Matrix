@@ -11,7 +11,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../lib/error-handler", () => ({
+vi.mock("@yyc3/core/error-handler", () => ({
   captureError: vi.fn(),
 }));
 
@@ -26,7 +26,7 @@ import {
   onUnifiedSync,
   postToChannel,
   UNIFIED_SYNC_CHANNEL,
-} from "../../lib/broadcast-channel";
+} from "@yyc3/core/broadcast-channel";
 
 describe("broadcast-channel", () => {
   beforeEach(() => {

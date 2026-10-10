@@ -55,7 +55,7 @@ import {
   resetAPIConfig as resetAPIConfigDefaults,
   setAPIConfig,
   type APIEndpoints,
-} from "../../lib/api-config";
+} from "@yyc3/core/api-config";
 import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "../../lib/connection-test-engine";
 import { DesignSystemPage } from "../dev/design-system/DesignSystemPage";
 import { GlassCard } from "../shared/GlassCard";

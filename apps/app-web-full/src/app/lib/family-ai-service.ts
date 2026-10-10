@@ -17,7 +17,7 @@
  * @updated: 2026-04-30 */
 
 import { AI_RESPONSES, FAMILY_MEMBERS, MEMBERS_MAP, type FamilyMember } from "../modules/ai-family/components/shared";
-import { getAPIConfig } from "./api-config";
+import { getAPIConfig } from "@yyc3/core/api-config";
 import type { ZhipuAIMessage } from "./zhipu-ai-service";
 
 // ============================================================

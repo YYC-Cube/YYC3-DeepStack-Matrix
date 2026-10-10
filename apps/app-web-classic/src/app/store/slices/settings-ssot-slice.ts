@@ -36,9 +36,9 @@ import {
   onAPIConfigChange,
   resetAPIConfig as resetAPIEndpoints, setAPIConfig,
   type APIEndpoints
-} from '../../lib/api-config';
-import { onEnvConfigChange } from '../../lib/env-config';
-import { captureError } from '../../lib/error-handler';
+} from '@yyc3/core/api-config';
+import { onEnvConfigChange } from '@yyc3/core/env-config';
+import { captureError } from '@yyc3/core/error-handler';
 
 let _apiConfigUnsubscribe: (() => void) | null = null;
 let _envConfigUnsubscribe: (() => void) | null = null;

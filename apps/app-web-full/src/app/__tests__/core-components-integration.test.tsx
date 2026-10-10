@@ -59,7 +59,7 @@ vi.mock("../modules/admin/NetworkConfig", () => ({
   NetworkConfig: () => <div data-testid="network-config-mock" />,
 }));
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: () => ({
     enableBackend: false,
     timeout: 15000,
@@ -459,7 +459,7 @@ describe("UserManagement 集成测试", () => {
 // 3. createLocalStore 集成测试
 // ============================================================
 
-import { createLocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
 
 describe("createLocalStore 集成测试", () => {
   beforeEach(() => localStorage.clear());
@@ -718,7 +718,7 @@ describe("api-config 类型导出验证", () => {
   it("getAPIConfig 应返回完整配置对象", async () => {
     // vi.importMock is not available in Bun's vitest compat layer.
     // Use dynamic import — the module is already mocked at file scope.
-    const mod = await import("../lib/api-config");
+    const mod = await import("@yyc3/core/api-config");
     const config = mod.getAPIConfig();
     expect(config).toHaveProperty("enableBackend");
     expect(config).toHaveProperty("timeout");
@@ -729,7 +729,7 @@ describe("api-config 类型导出验证", () => {
   });
 
   it("ENDPOINT_META 应包含正确的元数据结构", async () => {
-    const mod = await import("../lib/api-config");
+    const mod = await import("@yyc3/core/api-config");
     const ENDPOINT_META = mod.ENDPOINT_META;
     expect(ENDPOINT_META.length).toBeGreaterThan(0);
     ENDPOINT_META.forEach((meta: any) => {

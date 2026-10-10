@@ -34,8 +34,8 @@ const localStorageMock = {
 };
 (globalThis as any).localStorage = localStorageMock;
 
-import { createLocalStore } from "../lib/create-local-store";
-import type { LocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
+import type { LocalStore } from "@yyc3/core/create-local-store";
 
 describe("Core Business Logic - createLocalStore", () => {
   interface TestItem {

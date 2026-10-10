@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { SystemSettings } from "../modules/admin/SystemSettings";
 
-vi.mock("../lib/api-config", () => ({
+vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: vi.fn(() => ({
     apiBaseUrl: "http://localhost:3000/api",
     wsEndpoint: "ws://localhost:3000/ws",

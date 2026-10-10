@@ -2,9 +2,9 @@
 file: YYC3-四项目实况对比-统一拆分实施流程.md
 description: YYC³ CloudPivot Intelli-Matrix 四个同源项目技术实况对比与统一组件拆分实施流程（基于源码审计 + 69 张运行截图视觉标定）
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.6.0
+version: v1.7.0
 created: 2026-10-08
-updated: 2026-10-10（v1.6：Phase 2 工程面全达成——@yyc3/theme 落地+四端 barrel 切换+零回归复验，ide 引擎改登记 Phase 4；v1.5：Phase 2 进度标记——@yyc3/ui 达成+删 MUI 完成；v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
+updated: 2026-10-10（v1.7：Phase 3 工程面全达成——@yyc3/core 20 件 L0 收编+db-adapter 注册表+四端切换零回归，types 改 B' 方案；v1.6：Phase 2 工程面全达成——@yyc3/theme 落地+四端 barrel 切换+零回归复验，ide 引擎改登记 Phase 4；v1.5：Phase 2 进度标记——@yyc3/ui 达成+删 MUI 完成；v1.4：Phase 1 M1 达成标记 + 双大版本提升层穿透沉淀；v1.3：Phase 0 进度标记 + ui 台账交付 + P2 缺 page-header 修正 + P1 端口合规同步；v1.2：P1 首页切换 AI Family 时钟环；v1.1：补入截图视觉证据 5.3 节）
 status: active
 tags: [audit],[comparison],[refactor],[monorepo],[unified-process]
 category: guide
@@ -421,6 +421,10 @@ createHashRouter（适配 Electron file:// 与静态托管）
 **回滚**：ui 包发 `v0.x` 预发布版，app 锁定旧目录导入即可回退。
 
 ### Phase 3｜`@yyc3/core`（逻辑核心库）
+
+> **进度（2026-10-10，v1.7）**：◐ **工程面全达成**（详见 [`YYC3-Phase3-执行日志.md`](./YYC3-Phase3-执行日志.md)）。
+> ① `packages/core` 达成：20 件 lib **L0 全同仲裁**（md5 三端字节级全同 → git mv 一份 + git rm 两份）+ `db-adapter` 最小注册表（`registerBackend`/`createBackend`/`detectBackend` 三态探测链）+ 按需 `types.ts`（方案 B'），exports 显式逐条源码直出，独立 tsc 0 错；② 四端切换达成：三模式 perl 重写（主面 ~130 处/端 + lib 内互引 4 处 + 动态 import 与 `lib/mcp/` 深层补杀），残留 grep 归零，三端 dependencies + `workspace:*`；③ 零回归：core tsc 0 错 + P1=67 精确持平 + P3=0 + P4=0 + build 三绿 + P2=7 基线逐字同（P2 全树 0 处 `@yyc3/core` 零误伤实证）；④ **未完登记后续**：types 体系单源收敛（app 28 分件 barrel vs core 按需双轨）、zustand 单根 store（P1 ide 26 store 专项评估）、i18n 语言包上收、storageManager 收编（依赖外溢 database/ 不满足 L0 闭环）、P2 lib 17 件逐件比对、db-adapter 消费接线。
+> 关键修订：**types 收编改 B' 方案**——`types/index.ts` 实为 28 分件 re-export barrel 非纯类型自包含（`export * from` 行逃过 `^import|const|function|class` 勘察模式），三端本就异构（P1=207L vs P3/P4=210L）且 P1 独有 ai-family 跨域，全量收编 tsc 28 个 TS2307 后回退；app 端 types/ 留端为真源零改动，core 建按需类型声明 23 个，Phase 4 单源收敛。教训沉淀：静默 reporter 会吞 install 失败（`--no-frozen-lockfile` 验证链接）；perl 替换文本含 `@` 须脚本文件转义；barrel TS2308 按冲突性质选用单源收敛（theme）/命名空间隔离（core 双实现）两手法。
 
 **目标**：数据/横切能力单源。
 **动作**：

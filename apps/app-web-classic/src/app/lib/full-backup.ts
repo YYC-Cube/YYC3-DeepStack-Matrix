@@ -18,7 +18,7 @@
  */
 
 import { exportStoreData, importStoreData } from "../stores/global-store";
-import { exportAllData, importAllData } from "./yyc3-storage";
+import { exportAllData, importAllData } from "@yyc3/core/yyc3-storage";
 
 // ============================================================
 // 类型定义
@@ -154,7 +154,7 @@ export async function importFullBackup(json: string): Promise<{ success: boolean
 
     // 4. 广播全量同步
     try {
-      const { broadcastSyncMessage } = await import("./broadcast-channel");
+      const { broadcastSyncMessage } = await import("@yyc3/core/broadcast-channel");
       broadcastSyncMessage({ domain: "global-store", action: "reset" });
     } catch { /* ignore */ }
 

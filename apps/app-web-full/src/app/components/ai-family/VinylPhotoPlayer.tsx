@@ -12,7 +12,7 @@
 import { Disc3, Film, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DMUSIC_PHOTOS } from "../../lib/dmusic-resources";
+import { DMUSIC_PHOTOS } from "@yyc3/core/dmusic-resources";
 
 interface VinylPhotoPlayerProps {
   photos: string[];

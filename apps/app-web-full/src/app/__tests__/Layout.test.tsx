@@ -130,7 +130,7 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("@yyc3/core/supabaseClient", () => ({
   isGhostMode: () => false,
 }));
 

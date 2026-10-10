@@ -149,6 +149,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -742,6 +745,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -1094,6 +1100,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -1314,6 +1323,22 @@ importers:
       wait-on:
         specifier: ^7.2.0
         version: 7.2.0
+
+  packages/core:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.98.0
+        version: 2.117.3
+      zod:
+        specifier: ^4.3.6
+        version: 4.6.5
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.9.9
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/theme:
     devDependencies:

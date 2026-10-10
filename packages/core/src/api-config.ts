@@ -36,7 +36,7 @@ import { captureError } from "./error-handler";
 const STORAGE_KEY = "yyc3_api_endpoints";
 const CONFIG_CHANNEL_NAME = "yyc3_api_config";
 
-import type { APIEndpoints } from "../types";
+import type { APIEndpoints } from "./types";
 export type { APIEndpoints };
 export type { ConfigValidationResult, ConfigValidationError };
 

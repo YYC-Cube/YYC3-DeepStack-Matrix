@@ -34,8 +34,8 @@ import type {
   WebSocketDataState,
 } from "../types";
 
-import { getAPIConfig } from "../lib/api-config";
-import { dataBus } from "../lib/data-bus";
+import { getAPIConfig } from "@yyc3/core/api-config";
+import { dataBus } from "@yyc3/core/data-bus";
 import { useNodeSlice } from "../store/slices/node-slice";
 
 // ============================================================

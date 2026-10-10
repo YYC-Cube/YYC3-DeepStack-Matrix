@@ -21,7 +21,7 @@ import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type { NodeData } from '../../types';
-import { dataBus, type DataSource } from '../../lib/data-bus';
+import { dataBus, type DataSource } from '@yyc3/core/data-bus';
 
 const DEFAULT_NODES: NodeData[] = [
   { id: "GPU-A100-01", status: "active",   gpu: 87, mem: 72, temp: 68, model: "LLaMA-70B",    tasks: 128 },

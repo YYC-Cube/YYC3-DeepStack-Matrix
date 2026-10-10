@@ -23,7 +23,7 @@
  * @notes: 在 App.tsx 中调用 installGlobalErrorListeners() 初始化
  */
 
-import type { ErrorCategory, ErrorSeverity, AppError, ErrorStats } from "../types";
+import type { ErrorCategory, ErrorSeverity, AppError, ErrorStats } from "./types";
 import { idbPut, idbGetAll, idbClear } from "./yyc3-storage";
 import { isFigmaPlatformError } from "./figma-error-filter";
 

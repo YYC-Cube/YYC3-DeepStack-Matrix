@@ -29,7 +29,7 @@ const DB_NAME = "yyc3_matrix";
 const DB_VERSION = 5;
 
 /** IndexedDB store 名称 — centralized in types/index.ts */
-import type { StorageChangeEvent, StoreName } from "../types";
+import type { StorageChangeEvent, StoreName } from "./types";
 // RF-011: Re-export 已移除 — StoreName/StorageChangeEvent 统一从 types/index.ts 导入
 
 // RF-009: 统一 BroadcastChannel 工厂

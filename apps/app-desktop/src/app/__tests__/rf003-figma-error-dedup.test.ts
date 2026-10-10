@@ -11,10 +11,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
-import { isFigmaPlatformError } from "../lib/figma-error-filter";
+import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
 
 // Mock yyc3-storage to avoid IndexedDB in test
-vi.mock("../lib/yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbPut: vi.fn().mockResolvedValue(undefined),
   idbGetAll: vi.fn().mockResolvedValue([]),
   idbClear: vi.fn().mockResolvedValue(undefined),
@@ -71,7 +71,7 @@ describe("RF-003: Figma 错误处理去重", () => {
   describe("error-handler 使用 isFigmaPlatformError", () => {
     it("error-handler 应导入 figma-error-filter", async () => {
       // 验证模块可以正常加载（如果导入缺失会报错）
-      const mod = await import("../lib/error-handler");
+      const mod = await import("@yyc3/core/error-handler");
       expect(typeof mod.installGlobalErrorListeners).toBe("function");
       expect(typeof mod.captureError).toBe("function");
     });

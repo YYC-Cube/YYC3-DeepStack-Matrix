@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { BrowserRouter } from "react-router";
 import { TopBar } from "../components/TopBar";
-import { isGhostMode } from "../lib/supabaseClient";
+import { isGhostMode } from "@yyc3/core/supabaseClient";
 import type { ConnectionState } from "../types";
 
 vi.mock("../hooks/useI18n", () => ({
@@ -43,7 +43,7 @@ vi.mock("../components/LanguageSwitcher", () => ({
   LanguageSwitcher: () => <div data-testid="language-switcher">Language</div>,
 }));
 
-vi.mock("../lib/supabaseClient", () => ({
+vi.mock("@yyc3/core/supabaseClient", () => ({
   isGhostMode: vi.fn(() => false),
 }));
 

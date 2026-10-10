@@ -10,7 +10,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import type { AppUser, AppSession } from '../types';
+import type { AppUser, AppSession } from './types';
 
 // ============================================================
 // 环境配置

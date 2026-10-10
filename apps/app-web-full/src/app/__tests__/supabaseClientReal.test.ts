@@ -19,7 +19,7 @@ import {
   isGhostMode,
   isMockMode,
   getAuthMode,
-} from "../lib/supabaseClientReal";
+} from "@yyc3/core/supabaseClientReal";
 import type { AppUser, AppSession } from "../types";
 
 describe("supabaseClientReal", () => {

@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { GCounter, LWWRegister, mergeState } from "../../lib/crdt";
+import { GCounter, LWWRegister, mergeState } from "@yyc3/core/crdt";
 
 describe("LWWRegister", () => {
   it("should initialize with value", () => {

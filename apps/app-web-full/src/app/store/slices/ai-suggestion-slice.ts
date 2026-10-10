@@ -20,7 +20,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { toast } from 'sonner';
 import type { DetectedPattern, AIRecommendation } from '../../types';
-import { migrateKey } from '../../lib/migrate-storage';
+import { migrateKey } from '@yyc3/core/migrate-storage';
 
 // ============================================================
 // 默认种子数据

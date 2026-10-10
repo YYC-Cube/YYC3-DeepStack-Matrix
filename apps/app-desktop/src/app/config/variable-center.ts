@@ -9,7 +9,7 @@
  * @tags: [module]
  */
 
-import { DEFAULT_WS_ENDPOINT } from "../lib/api-config";
+import { DEFAULT_WS_ENDPOINT } from "@yyc3/core/api-config";
 
 // ═══════════════════════════════════════════════════════════════
 //  变量类型定义

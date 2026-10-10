@@ -356,7 +356,7 @@ export function validateObject<T extends Record<string, unknown>>(
 /**
  * 验证 ModelProviderDef 数据完整性
  */
-import type { ModelProviderDef, ConfiguredModel } from "../types";
+import type { ModelProviderDef, ConfiguredModel } from "./types";
 
 export function validateModelProvider(provider: Partial<ModelProviderDef>): ValidationResult {
   const errors: string[] = [];

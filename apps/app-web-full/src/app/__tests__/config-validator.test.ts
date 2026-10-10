@@ -18,7 +18,7 @@ import {
   getDefaultValue,
   sanitizeAPIConfig,
   apiEndpointsSchema,
-} from "../lib/config-validator";
+} from "@yyc3/core/config-validator";
 
 describe("config-validator", () => {
   describe("validateAPIConfig", () => {

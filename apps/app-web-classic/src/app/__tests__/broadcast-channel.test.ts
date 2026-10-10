@@ -28,7 +28,7 @@ describe("broadcast-channel", () => {
   beforeEach(async () => {
     mockChannels.clear();
 
-    const { closeAllChannels } = await import("../lib/broadcast-channel");
+    const { closeAllChannels } = await import("@yyc3/core/broadcast-channel");
     closeAllChannels();
 
     class MockBroadcastChannel {
@@ -46,7 +46,7 @@ describe("broadcast-channel", () => {
   });
 
   afterEach(async () => {
-    const { closeAllChannels } = await import("../lib/broadcast-channel");
+    const { closeAllChannels } = await import("@yyc3/core/broadcast-channel");
     closeAllChannels();
     global.BroadcastChannel = originalBroadcastChannel;
     mockChannels.clear();
@@ -60,27 +60,27 @@ describe("broadcast-channel", () => {
       });
 
       vi.resetModules();
-      const { getSharedChannel } = await import("../lib/broadcast-channel");
+      const { getSharedChannel } = await import("@yyc3/core/broadcast-channel");
       const channel = getSharedChannel("test");
       expect(channel).toBeNull();
     });
 
     it("should create a new channel for new name", async () => {
-      const { getSharedChannel } = await import("../lib/broadcast-channel");
+      const { getSharedChannel } = await import("@yyc3/core/broadcast-channel");
       const channel = getSharedChannel("test-channel");
       expect(channel).toBeDefined();
       expect(channel?.name).toBe("test-channel");
     });
 
     it("should return the same channel instance for the same name", async () => {
-      const { getSharedChannel } = await import("../lib/broadcast-channel");
+      const { getSharedChannel } = await import("@yyc3/core/broadcast-channel");
       const channel1 = getSharedChannel("test-channel");
       const channel2 = getSharedChannel("test-channel");
       expect(channel1).toBe(channel2);
     });
 
     it("should create different channels for different names", async () => {
-      const { getSharedChannel } = await import("../lib/broadcast-channel");
+      const { getSharedChannel } = await import("@yyc3/core/broadcast-channel");
       const channel1 = getSharedChannel("channel-1");
       const channel2 = getSharedChannel("channel-2");
       expect(channel1).not.toBe(channel2);
@@ -89,7 +89,7 @@ describe("broadcast-channel", () => {
 
   describe("postToChannel()", () => {
     it("should post message to channel", async () => {
-      const { postToChannel, getSharedChannel } = await import("../lib/broadcast-channel");
+      const { postToChannel, getSharedChannel } = await import("@yyc3/core/broadcast-channel");
       const testData = { type: "test", value: 123 };
       postToChannel("test-channel", testData);
       const channel = getSharedChannel("test-channel");
@@ -111,7 +111,7 @@ describe("broadcast-channel", () => {
       });
 
       vi.resetModules();
-      const { postToChannel } = await import("../lib/broadcast-channel");
+      const { postToChannel } = await import("@yyc3/core/broadcast-channel");
       expect(() => postToChannel("test-channel", {})).not.toThrow();
     });
 
@@ -122,26 +122,26 @@ describe("broadcast-channel", () => {
       });
 
       vi.resetModules();
-      const { postToChannel } = await import("../lib/broadcast-channel");
+      const { postToChannel } = await import("@yyc3/core/broadcast-channel");
       expect(() => postToChannel("test-channel", {})).not.toThrow();
     });
   });
 
   describe("closeChannel()", () => {
     it("should close and remove channel", async () => {
-      const { getSharedChannel, closeChannel } = await import("../lib/broadcast-channel");
+      const { getSharedChannel, closeChannel } = await import("@yyc3/core/broadcast-channel");
       const channel = getSharedChannel("test-channel");
       closeChannel("test-channel");
       expect(channel?.close).toHaveBeenCalled();
 
       vi.resetModules();
-      const { getSharedChannel: getSharedChannel2 } = await import("../lib/broadcast-channel");
+      const { getSharedChannel: getSharedChannel2 } = await import("@yyc3/core/broadcast-channel");
       const newChannel = getSharedChannel2("test-channel");
       expect(newChannel).not.toBe(channel);
     });
 
     it("should handle non-existent channel", async () => {
-      const { closeChannel } = await import("../lib/broadcast-channel");
+      const { closeChannel } = await import("@yyc3/core/broadcast-channel");
       expect(() => closeChannel("non-existent")).not.toThrow();
     });
 
@@ -160,7 +160,7 @@ describe("broadcast-channel", () => {
       });
 
       vi.resetModules();
-      const { getSharedChannel, closeChannel } = await import("../lib/broadcast-channel");
+      const { getSharedChannel, closeChannel } = await import("@yyc3/core/broadcast-channel");
       getSharedChannel("test-channel");
       expect(() => closeChannel("test-channel")).not.toThrow();
     });
@@ -168,7 +168,7 @@ describe("broadcast-channel", () => {
 
   describe("closeAllChannels()", () => {
     it("should close all channels", async () => {
-      const { getSharedChannel, closeAllChannels } = await import("../lib/broadcast-channel");
+      const { getSharedChannel, closeAllChannels } = await import("@yyc3/core/broadcast-channel");
       const channel1 = getSharedChannel("channel-1");
       const channel2 = getSharedChannel("channel-2");
       closeAllChannels();
@@ -191,18 +191,18 @@ describe("broadcast-channel", () => {
       });
 
       vi.resetModules();
-      const { getSharedChannel, closeAllChannels } = await import("../lib/broadcast-channel");
+      const { getSharedChannel, closeAllChannels } = await import("@yyc3/core/broadcast-channel");
       getSharedChannel("test-channel");
       expect(() => closeAllChannels()).not.toThrow();
     });
 
     it("should clear all channels from cache", async () => {
-      const { getSharedChannel, closeAllChannels } = await import("../lib/broadcast-channel");
+      const { getSharedChannel, closeAllChannels } = await import("@yyc3/core/broadcast-channel");
       const channel = getSharedChannel("test-channel");
       closeAllChannels();
 
       vi.resetModules();
-      const { getSharedChannel: getSharedChannel2 } = await import("../lib/broadcast-channel");
+      const { getSharedChannel: getSharedChannel2 } = await import("@yyc3/core/broadcast-channel");
       const newChannel = getSharedChannel2("test-channel");
       expect(newChannel).not.toBe(channel);
     });

@@ -61,7 +61,7 @@ describe("测试基础设施自检", () => {
   describe("模块热重载", () => {
     it("vi.resetModules 清除模块缓存", async () => {
       vi.resetModules();
-      const mod1 = await import("../lib/create-local-store");
+      const mod1 = await import("@yyc3/core/create-local-store");
       expect(mod1.createLocalStore).toBeDefined();
     });
   });

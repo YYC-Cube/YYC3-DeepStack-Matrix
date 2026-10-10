@@ -95,7 +95,7 @@ vi.mock("./FadeIn", () => ({
   FadeIn: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("../../lib/dmusic-resources", () => ({
+vi.mock("@yyc3/core/dmusic-resources", () => ({
   MUSIC_LIBRARY: [
     { id: "test-1", title: "测试歌曲", artist: "董小姐", album: "Test", duration: 180, audioUrl: "/test.mp3", emotion: "happy", genre: "流行" },
   ],

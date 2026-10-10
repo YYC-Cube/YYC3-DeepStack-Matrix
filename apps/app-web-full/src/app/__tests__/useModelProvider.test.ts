@@ -15,7 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock dependencies before imports ──────────────────────────
 
-vi.mock("../lib/ollama-url", () => ({
+vi.mock("@yyc3/core/ollama-url", () => ({
   getOllamaTagsUrl: vi.fn(() => "http://localhost:11434/api/tags"),
 }));
 

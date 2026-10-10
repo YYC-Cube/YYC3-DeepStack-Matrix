@@ -351,7 +351,7 @@ isWSConnected(): boolean {
         {
           point: "① 新增 import",
           line: "L38",
-          code: 'import { dataBus } from "../lib/data-bus";',
+          code: 'import { dataBus } from "@yyc3/core/data-bus";',
           note: "引入单例 DataBus 实例",
         },
         {
@@ -992,7 +992,7 @@ export const CHAPTER_8_CHANGE_LOG = {
       linesAdded: 12,
       linesDeleted: 0,
       keyChanges: [
-        '+ import { dataBus } from "../lib/data-bus"',
+        '+ import { dataBus } from "@yyc3/core/data-bus"',
         "+ ws.onopen → dataBus.registerWSSender()",
         "+ ws.onmessage → dataBus.ingestWSMessage()",
         "+ ws.onclose → dataBus.unregisterWSSender()",

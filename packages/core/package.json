@@ -1,0 +1,42 @@
+{
+  "name": "@yyc3/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一逻辑核心库 — 数据/横切能力单源（主文档 Phase 3）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./db-adapter": "./src/db-adapter/index.ts",
+    "./data-bus": "./src/data-bus.ts",
+    "./crdt": "./src/crdt.ts",
+    "./yyc3-storage": "./src/yyc3-storage.ts",
+    "./create-local-store": "./src/create-local-store.ts",
+    "./broadcast-channel": "./src/broadcast-channel.ts",
+    "./cross-tab-sync": "./src/cross-tab-sync.ts",
+    "./db-queries": "./src/db-queries.ts",
+    "./supabaseClient": "./src/supabaseClient.ts",
+    "./supabaseClientReal": "./src/supabaseClientReal.ts",
+    "./error-handler": "./src/error-handler.ts",
+    "./figma-error-filter": "./src/figma-error-filter.ts",
+    "./env-config": "./src/env-config.ts",
+    "./validators": "./src/validators.ts",
+    "./config-validator": "./src/config-validator.ts",
+    "./ollama-url": "./src/ollama-url.ts",
+    "./GitService": "./src/GitService.ts",
+    "./migrate-storage": "./src/migrate-storage.ts",
+    "./music-storage": "./src/music-storage.ts",
+    "./api-config": "./src/api-config.ts",
+    "./dmusic-resources": "./src/dmusic-resources.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^5.9.3"
+  }
+}

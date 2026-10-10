@@ -33,8 +33,8 @@ import {
 import * as React from "react";
 import { useCallback, useContext, useRef, useState } from "react";
 import { toast } from "sonner";
-import { env } from "../lib/env-config";
-import { getOllamaChatUrl, getOllamaEndpointInfo, getOllamaTagsUrl } from "../lib/ollama-url";
+import { env } from "@yyc3/core/env-config";
+import { getOllamaChatUrl, getOllamaEndpointInfo, getOllamaTagsUrl } from "@yyc3/core/ollama-url";
 import { ViewContext } from "../lib/view-context";
 import { useDbConnSlice } from "../store/slices/db-conn-slice";
 import { useProviderSlice } from "../store/slices/provider-slice";

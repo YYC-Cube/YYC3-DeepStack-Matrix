@@ -31,7 +31,7 @@ import { useSDKSessionSlice } from "../store/slices/sdk-session-slice";
 import type { ConfiguredModel, SDKCapability } from "../types";
 
 // Mock ollama-url to avoid environment-dependent code
-vi.mock("../lib/ollama-url", () => ({
+vi.mock("@yyc3/core/ollama-url", () => ({
   getOllamaChatUrl: vi.fn(() => "http://localhost:11434/api/chat"),
   getOllamaUrl: vi.fn((path: string) => `http://localhost:11434/${path}`),
 }));

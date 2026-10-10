@@ -28,8 +28,8 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { DEFAULT_WS_ENDPOINT } from "../lib/api-config";
-import { getSharedChannel } from "../lib/broadcast-channel";
+import { DEFAULT_WS_ENDPOINT } from "@yyc3/core/api-config";
+import { getSharedChannel } from "@yyc3/core/broadcast-channel";
 
 // ============================================================
 // 类型定义

@@ -19,9 +19,9 @@ vi.stubEnv("VITE_MOCK_ADMIN_PASSWORD", "admin123");
 vi.stubEnv("VITE_MOCK_DEV_PASSWORD", "dev123");
 
 // 动态导入 (确保 env stubs 生效)
-let supabase: typeof import("../lib/supabaseClient").supabase;
-let ghostSignIn: typeof import("../lib/supabaseClient").ghostSignIn;
-let isGhostMode: typeof import("../lib/supabaseClient").isGhostMode;
+let supabase: typeof import("@yyc3/core/supabaseClient").supabase;
+let ghostSignIn: typeof import("@yyc3/core/supabaseClient").ghostSignIn;
+let isGhostMode: typeof import("@yyc3/core/supabaseClient").isGhostMode;
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -43,7 +43,7 @@ describe("supabaseClient (Mock)", () => {
 
     // 重置模块并重新加载以确保环境变量生效
     vi.resetModules();
-    const module = await import("../lib/supabaseClient");
+    const module = await import("@yyc3/core/supabaseClient");
     supabase = module.supabase;
     ghostSignIn = module.ghostSignIn;
     isGhostMode = module.isGhostMode;

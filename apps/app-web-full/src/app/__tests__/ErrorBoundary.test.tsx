@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ErrorBoundary } from "../modules/shared/ErrorBoundary";
 
-vi.mock("../lib/error-handler", () => ({
+vi.mock("@yyc3/core/error-handler", () => ({
   captureError: vi.fn((error, options) => ({
     id: "test-error-id",
     category: options?.category || "RUNTIME",
@@ -26,7 +26,7 @@ vi.mock("../lib/error-handler", () => ({
   })),
 }));
 
-vi.mock("../lib/figma-error-filter", () => ({
+vi.mock("@yyc3/core/figma-error-filter", () => ({
   isFigmaPlatformError: vi.fn(() => false),
 }));
 

@@ -16,8 +16,8 @@
  * - 自动路由: 节点数据 → Thinker/Prophet, 安全事件 → Sentinel
  */
 
-import { dataBus } from "../data-bus";
-import type { DataChangeEvent } from "../data-bus";
+import { dataBus } from "@yyc3/core/data-bus";
+import type { DataChangeEvent } from "@yyc3/core/data-bus";
 import { getMCPServer } from "./mcp-server";
 import { getMCPContextManager } from "./mcp-context";
 import type { MCPEventType, MCPCallEvent, MCPResultEvent } from "./mcp-types";

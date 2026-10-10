@@ -11,7 +11,7 @@
 
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import * as dbQueries from "../lib/db-queries";
+import * as dbQueries from "@yyc3/core/db-queries";
 import type { Model, Agent, NodeStatusRecord } from "../types";
 
 describe("db-queries", () => {

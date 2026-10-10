@@ -37,7 +37,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../lib/env-config", () => ({
+vi.mock("@yyc3/core/env-config", () => ({
   env: {},
 }));
 

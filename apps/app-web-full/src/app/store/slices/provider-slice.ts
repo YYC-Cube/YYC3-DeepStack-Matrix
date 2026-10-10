@@ -19,8 +19,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { testAIConnection, type AIConnectionConfig } from '../../lib/connection-test-engine';
-import { env } from '../../lib/env-config';
-import { getOllamaTagsUrl } from '../../lib/ollama-url';
+import { env } from '@yyc3/core/env-config';
+import { getOllamaTagsUrl } from '@yyc3/core/ollama-url';
 import type {
   ConfiguredModel,
   ModelProviderDef,

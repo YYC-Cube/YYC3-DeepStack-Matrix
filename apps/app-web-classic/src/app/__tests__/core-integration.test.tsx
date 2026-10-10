@@ -27,8 +27,8 @@ Object.defineProperty(globalThis, "localStorage", { value: localStorageMock, wri
 // ============================================================
 // Imports
 // ============================================================
-import { createLocalStore } from "../lib/create-local-store";
-import type { LocalStore } from "../lib/create-local-store";
+import { createLocalStore } from "@yyc3/core/create-local-store";
+import type { LocalStore } from "@yyc3/core/create-local-store";
 
 describe("createLocalStore 集成测试", () => {
   interface TestItem { id: string; name: string; value: number; }
@@ -278,7 +278,7 @@ describe("api-config 集成测试", () => {
   });
 
   it("getAPIConfig 应返回默认配置", async () => {
-    const { getAPIConfig } = await import("../lib/api-config");
+    const { getAPIConfig } = await import("@yyc3/core/api-config");
     const config = getAPIConfig();
     expect(config).toBeDefined();
     expect(typeof config.enableBackend).toBe("boolean");
@@ -286,7 +286,7 @@ describe("api-config 集成测试", () => {
   });
 
   it("setAPIConfig 应更新配置", async () => {
-    const { getAPIConfig, setAPIConfig } = await import("../lib/api-config");
+    const { getAPIConfig, setAPIConfig } = await import("@yyc3/core/api-config");
     const updated = setAPIConfig({ timeout: 30000 });
     expect(updated.timeout).toBe(30000);
     const reloaded = getAPIConfig();
@@ -294,7 +294,7 @@ describe("api-config 集成测试", () => {
   });
 
   it("resetAPIConfig 应恢复默认", async () => {
-    const { setAPIConfig, resetAPIConfig, getAPIConfig } = await import("../lib/api-config");
+    const { setAPIConfig, resetAPIConfig, getAPIConfig } = await import("@yyc3/core/api-config");
     setAPIConfig({ timeout: 99999 });
     resetAPIConfig();
     const config = getAPIConfig();
@@ -349,7 +349,7 @@ describe("env-config 集成测试", () => {
   });
 
   it("env() 应返回配置值", async () => {
-    const { env } = await import("../lib/env-config");
+    const { env } = await import("@yyc3/core/env-config");
     // env function should work with any key
     const val = env("SYSTEM_NAME");
     expect(typeof val).toBe("string");

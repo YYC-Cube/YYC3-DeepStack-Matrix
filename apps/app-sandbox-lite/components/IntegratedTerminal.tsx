@@ -36,7 +36,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { useTerminal } from "../hooks/useTerminal";
 import { ViewContext } from "@yyc3/core/view-context";
-import { AuthContext } from "../lib/authContext";
+import { AuthContext } from "@yyc3/core/authContext";
 import { isGhostMode } from "../lib/supabaseClient";
 
 /* ── 常量 ─────────────────────────────── */

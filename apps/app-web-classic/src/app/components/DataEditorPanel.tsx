@@ -16,7 +16,7 @@ import {
   Package, RefreshCw, Search, Activity, BarChart3, Zap,
   Radar, PieChart, ScrollText,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { ConfigExportCenter } from "./ConfigExportCenter";
 import {
   getActiveModels, getNodesStatus, getAllAgents,

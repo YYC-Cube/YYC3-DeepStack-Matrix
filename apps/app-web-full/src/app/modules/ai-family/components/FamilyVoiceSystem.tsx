@@ -16,7 +16,7 @@ import {
   Heart, Music2, MessageCircle,
   Loader2, X,
 } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import {
   hexToRgb, getHourlyCare,

@@ -16,7 +16,7 @@ import {
   Download, Shield,
   BookOpen, Gamepad2, Sparkles, CalendarDays,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import {
   FAMILY_ACTIVITIES, SAMPLE_MEMORIES, SAMPLE_MESSAGES,

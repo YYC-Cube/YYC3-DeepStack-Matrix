@@ -1458,3 +1458,68 @@ export interface StorageEvent {
   data?: unknown;
   error?: string;
 }
+
+// ══════════════════════════════════════════════════════════
+// M4-5 语义段：auth-context / background-sync / network-utils（Phase 3 漏网 5 lib 传递闭包）
+// ══════════════════════════════════════════════════════════
+
+/** 认证上下文值（authContext.ts） */
+export interface AuthContextValue {
+  logout: () => void;
+  userEmail: string;
+  userRole: UserRole | "";
+  isGhost?: boolean;
+}
+
+/** 同步项类型 */
+export type SyncItemType = "config_update" | "audit_log" | "user_action";
+
+/** 同步队列项 */
+export interface SyncItem {
+  id: string;
+  type: SyncItemType;
+  payload: Record<string, unknown>;
+  timestamp: number;
+  retries: number;
+}
+
+/** 同步队列统计 */
+export interface SyncQueueStats {
+  total: number;
+  pending: number;
+  retrying: number;
+  oldestTimestamp: number | null;
+}
+
+/** 同步处理结果 */
+export interface SyncProcessResult {
+  success: number;
+  failed: number;
+}
+
+/** 网络接口信息 */
+export interface NetworkInterface {
+  name: string;
+  type: string;
+  ip: string;
+  status: "active" | "inactive" | "unknown";
+}
+
+/** 网络配置模式 */
+export type NetworkMode = "auto" | "wifi" | "manual";
+
+/** 网络配置项 */
+export interface NetworkConfig {
+  serverAddress: string;
+  port: string;
+  nasAddress: string;
+  wsUrl: string;
+  mode: NetworkMode;
+}
+
+/** 连接测试结果 */
+export interface ConnectionTestResult {
+  success: boolean;
+  latency: number;
+  error?: string;
+}

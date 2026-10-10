@@ -17,8 +17,7 @@
  *   作为 CI 管道中最基础的 "冒烟测试" 运行。
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mock localStorage (Node 环境) ───────────────────
 const store: Record<string, string> = {};
@@ -36,10 +35,10 @@ const localStorageMock = {
 (globalThis as any).BroadcastChannel = class {
   name: string;
   constructor(name: string) { this.name = name; }
-  postMessage() {}
-  addEventListener() {}
-  removeEventListener() {}
-  close() {}
+  postMessage() { }
+  addEventListener() { }
+  removeEventListener() { }
+  close() { }
 };
 
 // ============================================================
@@ -175,9 +174,9 @@ describe("E2E: env-config 配置闭环", () => {
     vi.resetModules();
     const { env, getEnvConfig, setEnvConfig, resetEnvConfig } = await import("@yyc3/core/env-config");
 
-    // 1. 默认值
-    expect(env("SYSTEM_NAME")).toBe("YYC³ CloudPivot Intelli-Matrix");
-    expect(env("SYSTEM_VERSION")).toBe("3.2.0");
+    // 1. 默认值（@yyc3/core 契约，M3-P2 对齐补漏）
+    expect(env("SYSTEM_NAME")).toBe("YYC³ Cloud Intelli-Matrix");
+    expect(env("SYSTEM_VERSION")).toBe("3.4.1");
     expect(env("ENABLE_MOCK_MODE")).toBe(true);
 
     // 2. 修改
@@ -194,7 +193,7 @@ describe("E2E: env-config 配置闭环", () => {
     resetEnvConfig();
     // 重新读取（需要 re-import 才能清除缓存，但 resetEnvConfig 内部已清除）
     const config = getEnvConfig();
-    expect(config.SYSTEM_NAME).toBe("YYC³ CloudPivot Intelli-Matrix");
+    expect(config.SYSTEM_NAME).toBe("YYC³ Cloud Intelli-Matrix");
   });
 
   it("所有 31 个环境变量都有默认值", async () => {

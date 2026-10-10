@@ -16,7 +16,7 @@
 
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { YYC3LogoSvg } from "../modules/shared/YYC3LogoSvg";
+import { YYC3LogoSvg } from "@yyc3/ui";
 
 describe("YYC3LogoSvg", () => {
   // ----------------------------------------------------------

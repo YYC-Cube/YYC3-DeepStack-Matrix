@@ -58,11 +58,11 @@ import {
 } from "@yyc3/core/api-config";
 import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "@yyc3/core/connection-test-engine";
 import { DesignSystemPage } from "../dev/design-system/DesignSystemPage";
-import { GlassCard } from "../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { NetworkConfig } from "./NetworkConfig";
 import { ThemeCustomizer } from "../dev/ThemeCustomizer";
 import { UnifiedModelManager } from "../../components/UnifiedModelManager";
-import { YYC3Logo } from "../shared/YYC3Logo";
+import { YYC3Logo } from "@yyc3/ui";
 
 // ============================================================
 // Settings sections config

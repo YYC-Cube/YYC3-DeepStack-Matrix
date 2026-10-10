@@ -33,11 +33,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useBigModelSDK } from "@yyc3/store/use-big-model-sdk";
 import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
 import { useI18n } from "@yyc3/core/i18n";
-import type { KnowledgeSearchResult } from "../../lib/local-knowledge-base";
+import type { KnowledgeSearchResult } from "@yyc3/core/local-knowledge-base";
 import {
   formatSearchResultForAI,
   searchKnowledge,
-} from "../../lib/local-knowledge-base";
+} from "@yyc3/core/local-knowledge-base";
 import { useProviderSlice } from "@yyc3/store/provider-slice";
 import type { ConfiguredModel } from "../../types";
 import { MOCK_CHAT_HISTORY } from "./ide-mock-data";

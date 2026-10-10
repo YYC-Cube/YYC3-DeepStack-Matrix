@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Mic, MicOff, Volume2, Loader2, CheckCircle, XCircle, Sparkles } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useVoiceMusicControl } from "../hooks/useMusicPlayer";
 import { type ParsedCommand } from "../../../lib/VoiceCommandParser";
 import type { MusicCommand } from "../../../lib/MusicEventBus";

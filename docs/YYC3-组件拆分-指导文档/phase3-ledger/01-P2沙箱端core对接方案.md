@@ -19,20 +19,20 @@ category: plan
 
 ### 1.1 同名 12 件（P2 `lib/` ↔ `packages/core/src/`，md5 全异）
 
-| # | 件名 | P2/core 行数 | 导出 API 面对比 | 判定 |
-| -- | ---- | ------------ | --------------- | ---- |
-| 1 | view-context | 27/24 | 相同（仅注释头、`import React` 形态、`../types`→`./types` 路径差） | ✅ L0 切 |
-| 2 | figma-error-filter | 97/90 | 相同（差异全在注释头） | ✅ L0 切 |
-| 3 | ollama-url | 105/99 | 相同（注释头 + 一处花括号风格） | ✅ L0 切 |
-| 4 | db-queries | 332/326 | 导出集相同（8 async query + 12 本地 CRUD/导入导出） | ✅ L0 切 |
-| 5 | yyc3-storage | 395/543 | 15 导出名全同；core 为超集（类型/封装扩充） | ✅ 超集切 |
-| 6 | **supabaseClient** | 160/173 | 静态 API 面相同，但**运行时凭据契约冲突**：P2 固定 `admin123/dev123`（沙箱开箱登录）；core 改 env 驱动（`VITE_MOCK_ADMIN_PASSWORD`，未配置时空串）——vitest 实证 7 例 auth 全挂 | ❌ **二次仲裁翻转：保留 P2 lib**（静态超集误判，行为契约 vitest 实证翻转，偏差 #11） |
-| 7 | env-config | 225/262 | P2 六符号 core 全有 + core 多 `onEnvConfigChange` | ✅ 超集切 |
-| 8 | api-config | 137/375 | P2 五符号 core 全有 + core 多 setAPIConfigWithValidation/validateConfigUpdates 等 | ✅ 超集切 |
-| 9 | error-handler | 362/486 | P2 12 符号 core 全有 + core 多 detectErrorCode/formatErrorForUser/captureValidationError 等 6 符号 | ✅ 超集切 |
-| 10 | create-local-store | 148/377 | P2 两符号（createLocalStore/LocalStore）core 全有 + core 多 CacheStats/StoreOptions/Transaction | ✅ 超集切 |
-| 11 | broadcast-channel | 66/195 | P2 四函数 core 全有 + core 多统一同步族（broadcastSyncMessage/onUnifiedSync 等） | ✅ 超集切 |
-| 12 | **GitService** | 287/746 | **真异构**：P2 用 `GitServiceOptions`/`GitActionResult`/`GitFileStatus`；core 用 `GitServiceConfig`/`GitStatus` + default export + createGitService，配置/结果类型名与结构均不同 | ❌ **保留 P2 lib** |
+| #   | 件名　　　　　　　 | P2/core 行数 | 导出 API 面对比　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| 判定　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| -----| --------------------| --------------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| -------------------------------------------------------------------------------------|
+| 1   | view-context　　　 | 27/24　　　　| 相同（仅注释头、`import React` 形态、`../types`→`./types` 路径差）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | ✅ L0 切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 |
+| 2   | figma-error-filter | 97/90　　　　| 相同（差异全在注释头）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | ✅ L0 切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 |
+| 3   | ollama-url　　　　 | 105/99　　　 | 相同（注释头 + 一处花括号风格）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| ✅ L0 切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 |
+| 4   | db-queries　　　　 | 332/326　　　| 导出集相同（8 async query + 12 本地 CRUD/导入导出）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| ✅ L0 切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 |
+| 5   | yyc3-storage　　　 | 395/543　　　| 15 导出名全同；core 为超集（类型/封装扩充）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| ✅ 超集切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| 6   | **supabaseClient** | 160/173　　　| 静态 API 面相同，但**运行时凭据契约冲突**：P2 固定 `admin123/dev123`（沙箱开箱登录）；core 改 env 驱动（`VITE_MOCK_ADMIN_PASSWORD`，未配置时空串）——vitest 实证 7 例 auth 全挂　 | ❌ **二次仲裁翻转：保留 P2 lib**（静态超集误判，行为契约 vitest 实证翻转，偏差 #11） |
+| 7   | env-config　　　　 | 225/262　　　| P2 六符号 core 全有 + core 多 `onEnvConfigChange`　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| ✅ 超集切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| 8   | api-config　　　　 | 137/375　　　| P2 五符号 core 全有 + core 多 setAPIConfigWithValidation/validateConfigUpdates 等　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| ✅ 超集切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| 9   | error-handler　　　| 362/486　　　| P2 12 符号 core 全有 + core 多 detectErrorCode/formatErrorForUser/captureValidationError 等 6 符号　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | ✅ 超集切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| 10  | create-local-store | 148/377　　　| P2 两符号（createLocalStore/LocalStore）core 全有 + core 多 CacheStats/StoreOptions/Transaction　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　| ✅ 超集切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| 11  | broadcast-channel　| 66/195　　　 | P2 四函数 core 全有 + core 多统一同步族（broadcastSyncMessage/onUnifiedSync 等）　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 | ✅ 超集切　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| 12  | **GitService**　　 | 287/746　　　| **真异构**：P2 用 `GitServiceOptions`/`GitActionResult`/`GitFileStatus`；core 用 `GitServiceConfig`/`GitStatus` + default export + createGitService，配置/结果类型名与结构均不同 | ❌ **保留 P2 lib**　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 |
 
 ### 1.2 core 未收 5 件（本批不动，留待后续域包化）
 

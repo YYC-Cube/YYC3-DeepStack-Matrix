@@ -14,12 +14,12 @@ import {
   RefreshCw, Loader2, Play, Square, Trash2, History,
   ToggleLeft, ToggleRight, Workflow,
 } from "lucide-react";
-import { GlassCard } from "../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { LoopStageCard } from "@yyc3/ops/loop-stage-card";
-import { DataFlowDiagram } from "../../components/DataFlowDiagram";
+import { DataFlowDiagram } from "./DataFlowDiagram";
 import { useServiceLoop } from "@yyc3/ops/hooks/use-service-loop";
 import { useI18n } from "@yyc3/core/i18n";
-import { ViewContext } from "../../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 
 function formatDuration(ms: number): string {
   if (ms < 1000) {return `${ms}ms`;}

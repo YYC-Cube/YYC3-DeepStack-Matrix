@@ -37,7 +37,7 @@ vi.mock("react-router", () => ({
 //  GlassCard
 // ============================================================
 
-import { GlassCard } from "../modules/shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 
 describe("GlassCard a11y", () => {
   beforeEach(() => {

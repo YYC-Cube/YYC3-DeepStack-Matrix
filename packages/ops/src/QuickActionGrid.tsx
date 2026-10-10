@@ -15,7 +15,7 @@ import {
   ArrowRightLeft, Pause, Play, HeartPulse, HardDrive, Terminal,
   Loader2, CheckCircle, XCircle, AlertTriangle,
 } from "lucide-react";
-import type { OperationItem, OperationStatus } from "../../types";
+import type { OperationItem, OperationStatus } from "@yyc3/core/types";
 
 const iconMap: Record<string, React.ElementType> = {
   RotateCw, Upload, Trash2, Download, FileText, RefreshCw,

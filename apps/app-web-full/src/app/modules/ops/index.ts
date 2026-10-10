@@ -13,19 +13,15 @@
  * exports: OperationCenter, DatabaseManager, HostFileManager, ConfigExportCenter, etc.
  */
 
-// 操作中心（暂缓: QuickActionGrid 跨域障碍 → M4-5 shared 后随批）
-export { OperationCenter } from './OperationCenter';
-
 // 文件管理（暂缓: CodeEditor 跨域障碍 → M4-7 ide/ui 扩容后随批）
-export { LocalFileManager } from './LocalFileManager';
 export { HostFileManager } from './HostFileManager';
+export { LocalFileManager } from './LocalFileManager';
 
 // 数据库（暂缓: CodeEditor + InlineEditableTable + src/database 引擎障碍 → M4-4/M4-7 随批）
-export { DatabaseManager } from './DatabaseManager';
 export { DatabaseConnectionPanel } from './DatabaseConnectionPanel';
+export { DatabaseManager } from './DatabaseManager';
 
-// 服务闭环（暂缓: DataFlowDiagram 跨域障碍 → M4-5 shared 后随批）
-export { ServiceLoopPanel } from './ServiceLoopPanel';
+// 服务连接测试（1272L 大件，M4-5 复核依赖障碍已解除——view-context 桥切包引即净；随下批 ops 域清空）
 export { ServiceConnectionTest } from './ServiceConnectionTest';
 
 // 报告导出（暂缓: useSettingsStore + full-backup 跨域障碍 → M4-4 admin 后随批）

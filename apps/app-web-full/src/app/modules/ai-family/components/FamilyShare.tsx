@@ -14,7 +14,7 @@ import {
   Share2, BookOpen, ThumbsUp, MessageSquare, Bookmark,
   PlusCircle, TrendingUp, Award, Lightbulb, Clock, Smile,
 } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 import { useFamilyMemberSlice } from "../store";

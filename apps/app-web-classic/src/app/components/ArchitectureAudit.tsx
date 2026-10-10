@@ -16,7 +16,7 @@ import {
   ChevronDown, ChevronRight, GitBranch, Package,
   TestTube2, Cpu, Globe, Eye,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useI18n } from "@yyc3/core/i18n";
 
 /* ────────────────────────────────────────────────────── */

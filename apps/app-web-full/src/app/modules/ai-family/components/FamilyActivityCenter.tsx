@@ -15,7 +15,7 @@ import {
   Palette, Star, ChevronDown, ChevronUp,
   Users, Sparkles, TrendingUp, Zap, Crown,
 } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 import {

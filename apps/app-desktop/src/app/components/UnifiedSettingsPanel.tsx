@@ -41,7 +41,7 @@ import {
   useAlerts,
   useDatabase,
 } from "@yyc3/store/global-store";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import {
   AlertDialog,
   AlertDialogAction,

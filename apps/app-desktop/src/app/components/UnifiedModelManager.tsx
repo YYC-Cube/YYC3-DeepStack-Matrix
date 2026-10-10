@@ -30,7 +30,7 @@ import { toast } from "sonner";
 import { useI18n } from "@yyc3/core/i18n";
 import { useModelProvider } from "@yyc3/store/use-model-provider";
 import type { ConfiguredModel } from "../types";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 
 const STATUS_CONFIG = {
   active: { color: "#00ff88", bg: "rgba(0,255,136,0.1)", icon: CheckCircle, label: "已激活" },

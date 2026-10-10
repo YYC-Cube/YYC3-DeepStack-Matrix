@@ -22,7 +22,7 @@ import { ConversationParticipant, HOTEL_ROLES, HotelStaffMember, MultiModelConve
 import { getAILearningEngine } from '@yyc3/business/hotel-engines/ai-learning-engine';
 import { getHotelKnowledgeBase } from '@yyc3/business/hotel-engines/hotel-knowledge-base';
 import { HotelVoiceService, getHotelVoiceService } from '@yyc3/business/hotel-engines/hotel-voice-service';
-import { GlassCard } from '../shared/GlassCard';
+import { GlassCard } from '@yyc3/ui';
 import { MEMBERS_MAP, type FamilyMember } from '../ai-family/components/shared';
 
 // ============================================================

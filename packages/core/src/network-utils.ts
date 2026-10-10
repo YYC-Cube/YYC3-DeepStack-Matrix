@@ -9,7 +9,7 @@
  * @tags: [lib]
  */
 
-import type { NetworkInterface, NetworkConfig, ConnectionTestResult } from "../types";
+import type { NetworkInterface, NetworkConfig, ConnectionTestResult } from "./types";
 
 // RF-011: Re-export 已移除 — 所有类型统一从 types/index.ts 导入
 

@@ -29,7 +29,7 @@ import {
   History,
   RotateCcw,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useNetworkConfig } from "../hooks/useNetworkConfig";
 import type { TestStatus } from "../types";
 import { toast } from "sonner";

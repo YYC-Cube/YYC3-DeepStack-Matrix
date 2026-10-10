@@ -11,7 +11,7 @@
 
 import React, { useRef, useEffect, useContext } from "react";
 import { Terminal, ChevronRight } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useTerminal } from "../hooks/useTerminal";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";

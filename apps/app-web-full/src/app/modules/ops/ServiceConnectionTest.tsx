@@ -40,7 +40,7 @@ import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 import { useProviderSlice } from "@yyc3/store/provider-slice";
 import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 import type { DBConnection } from "../../types";
-import { GlassCard } from "../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 
 // ============================================================
 // Types

@@ -27,7 +27,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { axe } from "vitest-axe";
 
 // Mock figma:asset imports — 返回占位 URL
-vi.mock("../components/YYC3LogoSvg", () => {
+vi.mock("@yyc3/ui", () => {
   const React = require("react");
   return {
     YYC3LogoSvg: ({ size = 40, className = "", style }: any) =>
@@ -55,7 +55,7 @@ vi.mock("../components/YYC3LogoSvg", () => {
   };
 });
 
-import { YYC3Logo } from "../components/YYC3Logo";
+import { YYC3Logo } from "@yyc3/ui";
 
 // ============================================================
 //  YYC3Logo 包装组件测试

@@ -24,7 +24,7 @@ import {
   BarChart3,
   List,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { ViewContext } from "../lib/view-context";
 import { connectionManager } from "../../database/ConnectionManager";
 import type { ConnectionInfo, HealthCheckResult, PoolStats } from "../../database/types";

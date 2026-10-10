@@ -17,7 +17,7 @@ import {
   loadNetworkConfig,
   saveNetworkConfig,
   resetNetworkConfig,
-} from "../lib/network-utils";
+} from "@yyc3/core/network-utils";
 
 describe("network-utils", () => {
   beforeEach(() => {

@@ -16,7 +16,7 @@ import {
   Clock, Users, Zap, HandHeart, Volume2, Trophy,
   Server, Radio, Database,
 } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useNavigate } from "react-router";
 import { getHourlyCare } from "./shared";
 import { useFamilyMemberSlice } from "../store";

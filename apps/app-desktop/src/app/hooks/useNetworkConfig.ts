@@ -19,7 +19,7 @@ import {
   getLocalIP,
   generateWsUrl,
   testWebSocketConnection,
-} from "../lib/network-utils";
+} from "@yyc3/core/network-utils";
 
 export function useNetworkConfig() {
   const [state, setState] = useState<NetworkConfigState>({

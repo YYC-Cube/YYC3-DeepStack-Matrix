@@ -57,7 +57,7 @@ import { useNodeSlice } from "@yyc3/store/node-slice";
 import { useProviderSlice } from "@yyc3/store/provider-slice";
 import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 import type { ChatMessage, CommandCategory } from "../../types";
-import { YYC3LogoSvg } from "./YYC3LogoSvg";
+import { YYC3LogoSvg } from "@yyc3/ui";
 
 // ============================================================
 // Types (local to AIAssistant)

@@ -10,11 +10,11 @@
  */
 
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
+import { render, screen } from "@testing-library/react";
+import { ServiceLoopPanel } from "@yyc3/ops/service-loop-panel";
 import * as React from "react";
-import { ServiceLoopPanel } from "../modules/ops/ServiceLoopPanel";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@yyc3/ops/hooks/use-service-loop", () => ({
   useServiceLoop: vi.fn(() => ({
@@ -66,7 +66,7 @@ vi.mock("@yyc3/ops/loop-stage-card", () => ({
   LoopStageCard: ({ meta }: any) => React.createElement("div", { "data-testid": `stage-${meta.key}` }, meta.labelKey),
 }));
 
-vi.mock("../modules/dev/DataFlowDiagram", () => ({
+vi.mock("@yyc3/ops/data-flow-diagram", () => ({
   DataFlowDiagram: () => React.createElement("div", { "data-testid": "data-flow-diagram" }),
 }));
 

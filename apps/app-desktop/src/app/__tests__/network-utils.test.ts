@@ -21,7 +21,7 @@ import {
   getNetworkInterfaces,
   testWebSocketConnection,
   testHTTPConnection,
-} from "../lib/network-utils";
+} from "@yyc3/core/network-utils";
 
 describe("generateWsUrl", () => {
   it("should generate WebSocket URL from address and port", () => {

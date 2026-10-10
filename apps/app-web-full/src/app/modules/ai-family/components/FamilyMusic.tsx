@@ -45,7 +45,7 @@ import smartPlaylistGenerator, { type PlaylistConfig, type TrackInfo } from "../
 import { type ParsedCommand } from "../../../lib/VoiceCommandParser";
 import { DMUSIC_PHOTOS, DMUSIC_VIDEOS, MUSIC_LIBRARY, type MusicTrack } from "@yyc3/core/dmusic-resources";
 import { useFamilySettingsSlice } from "../store/family-settings-slice";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { CoverFlow, type MusicTrack as CoverFlowTrack } from "./CoverFlow";
 import { CreationStudio } from "./CreationStudio";
 import { type EmotionType } from "./EmotionRipple";

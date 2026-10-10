@@ -31,7 +31,7 @@ import { installGlobalErrorListeners } from "@yyc3/core/error-handler";
 import { supabase, ghostSignIn, isGhostMode } from "@yyc3/core/supabaseClient";
 import { useYYC3Head } from "./hooks/useYYC3Head";
 import { useI18nProvider, I18nContext } from "@yyc3/core/i18n";
-import { AuthContext } from "./lib/authContext";
+import { AuthContext } from "@yyc3/core/authContext";
 import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
 import { FamilyDataAccessor } from "./modules/ai-family/lib/family-data-accessor";
 import { useFamilyMemberSlice } from "./store";

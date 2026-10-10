@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { OperationCenter } from "../modules/ops/OperationCenter";
+import { OperationCenter } from "@yyc3/ops/operation-center";
 
 vi.mock("@yyc3/ops/hooks/use-operation-center", () => ({
   useOperationCenter: vi.fn(() => ({

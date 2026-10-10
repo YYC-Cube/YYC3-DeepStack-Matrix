@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { GlassCard } from "../components/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 
 describe("GlassCard", () => {
   it("should render children correctly", () => {

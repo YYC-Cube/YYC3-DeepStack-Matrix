@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase4-执行日志.md
-description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化达成
+description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化 + M4-5 shared 域定性达成
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.5.0
+version: v1.6.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[handoff]
+tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[shared],[handoff]
 category: report
 ---
 
@@ -27,6 +27,29 @@ category: report
 | **M4-2/3 ai 域包化** | ✅ | **`@yyc3/ai` 新包达成**（4 组件 + 3 hooks 上收 store + view-context/types 桥接入 core；133 文件 +751/−6164）；websocket-data 因 node-slice 归 store（防 core→store 循环） |
 | **M4-2/3 ops 域包化** | ✅ | **`@yyc3/ops` 新包达成**（首批 9 组件 + 6 域 hooks 随包 + core/types ops 段 +37 类型；暂缓 9 件跨域障碍定性留端侧）；**M4-0「真全异」定性翻转：OperationChain/DatabaseManager 实为 P1≡P4 同源 + P3 单端滞后**；OperationChain 随包即 P3 升级 |
 | **M4-4 admin+monitor 域包化** | ✅ | **`@yyc3/admin` + `@yyc3/monitor` 双新包达成**（10+20 组件、4+3 域 hooks 随包 + core/types admin/monitor 段 +54 类型 + store 收编 useSettingsStore/useBigModelSDK/global-store + useCopyFeedback 入 core）；**M4-0「真全异」归零**（CreateRuleModal 翻转 P1≡P4 同源）；三端切换 123 文件 + 端侧删 38 件/端；七包 tsc=0 + P1=67 基线 + build 三绿 |
+| **M4-5 shared 域定性** | ✅ | **品牌 3 件消重（= @yyc3/ui 逐字节同）+ ops 二次包化 4 件（OperationCenter/ServiceLoopPanel 解锁 + QuickActionGrid/DataFlowDiagram）+ Phase 3 漏网 5 lib 收编 core + P2 同窗仲裁（切 2 留 3）**；DataFlowDiagram「反向独有」误登修正 4→3；九包 tsc=0 + P1 67→48（品牌断引修复正向）+ P2 基线逐字同 + build 三绿 |
+
+## M4-5 shared 域定性关键实证（2026-10-10 第七轮，方案 [`phase4-ledger/06`](./phase4-ledger/06-M4-5-shared域定性方案.md)）
+
+### shared 域 17 件终局定性
+
+- **品牌重复 3 件**：GlassCard/YYC3Logo/YYC3LogoSvg 与 `@yyc3/ui/brand` **md5 逐字节同**（Phase 2 收编后端侧残留副本）→ 三端删 9 件 + 切引 `@yyc3/ui`（barrel）171 文件
+- **ops 域 4 件二包**：QuickActionGrid（L1 纯路径差）+ **DataFlowDiagram（L0 三端全同 140L——「反向独有」误登修正 4→3，M4-0 取样框漏检 app/components 平铺层）** + OperationCenter/ServiceLoopPanel（P3=P4 同 + P1 纯路径差 3 处，障碍随 QuickActionGrid/DataFlowDiagram 入包全解除）→ `@yyc3/ops` 13 组件 + 6 hooks / exports 17 条
+- **壳层 9 + 路由级 3 留端 Phase 5**：Layout/Sidebar/TopBar/BottomNav/CommandPalette（壳层本体，Layout 引 dev/IntegratedTerminal 跨域障碍实锤）+ AIAssistant/ConnectionStatus/LanguageSwitcher/OfflineIndicator（消费面绑定壳层）+ Login/NotFound/ErrorBoundary（消费面 = App.tsx/routes/Layout 全端侧）——避免 Phase 5 壳层方案定型前二次切引
+- **ServiceConnectionTest（1272L）复核**：原暂缓理由「DataFlowDiagram 跨域障碍」实测不成立（其自身依赖 core/store 已通）——定性随下批 ops 域清空
+
+### Phase 3 漏网 5 lib 收编（P2 同窗仲裁兑现）
+
+- **三端 L0 全同实证**：authContext/backgroundSync/local-knowledge-base/network-utils/yyc3-icons 三端 md5 全同（Phase 3 首批仅收 20 件字节级同名件，此 5 件漏网）→ P1 版 git mv 入 core（exports +5 至 45 条）+ P3/P4 删 10 副本 + core/types +65L（+10 类型：AuthContextValue/Sync 族 4/Network 族 4，UserRole/DataFlowNode/Edge 已有复用）
+- **P2 侧仲裁（切 2 留 3）**：authContext（纯 JSDoc 注释差）/backgroundSync（风格差 + P2 测试无 console 断言实证）切包 + 两件删；local-knowledge-base（真异构 567L↔160L 类型名不同）/network-utils（默认 IP localhost↔192.168.3.45，**P2 测试 L60/68/72 显式断言**——偏差 #11 同款行为契约）/yyc3-icons（资源路径 yyc3-badge-icons↔yyc3-icons 契约）留端；**P2 lib 终态 5 件全为行为异构留端**
+- **M3-P2 断言对齐补漏 3 例**：rf-phase2 ALL_STORES 14→24 / settings-model DEFAULT_AI_MODEL gpt-4o→codegeex4:latest / e2e-integration SYSTEM_NAME+VERSION ×2——11 专测清单外文件，本批 P2 vitest 全量复核暴露
+
+### 验证矩阵与偏差（#19-#22）
+
+- 九包 tsc=0（core/store/ui/business/ai/ops/admin/monitor）；P3=P4=0；P2 tsc 7 错逐字同基线；build 三绿 858/831/812ms + P2 build 7 错基线
+- **P1 tsc 67→48 正向偏离**：品牌切引顺带修复 ai-family `../GlassCard` 断引 19 处（67−19=48 精确吻合；剩余 48 = ai-family store 路径断引 + 连锁 implicit any，归 M4-6）
+- **P2 vitest 1811 通过 / 54 失败全存量实证**（7 失败文件 git diff 零改动 + 最后修改 = M3-P2 提交；Layout jsdom + 包组件 React18 渲染 + rf-phase2 routes 断链连带）；本批相关 backgroundSync 10/10 全绿，**净回归 0**
+- 偏差 #19：DataFlowDiagram 反向独有误登（取样框漏检平铺层）；#20：**perl `-i -p` 与脚本内嵌 while 双重循环致 13 文件首行错位**（检出判据 `diff 含 ^-/\*\*$` → checkout 恢复 → 裸语句脚本重切）；#21：交替组前缀吞尾（YYC3Logo|YYC3LogoSvg → `@yyc3/uiSvg` 13 处）；#22：单引号盲区三犯（HotelDashboard ×3 手工切）
 
 ## M4-4 admin+monitor 域关键实证（2026-10-10 第六轮，方案 [`phase4-ledger/05`](./phase4-ledger/05-M4-4-admin-monitor域包化方案.md)）
 
@@ -244,15 +267,19 @@ category: report
 | 16 | P1 端 barrel（modules/admin\|monitor/index.ts）未列入 D 批切引清单 → 移走件后 29 错爆发 | 双 index.ts 改写（admin 9 + monitor 21 转包 re-export）；教训：**端侧 barrel 是第四消费形态（静态路由/vi.mock/动态引之外），域包化必查** |
 | 17 | perl 替换串手写包裹引号 → `""@yyc3/…""`（57 文件）；修复轮 $1 已含前缀又手补 `\@yyc3/` → `@yyc3/@yyc3/`（117 处） | 两轮修复归零；教训：**替换串一律 `$1…$1` 直拼不加工；修复串不得重复添加捕获组已含的前缀**（#12 同族：替换串必须原样直拼，任何手写装饰都是坑） |
 | 18 | `?raw` 后缀路径（rf-phase2.test.ts 源码审计引）不在路径映射覆盖内 | 单点手工切 `@yyc3/monitor/hooks/use-alert-rules?raw`；教训：**`?query` 后缀路径是 pattern 盲区，勘察时需单独枚举** |
+| 19 | **DataFlowDiagram「反向独有」误登**（M4-0 取样框为 modules/ 漏检 P1 app/components 平铺副本；实测三端均有且 L0 全同 140L） | 反向独有 4→3；本批随 ops 入包；教训：**取样框需覆盖 app/components 平铺层** |
+| 20 | **perl `-i -p` 与脚本内嵌 `while(<>){print;}` 双重循环**：13 文件首行 `/**` 错位丢失（P3/P4 各 6 + P1 UnifiedModelManager，tsc 爆 100/100/20 语法错） | 判据检出（diff 含 `^-/\*\*$`）→ checkout 恢复 → 裸语句脚本重切一次成型；教训：**-p 脚本内严禁 while/print，替换逻辑裸语句化** |
+| 21 | 交替组前缀吞尾：`(GlassCard\|YYC3Logo\|YYC3LogoSvg)` 匹配 YYC3Logo 后剩余 Svg → `@yyc3/uiSvg` 13 处 | `s{\@yyc3/uiSvg}{\@yyc3/ui}g` 定长修复；教训：**交替组含前缀关系时长名优先或加边界** |
+| 22 | **单引号引用盲区三犯**（#5 同族）：HotelDashboard `from './GlassCard'` 漏切 | 手工切 3 处；教训固化：**pattern 引号类 `["']` 枚举或双轮跑** |
 
 ## 后续登记
 
 - **M4-2/3 ops 域包化**：✅ 已达成（第五轮）——首批 9 组件 + 6 hooks 入 `@yyc3/ops`；**暂缓 9 件二次包化路线已绑定**：OperationCenter/ServiceLoopPanel→M4-5（QuickActionGrid/DataFlowDiagram）、LocalFileManager/HostFileManager/DatabaseConnectionPanel→M4-7 或 ui 扩容（CodeEditor）、DatabaseManager（双障碍+P3 滞后 227 行定性；M4-4 已切 `@yyc3/admin/inline-editable-table`）/ConfigExportCenter→M4-4、ConnectionMonitorPanel→src/database 引擎层专项
 - **M4-4 admin+monitor 域**：✅ 已达成（第六轮）——`@yyc3/admin`（10 组件 + 4 hooks）+ `@yyc3/monitor`（20 组件 + 3 hooks）双包达成；暂缓 10 件留端（admin 9 + AISuggestionPanel，含端侧 barrel re-export 衔接）；「真全异」归零、反向独有 5→4
-- **M4-5 shared 域定性**（部分属 Phase 5 壳层；**下次会话起点**）
-- **M4-6 特深域 ai-family（扩容）**：24 独有件 + family-* 13 slices + **HotelDashboard 包化（MEMBERS_MAP 破环：ai-family shared.ts members 静态数据模块化）+ hotel-bridge 裁断 + 智慧酒店双版本 L1 视觉融合样板（density="compact"）+ ai-family types 跨端仲裁**——M4-2b D4/D7 移交项集中于此
+- **M4-5 shared 域定性**：✅ 已达成（第七轮）——品牌 3 件消重 + ops 二包 4 件（OperationCenter/ServiceLoopPanel 解锁）+ Phase 3 漏网 5 lib 收编 core + P2 切 2 留 3；壳层 9 + 路由级 3 留端 Phase 5；反向独有 4→3
+- **M4-6 特深域 ai-family（扩容）**：24 独有件 + family-* 13 slices + **HotelDashboard 包化（MEMBERS_MAP 破环：ai-family shared.ts members 静态数据模块化）+ hotel-bridge 裁断 + 智慧酒店双版本 L1 视觉融合样板（density="compact"）+ ai-family types 跨端仲裁**——M4-2b D4/D7 移交项集中于此；**P1 剩余 48 错（ai-family store 路径断引）与 P2 routes 断链/Rf-011 余败同窗修复**
 - **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项（useWebSocketData 已入 store，ide-mock-data 注解引用不阻）
-- **M4-8**：反向独有 4 件定性（UnifiedModelManager 已归此：三端均有、P1 独走版）+ NavRegistry 单源 + PageShell 七型谱
+- **M4-8**：反向独有 3 件定性（CodeEditor/DesignSystemEditor/ImageWithFallback；DataFlowDiagram 经 M4-5 修正随 ops 入包）+ NavRegistry 单源 + PageShell 七型谱
 - **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
 - **types 单源收敛**（app 28 分件 vs core 按需 +141 件（M4-3 +27 / M4-2/3 ai +21 诊断·websocket·layout 系 / M4-2/3 ops +37 六语义段 + ChainEvent / M4-4 admin·monitor +54 九语义段），Phase 3 登记；桥接模式已立（diagnostic/websocket/layout/view-context 四桥），收敛=桥原地翻正）
 
@@ -265,27 +292,27 @@ cd packages/store && pnpm exec tsc --noEmit         # 0 错
 cd packages/ui && pnpm exec tsc --noEmit            # 0 错
 cd packages/business && pnpm exec tsc --noEmit      # 0 错
 cd packages/ai && pnpm exec tsc --noEmit            # 0 错
-cd packages/ops && pnpm exec tsc --noEmit           # 0 错（M4-2/3 第五轮新增）
-cd packages/admin && pnpm exec tsc --noEmit         # 0 错（M4-4 第六轮新增）
-cd packages/monitor && pnpm exec tsc --noEmit       # 0 错（M4-4 第六轮新增）
-cd apps/app-web-full    && pnpm exec tsc --noEmit   # 67（基线）
+cd packages/ops && pnpm exec tsc --noEmit           # 0 错（M4-5 二包后 13 组件 + 6 hooks）
+cd packages/admin && pnpm exec tsc --noEmit         # 0 错
+cd packages/monitor && pnpm exec tsc --noEmit       # 0 错
+cd apps/app-web-full    && pnpm exec tsc --noEmit   # 48（M4-5 后基线：67−19 品牌断引修复；ai-family 存量归 M4-6）
 cd apps/app-desktop     && pnpm exec tsc --noEmit   # 0
 cd apps/app-web-classic && pnpm exec tsc --noEmit   # 0
-# build：P1 844ms / P3 792ms / P4 807ms 三绿；P2 = 7 基线
+cd apps/app-sandbox-lite && pnpm exec tsc --noEmit  # 7（基线逐字同）
+# build：P1 858ms / P3 831ms / P4 812ms 三绿；P2 = 7 基线
+# P2 vitest：1811 通过 / 54 存量失败（Layout jsdom + 包组件渲染 + rf-011 断链连带）
 
-# 包拓扑（M4-4 admin/monitor 后）
-# apps/app-web-full    → @yyc3/ui + theme + core + store + business + ai + ops + admin + monitor（9 包）
-# apps/app-desktop     → 同上
-# apps/app-web-classic → 同上
-# apps/app-sandbox-lite → 无 @yyc3 依赖（P2 基线隔离）
-# 依赖方向：admin → core/store/ui；monitor → core/store/ui/ops（operation-chain）；ops → core/store/ui；ai → store/core/ui；business → core/ui；store → core
-# @yyc3/admin exports 15 条：10 组件子路径 + /hooks/* 4 条 + barrel；@yyc3/monitor exports 24 条：20 组件 + /hooks/* 3 条 + barrel
-# P1 端 barrel：modules/admin/index.ts v1.1.0（9 包 re-export + 9 暂缓本地）/ modules/monitor/index.ts v1.1.0（21 包 re-export + AISuggestionPanel 本地）
+# 包拓扑（M4-5 后）
+# @yyc3/ops：13 组件 + 6 hooks，exports 17 条（+operation-center/service-loop-panel/quick-action-grid/data-flow-diagram）
+# @yyc3/core：src 32 件 + i18n，exports 45 条（+authContext/backgroundSync/local-knowledge-base/network-utils/yyc3-icons），types 1525L
+# @yyc3/ui：品牌件唯一源（三端 shared/components 副本已删）
+# P1 端：modules/shared 13 件（壳层 9 + 路由级 3 + index）留端 Phase 5；modules/ops 7 暂缓件
+# P2 端：lib 5 件全行为异构留端；@yyc3/core 引用 12 件
 
 # 下次会话起点
-# → M4-5 shared 域定性（解锁 OperationCenter/ServiceLoopPanel 二次包化；端侧 shared/ 剩余件清点）
-# → M4-6 ai-family 扩容 / M4-7 @yyc3/ide / M4-8 反向独有 4 件 + NavRegistry + PageShell
-# → HotelDashboard/hotel-bridge/智慧酒店 L1 融合 → M4-6 集中处理
+# → M4-6 ai-family 扩容（family-* 13 slices + HotelDashboard/hotel-bridge + P1 剩 48 错 + P2 routes 断链同窗）
+# → M4-7 @yyc3/ide / M4-8 反向独有 3 件 + NavRegistry + PageShell
+# → ops 暂缓件清空（ServiceConnectionTest 依赖已通 + ConfigExportCenter）随下批
 ```
 
 ---

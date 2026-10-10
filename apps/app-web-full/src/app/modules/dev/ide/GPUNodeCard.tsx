@@ -15,7 +15,7 @@ import {
   Cpu, HardDrive, Thermometer, Activity, Zap, AlertTriangle,
   CheckCircle, Clock, MoreVertical, RefreshCw,
 } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import type { NodeData, NodeStatusType } from "../../../types";
 
 interface GPUNodeCardProps {

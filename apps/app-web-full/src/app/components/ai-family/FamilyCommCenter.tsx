@@ -16,7 +16,7 @@ import {
   Radio, Wifi, CheckCheck, Search,
   Download, Trash2, CalendarDays, X,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import {
   SAMPLE_MESSAGES, AI_RESPONSES, hexToRgb,

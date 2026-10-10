@@ -15,7 +15,7 @@ import {
   Loader2, CheckCircle2, XCircle, Server,
   Settings2, Play, Clock, Layers,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { SQLEditor } from "./CodeEditor";
 import { ViewContext } from "../lib/view-context";
 import { useDbConnSlice } from "@yyc3/store/db-conn-slice";

@@ -25,7 +25,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import React from "react";
 import { render, screen, cleanup } from "@testing-library/react";
-import { DataFlowDiagram } from "../components/DataFlowDiagram";
+import { DataFlowDiagram } from "@yyc3/ops/data-flow-diagram";
 import { DATA_FLOW_NODES, DATA_FLOW_EDGES } from "@yyc3/ops/hooks/use-service-loop";
 
 describe("DataFlowDiagram", () => {

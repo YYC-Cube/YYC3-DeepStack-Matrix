@@ -59,11 +59,12 @@ describe("RF-011: 404 通配路由", () => {
 // ================================================================
 
 describe("RF-004: ALL_STORES 常量去重", () => {
-  it("ALL_STORES 导出且包含 14 个 store", async () => {
+  it("ALL_STORES 导出且包含 24 个 store", async () => {
     const { ALL_STORES } = await import("@yyc3/core/yyc3-storage");
     expect(ALL_STORES).toBeDefined();
     expect(Array.isArray(ALL_STORES)).toBe(true);
-    expect(ALL_STORES).toHaveLength(14);
+    // @yyc3/core 契约：14 运维/监控 + 10 AI family/推理/音乐/通讯（M3-P2 对齐补漏）
+    expect(ALL_STORES).toHaveLength(24);
   });
 
   it("ALL_STORES 包含所有预期的 store 名称", async () => {

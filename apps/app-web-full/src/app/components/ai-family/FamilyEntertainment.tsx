@@ -16,7 +16,7 @@ import {
   Image, Megaphone, Radio, Heart, RotateCcw, Star, Sparkles,
   Clock,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 import { useFamilyMemberSlice } from "../../store";

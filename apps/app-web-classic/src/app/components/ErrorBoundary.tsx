@@ -12,7 +12,7 @@
 import React, { Component, type ErrorInfo, type ReactNode } from "react";
 import { captureError } from "@yyc3/core/error-handler";
 import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
-import { YYC3LogoSvg } from "./YYC3LogoSvg";
+import { YYC3LogoSvg } from "@yyc3/ui";
 import type { AppError, ErrorBoundaryLevel } from "../types";
 import { AlertTriangle, RefreshCw, Home, ChevronDown, ChevronUp, Bug, Copy, Check } from "lucide-react";
 

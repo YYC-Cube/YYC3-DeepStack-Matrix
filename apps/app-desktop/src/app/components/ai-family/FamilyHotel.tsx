@@ -15,7 +15,7 @@ import {
   GraduationCap, ChevronRight, Activity, Zap, Shield, Star,
   Phone, Coffee, UtensilsCrossed, Sparkles, Heart,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { useI18n } from "@yyc3/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";

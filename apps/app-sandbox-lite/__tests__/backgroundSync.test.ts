@@ -18,7 +18,7 @@ import {
   clearSyncQueue,
   getSyncQueueStats,
   processSyncQueue,
-} from "../lib/backgroundSync";
+} from "@yyc3/core/backgroundSync";
 
 // Mock localStorage
 const localStorageMock = (() => {

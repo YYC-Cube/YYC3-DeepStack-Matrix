@@ -27,8 +27,8 @@ import {
 import React, { useCallback, useContext, useRef, useState } from "react";
 import { ViewContext } from "../../lib/view-context";
 import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
-import { GlassCard } from "../shared/GlassCard";
-import { YYC3Logo } from "../shared/YYC3Logo";
+import { GlassCard } from "@yyc3/ui";
+import { YYC3Logo } from "@yyc3/ui";
 import { ColorSwatch } from "./theme/ColorSwatch";
 import { formatOklch, hexToOklch, oklchToHex } from "./theme/color-utils";
 import {

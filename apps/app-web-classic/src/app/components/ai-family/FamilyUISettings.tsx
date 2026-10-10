@@ -20,7 +20,7 @@ import {
   ExternalLink, ArrowRight, Wifi,
   CircleDot, RotateCcw, FileJson, X,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { useNavigate } from "react-router";
 import { useFamilyMemberSlice } from "../../store";

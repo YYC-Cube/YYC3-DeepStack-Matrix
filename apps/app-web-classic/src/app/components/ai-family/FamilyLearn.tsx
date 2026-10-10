@@ -15,7 +15,7 @@ import {
   Zap, Play, CheckCircle2, Lock, Sparkles,
   Code, Database, Shield, Brain,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 

@@ -17,7 +17,7 @@ import {
   processSyncQueue,
   clearSyncQueue,
   getSyncQueueStats,
-} from "../lib/backgroundSync";
+} from "@yyc3/core/backgroundSync";
 
 const SYNC_QUEUE_KEY = "yyc3_sync_queue";
 
@@ -104,13 +104,13 @@ describe("backgroundSync", () => {
 
   describe("registerBackgroundSync", () => {
     it("should return false when serviceWorker is not available", async () => {
-      const { registerBackgroundSync } = await import("../lib/backgroundSync");
+      const { registerBackgroundSync } = await import("@yyc3/core/backgroundSync");
       const result = await registerBackgroundSync();
       expect(result).toBe(false);
     });
 
     it("should return false when SyncManager is not available", async () => {
-      const { registerBackgroundSync } = await import("../lib/backgroundSync");
+      const { registerBackgroundSync } = await import("@yyc3/core/backgroundSync");
       Object.defineProperty(window, "SyncManager", { value: undefined });
       const result = await registerBackgroundSync();
       expect(result).toBe(false);

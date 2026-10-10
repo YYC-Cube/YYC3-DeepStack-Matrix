@@ -10,7 +10,7 @@
  */
 
 import { createContext } from "react";
-import type { AuthContextValue } from "../types";
+import type { AuthContextValue } from "./types";
 
 /** 认证上下文 - 提供登出功能和当前用户信息 */
 export const AuthContext = createContext<AuthContextValue>({

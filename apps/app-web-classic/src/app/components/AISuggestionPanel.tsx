@@ -31,7 +31,7 @@ import { useAISuggestion } from "@yyc3/monitor/hooks/use-ai-suggestion";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";
 import { ActionRecommender } from "@yyc3/monitor/action-recommender";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { PatternAnalyzer } from "@yyc3/monitor/pattern-analyzer";
 import { SDKChatPanel } from "@yyc3/monitor/sdk-chat-panel";
 

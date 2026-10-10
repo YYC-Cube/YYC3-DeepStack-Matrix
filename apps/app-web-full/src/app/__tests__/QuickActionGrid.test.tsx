@@ -25,7 +25,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { QuickActionGrid } from "../modules/shared/QuickActionGrid";
+import { QuickActionGrid } from "@yyc3/ops/quick-action-grid";
 import type { OperationItem } from "../types";
 
 const mockActions: OperationItem[] = [

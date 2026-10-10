@@ -65,7 +65,7 @@ const PatrolDashboard = lazy(() =>
   import("@yyc3/monitor/patrol-dashboard").then((m) => ({ default: m.PatrolDashboard })),
 );
 const OperationCenter = lazy(() =>
-  import("./modules/ops/OperationCenter").then((m) => ({ default: m.OperationCenter })),
+  import("@yyc3/ops/operation-center").then((m) => ({ default: m.OperationCenter })),
 );
 const LocalFileManager = lazy(() =>
   import("./modules/ops/LocalFileManager").then((m) => ({ default: m.LocalFileManager })),
@@ -74,7 +74,7 @@ const AISuggestionPanel = lazy(() =>
   import("./modules/monitor/AISuggestionPanel").then((m) => ({ default: m.AISuggestionPanel })),
 );
 const ServiceLoopPanel = lazy(() =>
-  import("./modules/ops/ServiceLoopPanel").then((m) => ({ default: m.ServiceLoopPanel })),
+  import("@yyc3/ops/service-loop-panel").then((m) => ({ default: m.ServiceLoopPanel })),
 );
 const PWAStatusPanel = lazy(() =>
   import("@yyc3/admin/pwa-status-panel").then((m) => ({ default: m.PWAStatusPanel })),

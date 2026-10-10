@@ -135,7 +135,7 @@ vi.mock("@yyc3/core/supabaseClient", () => ({
 }));
 
 // AuthContext mock
-vi.mock("../lib/authContext", () => ({
+vi.mock("@yyc3/core/authContext", () => ({
   AuthContext: React.createContext({
     logout: vi.fn(),
     userEmail: "test@yyc3.local",

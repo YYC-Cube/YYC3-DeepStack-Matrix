@@ -22,27 +22,24 @@
  */
 
 // 布局组件
+export { BottomNav } from './BottomNav';
 export { Layout } from './Layout';
 export { Sidebar } from './Sidebar';
 export { TopBar } from './TopBar';
-export { BottomNav } from './BottomNav';
 
 // 认证组件
 export { Login } from './Login';
 
-// 品牌组件
-export { YYC3Logo } from './YYC3Logo';
-export { YYC3LogoSvg } from './YYC3LogoSvg';
+// 品牌组件已迁 @yyc3/ui（GlassCard/YYC3Logo/YYC3LogoSvg，M4-5 重复件消除）
 
 // 通用组件
 export { ErrorBoundary } from './ErrorBoundary';
-export { GlassCard } from './GlassCard';
-export { NotFound } from './NotFound';
 export { LanguageSwitcher } from './LanguageSwitcher';
+export { NotFound } from './NotFound';
 
 // 全局交互组件
 export { AIAssistant } from './AIAssistant';
 export { CommandPalette } from './CommandPalette';
-export { OfflineIndicator } from './OfflineIndicator';
 export { ConnectionStatus } from './ConnectionStatus';
-export { QuickActionGrid } from './QuickActionGrid';
+export { OfflineIndicator } from './OfflineIndicator';
+// QuickActionGrid 已迁 @yyc3/ops/quick-action-grid（M4-5）

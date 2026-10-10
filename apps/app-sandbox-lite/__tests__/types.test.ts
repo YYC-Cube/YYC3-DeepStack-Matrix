@@ -435,7 +435,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("backgroundSync 模块应导出队列操作函数", async () => {
-    const mod = await import("../lib/backgroundSync");
+    const mod = await import("@yyc3/core/backgroundSync");
     expect(typeof mod.addToSyncQueue).toBe("function");
     expect(typeof mod.getSyncQueue).toBe("function");
     expect(typeof mod.clearSyncQueue).toBe("function");

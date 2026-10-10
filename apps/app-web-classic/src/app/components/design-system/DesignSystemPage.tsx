@@ -13,7 +13,7 @@ import React, { useState, useContext } from "react";
 import {
   Palette, Layers, BookOpen, ClipboardCheck, ChevronRight,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { DesignTokens } from "./DesignTokens";
 import { ComponentShowcase } from "./ComponentShowcase";
 import { StageReview } from "./StageReview";

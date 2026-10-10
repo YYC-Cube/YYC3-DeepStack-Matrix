@@ -61,7 +61,7 @@ import { isGhostMode } from "@yyc3/core/supabaseClient";
 import type { ConnectionState } from "../types";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { YYC3Logo } from "./YYC3Logo";
+import { YYC3Logo } from "@yyc3/ui";
 
 /* ── 移动端导航分类 ── */
 interface MobileNavChild {

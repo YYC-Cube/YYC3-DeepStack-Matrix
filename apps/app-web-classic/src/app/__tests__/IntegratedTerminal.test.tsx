@@ -35,7 +35,7 @@ vi.mock("../lib/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false }),
 }));
 
-vi.mock("../lib/authContext", () => ({
+vi.mock("@yyc3/core/authContext", () => ({
   AuthContext: React.createContext({ userEmail: "admin@yyc3.com" }),
 }));
 

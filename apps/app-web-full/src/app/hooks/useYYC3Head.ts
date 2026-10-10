@@ -10,7 +10,7 @@
  */
 
 import { useEffect } from "react";
-import { icons, iconsCDN } from "../lib/yyc3-icons";
+import { icons, iconsCDN } from "@yyc3/core/yyc3-icons";
 
 export function useYYC3Head() {
   useEffect(() => {

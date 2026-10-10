@@ -52,7 +52,7 @@ import {
   getSyncQueue,
   processSyncQueue,
   clearSyncQueue,
-} from "../lib/backgroundSync";
+} from "@yyc3/core/backgroundSync";
 
 describe("Integration Tests", () => {
   beforeEach(() => {

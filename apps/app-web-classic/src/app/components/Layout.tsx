@@ -24,7 +24,7 @@ import { IntegratedTerminal } from "./IntegratedTerminal";
 import { useWebSocketData } from "@yyc3/store/use-websocket-data";
 import { useMobileView } from "../hooks/useMobileView";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
-import { AuthContext } from "../lib/authContext";
+import { AuthContext } from "@yyc3/core/authContext";
 import { WebSocketContext, ViewContext } from "../lib/view-context";
 
 /**

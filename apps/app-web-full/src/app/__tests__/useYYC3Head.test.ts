@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, cleanup } from "@testing-library/react";
 import { useYYC3Head } from "../hooks/useYYC3Head";
 
-vi.mock("../lib/yyc3-icons", () => ({
+vi.mock("@yyc3/core/yyc3-icons", () => ({
   icons: {
     favicon16: "/yyc3-badge-icons/Web App/favicon-16x16.png",
     favicon32: "/yyc3-badge-icons/Web App/favicon-32x32.png",

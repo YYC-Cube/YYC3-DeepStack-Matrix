@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@yyc3/core/i18n";
 import { AI_MODELS } from "./ide-mock-data";
-import { YYC3LogoSvg } from "../YYC3LogoSvg";
+import { YYC3LogoSvg } from "@yyc3/ui";
 
 interface IDETopBarProps {
   projectName: string;

@@ -28,7 +28,7 @@ const mockGetNetworkInterfaces = vi.fn(() =>
 );
 const mockGetLocalIP = vi.fn(() => Promise.resolve("127.0.0.1"));
 
-vi.mock("../lib/network-utils", () => ({
+vi.mock("@yyc3/core/network-utils", () => ({
   loadNetworkConfig: () => ({
     serverAddress: "localhost",
     port: "3113",

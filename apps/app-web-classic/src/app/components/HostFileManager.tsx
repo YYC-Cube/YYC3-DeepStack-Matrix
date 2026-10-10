@@ -17,7 +17,7 @@ import {
   FilePlus, Clock, HardDrive, AlertTriangle, X, Search,
   RefreshCcw, Image, History, Loader2, Code2,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useHostFileSystem, getFileTypeInfo } from "@yyc3/ops/hooks/use-host-file-system";
 import { CodeEditor, getLanguageLabel } from "./CodeEditor";
 import { ViewContext } from "../lib/view-context";

@@ -16,7 +16,7 @@ import {
   saveNetworkConfig,
   resetNetworkConfig,
   DEFAULT_NETWORK_CONFIG,
-} from "../../lib/network-utils";
+} from "@yyc3/core/network-utils";
 
 describe("network-utils", () => {
   beforeEach(() => {
@@ -76,7 +76,7 @@ describe("network-utils", () => {
 
   describe("getLocalIP", () => {
     it("should fallback to 127.0.0.1 when WebRTC unavailable", async () => {
-      const { getLocalIP } = await import("../../lib/network-utils");
+      const { getLocalIP } = await import("@yyc3/core/network-utils");
       const ip = await getLocalIP();
       expect(typeof ip).toBe("string");
       expect(ip.length).toBeGreaterThan(0);

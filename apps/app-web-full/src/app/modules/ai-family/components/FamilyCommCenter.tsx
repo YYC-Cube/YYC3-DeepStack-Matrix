@@ -32,7 +32,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useFamilyMemberSlice } from "../store";
 import { useFamilySettingsSlice } from "../store/family-settings-slice";
 import type { UnifiedFamilyMember } from "../../../types";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { AI_RESPONSES, SAMPLE_MESSAGES, hexToRgb, type FamilyMessage } from "./shared";
 

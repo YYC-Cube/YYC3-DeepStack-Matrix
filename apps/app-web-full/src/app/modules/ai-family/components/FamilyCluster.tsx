@@ -16,7 +16,7 @@ import {
   Shield, ArrowUpRight, ArrowDownRight, Clock,
   Radio, Plug, Network, ChevronRight, Cloud,
 } from "lucide-react";
-import { GlassCard } from "../../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { useI18n } from "@yyc3/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";

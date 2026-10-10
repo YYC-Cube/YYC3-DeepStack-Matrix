@@ -54,7 +54,7 @@ describe("RF-001: WebSocket URL 三源统一", () => {
 
   describe("network-utils 内部一致性", () => {
     it("DEFAULT_NETWORK_CONFIG.wsUrl 应由 serverAddress+port 生成", async () => {
-      const { DEFAULT_NETWORK_CONFIG, generateWsUrl } = await import("../lib/network-utils");
+      const { DEFAULT_NETWORK_CONFIG, generateWsUrl } = await import("@yyc3/core/network-utils");
       const expected = generateWsUrl(
         DEFAULT_NETWORK_CONFIG.serverAddress,
         DEFAULT_NETWORK_CONFIG.port
@@ -63,7 +63,7 @@ describe("RF-001: WebSocket URL 三源统一", () => {
     });
 
     it("generateWsUrl 应正确拼接", async () => {
-      const { generateWsUrl } = await import("../lib/network-utils");
+      const { generateWsUrl } = await import("@yyc3/core/network-utils");
       expect(generateWsUrl("10.0.0.1", "8080")).toBe("ws://10.0.0.1:8080/ws");
     });
   });

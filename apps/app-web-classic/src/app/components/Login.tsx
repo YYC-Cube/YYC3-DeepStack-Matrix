@@ -12,7 +12,7 @@
 import React, { useState, useCallback } from "react";
 import { Lock, Mail, Eye, EyeOff, AlertCircle, Zap, Ghost } from "lucide-react";
 import { supabase } from "@yyc3/core/supabaseClient";
-import { YYC3Logo } from "./YYC3Logo";
+import { YYC3Logo } from "@yyc3/ui";
 
 interface LoginProps {
   onLoginSuccess: () => void;

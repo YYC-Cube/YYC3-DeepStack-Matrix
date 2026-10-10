@@ -14,7 +14,7 @@ import {
   FolderOpen, Download, HardDrive, Trash2, Keyboard,
   Save, X, FileEdit,
 } from "lucide-react";
-import { GlassCard } from "../shared/GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FileBrowser } from "@yyc3/ops/file-browser";
 import { LogViewer } from "@yyc3/ops/log-viewer";
 import { ReportGenerator } from "@yyc3/ops/report-generator";

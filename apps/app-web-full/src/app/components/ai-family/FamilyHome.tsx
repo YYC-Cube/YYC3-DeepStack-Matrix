@@ -18,7 +18,7 @@ import {
   Smile, FileText, HandHeart, Phone, Gamepad2, Trophy,
   Volume2, Server, Radio, Database, Settings2,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { useNavigate } from "react-router";
 import { useFamilyMemberSlice } from "../../store";

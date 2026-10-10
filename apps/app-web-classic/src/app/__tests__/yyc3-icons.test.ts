@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { icons, iconsCDN, handleIconError } from "../lib/yyc3-icons";
+import { icons, iconsCDN, handleIconError } from "@yyc3/core/yyc3-icons";
 
 describe("yyc3-icons", () => {
   describe("icons (local paths)", () => {

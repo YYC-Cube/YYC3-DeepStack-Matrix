@@ -14,7 +14,7 @@ import {
   Phone, PhoneCall, PhoneOff, Mic, MicOff, Volume2, VolumeX,
   User, Clock,
 } from "lucide-react";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 import { useFamilyMemberSlice } from "../../store";

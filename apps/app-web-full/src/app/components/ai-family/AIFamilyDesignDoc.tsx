@@ -55,7 +55,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useFamilyMemberSlice } from "../../store";
-import { GlassCard } from "../GlassCard";
+import { GlassCard } from "@yyc3/ui";
 
 // ═══════════════════════════════════════════════
 // 安全动画 wrapper — 不依赖 IntersectionObserver

@@ -192,7 +192,7 @@ export function Sidebar() {
   // ... sidebar implementation
 }`,
   "dashboard-tsx": `import React from "react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useI18n } from "@yyc3/core/i18n";
 import {
   AreaChart, Area, XAxis, YAxis,

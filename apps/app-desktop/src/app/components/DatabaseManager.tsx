@@ -18,7 +18,7 @@ import {
   Scan, AlertTriangle, CheckCircle2, Loader2, Copy,
   History, BookOpen, TestTube,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
 import { SQLEditor } from "./CodeEditor";
 import { InlineEditableTable } from "@yyc3/admin/inline-editable-table";

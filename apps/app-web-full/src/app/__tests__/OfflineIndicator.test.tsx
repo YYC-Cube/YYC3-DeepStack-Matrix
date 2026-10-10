@@ -13,11 +13,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { OfflineIndicator } from "../modules/shared/OfflineIndicator";
+import { OfflineIndicator } from "@yyc3/shell/offline-indicator";
 
 const mockUseOfflineMode = vi.fn();
 
-vi.mock("../hooks/useOfflineMode", () => ({
+vi.mock("@yyc3/store/useOfflineMode", () => ({
   useOfflineMode: () => mockUseOfflineMode(),
 }));
 

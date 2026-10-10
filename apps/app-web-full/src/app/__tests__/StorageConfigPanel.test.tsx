@@ -111,7 +111,7 @@ vi.mock("@yyc3/ui/alert", () => ({
     React.createElement("div", { "data-testid": "alert-description" }, children),
 }));
 
-vi.mock("../modules/ops/DatabaseConnectionPanel", () => ({
+vi.mock("@yyc3/ops/database-connection-panel", () => ({
   DatabaseConnectionPanel: () => React.createElement("div", { "data-testid": "database-connection-panel" }),
 }));
 

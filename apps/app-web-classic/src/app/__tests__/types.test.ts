@@ -398,7 +398,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("useMobileView 模块应导出 hook", async () => {
-    const mod = await import("../hooks/useMobileView");
+    const mod = await import("@yyc3/core/useMobileView");
     expect(mod.useMobileView).toBeDefined();
   });
 

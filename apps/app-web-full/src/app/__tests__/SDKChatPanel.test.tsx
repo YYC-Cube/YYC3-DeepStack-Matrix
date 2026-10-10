@@ -189,7 +189,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 }));
 
 // Mock Layout ViewContext
-vi.mock("../modules/shared/Layout", () => ({
+vi.mock("@yyc3/shell/layout", () => ({
   ViewContext: {},
 }));
 

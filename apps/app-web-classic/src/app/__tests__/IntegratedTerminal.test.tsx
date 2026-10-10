@@ -13,7 +13,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import React from "react";
-import { IntegratedTerminal } from "../components/IntegratedTerminal";
+import { IntegratedTerminal } from "@yyc3/shell/integrated-terminal";
 
 vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),

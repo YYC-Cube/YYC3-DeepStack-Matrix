@@ -43,10 +43,14 @@
     "./local-knowledge-base": "./src/local-knowledge-base.ts",
     "./network-utils": "./src/network-utils.ts",
     "./yyc3-icons": "./src/yyc3-icons.ts",
-    "./useClock": "./src/useClock.ts"
+    "./useClock": "./src/useClock.ts",
+    "./useMobileView": "./src/useMobileView.ts",
+    "./useKeyboardShortcuts": "./src/useKeyboardShortcuts.ts"
   },
   "peerDependencies": {
-    "react": "^18 || ^19"
+    "react": "^18 || ^19",
+    "react-router": "^7.1.1",
+    "sonner": "^2.0.7"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
@@ -55,6 +59,8 @@
   "devDependencies": {
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
+    "react-router": "^7.1.1",
+    "sonner": "^2.0.7",
     "typescript": "^5.9.3"
   }
 }

@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { ErrorBoundary } from "../components/ErrorBoundary";
+import { ErrorBoundary } from "@yyc3/shell/error-boundary";
 
 vi.mock("@yyc3/core/error-handler", () => ({
   captureError: vi.fn((error, options) => ({

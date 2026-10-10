@@ -74,7 +74,7 @@ describe("GlassCard a11y", () => {
 //  LanguageSwitcher
 // ============================================================
 
-import { LanguageSwitcher } from "../modules/shared/LanguageSwitcher";
+import { LanguageSwitcher } from "@yyc3/shell/language-switcher";
 
 // Mock useI18n
 vi.mock("@yyc3/core/i18n", () => ({
@@ -105,7 +105,7 @@ describe("LanguageSwitcher a11y", () => {
 //  ConnectionStatus
 // ============================================================
 
-import { ConnectionStatus } from "../modules/shared/ConnectionStatus";
+import { ConnectionStatus } from "@yyc3/shell/connection-status";
 
 describe("ConnectionStatus a11y", () => {
   it("connected 状态应通过 a11y 检测", async () => {

@@ -28,7 +28,7 @@ export { DesignSystemPage } from './design-system/DesignSystemPage';
 export { DevGuidePage } from './DevGuidePage';
 export { ThemeCustomizer } from './ThemeCustomizer';
 export { CLITerminal } from './CLITerminal';
-export { IntegratedTerminal } from './IntegratedTerminal';
+export { IntegratedTerminal } from '@yyc3/shell/integrated-terminal';
 export { IDEPanel } from '@yyc3/ide';
 export { RefactoringReport } from './RefactoringReport';
 export { ArchitectureAudit } from './ArchitectureAudit';

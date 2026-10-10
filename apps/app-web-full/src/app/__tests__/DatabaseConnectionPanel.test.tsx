@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { DatabaseConnectionPanel } from "../modules/ops/DatabaseConnectionPanel";
+import { DatabaseConnectionPanel } from "@yyc3/ops/database-connection-panel";
 import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 import { toast } from "sonner";
 

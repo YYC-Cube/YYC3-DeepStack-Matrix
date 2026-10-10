@@ -68,7 +68,7 @@ vi.mock("@yyc3/ui", () => ({
   YYC3LogoSvg: () => <div data-testid="yyc3-logo-svg" />,
 }));
 
-import { AIAssistant } from "../components/AIAssistant";
+import { AIAssistant } from "@yyc3/shell/ai-assistant";
 
 describe("AIAssistant", () => {
   beforeEach(() => {

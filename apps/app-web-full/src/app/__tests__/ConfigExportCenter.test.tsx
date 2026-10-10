@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { ConfigExportCenter } from "../modules/ops/ConfigExportCenter";
+import { ConfigExportCenter } from "@yyc3/ops/config-export-center";
 
 vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({

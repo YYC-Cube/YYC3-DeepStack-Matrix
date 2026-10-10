@@ -8,8 +8,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./config-export-center": "./src/ConfigExportCenter.tsx",
     "./data-flow-diagram": "./src/DataFlowDiagram.tsx",
+    "./database-connection-panel": "./src/DatabaseConnectionPanel.tsx",
+    "./database-manager": "./src/DatabaseManager.tsx",
     "./file-browser": "./src/FileBrowser.tsx",
+    "./full-backup": "./src/full-backup.ts",
+    "./host-file-manager": "./src/HostFileManager.tsx",
+    "./local-file-manager": "./src/LocalFileManager.tsx",
     "./log-viewer": "./src/LogViewer.tsx",
     "./loop-stage-card": "./src/LoopStageCard.tsx",
     "./operation-category": "./src/OperationCategory.tsx",
@@ -20,6 +26,7 @@
     "./quick-action-grid": "./src/QuickActionGrid.tsx",
     "./report-generator": "./src/ReportGenerator.tsx",
     "./report-exporter": "./src/ReportExporter.tsx",
+    "./service-connection-test": "./src/ServiceConnectionTest.tsx",
     "./service-loop-panel": "./src/ServiceLoopPanel.tsx",
     "./hooks/use-operation-center": "./src/hooks/useOperationCenter.ts",
     "./hooks/use-service-loop": "./src/hooks/useServiceLoop.ts",
@@ -35,7 +42,9 @@
     "sonner": "^2.0.7"
   },
   "dependencies": {
+    "@yyc3/admin": "workspace:*",
     "@yyc3/core": "workspace:*",
+    "@yyc3/ide": "workspace:*",
     "@yyc3/store": "workspace:*",
     "@yyc3/ui": "workspace:*"
   },

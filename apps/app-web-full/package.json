@@ -45,6 +45,7 @@
     "@yyc3/ops": "workspace:*",
     "@yyc3/ai-family": "workspace:*",
     "@yyc3/ide": "workspace:*",
+    "@yyc3/shell": "workspace:*",
     "@yyc3/ai": "workspace:*",
     "@yyc3/business": "workspace:*",
     "@codemirror/lang-css": "^6.3.1",

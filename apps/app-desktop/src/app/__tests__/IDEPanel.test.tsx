@@ -34,7 +34,7 @@ vi.mock("react-router", () => ({
 }));
 
 // Mock layout context
-vi.mock("../components/Layout", () => ({
+vi.mock("@yyc3/shell/layout", () => ({
   WebSocketContext: React.createContext(null),
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "lg", isTouch: false }),
 }));

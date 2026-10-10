@@ -144,7 +144,7 @@
  *    vi.mock("react-router", () => ({ useNavigate, useLocation }));
  *
  * 5. Hooks — OfflineIndicator/PWAInstallPrompt:
- *    vi.mock("../hooks/useOfflineMode", () => ({ useOfflineMode: ... }));
+ *    vi.mock("@yyc3/store/useOfflineMode", () => ({ useOfflineMode: ... }));
  *    vi.mock("../hooks/useInstallPrompt", () => ({ useInstallPrompt: ... }));
  *
  * 6. Recharts — NodeDetailModal.test.tsx:

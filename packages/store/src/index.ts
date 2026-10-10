@@ -36,3 +36,4 @@ export { useSettingsSSOT } from './settings-ssot-slice';
 export type { SettingsSSOTSlice, SettingsToggles, SettingsValues, RuntimeConfig } from './settings-ssot-slice';
 export { useUIPrefsSlice } from './ui-prefs-slice';
 export type { AlertThresholds } from './ui-prefs-slice';
+export { useOfflineMode } from './useOfflineMode';

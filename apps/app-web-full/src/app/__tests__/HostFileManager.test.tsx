@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { HostFileManager } from "../modules/ops/HostFileManager";
+import { HostFileManager } from "@yyc3/ops/host-file-manager";
 
 vi.mock("@yyc3/ops/hooks/use-host-file-system", () => ({
   useHostFileSystem: vi.fn(() => ({

@@ -78,36 +78,36 @@ vi.mock("@yyc3/store/use-websocket-data", () => ({
   useWebSocketData: () => mockWsData,
 }));
 
-vi.mock("../hooks/useMobileView", () => ({
+vi.mock("@yyc3/core/useMobileView", () => ({
   useMobileView: () => mockView,
 }));
 
-vi.mock("../hooks/useKeyboardShortcuts", () => ({
+vi.mock("@yyc3/core/useKeyboardShortcuts", () => ({
   useKeyboardShortcuts: vi.fn(),
 }));
 
 // Mock sub-components with data-testid
-vi.mock("../modules/shared/TopBar", () => ({
+vi.mock("@yyc3/shell/top-bar", () => ({
   TopBar: (props: any) => <div data-testid="topbar" data-mobile={props.isMobile} />,
 }));
 
-vi.mock("../modules/shared/Sidebar", () => ({
+vi.mock("@yyc3/shell/sidebar", () => ({
   Sidebar: (props: any) => <div data-testid="sidebar" data-collapsed={props.collapsed} />,
 }));
 
-vi.mock("../modules/shared/BottomNav", () => ({
+vi.mock("@yyc3/shell/bottom-nav", () => ({
   BottomNav: () => <div data-testid="bottom-nav" />,
 }));
 
-vi.mock("../modules/shared/AIAssistant", () => ({
+vi.mock("@yyc3/shell/ai-assistant", () => ({
   AIAssistant: () => <div data-testid="ai-assistant" />,
 }));
 
-vi.mock("../modules/shared/CommandPalette", () => ({
+vi.mock("@yyc3/shell/command-palette", () => ({
   CommandPalette: () => <div data-testid="command-palette" />,
 }));
 
-vi.mock("../modules/dev/IntegratedTerminal", () => ({
+vi.mock("@yyc3/shell/integrated-terminal", () => ({
   IntegratedTerminal: () => <div data-testid="integrated-terminal" />,
 }));
 
@@ -115,11 +115,11 @@ vi.mock("@yyc3/admin/pwa-install-prompt", () => ({
   PWAInstallPrompt: () => <div data-testid="pwa-prompt" />,
 }));
 
-vi.mock("../modules/shared/OfflineIndicator", () => ({
+vi.mock("@yyc3/shell/offline-indicator", () => ({
   OfflineIndicator: () => <div data-testid="offline-indicator" />,
 }));
 
-vi.mock("../modules/shared/ErrorBoundary", () => ({
+vi.mock("@yyc3/shell/error-boundary", () => ({
   __esModule: true,
   ErrorBoundary: ({ children }: any) => <div data-testid="error-boundary">{children}</div>,
   default: ({ children }: any) => <div data-testid="error-boundary">{children}</div>,
@@ -150,7 +150,7 @@ vi.mock("@yyc3/core/view-context", () => ({
   WebSocketContext: React.createContext(null),
 }));
 
-import { Layout } from "../modules/shared/Layout";
+import { Layout } from "@yyc3/shell/layout";
 import { WebSocketContext, ViewContext } from "../lib/view-context";
 
 describe("Layout", () => {

@@ -173,6 +173,9 @@ importers:
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../../packages/ops
+      '@yyc3/shell':
+        specifier: workspace:*
+        version: link:../../packages/shell
       '@yyc3/store':
         specifier: workspace:*
         version: link:../../packages/store
@@ -799,6 +802,9 @@ importers:
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../../packages/ops
+      '@yyc3/shell':
+        specifier: workspace:*
+        version: link:../../packages/shell
       '@yyc3/store':
         specifier: workspace:*
         version: link:../../packages/store
@@ -1178,6 +1184,9 @@ importers:
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../../packages/ops
+      '@yyc3/shell':
+        specifier: workspace:*
+        version: link:../../packages/shell
       '@yyc3/store':
         specifier: workspace:*
         version: link:../../packages/store
@@ -1559,6 +1568,12 @@ importers:
       '@types/react':
         specifier: ^19.2.14
         version: 19.3.0
+      react-router:
+        specifier: ^7.1.1
+        version: 7.18.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1702,9 +1717,15 @@ importers:
 
   packages/ops:
     dependencies:
+      '@yyc3/admin':
+        specifier: workspace:*
+        version: link:../admin
       '@yyc3/core':
         specifier: workspace:*
         version: link:../core
+      '@yyc3/ide':
+        specifier: workspace:*
+        version: link:../ide
       '@yyc3/store':
         specifier: workspace:*
         version: link:../store
@@ -1727,6 +1748,49 @@ importers:
       recharts:
         specifier: ^3.8.1
         version: 3.10.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react-is@19.3.0)(react@19.3.0)(redux@5.0.1)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/shell:
+    dependencies:
+      '@yyc3/admin':
+        specifier: workspace:*
+        version: link:../admin
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3/ide':
+        specifier: workspace:*
+        version: link:../ide
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.9.9
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.3.0
+      lucide-react:
+        specifier: ^1.8.0
+        version: 1.54.0(@types/react@19.3.0)(react@19.3.0)
+      motion:
+        specifier: ^12.23.24
+        version: 12.43.0(@emotion/is-prop-valid@1.4.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.3.0
+      react-router:
+        specifier: ^7.1.1
+        version: 7.18.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       sonner:
         specifier: ^2.0.7
         version: 2.0.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

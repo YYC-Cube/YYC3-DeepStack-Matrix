@@ -47,7 +47,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({ t: mockT }),
 }));
 
-import { BottomNav } from "../components/BottomNav";
+import { BottomNav } from "@yyc3/shell/bottom-nav";
 
 describe("BottomNav", () => {
   beforeEach(() => {

@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { DatabaseManager } from "../components/DatabaseManager";
+import { DatabaseManager } from "@yyc3/ops/database-manager";
 
 vi.mock("@yyc3/ops/hooks/use-local-database", () => ({
   useLocalDatabase: vi.fn(() => ({

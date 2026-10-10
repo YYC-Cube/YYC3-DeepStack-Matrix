@@ -31,7 +31,7 @@ vi.mock("../lib/crypto-vault", () => ({
   isCryptoAvailable: vi.fn(() => true),
 }));
 
-vi.mock("../lib/full-backup", () => ({
+vi.mock("@yyc3/ops/full-backup", () => ({
   downloadFullBackup: vi.fn(() => Promise.resolve()),
   importFullBackup: vi.fn(() => Promise.resolve({ success: true, errors: [] })),
 }));

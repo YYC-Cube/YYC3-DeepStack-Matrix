@@ -13,10 +13,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import * as React from "react";
-import { CommandPalette } from "../components/CommandPalette";
+import { CommandPalette } from "@yyc3/shell/command-palette";
 
 import { useI18n } from "@yyc3/core/i18n";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { useKeyboardShortcuts } from "@yyc3/core/useKeyboardShortcuts";
 
 const mockNavigate = vi.fn();
 const mockTriggerShortcut = vi.fn();
@@ -33,7 +33,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../hooks/useKeyboardShortcuts", () => ({
+vi.mock("@yyc3/core/useKeyboardShortcuts", () => ({
   useKeyboardShortcuts: vi.fn(() => ({
     shortcutKeys: "Ctrl+K",
     triggerShortcut: mockTriggerShortcut,

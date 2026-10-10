@@ -10,7 +10,7 @@
  */
 
 import { lazy, Suspense, type ComponentType } from "react";
-import { ErrorBoundary } from "../shared/ErrorBoundary";
+import { ErrorBoundary } from "@yyc3/shell/error-boundary";
 
 function RouteLoadingFallback() {
   return (

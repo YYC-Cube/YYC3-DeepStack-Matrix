@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useKeyboardShortcuts, SHORTCUT_LIST } from "../hooks/useKeyboardShortcuts";
+import { useKeyboardShortcuts, SHORTCUT_LIST } from "@yyc3/core/useKeyboardShortcuts";
 
 const mockNavigate = vi.fn();
 

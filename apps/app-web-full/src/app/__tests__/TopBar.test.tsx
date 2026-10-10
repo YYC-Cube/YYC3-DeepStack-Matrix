@@ -15,7 +15,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { BrowserRouter } from "react-router";
-import { TopBar } from "../modules/shared/TopBar";
+import { TopBar } from "@yyc3/shell/top-bar";
 import { isGhostMode } from "@yyc3/core/supabaseClient";
 import type { ConnectionState } from "../types";
 
@@ -35,11 +35,11 @@ vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo">YYC3 Logo</div>,
 }));
 
-vi.mock("../modules/shared/ConnectionStatus", () => ({
+vi.mock("@yyc3/shell/connection-status", () => ({
   ConnectionStatus: () => <div data-testid="connection-status">Connected</div>,
 }));
 
-vi.mock("../modules/shared/LanguageSwitcher", () => ({
+vi.mock("@yyc3/shell/language-switcher", () => ({
   LanguageSwitcher: () => <div data-testid="language-switcher">Language</div>,
 }));
 

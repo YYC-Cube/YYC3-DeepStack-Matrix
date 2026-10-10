@@ -13,7 +13,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { NotFound } from "../modules/shared/NotFound";
+import { NotFound } from "@yyc3/shell/not-found";
 
 const mockNavigate = vi.fn();
 

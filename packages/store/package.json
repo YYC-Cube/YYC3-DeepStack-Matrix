@@ -28,6 +28,7 @@
     "./use-model-provider": "./src/use-model-provider.ts",
     "./use-websocket-data": "./src/use-websocket-data.ts",
     "./use-settings-store": "./src/use-settings-store.ts",
+    "./useOfflineMode": "./src/useOfflineMode.ts",
     "./use-big-model-sdk": "./src/use-big-model-sdk.ts",
     "./global-store": "./src/global-store.ts"
   },

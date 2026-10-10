@@ -25,7 +25,7 @@ import {
   List,
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
-import { ViewContext } from "../../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { connectionManager } from "../../../database/ConnectionManager";
 import type { ConnectionInfo, HealthCheckResult, PoolStats } from "../../../database/types";
 import { useDbConnSlice } from "@yyc3/store/db-conn-slice";

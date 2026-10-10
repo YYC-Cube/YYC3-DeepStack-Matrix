@@ -17,7 +17,7 @@ import {
   Radar, PieChart, ScrollText,
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
-import { ConfigExportCenter } from "../ops/ConfigExportCenter";
+import { ConfigExportCenter } from "@yyc3/ops/config-export-center";
 import {
   getActiveModels, getNodesStatus, getAllAgents,
   addDbModel, updateDbModel, deleteDbModel,

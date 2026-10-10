@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useMobileView } from "../hooks/useMobileView";
+import { useMobileView } from "@yyc3/core/useMobileView";
 
 describe("useMobileView", () => {
   it("should detect mobile view for small screens", () => {

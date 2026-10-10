@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { LocalFileManager } from "../components/LocalFileManager";
+import { LocalFileManager } from "@yyc3/ops/local-file-manager";
 
 vi.mock("@yyc3/ops/hooks/use-local-file-system", () => ({
   useLocalFileSystem: vi.fn(() => ({

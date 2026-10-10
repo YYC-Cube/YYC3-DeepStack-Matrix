@@ -189,7 +189,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 }));
 
 // Mock Layout ViewContext
-vi.mock("../components/Layout", () => ({
+vi.mock("@yyc3/shell/layout", () => ({
   ViewContext: {},
 }));
 

@@ -15,7 +15,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { BrowserRouter } from "react-router";
-import { Sidebar } from "../modules/shared/Sidebar";
+import { Sidebar } from "@yyc3/shell/sidebar";
 
 vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({

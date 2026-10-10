@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { ServiceConnectionTest } from "../modules/ops/ServiceConnectionTest";
+import { ServiceConnectionTest } from "@yyc3/ops/service-connection-test";
 
 vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({

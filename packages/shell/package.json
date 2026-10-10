@@ -1,0 +1,49 @@
+{
+  "name": "@yyc3/shell",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一应用壳层库 — Layout 族 + 导航单源（NavRegistry）+ 全局交互层（主文档 Phase 5 壳层专项）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ai-assistant": "./src/AIAssistant.tsx",
+    "./bottom-nav": "./src/BottomNav.tsx",
+    "./command-palette": "./src/CommandPalette.tsx",
+    "./connection-status": "./src/ConnectionStatus.tsx",
+    "./error-boundary": "./src/ErrorBoundary.tsx",
+    "./integrated-terminal": "./src/IntegratedTerminal.tsx",
+    "./language-switcher": "./src/LanguageSwitcher.tsx",
+    "./layout": "./src/Layout.tsx",
+    "./login": "./src/Login.tsx",
+    "./not-found": "./src/NotFound.tsx",
+    "./offline-indicator": "./src/OfflineIndicator.tsx",
+    "./sidebar": "./src/Sidebar.tsx",
+    "./top-bar": "./src/TopBar.tsx"
+  },
+  "peerDependencies": {
+    "lucide-react": "^1.8.0",
+    "motion": "^12.23.24",
+    "react": "^18 || ^19",
+    "react-router": "^7.1.1",
+    "sonner": "^2.0.7"
+  },
+  "dependencies": {
+    "@yyc3/admin": "workspace:*",
+    "@yyc3/core": "workspace:*",
+    "@yyc3/ide": "workspace:*",
+    "@yyc3/store": "workspace:*",
+    "@yyc3/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "lucide-react": "^1.8.0",
+    "motion": "^12.23.24",
+    "react": "^19.2.0",
+    "react-router": "^7.1.1",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3"
+  }
+}

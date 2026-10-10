@@ -61,7 +61,7 @@ vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
-vi.mock("../modules/shared/Layout", () => ({
+vi.mock("@yyc3/shell/layout", () => ({
   ViewContext: React.createContext({ isMobile: false, theme: "dark" as const }),
 }));
 

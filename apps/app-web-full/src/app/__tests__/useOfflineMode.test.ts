@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useOfflineMode } from "../hooks/useOfflineMode";
+import { useOfflineMode } from "@yyc3/store/useOfflineMode";
 import { LOCALSTORAGE_KEYS } from "@yyc3/core/yyc3-storage";
 import { useOfflineSlice } from "@yyc3/store/offline-slice";
 

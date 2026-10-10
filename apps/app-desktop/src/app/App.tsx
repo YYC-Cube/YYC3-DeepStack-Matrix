@@ -25,8 +25,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { RouterProvider } from "react-router";
 import { router } from "./routes";
-import { Login } from "./components/Login";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Login } from "@yyc3/shell/login";
+import { ErrorBoundary } from "@yyc3/shell/error-boundary";
 import { installGlobalErrorListeners } from "@yyc3/core/error-handler";
 import { supabase, ghostSignIn, isGhostMode } from "@yyc3/core/supabaseClient";
 import { useYYC3Head } from "./hooks/useYYC3Head";

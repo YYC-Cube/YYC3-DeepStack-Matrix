@@ -1594,3 +1594,18 @@ export interface TerminalHistoryEntry {
   timestamp: number;
   status: "success" | "error" | "info";
 }
+
+// ══════════════════════════════════════════════════════════
+// P5 语义段：shell 快捷键（useKeyboardShortcuts 依赖，三端 ui-types L0 并入）
+// ══════════════════════════════════════════════════════════
+
+/** 已注册快捷键 (用于帮助面板展示) */
+export interface RegisteredShortcut {
+  id: string;
+  keys: string;
+  description: string;
+  category: string;
+}
+
+/** 命令面板分类（AIAssistant/CommandPalette 消费） */
+export type CommandCategory = "cluster" | "model" | "data" | "security" | "monitor";

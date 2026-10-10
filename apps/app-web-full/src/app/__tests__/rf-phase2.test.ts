@@ -27,7 +27,7 @@ import type {
 
 describe("RF-011: 404 通配路由", () => {
   it("NotFound 组件可正确导入", async () => {
-    const mod = await import("../modules/shared/NotFound");
+    const mod = await import("@yyc3/shell/not-found");
     expect(mod.NotFound).toBeDefined();
     expect(typeof mod.NotFound).toBe("function");
   });
@@ -285,7 +285,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
 describe("Phase 2 综合验证", () => {
   it("所有 Phase 2 模块可正确导入 (无编译错误)", async () => {
     const results = await Promise.allSettled([
-      import("../modules/shared/NotFound"),
+      import("@yyc3/shell/not-found"),
       import("@yyc3/core/yyc3-storage"),
       import("@yyc3/core/api-config"),
       import("@yyc3/monitor/hooks/use-alert-rules"),

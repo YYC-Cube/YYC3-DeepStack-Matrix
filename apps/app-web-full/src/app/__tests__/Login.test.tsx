@@ -13,7 +13,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { Login } from "../modules/shared/Login";
+import { Login } from "@yyc3/shell/login";
 import { supabase } from "@yyc3/core/supabaseClient";
 
 vi.mock("@yyc3/core/supabaseClient", () => ({

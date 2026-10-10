@@ -11,9 +11,9 @@
 
 import { lazy, Suspense, type ComponentType } from "react";
 import { createHashRouter } from "react-router";
-import { ErrorBoundary } from "./modules/shared/ErrorBoundary";
-import { Layout } from "./modules/shared/Layout";
-import { NotFound } from "./modules/shared/NotFound";
+import { ErrorBoundary } from "@yyc3/shell/error-boundary";
+import { Layout } from "@yyc3/shell/layout";
+import { NotFound } from "@yyc3/shell/not-found";
 
 // ============================================================
 //  Loading 占位组件
@@ -68,7 +68,7 @@ const OperationCenter = lazy(() =>
   import("@yyc3/ops/operation-center").then((m) => ({ default: m.OperationCenter })),
 );
 const LocalFileManager = lazy(() =>
-  import("./modules/ops/LocalFileManager").then((m) => ({ default: m.LocalFileManager })),
+  import("@yyc3/ops/local-file-manager").then((m) => ({ default: m.LocalFileManager })),
 );
 const AISuggestionPanel = lazy(() =>
   import("./modules/monitor/AISuggestionPanel").then((m) => ({ default: m.AISuggestionPanel })),
@@ -120,10 +120,10 @@ const AIDiagnostics = lazy(() =>
   import("@yyc3/ai/aidiagnostics").then((m) => ({ default: m.AIDiagnostics })),
 );
 const HostFileManager = lazy(() =>
-  import("./modules/ops/HostFileManager").then((m) => ({ default: m.HostFileManager })),
+  import("@yyc3/ops/host-file-manager").then((m) => ({ default: m.HostFileManager })),
 );
 const DatabaseManager = lazy(() =>
-  import("./modules/ops/DatabaseManager").then((m) => ({ default: m.DatabaseManager })),
+  import("@yyc3/ops/database-manager").then((m) => ({ default: m.DatabaseManager })),
 );
 const RefactoringReport = lazy(() =>
   import("./modules/dev/RefactoringReport").then((m) => ({ default: m.RefactoringReport })),
@@ -138,7 +138,7 @@ const EnvConfigEditor = lazy(() =>
   import("@yyc3/admin/env-config-editor").then((m) => ({ default: m.EnvConfigEditor })),
 );
 const DatabaseConnectionPanel = lazy(() =>
-  import("./modules/ops/DatabaseConnectionPanel").then((m) => ({ default: m.DatabaseConnectionPanel })),
+  import("@yyc3/ops/database-connection-panel").then((m) => ({ default: m.DatabaseConnectionPanel })),
 );
 const ConnectionMonitorPanel = lazy(() =>
   import("./modules/ops/ConnectionMonitorPanel").then((m) => ({ default: m.ConnectionMonitorPanel })),
@@ -156,7 +156,7 @@ const AIFamilyRouter = lazy(() =>
   import("@yyc3/ai-family/ai-family-router").then((m) => ({ default: m.AIFamilyRouter })),
 );
 const ServiceConnectionTest = lazy(() =>
-  import("./modules/ops/ServiceConnectionTest").then((m) => ({ default: m.ServiceConnectionTest })),
+  import("@yyc3/ops/service-connection-test").then((m) => ({ default: m.ServiceConnectionTest })),
 );
 const FollowUpManager = lazy(() =>
   import("@yyc3/monitor/follow-up-manager").then((m) => ({ default: m.FollowUpManager })),
@@ -180,7 +180,7 @@ const SDKChatPanel = lazy(() =>
   import("@yyc3/monitor/sdk-chat-panel").then((m) => ({ default: m.SDKChatPanel })),
 );
 const ConfigExportCenter = lazy(() =>
-  import("./modules/ops/ConfigExportCenter").then((m) => ({ default: m.ConfigExportCenter })),
+  import("@yyc3/ops/config-export-center").then((m) => ({ default: m.ConfigExportCenter })),
 );
 
 // ============================================================

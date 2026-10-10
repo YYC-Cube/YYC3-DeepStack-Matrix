@@ -33,7 +33,7 @@ import { toast } from "sonner";
 import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
 import { useI18n } from "@yyc3/core/i18n";
 import { isCryptoAvailable } from "../../lib/crypto-vault";
-import { downloadFullBackup, importFullBackup } from "../../lib/full-backup";
+import { downloadFullBackup, importFullBackup } from "@yyc3/ops/full-backup";
 import { useProviderSlice, useSettingsSSOT } from "../../store";
 import type { ModelProviderDef } from "../../types/model-provider-types";
 import {

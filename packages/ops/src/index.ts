@@ -12,8 +12,13 @@
  */
 
 // 组件
+export { ConfigExportCenter } from "./ConfigExportCenter";
+export { DatabaseConnectionPanel } from "./DatabaseConnectionPanel";
+export { DatabaseManager } from "./DatabaseManager";
 export { DataFlowDiagram } from "./DataFlowDiagram";
 export { FileBrowser } from "./FileBrowser";
+export { HostFileManager } from "./HostFileManager";
+export { LocalFileManager } from "./LocalFileManager";
 export { LogViewer } from "./LogViewer";
 export { LoopStageCard } from "./LoopStageCard";
 export { OperationCategory } from "./OperationCategory";
@@ -24,7 +29,11 @@ export { OperationTemplate } from "./OperationTemplate";
 export { QuickActionGrid } from "./QuickActionGrid";
 export { ReportExporter } from "./ReportExporter";
 export { ReportGenerator } from "./ReportGenerator";
+export { ServiceConnectionTest } from "./ServiceConnectionTest";
 export { ServiceLoopPanel } from "./ServiceLoopPanel";
+
+// lib
+export { exportFullBackup, importFullBackup } from "./full-backup";
 
 // 域 hooks
 export { useHostFileSystem } from "./hooks/useHostFileSystem";

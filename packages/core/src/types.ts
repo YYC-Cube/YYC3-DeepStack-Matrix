@@ -1635,3 +1635,80 @@ export interface NetworkConfigState {
   testError: string;
   detecting: boolean;
 }
+
+// ══════════════════════════════════════════════════════════
+// P5 第三轮语义段：分件整件翻正补录（8 类型自 app 分件真源迁移）
+// ══════════════════════════════════════════════════════════
+
+/** AI 分析结果（ai-analysis-types） */
+export interface AIAnalysisResult {
+  patterns: DetectedPattern[];
+  recommendations: AIRecommendation[];
+  overallHealth: number;
+  analysisTime: number;
+  lastAnalyzedAt: number;
+}
+
+/** 最近操作条目（dashboard-types） */
+export interface RecentOpEntry {
+  id: string;
+  action: string;
+  target: string;
+  user: string;
+  time: string;
+  status: "success" | "running" | "pending" | "warning" | "error";
+}
+
+/** 快捷操作（followup-types） */
+export interface QuickAction {
+  id: string;
+  label: string;
+  icon: string;
+  variant: "default" | "primary" | "warning" | "danger" | "success";
+  action: () => void;
+}
+
+/** 宿主文件系统状态（host-fs-types） */
+export interface HostFSState {
+  supported: boolean;
+  rootHandle: FileSystemDirectoryHandle | null;
+  rootName: string;
+  entries: HostFileEntry[];
+  currentPath: string[];
+  selectedEntry: HostFileEntry | null;
+  editingContent: string | null;
+  versions: FileVersion[];
+  loading: boolean;
+}
+
+/** SDK Chat 请求（sdk-types） */
+export interface SDKChatRequest {
+  model: string;
+  messages: { role: ChatRole; content: string }[];
+  temperature?: number;
+  maxTokens?: number;
+  stream?: boolean;
+}
+
+/** 键盘快捷键注册（ui-types） */
+export interface KeyboardShortcut {
+  id: string;
+  keys: string;
+  description: string;
+  category: string;
+  action: () => void;
+}
+
+/** 命令面板条目（ui-types） */
+export interface CommandPaletteItem {
+  id: string;
+  label: string;
+  description?: string;
+  category: string;
+  icon?: string;
+  shortcut?: string;
+  action: () => void;
+}
+
+/** IDE 面板 Tab（ui-types） */
+export type IDEPanelTab = "monitor" | "alerts" | "operations" | "logs";

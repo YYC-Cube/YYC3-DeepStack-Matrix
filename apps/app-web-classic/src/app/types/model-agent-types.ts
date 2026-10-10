@@ -1,57 +1,18 @@
 /**
  * @file: model-agent-types.ts
- * @description: 模型配置 + Agent 定义 + 推理日志
+ * @description: 类型桥（整件翻正）— 单源 @yyc3/core/types（P5 第三轮 types 收敛）
  * @author: YanYuCloudCube Team
- * @version: v1.0.0
- * @created: 2026-04-20
- * @updated: 2026-04-20
+ * @version: v3.0.0
+ * @updated: 2026-10-10
  * @status: active
- * @tags: [types],[model],[agent]
+ * @tags: [types],[bridge]
  */
 
-/** 模型层级 */
-export type ModelTier = "primary" | "secondary" | "standby";
-
-/** 模型配置（DB Schema: core.models） */
-export interface Model {
-  id: string;
-  name: string;
-  provider: string;
-  tier: ModelTier;
-  avg_latency_ms: number;
-  throughput: number;
-  created_at: string;
-}
-
-/** Agent 配置（DB Schema: core.agents） */
-export interface Agent {
-  id: string;
-  name: string;
-  name_cn: string;
-  role: string;
-  description: string;
-  is_active: boolean;
-}
-
-/** 推理日志状态 */
-export type InferenceStatus = "success" | "error" | "timeout";
-
-/** 推理日志（DB Schema: telemetry.inference_logs） */
-export interface InferenceLog {
-  id: string;
-  model_id: string;
-  agent_id: string;
-  latency_ms: number;
-  tokens_in: number;
-  tokens_out: number;
-  status: InferenceStatus;
-  created_at: string;
-}
-
-/** 模型性能统计（聚合查询结果） */
-export interface ModelStats {
-  avgLatency: number;
-  totalRequests: number;
-  totalTokens: number;
-  successRate: number;
-}
+export type {
+  ModelTier,
+  Model,
+  Agent,
+  InferenceStatus,
+  InferenceLog,
+  ModelStats,
+} from "@yyc3/core/types";

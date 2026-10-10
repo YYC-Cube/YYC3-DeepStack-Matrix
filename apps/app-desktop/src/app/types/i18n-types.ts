@@ -1,28 +1,15 @@
 /**
  * @file: i18n-types.ts
- * @description: 国际化类型 — 语言枚举 + 上下文
+ * @description: 类型桥（整件翻正）— 单源 @yyc3/core/types（P5 第三轮 types 收敛）
  * @author: YanYuCloudCube Team
- * @version: v1.0.0
- * @created: 2026-04-20
- * @updated: 2026-04-20
+ * @version: v3.0.0
+ * @updated: 2026-10-10
  * @status: active
- * @tags: [types],[i18n]
+ * @tags: [types],[bridge]
  */
 
-/** 支持的语言 */
-export type Locale = "zh-CN" | "en-US";
-
-/** 语言元信息 */
-export interface LocaleInfo {
-  code: Locale;
-  label: string;
-  nativeLabel: string;
-}
-
-/** 国际化上下文值 */
-export interface I18nContextValue {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
-  t: (key: string, vars?: Record<string, string | number>) => string;
-  locales: LocaleInfo[];
-}
+export type {
+  Locale,
+  LocaleInfo,
+  I18nContextValue,
+} from "@yyc3/core/types";

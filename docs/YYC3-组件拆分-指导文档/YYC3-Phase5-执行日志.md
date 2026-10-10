@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase5-执行日志.md
-description: Phase 5 壳层专项 — @yyc3/shell 建包（NavRegistry 单源）+ ops 二包终态 + 智慧酒店结案 + dev 域定性；第二轮引擎层包化 + 暂缓件清空 + 视觉 a11y 台账
+description: Phase 5 壳层专项 — @yyc3/shell 建包（NavRegistry 单源）+ ops 二包终态 + 智慧酒店结案 + dev 域定性；第二轮引擎层包化 + 暂缓件清空 + 视觉 a11y 台账；第三轮 types 整件翻正 + 视觉走查专项 + Phase 6 门禁框架
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.1.0
+version: v1.2.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase5],[shell],[nav-registry],[ops-second-pack],[database-engine],[visual-audit],[closure],[handoff]
+tags: [phase5],[shell],[nav-registry],[ops-second-pack],[database-engine],[visual-audit],[types-flip],[phase6-gates],[closure],[handoff]
 category: report
 ---
 
@@ -14,6 +14,26 @@ category: report
 
 > 规划输入：[`phase5-ledger/01-P5-壳层专项与ops二包方案.md`](./phase5-ledger/01-P5-壳层专项与ops二包方案.md)
 > 上游：Phase 4 交接（v1.17.0 工程面全达成 → Phase 5 壳层专项 + 可选 ops 二包/dev 定性）。
+
+## 第三轮：types 整件翻正 + 视觉走查专项 + Phase 6 门禁框架（2026-10-10）
+
+### 达成总览
+
+| 节点 | 结果 |
+| ---- | ---- |
+| **types 整件翻正** | 28 分件审计（node 脚本提取定义体 → 规范化 → 与 core/types 逐字段比对三分类）→ **24 件整件翻正为纯桥**（三端同步 ×24 文件）：18 件全同直翻 + 6 件补录 8 类型后翻（AIAnalysisResult/RecentOpEntry/QuickAction/HostFSState/SDKChatRequest/KeyboardShortcut/CommandPaletteItem/IDEPanelTab 自分件真源迁 core/types，1714L）；**2 件值函数保留**（node-types 留 toNodeData、database-types 留 toConnectionInfo/toDBConnection 双向转换）+ **2 件留端**（storage.ts StorageEvent union 窄版保护 / design-system-types 12 类型全缺域专属） |
+| **视觉走查专项** | P1 起服 **3031**（3030 被外部项目占用——偏差登记）→ 登录墙实证（未登录全路由重定向 Login，认证链正常）→ **GHOST MODE 全权进入** → **15 业务页真实渲染全通过**（8 大导航全覆盖：首页时钟环/AI-FAmily/AI 诊断/监控×2/运维×3/系统×3/通讯基站/智慧酒店/IDE/设计系统）+ 首轮 12 路由结构断言（title/#root 挂载/非白屏/非登录墙）+ 真实路由 grep 实证补走 8 页；15 截图存档 `/tmp/p5-visual/` |
+| **Phase 6 门禁框架** | **六阶段本地门禁** `scripts/verify-gates.sh`（G1 十二包 tsc / G2 四端 tsc / G3 四端 build / G4 失效 vi.mock 扫描 / G5 i18n 裸键扫描 / G6 复用率报表）+ 三工具沉淀（`mock-audit.mjs`/`i18n-bare-key-scan.mjs`/`reuse-report.mjs`）+ `.github/workflows/ci.yml`（checkout→pnpm→gates→vitest，后续 SAST/Lighthouse/Electron/Docker 注释登记）+ 根 package.json `gates`/`gates:quick` 入口 |
+| 验证矩阵 | 十二包 tsc=0 + 四端 tsc=0 + build 全绿——**连续第五轮**；**全链路门禁通过**（G1/G2/G3/G4 ✅，G5 ⚠️ 存量 16 处登记待清，G6 复用率 38.2%/37.6%/37.5%） |
+
+### 关键实证
+
+- **纯 type 桥漏值导出陷阱**：翻正脚本只抓 type/interface——node-types 的 toNodeData、database-types 的 toConnectionInfo/toDBConnection 三个 `export function` 被桥丢弃 → 三端 tsc TS2305 连锁暴露 → 值函数体自 HEAD 提取回填 + 桥文件头补 `import type`。教训：**桥化脚本导出面清单必须由脚本从原文件全量提取（type+interface+function），不手写**
+- **混源 import 判定**：database-types 桥的 ConnectionInfo/ConnectionStatus 真源在 `@yyc3/core/database/types` 而 DBConnection 族在 `@yyc3/core/types`——单源 import 报 TS2305 → 拆双 import；导出清单手写误含 QueryParams（真源在 database/types L141 非 core/types）漏 ChangeType 族——**第二次验证「清单脚本提取」纪律**
+- **i18n 语言包解析四连败→字符级 lexer 终解**：eval 直接解析败于 `as const`；replace 剥离败于尾部 type 块；正则提取吞入 type 块；**行级括号配平败于值字符串占位符**（`"{n} 分钟前"`/`"{{count}}"` 等字符串内花括号污染配平深度，buf 一路吞到文件尾 `} as const;`）——终局：**字符级 lexer**（字符串/模板/注释/转义四态机，仅统计代码层花括号）稳定解析 1206 keys
+- **G5 三态语义**：扫描器退出码 0=✅裸键0 / 1=⚠️存量登记（不阻断，16 处：2 测试故意 nonexistent.*+ SystemSettings/UnifiedSettingsPanel settings.* 9 + admin 包 common.saving/enabled/disabled 5）/ 2=❌扫描器异常计失败——「发现存量」与「工具崩溃」分离，门禁语义不再混淆
+- **3030 端口外部占用偏差**：起服报 Port in use，Playwright 探明 3030 实为另一项目（DGX Spark 操作中心，Python 静态服务）→ P1 Vite strictPort 改 3031 重走查——端口纪律：占用即让位上移，不 kill 外部进程
+- **路由路径不猜实测**：首轮走查按 `/ai/diagnostics` 等语义猜路径全 404 → grep routes.tsx 取真实 path（ai-diagnosis/patrol/security/data-monitoring/users/ide/database/settings）补走 8/8 通过——路由消费以路由表为唯一真源
 
 ## 第二轮：引擎层包化 + 暂缓件清空 + 视觉 a11y 台账（2026-10-10）
 
@@ -73,7 +93,7 @@ category: report
 - **P2 本批零改动（git diff=0）+ HEAD 干净树同跑 4 文件 5 失败逐字一致** → 全量跑测试顺序/并发差异致此前计数掩盖，非本批回归
 - 教训：**vitest 失败文件集对比需固定文件级运行，而非全量跑差异推断**
 
-## DoD 核验矩阵
+## DoD 核验矩阵（第一轮）
 
 | DoD 项 | 结果 |
 | ------ | ---- |
@@ -84,41 +104,49 @@ category: report
 | vi.mock 一致性 | ✅ STALE=0（node 检测脚本复测） |
 | P2 无扰 | ✅ 净回归 0（存量实证） |
 
+## DoD 核验矩阵（第三轮后终态）
+
+| DoD 项 | 结果 |
+| ------ | ---- |
+| 十二包 tsc | ✅ 全 0（theme/core/store/ui/business/ai/ops/admin/monitor/ai-family/ide/shell） |
+| 四端 tsc | ✅ 全 0（P1/P3/P4/P2）——types 翻正 24 件后保持 |
+| 四端 build | ✅ 全绿——**连续第五轮全零全绿** |
+| 全链路门禁 | ✅ `pnpm gates:quick` 通过（G1/G2/G4 ✅ + G5 ⚠️ 存量登记 16 处 + G6 报表 38%） |
+| vi.mock 一致性 | ✅ STALE=0（G4 门禁化） |
+| 视觉走查 | ✅ P1 15 业务页结构断言 + 真实渲染全通过（8 大导航全覆盖） |
+
 ## 后续登记
 
-- **ConnectionMonitorPanel**：src/database 引擎层依赖 → 引擎层包化专项（P1 modules/ops 唯二留守件）
-- **dev 域 8 件**：留端终态（ArchitectureAudit/CLITerminal/DevGuidePage/RefactoringReport/ThemeCustomizer/routes/index/design-system——routes 级消费 + 端侧文档/工具页语义）
-- **P2 壳层**：独立壳层留端终态（大异构沙箱演进）
-- **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
-- **types 单源收敛**（app 28 分件 vs core 按需，桥原地翻正）
-- **admin/monitor 暂缓件**（admin 9 + AISuggestionPanel 等）：端侧留白随消费演进
+- ~~**dev 域 8 件**~~ / ~~**P2 壳层**~~ / ~~**admin/monitor 暂缓件**~~：留端终态（前轮定性不变）
+- ~~**69 视觉对照 + a11y**~~：工程面走查已完成（P1 15 页 + 8 导航全覆盖，台账 [`phase5-ledger/02`](./phase5-ledger/02-P5-视觉对照与a11y基线台账.md) 打标 ◐）；**四端逐页比对 + axe 全量扫描**留 Phase 6 视觉快照专项
+- ~~**types 单源收敛**~~：28 分件终态达成（24 纯桥 + 2 值函数桥 + 2 留端保护）
+- **Phase 6 后续**：G5 存量 16 处裸键待清（SystemSettings/UnifiedSettingsPanel settings.* 键补录或改用现有键）；CI 后续阶段（SAST/Lighthouse/Electron/Docker/视觉快照）按 ci.yml 注释逐段点亮；复用率报表口径（import 语句 @yyc3 占比 38%，DoD ≥80% 需按「域组件承接率」重定义口径）
 
 ## 交接快照
 
 ```bash
-# 复验矩阵（Phase 5 第二轮后：十二包 + 四端全零全绿连续第四轮）
-cd packages/shell && pnpm exec tsc --noEmit   # 0 错（13 件）
-cd packages/ops && pnpm exec tsc --noEmit     # 0 错（终态 20 组件 + 6 hooks + full-backup）
-cd packages/monitor && pnpm exec tsc --noEmit # 0 错（终态 21 组件 + 3 hooks，dep +ai-family）
-cd packages/admin && pnpm exec tsc --noEmit   # 0 错（终态 15 组件 + 4 hooks，dep +ops）
-cd packages/core && pnpm exec tsc --noEmit    # 0 错（+database/ 9 件 + storageManager + useNetworkConfig，exports 59 条）
-# 其余十一包同 Phase 4 终态全 0；四端 tsc=0 / build 全绿
+# 一键复验（Phase 6 门禁框架已就位）
+pnpm gates           # 全量六阶段（含四端 build）
+pnpm gates:quick     # 快速四阶段（跳 build）
+# G1 十二包 tsc / G2 四端 tsc / G4 vi.mock STALE=0
+# G5 i18n 裸键 ⚠️ 16 处存量登记（清单 /tmp/gate-i18n.log）
+# G6 复用率报表（P1 38.2% / P3 37.6% / P4 37.5%）
 
-# 包拓扑（Phase 5 第一轮后：十二包）
-# @yyc3/shell：13 件（壳层 12 + IntegratedTerminal），exports 14 条，dep core/ide/store/ui/admin
-#   NavRegistry 单源 = NAV_CATEGORIES + navItems（sidebar 子路径 + barrel）
-# @yyc3/ops：19 组件 + 6 hooks + full-backup，exports 24 条，dep +admin/+ide
-# @yyc3/core：34 件 + useMobileView/useKeyboardShortcuts（exports 48 条，types 1608L，peer +react-router/+sonner）
-# @yyc3/store：+useOfflineMode
-# 端侧：P1 modules 剩 6 域（ops 仅 index+ConnectionMonitorPanel）；P2 独立壳层
+# types 单源终态（24 纯桥形态示例）
+head -8 apps/app-web-full/src/app/types/auth-types.ts
+# → banner + export type { ... } from "@yyc3/core/types"
+
+# 视觉走查复现（P1 dev 3031）
+cd apps/app-web-full && pnpm dev -- --port 3031 --strictPort
+# → Login 页 GHOST MODE 进入 → 8 大导航逐页走查
 
 # 下次会话起点
-# → 视觉走查专项（69 截图逐页人工比对 + axe 全量扫描——台账已立 phase5-ledger/02，需四端起服）
-# → types 整件翻正（28 分件审计路线，auth/network/sync 优先；窄版保护纪律）
-# → Phase 6 质量门禁与持续发布（主文档下一阶段）
+# → Phase 6 持续发布：G5 存量 16 处裸键清理 + CI 后续阶段点亮（SAST/Lighthouse/Electron/Docker）
+# → 复用率 DoD 口径重定义（域组件承接率 vs import 占比）
+# → 四端视觉快照基线（Playwright snapshot，69 截图为 before）
 ```
 
 ---
 
 **会话状态**: ✅ 正常结束
-**Phase 5 定性**: 壳层专项工程面主体达成——12 包落地、NavRegistry 单源、ops 域终态、智慧酒店结案、dev 域定性；十二包/四端全零全绿连续第三轮
+**Phase 5 定性**: 三轮收官——①壳层专项（12 包 + NavRegistry 单源 + ops 域终态 + 智慧酒店结案 + dev 域定性）②引擎层包化（database 9 件入 core + 暂缓件清空 + 69 截图台账）③types 单源终态（24 纯桥）+ 视觉走查（15 页全过）+ Phase 6 门禁框架（六阶段全链路通过）；十二包/四端全零全绿连续第五轮，Phase 5 工程面**全量收官**，转入 Phase 6 持续发布

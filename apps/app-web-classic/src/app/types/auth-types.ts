@@ -1,36 +1,16 @@
 /**
  * @file: auth-types.ts
- * @description: 用户认证与角色类型
+ * @description: 类型桥（整件翻正）— 单源 @yyc3/core/types（P5 第三轮 types 收敛）
  * @author: YanYuCloudCube Team
- * @version: v1.0.0
- * @created: 2026-04-20
- * @updated: 2026-04-20
+ * @version: v3.0.0
+ * @updated: 2026-10-10
  * @status: active
- * @tags: [types],[auth]
+ * @tags: [types],[bridge]
  */
 
-/** 系统角色 */
-export type UserRole = "admin" | "developer";
-
-/** 认证用户 */
-export interface AppUser {
-  id: string;
-  email: string;
-  role: UserRole;
-  name: string;
-}
-
-/** 认证会话 */
-export interface AppSession {
-  user: AppUser;
-  token: string;
-  expiresAt: number;
-}
-
-/** 认证上下文数据 */
-export interface AuthContextValue {
-  logout: () => void;
-  userEmail: string;
-  userRole: UserRole | "";
-  isGhost?: boolean;
-}
+export type {
+  UserRole,
+  AppUser,
+  AppSession,
+  AuthContextValue,
+} from "@yyc3/core/types";

@@ -1,17 +1,13 @@
 /**
  * @file: common-types.ts
- * @description: 跨领域基础类型 — 所有 severity 别名的根定义
+ * @description: 类型桥（整件翻正）— 单源 @yyc3/core/types（P5 第三轮 types 收敛）
  * @author: YanYuCloudCube Team
- * @version: v1.0.0
- * @created: 2026-04-20
- * @updated: 2026-04-20
+ * @version: v3.0.0
+ * @updated: 2026-10-10
  * @status: active
- * @tags: [types],[common]
+ * @tags: [types],[bridge]
  */
 
-/**
- * RF-005: 统一基础严重级别类型
- * 所有模块的 severity 类型应基于此定义，确保跨模块类型兼容
- * 注意: PatternSeverity (low/medium/high/critical) 语义不同，保持独立
- */
-export type BaseSeverity = "info" | "warning" | "error" | "critical";
+export type {
+  BaseSeverity,
+} from "@yyc3/core/types";

@@ -1,0 +1,27 @@
+name: CI 质量门禁
+# YYC³ Monorepo Phase 6 门禁（P3 九阶段简化本地态；触发：push/PR → main）
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: 安装依赖（含安全审查）
+        run: pnpm install --frozen-lockfile && pnpm audit --audit-level high || true
+      - name: 质量门禁（tsc × 十二包/四端 + build + vi.mock + i18n + 复用率）
+        run: bash scripts/verify-gates.sh
+      - name: 测试（vitest 分片）
+        run: pnpm --filter @yyc3/app-web-full test -- --run && pnpm --filter @yyc3/app-sandbox-lite test -- --run
+      # 后续阶段（按需启用）：SAST / Lighthouse ≥0.9 / Electron 三平台 / Docker GHCR / 视觉快照比对（69 截图基线）

@@ -23,6 +23,7 @@ export { StorageConfigPanel } from "./StorageConfigPanel";
 export { StorageManager } from "./StorageManager";
 export { StorageSyncStatus } from "./StorageSyncStatus";
 export { UserManagement } from "./UserManagement";
+export { UnifiedModelManager } from "./UnifiedModelManager";
 export { VariableCenter } from "./VariableCenter";
 
 // 域内 hooks（随包 4 件）

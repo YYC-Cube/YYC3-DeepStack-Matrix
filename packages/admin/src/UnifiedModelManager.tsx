@@ -29,7 +29,7 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useI18n } from "@yyc3/core/i18n";
 import { useModelProvider } from "@yyc3/store/use-model-provider";
-import type { ConfiguredModel } from "../types";
+import type { ConfiguredModel } from "@yyc3/core/types";
 import { GlassCard } from "@yyc3/ui";
 
 const STATUS_CONFIG = {

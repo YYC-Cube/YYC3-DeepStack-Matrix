@@ -143,6 +143,8 @@ vi.mock("@yyc3/admin/network-config", () => ({
 
 vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => React.createElement("div", { "data-testid": "yyc3-logo-mock" }),
+  GlassCard: ({ children, className, ...rest }: any) =>
+    React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
 describe("SystemSettings", () => {

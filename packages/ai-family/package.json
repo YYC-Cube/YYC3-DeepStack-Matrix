@@ -90,7 +90,8 @@
     "./lib/yyc3-cluster-manager": "./src/lib/yyc3-cluster-manager.ts",
     "./lib/yyc3-cluster.types": "./src/lib/yyc3-cluster.types.ts",
     "./lib/zhipu-ai-service": "./src/lib/zhipu-ai-service.ts",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types/index.ts",
+    "./hotel-dashboard": "./src/components/HotelDashboard.tsx"
   },
   "peerDependencies": {
     "@mlc-ai/web-llm": "^0.2.82",

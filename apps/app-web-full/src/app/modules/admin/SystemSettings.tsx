@@ -61,7 +61,7 @@ import { DesignSystemPage } from "../dev/design-system/DesignSystemPage";
 import { GlassCard } from "@yyc3/ui";
 import { NetworkConfig } from "@yyc3/admin/network-config";
 import { ThemeCustomizer } from "../dev/ThemeCustomizer";
-import { UnifiedModelManager } from "../../components/UnifiedModelManager";
+import { UnifiedModelManager } from "@yyc3/admin/unified-model-manager";
 import { YYC3Logo } from "@yyc3/ui";
 
 // ============================================================

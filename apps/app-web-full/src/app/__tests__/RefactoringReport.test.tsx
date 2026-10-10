@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { RefactoringReport } from "../modules/dev/RefactoringReport";
+import { RefactoringReport } from "@yyc3/ide/refactoring-report";
 
 vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({

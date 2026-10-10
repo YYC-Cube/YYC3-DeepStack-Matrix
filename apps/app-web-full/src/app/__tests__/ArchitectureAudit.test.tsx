@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { ArchitectureAudit } from "../modules/dev/ArchitectureAudit";
+import { ArchitectureAudit } from "@yyc3/ide/architecture-audit";
 
 vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({

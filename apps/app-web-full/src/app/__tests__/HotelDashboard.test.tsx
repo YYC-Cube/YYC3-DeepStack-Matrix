@@ -11,7 +11,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { HotelDashboard } from '../modules/business/HotelDashboard';
+import { HotelDashboard } from '@yyc3/ai-family/hotel-dashboard';
 
 vi.mock('@yyc3/business/hotel-engines/ai-family-hotel-manager', () => ({
   AIFamilyHotelManager: vi.fn().mockImplementation(function () {

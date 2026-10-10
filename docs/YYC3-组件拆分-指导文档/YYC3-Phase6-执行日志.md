@@ -1,18 +1,37 @@
 ---
 file: YYC3-Phase6-执行日志.md
-description: Phase 6 持续发布 — G5 裸键归零（zh+en 补 16 键契约对齐）+ CI 四段点亮（SAST/Lighthouse/Electron/Docker）+ 复用率 DoD 双口径重定义 + 四端视觉快照基线 61 张
+description: Phase 6 持续发布 — 第一轮 G5 归零 + CI 四段 + DoD 双口径 + 视觉基线；第二轮 像素比对 61/61 + axe 首扫 + 四件 L0 包化复用率达标 83.5% + tag v3.4.2 发布演练
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.0.0
+version: v1.1.0
 created: 2026-10-11
 updated: 2026-10-11
 status: active
-tags: [phase6],[gates-zero],[ci-stages],[reuse-dod],[visual-baseline],[release]
+tags: [phase6],[gates-zero],[ci-stages],[reuse-dod],[visual-baseline],[release],[pixel-diff],[axe-scan],[l0-packaging]
 category: report
 ---
 
 # 📒 Phase 6 执行日志 · 持续发布
 
 > 上游：Phase 5 三轮收官（v1.20.0 门禁框架落地）→ 本轮四项：G5 清零 / CI 点亮 / DoD 口径 / 视觉基线。
+
+## 第二轮：像素比对 + axe 首扫 + 复用率达标 + tag 演练（2026-10-11）
+
+### 达成总览
+
+| 节点 | 结果 |
+| ---- | ---- |
+| **像素级视觉比对** | 四端重采 vs 基线 61 张（Pillow ImageChops 灰度 diff）：**PASS 61/61（100%）**——显著差像素（>30 灰阶）全部 <0.5%，DYNAMIC/REVIEW 均为 0（含首页时钟环）；**基线可复现性实证**，`toHaveScreenshot` 门禁（maxDiff 0.5%）具备接入条件；台账 [`phase6-ledger/04`](./phase6-ledger/04-P6-像素比对与axe首扫台账.md) |
+| **axe a11y 全量首扫** | 本地 `axe-core@4.14.0` 注入（Playwright add_script_tag 免外网）61 页全扫：**8 规则存量基线登记**——button-name(critical) 536 / region(moderate) 1681 / landmark-one-main 61 / page-has-heading-one 44 / label-title-only 6 / svg-img-alt 5 / select-name 2 / scrollable-region-focusable 1；TOP3 修复方向（@yyc3/ui 原语层统一修）与 a11y 基线清单闭环 |
+| **复用率 79→83.5 达标** | 三端遗留 50 件 md5 同一性审计 → **四件 L0 三端全同包化**（2937L 迁移）：HotelDashboard 885L → `@yyc3/ai-family/hotel-dashboard`（依赖方向唯一解：ai-family→business 单向已有，反向循环规避）/ UnifiedModelManager 465L → `@yyc3/admin/unified-model-manager`（唯一相对引 ConfiguredModel 真源 core/types 改包引即净）/ ArchitectureAudit 725L + RefactoringReport 861L → `@yyc3/ide`；exports +4 条 + barrel ×2 → 消费方切 9 处 + 残余清扫 10 处（测试 ×8 + P1 barrel ×2）→ git rm 三端 12 副本 → **[B'] 三端净 79.0% → 83.5% ✅ DoD ≥80% 达标**（192/230） |
+| **tag v3.4.2 发布演练** | ① gates 段：全量六阶段全绿（G3 四端 build 含包化后路由）② **Electron mac 段本地等价全通**：`electron-builder --mac --dir --publish never` exit=0 → **`YYC³ Cloud.app` 995M 产出**（未签名按预期 CSC_IDENTITY_AUTO_DISCOVERY=false）——**两处 P3 遗产坑修复**：`win.signingHashAlgorithms` 删（eb 26 schema 已移除）+ **根 overrides `brace-expansion ^2.0.2` 全树覆盖致 minimatch@3 崩**（`expand is not a function`）→ 改分线 override `brace-expansion@1 → 1.1.12`（1.x 线还原 API + 同 CVE 修复版；2.x 线自然解析）→ lockfile 三线共存 1.1.12/2.1.7/5.0.12 ③ Docker 段：daemon 未运行登记 CI 首验 ④ CI 远端首跑：remote=0 纯本地仓库实锤——待配置远程（登记） |
+| 验证矩阵 | 三包 tsc=0 一次过 + 三端 tsc=0 + **全量门禁六阶段全绿**（lockfile 分线变更后复验无扰）+ 抽测 P1 25/25 + P3 6/6 + P4 19/19（P3/P4 SystemSettings mock 存量补 GlassCard——P5b P1 修法三端补齐） |
+
+### 关键实证
+
+- **「遗产配置从未实跑」陷阱第三/四证**：electron-builder 26 首跑即 schema 拒绝（win.signingHashAlgorithms 已移除）+ overrides 全局覆盖 brace-expansion 致 minimatch@3 API 崩——与 lighthouserc 6 项过严断言、P2 routes 断链同族：**任何遗产配置（CI/构建/overrides）必须本地首跑实证后才算点亮**
+- **overrides 全局覆盖的分线修法**：`"brace-expansion@1": "1.1.12"`（pnpm 按范围 override）——既保 CVE-2025-5889 修复语义（1.x 线升修复版）又还原 minimatch@3 的 1.x API 契约；全局 `"brace-expansion": "^2.0.2"` 是「跨大版本 API 替换」型 footgun
+- **L0 包化三查纪律**：md5 三端全同 + 依赖方向判定（HotelDashboard 归属唯一解）+ 相对引用真源核验（ConfiguredModel）——四件全部一次过 tsc（源码直编 + import 全包引的 L0 红利）
+- **复用率达标路径**：不是拆「定性留端件」（SystemSettings/config 域绑定不动），而是审计出「三端全同但当年定性为留端」的 L0 件——**留端定性需随 DoD 压力复审**，md5 全同即无语义留端理由
 
 ## 第一轮：G5 归零 + CI 四段点亮 + DoD 双口径 + 视觉基线（2026-10-11）
 
@@ -44,32 +63,42 @@ category: report
 | 复用率 ≥80% | ◐ 三端净 **79.0%**（差 1 点=定性留端终态件；四端全口径 54.5% / import 口径 38.2%）——口径已重定义为「域组件承接率」，差距构成如实登记 |
 | 视觉快照基线 | ✅ 四端 61 张 + manifest + before/after 双锚点（69+61） |
 
+## DoD 核验矩阵（第二轮后终态）
+
+| DoD 项 | 结果 |
+| ------ | ---- |
+| 全链路门禁 | ✅ 六阶段全绿（两轮连续；lockfile 分线变更后复验无扰） |
+| CI 全绿（本地态） | ✅ ci.yml 3 job + release.yml 4 job；**Electron mac 段本地等价全通**（YYC³ Cloud.app 995M exit=0） |
+| Lighthouse performance ≥0.9 | ✅ 0.94（P3 preview 实测） |
+| 复用率 ≥80% | ✅ **三端净 83.5%**（四件 L0 包化 79.0→83.5；四端全口径 57.0% / import 口径 38.2%） |
+| 像素级视觉比对 | ✅ 61/61 PASS（<0.5%，基线可复现性实证） |
+| axe a11y 基线 | ✅ 61 页首扫立账（8 规则存量 + TOP3 修复方向） |
+
 ## 后续登记
 
-- **Docker 首建验证**：本地 daemon 未运行，Dockerfile v2 首次构建验证归 CI（release.yml tag 触发）
-- **Electron 产物首验**：三平台 matrix 待首次 tag 发布跑（CSC 签名 secrets 另配）
-- **像素级视觉比对**：after 基线 61 张已立，`toHaveScreenshot` 逐页比对 + axe 全量扫描为下一专项
-- **复用率 79→80**：端侧剩余 50 件为定性留端（dev 文档域/config 域绑定/routes 消费），随消费演进自然收敛，不主动强拆
+- **CI 远端首跑**：仓库 remote=0（纯本地）——待用户配置远程后 push tag v3.4.2 触发 release.yml 全链（Electron 三平台 + Docker GHCR）
+- **Docker 首建**：本地 daemon 未运行——Dockerfile v2 首次构建验证归 CI
+- **a11y 修复专项**：button-name 536（@yyc3/ui 图标按钮 aria-label 统一补全）/ landmark-one-main（Layout `<main>`）/ page-has-heading-one（PageShell h1）——按 @yyc3/ui 原语层批量修
+- **像素门禁接入**：toHaveScreenshot（maxDiff 0.5%）以 visual-baseline 61 张为参照——待 P1 Playwright 工程化接入
 
 ## 交接快照
 
 ```bash
-# 一键复验（G5 已归零、G6 双口径）
-pnpm gates:quick
-# G1 十二包 tsc / G2 四端 tsc / G4 STALE=0 / G5 裸键 0 ✅ / G6 [A]38% [B]54.5% [B']79.0%
+# 一键复验（DoD 全绿态）
+pnpm gates:quick   # 六阶段 + [B'] 83.5% 达标
 
-# Lighthouse 本地复跑（P3 preview 3032）
-cd apps/app-desktop && pnpm build && (npx vite preview --port 3032 --strictPort &) && npx lhci autorun
-
-# 视觉基线复采（工艺见 phase6-ledger/03 第一节；四端端口 3034/3031/3032/3033）
+# Electron 产物复现（本地 mac）
+cd apps/app-desktop && export CSC_IDENTITY_AUTO_DISCOVERY=false && pnpm exec electron-builder --mac --dir --publish never
+# → dist-electron/mac-arm64/YYC³ Cloud.app（995M 未签名）
 
 # 下次会话起点
-# → 像素级视觉比对专项（toHaveScreenshot + axe 全量，after 基线 61 张已立）
-# → 首次 tag 发布演练（v3.4.2：release.yml 三平台 Electron + Docker GHCR 全链）
-# → Phase 6 收官评估（DoD 差距项：复用率 79→80 与 CI 远端首跑）
+# → CI 远端首跑（用户配置 remote 后 push tag v3.4.2）
+# → a11y 修复专项（button-name 536 TOP1）
+# → 像素门禁 toHaveScreenshot 工程化接入（P1 Playwright config）
+# → Phase 6 工程面收官评估（远端 CI 首绿后 ●）
 ```
 
 ---
 
 **会话状态**: ✅ 正常结束
-**Phase 6 定性**: 持续发布第一轮——G5 归零（双语契约实证）+ CI 四段全点亮（Lighthouse 0.94 本地实证）+ DoD 双口径落地（三端净 79.0%）+ 四端视觉基线 61 张（同构渲染 ±6 字符实证）；门禁六阶段首次全绿
+**Phase 6 定性**: 持续发布两轮——第一轮 G5 归零 + CI 四段 + DoD 双口径 + 视觉基线；第二轮像素比对 61/61 + axe 立账 + 四件 L0 包化（**复用率 83.5% DoD 达标**）+ tag v3.4.2 演练（Electron 产物 995M 实落 + 两处遗产坑修复）；本地态 DoD 全绿，远端 CI 首跑为唯一余项

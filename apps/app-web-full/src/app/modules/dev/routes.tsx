@@ -54,10 +54,10 @@ const IDEPanel = lazy(() =>
   import("@yyc3/ide").then((m) => ({ default: m.IDEPanel })),
 );
 const RefactoringReport = lazy(() =>
-  import("./RefactoringReport").then((m) => ({ default: m.RefactoringReport })),
+  import("@yyc3/ide/refactoring-report").then((m) => ({ default: m.RefactoringReport })),
 );
 const ArchitectureAudit = lazy(() =>
-  import("./ArchitectureAudit").then((m) => ({ default: m.ArchitectureAudit })),
+  import("@yyc3/ide/architecture-audit").then((m) => ({ default: m.ArchitectureAudit })),
 );
 
 export const devRoutes = [

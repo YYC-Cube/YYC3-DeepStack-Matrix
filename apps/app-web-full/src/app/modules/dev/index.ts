@@ -30,8 +30,8 @@ export { ThemeCustomizer } from './ThemeCustomizer';
 export { CLITerminal } from './CLITerminal';
 export { IntegratedTerminal } from '@yyc3/shell/integrated-terminal';
 export { IDEPanel } from '@yyc3/ide';
-export { RefactoringReport } from './RefactoringReport';
-export { ArchitectureAudit } from './ArchitectureAudit';
+export { RefactoringReport } from '@yyc3/ide/refactoring-report';
+export { ArchitectureAudit } from '@yyc3/ide/architecture-audit';
 
 // IDE 子模块
 export { IDELayout } from '@yyc3/ide/ide-layout';

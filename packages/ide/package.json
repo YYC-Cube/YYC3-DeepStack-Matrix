@@ -42,7 +42,9 @@
     "./theme/color-utils": "./src/theme/color-utils.ts",
     "./theme/color-picker": "./src/theme/ColorPicker.tsx",
     "./theme/color-swatch": "./src/theme/ColorSwatch.tsx",
-    "./theme/theme-presets": "./src/theme/theme-presets.ts"
+    "./theme/theme-presets": "./src/theme/theme-presets.ts",
+    "./architecture-audit": "./src/ArchitectureAudit.tsx",
+    "./refactoring-report": "./src/RefactoringReport.tsx"
   },
   "peerDependencies": {
     "@codemirror/lang-css": "^6.3.1",

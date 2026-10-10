@@ -22,6 +22,7 @@
 // 组件
 export { AIFamilyRouter } from './components/AIFamilyRouter';
 export { AIFamilyPage } from './AIFamilyPage';
+export { HotelDashboard } from './components/HotelDashboard';
 
 // Store
 export {

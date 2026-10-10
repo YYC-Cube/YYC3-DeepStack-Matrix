@@ -7,7 +7,6 @@
     ".": "./src/index.ts",
     "./data-editor-panel": "./src/DataEditorPanel.tsx",
     "./data-editor-tables": "./src/DataEditorTables.tsx",
-    "./data-editor-panel": "./src/DataEditorPanel.tsx",
     "./network-config": "./src/NetworkConfig.tsx",
     "./storage-manager": "./src/StorageManager.tsx",
     "./storage-sync-status": "./src/StorageSyncStatus.tsx",
@@ -24,7 +23,8 @@
     "./hooks/use-security-monitor": "./src/hooks/useSecurityMonitor.ts",
     "./hooks/use-pwa-manager": "./src/hooks/usePWAManager.ts",
     "./hooks/use-install-prompt": "./src/hooks/useInstallPrompt.ts",
-    "./hooks/use-validation": "./src/hooks/useValidation.ts"
+    "./hooks/use-validation": "./src/hooks/useValidation.ts",
+    "./unified-model-manager": "./src/UnifiedModelManager.tsx"
   },
   "peerDependencies": {
     "react": "^18 || ^19",

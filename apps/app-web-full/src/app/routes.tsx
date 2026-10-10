@@ -9,11 +9,11 @@
  * @tags: [module],[routes]
  */
 
-import { lazy, Suspense, type ComponentType } from "react";
-import { createHashRouter } from "react-router";
 import { ErrorBoundary } from "@yyc3/shell/error-boundary";
 import { Layout } from "@yyc3/shell/layout";
 import { NotFound } from "@yyc3/shell/not-found";
+import { lazy, Suspense, type ComponentType } from "react";
+import { createHashRouter } from "react-router";
 
 // ============================================================
 //  Loading 占位组件
@@ -126,7 +126,7 @@ const DatabaseManager = lazy(() =>
   import("@yyc3/ops/database-manager").then((m) => ({ default: m.DatabaseManager })),
 );
 const RefactoringReport = lazy(() =>
-  import("./modules/dev/RefactoringReport").then((m) => ({ default: m.RefactoringReport })),
+  import("@yyc3/ide/refactoring-report").then((m) => ({ default: m.RefactoringReport })),
 );
 const DataEditorPanel = lazy(() =>
   import("@yyc3/admin/data-editor-panel").then((m) => ({ default: m.DataEditorPanel })),
@@ -147,7 +147,7 @@ const StorageManager = lazy(() =>
   import("@yyc3/admin/storage-manager").then((m) => ({ default: m.StorageManager })),
 );
 const ArchitectureAudit = lazy(() =>
-  import("./modules/dev/ArchitectureAudit").then((m) => ({ default: m.ArchitectureAudit })),
+  import("@yyc3/ide/architecture-audit").then((m) => ({ default: m.ArchitectureAudit })),
 );
 const AIFamilyPage = lazy(() =>
   import("@yyc3/ai-family/ai-family-page").then((m) => ({ default: m.AIFamilyPage })),
@@ -171,7 +171,7 @@ const UnifiedSettingsPanel = lazy(() =>
   import("./modules/admin/UnifiedSettingsPanel").then((m) => ({ default: m.UnifiedSettingsPanel })),
 );
 const HotelDashboard = lazy(() =>
-  import("./modules/business/HotelDashboard").then((m) => ({ default: m.HotelDashboard })),
+  import("@yyc3/ai-family/hotel-dashboard").then((m) => ({ default: m.HotelDashboard })),
 );
 const CommStationPanel = lazy(() =>
   import("@yyc3/business/comm-station-panel").then((m) => ({ default: m.CommStationPanel })),

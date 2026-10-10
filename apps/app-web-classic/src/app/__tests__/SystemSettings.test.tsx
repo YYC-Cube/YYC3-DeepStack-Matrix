@@ -137,7 +137,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../components/NetworkConfig", () => ({
+vi.mock("@yyc3/admin/network-config", () => ({
   NetworkConfig: () => React.createElement("div", { "data-testid": "network-config-mock" }),
 }));
 

@@ -30,10 +30,10 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
-import { useNetworkConfig } from "../hooks/useNetworkConfig";
-import type { TestStatus } from "../types";
+import { useNetworkConfig } from "@yyc3/core/useNetworkConfig";
+import type { TestStatus } from "@yyc3/core/types";
 import { toast } from "sonner";
-import type { WifiAutoReconnectSettings } from "../types";
+import type { WifiAutoReconnectSettings } from "@yyc3/core/types";
 import { useNetworkSlice } from "@yyc3/store/network-slice";
 
 interface NetworkConfigProps {

@@ -13,6 +13,7 @@
 
 // 组件
 export { ConfigExportCenter } from "./ConfigExportCenter";
+export { ConnectionMonitorPanel } from "./ConnectionMonitorPanel";
 export { DatabaseConnectionPanel } from "./DatabaseConnectionPanel";
 export { DatabaseManager } from "./DatabaseManager";
 export { DataFlowDiagram } from "./DataFlowDiagram";

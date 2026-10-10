@@ -1609,3 +1609,29 @@ export interface RegisteredShortcut {
 
 /** 命令面板分类（AIAssistant/CommandPalette 消费） */
 export type CommandCategory = "cluster" | "model" | "data" | "security" | "monitor";
+
+/** 离线队列项（storageManager 消费） */
+export interface OfflineQueueItem {
+  type: string;
+  data: unknown;
+  timestamp?: number;
+}
+
+/** 同步数据载荷（storageManager 消费） */
+export interface SyncData {
+  models?: unknown[];
+  agents?: unknown[];
+  nodes?: unknown[];
+  [key: string]: unknown;
+}
+
+/** useNetworkConfig Hook 状态 */
+export interface NetworkConfigState {
+  config: NetworkConfig;
+  interfaces: NetworkInterface[];
+  localIP: string;
+  testStatus: TestStatus;
+  testLatency: number;
+  testError: string;
+  detecting: boolean;
+}

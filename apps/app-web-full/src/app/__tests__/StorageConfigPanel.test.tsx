@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { StorageConfigPanel } from "../modules/admin/StorageConfigPanel";
+import { StorageConfigPanel } from "@yyc3/admin/storage-config-panel";
 
 vi.mock("@yyc3/core/i18n", () => ({
   useI18n: vi.fn(() => ({

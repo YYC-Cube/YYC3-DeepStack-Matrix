@@ -23,7 +23,7 @@ import type {
   Model,
   Agent,
   NodeStatusRecord,
-} from "../app/types/index";
+} from "../types";
 
 export interface SyncConfig {
   enabled: boolean;

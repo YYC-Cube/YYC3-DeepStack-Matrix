@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase5-执行日志.md
-description: Phase 5 壳层专项 — @yyc3/shell 建包（NavRegistry 单源）+ ops 二包终态 + 智慧酒店结案 + dev 域定性
+description: Phase 5 壳层专项 — @yyc3/shell 建包（NavRegistry 单源）+ ops 二包终态 + 智慧酒店结案 + dev 域定性；第二轮引擎层包化 + 暂缓件清空 + 视觉 a11y 台账
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.0.0
+version: v1.1.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase5],[shell],[nav-registry],[ops-second-pack],[closure],[handoff]
+tags: [phase5],[shell],[nav-registry],[ops-second-pack],[database-engine],[visual-audit],[closure],[handoff]
 category: report
 ---
 
@@ -14,6 +14,27 @@ category: report
 
 > 规划输入：[`phase5-ledger/01-P5-壳层专项与ops二包方案.md`](./phase5-ledger/01-P5-壳层专项与ops二包方案.md)
 > 上游：Phase 4 交接（v1.17.0 工程面全达成 → Phase 5 壳层专项 + 可选 ops 二包/dev 定性）。
+
+## 第二轮：引擎层包化 + 暂缓件清空 + 视觉 a11y 台账（2026-10-10）
+
+### 达成总览
+
+| 节点 | 结果 |
+| ---- | ---- |
+| database 引擎层包化 | **9 件三端 L0 全同**（ConnectionManager/Monitor/Pool/DatabaseAdapter/IndexManager/QueryAnalyzer/QueryCache/SlowQueryMonitor/types，3429L）→ `@yyc3/core/database/*`（exports 48→59 条）；DatabaseAdapter 内 `../app/types/index` 引修正 core/types |
+| ConnectionMonitorPanel | 引擎层通后随 `@yyc3/ops`（终态 **20 组件**）→ **P1 modules/ops 目录整域清空** |
+| AISuggestionPanel | 依赖复核全通（ai-family hooks + monitor 域件 + view-context）随 `@yyc3/monitor`（终态 **21 组件**，dep +ai-family）→ **P1 modules/monitor 目录整域清空** |
+| admin 暂缓件清空 | 可通 5 件（DataEditorPanel/NetworkConfig/StorageConfigPanel/StorageManager/StorageSyncStatus）随 `@yyc3/admin`（终态 **15 组件**，dep +ops）；storageManager.ts + useNetworkConfig.ts 入 core（exports +2）；**留端终态 4 件**：SystemSettings/ConfigCenter/PageConfigEditor（config 域 999L 异构 + dev 域绑定）/UnifiedSettingsPanel（crypto-vault + store barrel + model-provider-types） |
+| types 翻正 | types/storage.ts + types/database-types.ts 引 database 改包引；OfflineQueueItem/SyncData/NetworkConfigState 按**真源补录**（自补定义偏差即时纠正——#11 行为契约纪律再现）；28 分件整件翻正路线落盘（窄版保护纪律） |
+| 视觉 a11y 台账 | **69 截图 × 8 大导航包化归属矩阵**（全映射无悬空）+ a11y 基线 6 项 + axe 注入方案 → [`phase5-ledger/02`](./phase5-ledger/02-P5-视觉对照与a11y基线台账.md) |
+| 验证矩阵 | **十二包 tsc=0 + 四端 tsc=0 + build 全绿——连续第四轮**；P1 抽测 66/66（SystemSettings mock 补 GlassCard 导出修复）；vi.mock STALE=0 |
+
+### 关键实证
+
+- **引擎层零障碍实证**：database 9 件三端逐字节同 + 对外依赖仅 app types 一处（修正即净）——Phase 3 登记的「src/database 引擎层专项」终局兑现
+- **P1 modules 目录三清**：ops/monitor/shared 三域整域清空，modules 终态 4 域（admin 仅 5 件 + ai-family/business/dev）
+- **SystemSettings mock 部分导出陷阱**：`vi.mock("@yyc3/ui")` 只定义 YYC3Logo——组件新增 GlassCard 消费时 mock 报「No export defined」（vitest 部分 mock 非浅合并）；修法：mock 工厂补全组件实际消费的导出面
+- **自补类型偏差即时纠正**：OfflineQueueItem/SyncData 首补凭推断（id/operation/params 结构）——tsc 连锁报错暴露真源为 type/data/timestamp（app 版宽结构）；教训：**补录类型必须从真源文件取定义，不凭语义推断**（偏差 #11 行为契约纪律类型层再现）
 
 ## 本会话达成（2026-10-10 第一轮）
 
@@ -75,9 +96,12 @@ category: report
 ## 交接快照
 
 ```bash
-# 复验矩阵（Phase 5 第一轮后：十二包 + 四端全零全绿第三轮）
-cd packages/shell && pnpm exec tsc --noEmit   # 0 错（新包 13 件）
-cd packages/ops && pnpm exec tsc --noEmit     # 0 错（终态 19+6+1 / exports 24 条）
+# 复验矩阵（Phase 5 第二轮后：十二包 + 四端全零全绿连续第四轮）
+cd packages/shell && pnpm exec tsc --noEmit   # 0 错（13 件）
+cd packages/ops && pnpm exec tsc --noEmit     # 0 错（终态 20 组件 + 6 hooks + full-backup）
+cd packages/monitor && pnpm exec tsc --noEmit # 0 错（终态 21 组件 + 3 hooks，dep +ai-family）
+cd packages/admin && pnpm exec tsc --noEmit   # 0 错（终态 15 组件 + 4 hooks，dep +ops）
+cd packages/core && pnpm exec tsc --noEmit    # 0 错（+database/ 9 件 + storageManager + useNetworkConfig，exports 59 条）
 # 其余十一包同 Phase 4 终态全 0；四端 tsc=0 / build 全绿
 
 # 包拓扑（Phase 5 第一轮后：十二包）
@@ -89,9 +113,9 @@ cd packages/ops && pnpm exec tsc --noEmit     # 0 错（终态 19+6+1 / exports 
 # 端侧：P1 modules 剩 6 域（ops 仅 index+ConnectionMonitorPanel）；P2 独立壳层
 
 # 下次会话起点
-# → 可选：ConnectionMonitorPanel 引擎层包化专项（src/database）
-# → 可选：admin/monitor 暂缓件清空（StorageManager→database 引擎层等）
-# → 跨阶段：69 视觉对照 + a11y、types 单源收敛（桥原地翻正）
+# → 视觉走查专项（69 截图逐页人工比对 + axe 全量扫描——台账已立 phase5-ledger/02，需四端起服）
+# → types 整件翻正（28 分件审计路线，auth/network/sync 优先；窄版保护纪律）
+# → Phase 6 质量门禁与持续发布（主文档下一阶段）
 ```
 
 ---

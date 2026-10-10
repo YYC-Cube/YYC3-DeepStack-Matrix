@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./action-recommender": "./src/ActionRecommender.tsx",
+    "./ai-suggestion-panel": "./src/AISuggestionPanel.tsx",
     "./alert-banner": "./src/AlertBanner.tsx",
     "./alert-rules-panel": "./src/AlertRulesPanel.tsx",
     "./create-rule-modal": "./src/CreateRuleModal.tsx",
@@ -40,6 +41,7 @@
     "zustand": "^5.0.12"
   },
   "dependencies": {
+    "@yyc3/ai-family": "workspace:*",
     "@yyc3/core": "workspace:*",
     "@yyc3/store": "workspace:*",
     "@yyc3/ui": "workspace:*",

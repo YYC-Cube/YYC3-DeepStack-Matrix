@@ -40,7 +40,7 @@ let mockSaveConfig = vi.fn((cfg: StorageConfig) => { mockConfig = cfg; });
 let mockTriggerSync = vi.fn(async () => {});
 let mockGetConfig = vi.fn(() => mockConfig);
 
-vi.mock("../services/storageManager", () => ({
+vi.mock("@yyc3/core/storageManager", () => ({
   storageManager: {
     getConfig: () => mockGetConfig(),
     saveConfig: (cfg: StorageConfig) => mockSaveConfig(cfg),
@@ -72,7 +72,7 @@ vi.mock("@yyc3/ui/page-header", () => ({
 // Mock: StorageSyncStatus
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../modules/admin/StorageSyncStatus", () => ({
+vi.mock("@yyc3/admin/storage-sync-status", () => ({
   StorageSyncStatus: (_props?: { showDetails?: boolean }) =>
     React.createElement("div", { "data-testid": "yyc3-storage-sync-status" }, "StorageSyncStatus"),
 }));
@@ -98,7 +98,7 @@ let panelSpy: PanelSpy = {
   fireSave: () => {},
 };
 
-vi.mock("../modules/admin/StorageConfigPanel", () => ({
+vi.mock("@yyc3/admin/storage-config-panel", () => ({
   StorageConfigPanel: ({
     config,
     onConfigChange,
@@ -195,7 +195,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-import { StorageManager } from "../modules/admin/StorageManager";
+import { StorageManager } from "@yyc3/admin/storage-manager";
 
 // ──────────────────────────────────────────────────────────────────
 // Helper

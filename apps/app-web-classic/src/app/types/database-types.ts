@@ -117,7 +117,7 @@ export interface CommittedChange {
 import type {
   ConnectionInfo,
   ConnectionStatus as InfraConnectionStatus
-} from "../../database/types";
+} from "@yyc3/core/database/types";
 
 export function toConnectionInfo(conn: DBConnection): ConnectionInfo {
   return {

@@ -10,6 +10,7 @@
 
 // 组件（首批入包 20 件）
 export { ActionRecommender } from "./ActionRecommender";
+export { AISuggestionPanel } from "./AISuggestionPanel";
 export { AlertBanner } from "./AlertBanner";
 export { AlertRulesPanel } from "./AlertRulesPanel";
 export { CreateRuleModal } from "./CreateRuleModal";

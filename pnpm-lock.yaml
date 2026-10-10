@@ -1416,6 +1416,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../core
+      '@yyc3/ops':
+        specifier: workspace:*
+        version: link:../ops
       '@yyc3/store':
         specifier: workspace:*
         version: link:../store
@@ -1665,6 +1668,9 @@ importers:
 
   packages/monitor:
     dependencies:
+      '@yyc3/ai-family':
+        specifier: workspace:*
+        version: link:../ai-family
       '@yyc3/core':
         specifier: workspace:*
         version: link:../core

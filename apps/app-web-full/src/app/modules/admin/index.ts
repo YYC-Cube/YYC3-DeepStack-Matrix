@@ -24,10 +24,10 @@ export { VariableCenter } from '@yyc3/admin';
 // —— 暂缓留端（storage/config/page/network 障碍，见 phase4-ledger/05）——
 export { SystemSettings } from './SystemSettings';
 export { UnifiedSettingsPanel } from './UnifiedSettingsPanel';
-export { DataEditorPanel } from './DataEditorPanel';
-export { StorageManager } from './StorageManager';
-export { StorageConfigPanel } from './StorageConfigPanel';
-export { StorageSyncStatus } from './StorageSyncStatus';
+export { DataEditorPanel } from '@yyc3/admin/data-editor-panel';
+export { StorageManager } from '@yyc3/admin/storage-manager';
+export { StorageConfigPanel } from '@yyc3/admin/storage-config-panel';
+export { StorageSyncStatus } from '@yyc3/admin/storage-sync-status';
 export { ConfigCenter } from './ConfigCenter';
 export { PageConfigEditor } from './PageConfigEditor';
-export { NetworkConfig } from './NetworkConfig';
+export { NetworkConfig } from '@yyc3/admin/network-config';

@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { StorageManager } from "../services/storageManager";
+import { StorageManager } from "@yyc3/core/storageManager";
 import type { StorageConfig, StorageEvent } from "../types/storage";
 
 // 模拟 localStorage
@@ -41,7 +41,7 @@ Object.defineProperty(navigator, "onLine", {
 });
 
 // 模拟 DatabaseAdapter
-vi.mock("../../database/DatabaseAdapter", () => ({
+vi.mock("@yyc3/core/database/DatabaseAdapter", () => ({
   DatabaseAdapter: vi.fn().mockImplementation(() => ({
     getModels: vi.fn().mockResolvedValue([]),
     getAgents: vi.fn().mockResolvedValue([]),
@@ -53,7 +53,7 @@ vi.mock("../../database/DatabaseAdapter", () => ({
 }));
 
 // 模拟 ConnectionManager
-vi.mock("../../database/ConnectionManager", () => ({
+vi.mock("@yyc3/core/database/ConnectionManager", () => ({
   connectionManager: {
     getConnection: vi.fn().mockReturnValue(null),
     createConnection: vi.fn().mockResolvedValue(undefined),

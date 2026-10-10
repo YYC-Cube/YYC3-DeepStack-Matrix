@@ -9,10 +9,9 @@
  * @tags: [module]
  */
 
-import { DatabaseAdapter } from "../../database/DatabaseAdapter";
-import { connectionManager } from "../../database/ConnectionManager";
-import type { StorageConfig, StorageStatus, StorageEvent, OfflineQueueItem, SyncData } from "../types/storage";
-import type { Model, Agent, NodeStatusRecord } from "../types";
+import { connectionManager } from "./database/ConnectionManager";
+import { DatabaseAdapter } from "./database/DatabaseAdapter";
+import type { Agent, Model, NodeStatusRecord, OfflineQueueItem, StorageConfig, StorageEvent, StorageStatus, SyncData } from "./types";
 
 const STORAGE_CONFIG_KEY = "yyc3_storage_config";
 const DEFAULT_CONFIG: StorageConfig = {
@@ -156,7 +155,7 @@ export class StorageManager {
         switch (operation.type) {
           case 'addModel':
             if (this.adapter && data) {
-              await this.adapter.addModel(data as Omit<import("../types").Model, "id">);
+              await this.adapter.addModel(data as Omit<Model, "id">);
             }
             break;
           case 'updateModel':
@@ -251,7 +250,7 @@ export class StorageManager {
     if (this.config.type === "database" && this.config.database) {
       try {
         const connectionId = "storage-connection";
-        
+
         // 检查连接是否存在
         const existingConnection = connectionManager.getConnection(connectionId);
         if (!existingConnection) {
@@ -274,9 +273,9 @@ export class StorageManager {
         console.error("Failed to initialize database adapter:", error);
         this.status.connected = false;
         this.status.error = error instanceof Error ? error.message : String(error);
-        this.emitEvent({ 
-          type: "syncError", 
-          error: this.status.error 
+        this.emitEvent({
+          type: "syncError",
+          error: this.status.error
         });
       }
     } else {
@@ -315,7 +314,7 @@ export class StorageManager {
         await this.syncLocalToDatabase();
         // 2. 从数据库同步到本地存储
         await this.syncDatabaseToLocal();
-        
+
         this.status.lastSync = Date.now();
         this.status.pendingChanges = 0;
         this.emitEvent({ type: "syncComplete" });
@@ -323,9 +322,9 @@ export class StorageManager {
     } catch (error) {
       console.error("Sync failed:", error);
       this.status.error = error instanceof Error ? error.message : String(error);
-      this.emitEvent({ 
-        type: "syncError", 
-        error: this.status.error 
+      this.emitEvent({
+        type: "syncError",
+        error: this.status.error
       });
     } finally {
       this.status.syncing = false;
@@ -386,7 +385,7 @@ export class StorageManager {
 
     for (const model of models) {
       const existingModel = existingMap.get(model.id);
-      
+
       if (existingModel) {
         const resolvedModel = this.resolveConflict(model, existingModel, "models") as Model;
         await this.adapter.executeWithCache(
@@ -415,7 +414,7 @@ export class StorageManager {
 
     for (const agent of agents) {
       const existingAgent = existingMap.get(agent.id);
-      
+
       if (existingAgent) {
         const resolvedAgent = this.resolveConflict(agent, existingAgent, "agents") as Agent;
         await this.adapter.executeWithCache(
@@ -444,7 +443,7 @@ export class StorageManager {
 
     for (const node of nodes) {
       const existingNode = existingMap.get(node.id);
-      
+
       if (existingNode) {
         const resolvedNode = this.resolveConflict(node, existingNode, "nodes") as NodeStatusRecord;
         await this.adapter.executeWithCache(
@@ -491,24 +490,24 @@ export class StorageManager {
     switch (table) {
       case "models":
         return item1.name !== item2.name ||
-               item1.provider !== item2.provider ||
-               item1.tier !== item2.tier ||
-               item1.avg_latency_ms !== item2.avg_latency_ms ||
-               item1.throughput !== item2.throughput;
+          item1.provider !== item2.provider ||
+          item1.tier !== item2.tier ||
+          item1.avg_latency_ms !== item2.avg_latency_ms ||
+          item1.throughput !== item2.throughput;
       case "agents":
         return item1.name !== item2.name ||
-               item1.name_cn !== item2.name_cn ||
-               item1.role !== item2.role ||
-               item1.description !== item2.description ||
-               item1.is_active !== item2.is_active;
+          item1.name_cn !== item2.name_cn ||
+          item1.role !== item2.role ||
+          item1.description !== item2.description ||
+          item1.is_active !== item2.is_active;
       case "nodes":
         return item1.hostname !== item2.hostname ||
-               item1.gpu_util !== item2.gpu_util ||
-               item1.mem_util !== item2.mem_util ||
-               item1.temp_celsius !== item2.temp_celsius ||
-               item1.model_deployed !== item2.model_deployed ||
-               item1.active_tasks !== item2.active_tasks ||
-               item1.status !== item2.status;
+          item1.gpu_util !== item2.gpu_util ||
+          item1.mem_util !== item2.mem_util ||
+          item1.temp_celsius !== item2.temp_celsius ||
+          item1.model_deployed !== item2.model_deployed ||
+          item1.active_tasks !== item2.active_tasks ||
+          item1.status !== item2.status;
       default:
         return JSON.stringify(item1) !== JSON.stringify(item2);
     }
@@ -602,7 +601,7 @@ export class StorageManager {
   private mergeItems(localItem: unknown, remoteItem: unknown, _table: string): unknown {
     const local = localItem as Record<string, unknown>;
     const remote = remoteItem as Record<string, unknown>;
-    
+
     const localTimestamp = this.getItemTimestamp(local, _table);
     const remoteTimestamp = this.getItemTimestamp(remote, _table);
 

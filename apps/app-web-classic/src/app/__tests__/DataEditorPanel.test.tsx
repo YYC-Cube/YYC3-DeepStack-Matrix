@@ -14,7 +14,7 @@ import "@testing-library/jest-dom/vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import * as React from "react";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DataEditorPanel } from "../components/DataEditorPanel";
+import { DataEditorPanel } from "@yyc3/admin/data-editor-panel";
 
 vi.mock("@yyc3/core/db-queries", () => ({
   getActiveModels: vi.fn(() => ({ data: [] })),

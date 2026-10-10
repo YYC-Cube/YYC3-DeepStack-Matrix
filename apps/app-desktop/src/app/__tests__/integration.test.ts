@@ -23,7 +23,7 @@ describe("集成测试", () => {
 
   describe("存储管理器与数据库集成", () => {
     it("应该能够初始化存储管理器", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const config = {
         type: "localStorage" as const,
@@ -41,7 +41,7 @@ describe("集成测试", () => {
     });
 
     it("应该能够处理离线队列", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const config = {
         type: "localStorage" as const,
@@ -61,7 +61,7 @@ describe("集成测试", () => {
     });
 
     it("应该能够触发和监听事件", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const eventHandler = vi.fn();
       storageManager.onEvent(eventHandler);
@@ -73,7 +73,7 @@ describe("集成测试", () => {
     });
 
     it("应该能够保存和加载配置", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const config = {
         type: "localStorage" as const,
@@ -137,7 +137,7 @@ describe("集成测试", () => {
     });
 
     it("应该能够处理离线队列", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const config = {
         type: "localStorage" as const,
@@ -163,7 +163,7 @@ describe("集成测试", () => {
 
   describe("错误处理集成", () => {
     it("应该能够获取存储状态", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const status = storageManager.getStatus();
       expect(status).toHaveProperty("connected");
@@ -173,7 +173,7 @@ describe("集成测试", () => {
     });
 
     it("应该能够处理同步操作", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const config = {
         type: "localStorage" as const,
@@ -219,7 +219,7 @@ describe("集成测试", () => {
     });
 
     it("应该能够快速触发同步", async () => {
-      const { storageManager } = await import("../services/storageManager");
+      const { storageManager } = await import("@yyc3/core/storageManager");
 
       const config = {
         type: "localStorage" as const,

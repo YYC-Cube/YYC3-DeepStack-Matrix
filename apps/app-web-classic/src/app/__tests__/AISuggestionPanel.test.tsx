@@ -27,7 +27,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
-import { AISuggestionPanel } from "../components/AISuggestionPanel";
+import { AISuggestionPanel } from "@yyc3/monitor/ai-suggestion-panel";
 
 vi.mock("lucide-react", async (importOriginal) => {
   const actual = await importOriginal() as Record<string, unknown>;

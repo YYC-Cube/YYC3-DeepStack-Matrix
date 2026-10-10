@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { NetworkConfig } from "../components/NetworkConfig";
+import { NetworkConfig } from "@yyc3/admin/network-config";
 
-vi.mock("../hooks/useNetworkConfig", () => ({
+vi.mock("@yyc3/core/useNetworkConfig", () => ({
   useNetworkConfig: vi.fn(() => ({
     config: {
       serverAddress: "192.168.1.1",

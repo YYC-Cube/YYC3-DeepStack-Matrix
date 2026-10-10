@@ -9,6 +9,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./config-export-center": "./src/ConfigExportCenter.tsx",
+    "./connection-monitor-panel": "./src/ConnectionMonitorPanel.tsx",
     "./data-flow-diagram": "./src/DataFlowDiagram.tsx",
     "./database-connection-panel": "./src/DatabaseConnectionPanel.tsx",
     "./database-manager": "./src/DatabaseManager.tsx",

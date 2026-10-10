@@ -43,7 +43,7 @@ vi.mock("@yyc3/core/network-utils", () => ({
   testWebSocketConnection: (url: string, timeout: number) => mockTestWebSocketConnection(url, timeout),
 }));
 
-import { useNetworkConfig } from "../hooks/useNetworkConfig";
+import { useNetworkConfig } from "@yyc3/core/useNetworkConfig";
 
 describe("useNetworkConfig", () => {
   beforeEach(() => {

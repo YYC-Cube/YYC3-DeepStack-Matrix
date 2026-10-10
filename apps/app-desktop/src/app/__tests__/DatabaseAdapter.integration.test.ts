@@ -10,10 +10,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { connectionManager } from "../../database/ConnectionManager";
-import { DatabaseAdapter } from "../../database/DatabaseAdapter";
-import { QueryAnalyzer } from "../../database/QueryAnalyzer";
-import type { DatabaseConfig } from "../../database/types";
+import { connectionManager } from "@yyc3/core/database/ConnectionManager";
+import { DatabaseAdapter } from "@yyc3/core/database/DatabaseAdapter";
+import { QueryAnalyzer } from "@yyc3/core/database/QueryAnalyzer";
+import type { DatabaseConfig } from "@yyc3/core/database/types";
 
 describe("DatabaseAdapter Integration Tests", () => {
   let adapter: DatabaseAdapter | null = null;

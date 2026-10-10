@@ -26,9 +26,9 @@ import {
   resetDbModels, resetDbAgents, resetDbNodes,
 } from "@yyc3/core/db-queries";
 import { useValidation, validateRange, validateModelName } from "@yyc3/admin/hooks/use-validation";
-import { ViewContext } from "../../lib/view-context";
+import { ViewContext } from "@yyc3/core/view-context";
 import { toast } from "sonner";
-import type { Model, NodeStatusRecord, Agent, NodeStatusType, LogLevel } from "../../types";
+import type { Model, NodeStatusRecord, Agent, NodeStatusType, LogLevel } from "@yyc3/core/types";
 
 interface RecentOpEntry {
   id: string;
@@ -38,7 +38,7 @@ interface RecentOpEntry {
   time: string;
   status: "pending" | "success" | "error" | "warning" | "running";
 }
-import type { RadarEntry, ModelDistEntry, StoredLogEntry } from "../../types";
+import type { RadarEntry, ModelDistEntry, StoredLogEntry } from "@yyc3/core/types";
 import { useNodeSlice } from "@yyc3/store/node-slice";
 import { useMetricsSlice } from "@yyc3/store/metrics-slice";
 import { useAppSlice } from "@yyc3/store/app-slice";

@@ -17,7 +17,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mocks ─────────────────────────────────────────────────
 
-vi.mock("../../database/ConnectionManager", () => ({
+vi.mock("@yyc3/core/database/ConnectionManager", () => ({
   connectionManager: {
     getConnection: vi.fn(),
     healthCheck: vi.fn(),
@@ -39,8 +39,8 @@ vi.mock("@yyc3/ui", () => ({
   ),
 }));
 
-import { connectionManager } from "../../database/ConnectionManager";
-import { ConnectionMonitorPanel } from "../modules/ops/ConnectionMonitorPanel";
+import { connectionManager } from "@yyc3/core/database/ConnectionManager";
+import { ConnectionMonitorPanel } from "@yyc3/ops/connection-monitor-panel";
 import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 
 // ─── Helpers ───────────────────────────────────────────────

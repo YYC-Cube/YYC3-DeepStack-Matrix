@@ -9,7 +9,7 @@
  * @tags: [module]
  */
 
-import type { DatabaseConfig } from "../../database/types";
+import type { DatabaseConfig } from "@yyc3/core/database/types";
 
 export type StorageType = "localStorage" | "database";
 

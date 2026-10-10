@@ -25,9 +25,9 @@ import {
   List,
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
-import { ViewContext } from "../lib/view-context";
-import { connectionManager } from "../../database/ConnectionManager";
-import type { ConnectionInfo, HealthCheckResult, PoolStats } from "../../database/types";
+import { ViewContext } from "@yyc3/core/view-context";
+import { connectionManager } from "@yyc3/core/database/ConnectionManager";
+import type { ConnectionInfo, HealthCheckResult, PoolStats } from "@yyc3/core/database/types";
 import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 
 interface ConnectionMonitorProps {
@@ -197,7 +197,10 @@ export function ConnectionMonitorPanel({
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedConnectionId(null)}
+              onClick={() => {
+                setSelectedConnectionId(null);
+                _setShowList(true);
+              }}
               className="p-2 rounded-lg bg-[rgba(0,100,150,0.1)] border border-[rgba(0,180,255,0.15)] hover:bg-[rgba(0,140,200,0.2)] transition-all"
             >
               <List className="w-4 h-4" />

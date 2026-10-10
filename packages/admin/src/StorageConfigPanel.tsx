@@ -19,8 +19,8 @@ import { Slider } from "@yyc3/ui/slider";
 import { Alert, AlertDescription } from "@yyc3/ui/alert";
 import { DatabaseConnectionPanel } from "@yyc3/ops/database-connection-panel";
 import { useI18n } from "@yyc3/core/i18n";
-import type { StorageConfig, StorageType } from "../../types/storage";
-import type { DatabaseConfig } from "../../../database/types";
+import type { StorageConfig, StorageType } from "@yyc3/core/types";
+import type { DatabaseConfig } from "@yyc3/core/database/types";
 
 interface StorageConfigPanelProps {
   config: StorageConfig;

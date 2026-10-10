@@ -55,7 +55,7 @@ vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
 
-vi.mock("../components/NetworkConfig", () => ({
+vi.mock("@yyc3/admin/network-config", () => ({
   NetworkConfig: () => <div data-testid="network-config-mock" />,
 }));
 

@@ -137,12 +137,14 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../modules/admin/NetworkConfig", () => ({
+vi.mock("@yyc3/admin/network-config", () => ({
   NetworkConfig: () => React.createElement("div", { "data-testid": "network-config-mock" }),
 }));
 
 vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => React.createElement("div", { "data-testid": "yyc3-logo-mock" }),
+  GlassCard: ({ children, className, ...rest }: any) =>
+    React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
 describe("SystemSettings", () => {

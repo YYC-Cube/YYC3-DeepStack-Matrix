@@ -37,6 +37,15 @@
     "./variable-center": "./src/variable-center.ts",
     "./use-persisted-state": "./src/use-persisted-state.ts",
     "./use-copy-feedback": "./src/use-copy-feedback.ts",
+    "./database/ConnectionManager": "./src/database/ConnectionManager.ts",
+    "./database/ConnectionMonitor": "./src/database/ConnectionMonitor.ts",
+    "./database/ConnectionPool": "./src/database/ConnectionPool.ts",
+    "./database/DatabaseAdapter": "./src/database/DatabaseAdapter.ts",
+    "./database/IndexManager": "./src/database/IndexManager.ts",
+    "./database/QueryAnalyzer": "./src/database/QueryAnalyzer.ts",
+    "./database/QueryCache": "./src/database/QueryCache.ts",
+    "./database/SlowQueryMonitor": "./src/database/SlowQueryMonitor.ts",
+    "./database/types": "./src/database/types.ts",
     "./view-context": "./src/view-context.ts",
     "./authContext": "./src/authContext.ts",
     "./backgroundSync": "./src/backgroundSync.ts",
@@ -45,7 +54,9 @@
     "./yyc3-icons": "./src/yyc3-icons.ts",
     "./useClock": "./src/useClock.ts",
     "./useMobileView": "./src/useMobileView.ts",
-    "./useKeyboardShortcuts": "./src/useKeyboardShortcuts.ts"
+    "./useKeyboardShortcuts": "./src/useKeyboardShortcuts.ts",
+    "./useNetworkConfig": "./src/useNetworkConfig.ts",
+    "./storageManager": "./src/storageManager.ts"
   },
   "peerDependencies": {
     "react": "^18 || ^19",

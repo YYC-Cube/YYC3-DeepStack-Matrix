@@ -59,7 +59,7 @@ import {
 import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "@yyc3/core/connection-test-engine";
 import { DesignSystemPage } from "../dev/design-system/DesignSystemPage";
 import { GlassCard } from "@yyc3/ui";
-import { NetworkConfig } from "./NetworkConfig";
+import { NetworkConfig } from "@yyc3/admin/network-config";
 import { ThemeCustomizer } from "../dev/ThemeCustomizer";
 import { UnifiedModelManager } from "../../components/UnifiedModelManager";
 import { YYC3Logo } from "@yyc3/ui";

@@ -71,7 +71,7 @@ const LocalFileManager = lazy(() =>
   import("@yyc3/ops/local-file-manager").then((m) => ({ default: m.LocalFileManager })),
 );
 const AISuggestionPanel = lazy(() =>
-  import("./modules/monitor/AISuggestionPanel").then((m) => ({ default: m.AISuggestionPanel })),
+  import("@yyc3/monitor/ai-suggestion-panel").then((m) => ({ default: m.AISuggestionPanel })),
 );
 const ServiceLoopPanel = lazy(() =>
   import("@yyc3/ops/service-loop-panel").then((m) => ({ default: m.ServiceLoopPanel })),
@@ -129,7 +129,7 @@ const RefactoringReport = lazy(() =>
   import("./modules/dev/RefactoringReport").then((m) => ({ default: m.RefactoringReport })),
 );
 const DataEditorPanel = lazy(() =>
-  import("./modules/admin/DataEditorPanel").then((m) => ({ default: m.DataEditorPanel })),
+  import("@yyc3/admin/data-editor-panel").then((m) => ({ default: m.DataEditorPanel })),
 );
 const PerformanceMonitor = lazy(() =>
   import("@yyc3/admin/performance-monitor").then((m) => ({ default: m.PerformanceMonitor })),
@@ -141,10 +141,10 @@ const DatabaseConnectionPanel = lazy(() =>
   import("@yyc3/ops/database-connection-panel").then((m) => ({ default: m.DatabaseConnectionPanel })),
 );
 const ConnectionMonitorPanel = lazy(() =>
-  import("./modules/ops/ConnectionMonitorPanel").then((m) => ({ default: m.ConnectionMonitorPanel })),
+  import("@yyc3/ops/connection-monitor-panel").then((m) => ({ default: m.ConnectionMonitorPanel })),
 );
 const StorageManager = lazy(() =>
-  import("./modules/admin/StorageManager").then((m) => ({ default: m.StorageManager })),
+  import("@yyc3/admin/storage-manager").then((m) => ({ default: m.StorageManager })),
 );
 const ArchitectureAudit = lazy(() =>
   import("./modules/dev/ArchitectureAudit").then((m) => ({ default: m.ArchitectureAudit })),

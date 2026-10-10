@@ -5,7 +5,13 @@
   "description": "YYC³ admin 域组件包 — 配置管理/安全监控/PWA/用户管理（M4-4 首批 10 组件 + 4 hooks）",
   "exports": {
     ".": "./src/index.ts",
+    "./data-editor-panel": "./src/DataEditorPanel.tsx",
     "./data-editor-tables": "./src/DataEditorTables.tsx",
+    "./data-editor-panel": "./src/DataEditorPanel.tsx",
+    "./network-config": "./src/NetworkConfig.tsx",
+    "./storage-manager": "./src/StorageManager.tsx",
+    "./storage-sync-status": "./src/StorageSyncStatus.tsx",
+    "./storage-config-panel": "./src/StorageConfigPanel.tsx",
     "./env-config-editor": "./src/EnvConfigEditor.tsx",
     "./inline-editable-table": "./src/InlineEditableTable.tsx",
     "./operation-audit": "./src/OperationAudit.tsx",
@@ -29,6 +35,7 @@
   },
   "dependencies": {
     "@yyc3/core": "workspace:*",
+    "@yyc3/ops": "workspace:*",
     "@yyc3/store": "workspace:*",
     "@yyc3/ui": "workspace:*"
   },

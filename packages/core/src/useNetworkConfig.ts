@@ -10,7 +10,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { NetworkConfig, NetworkConfigState } from "../types";
+import type { NetworkConfig, NetworkConfigState } from "./types";
 import {
   loadNetworkConfig,
   saveNetworkConfig,

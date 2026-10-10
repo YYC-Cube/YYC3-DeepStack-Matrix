@@ -18,8 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@yyc3/ui/alert";
 import { Clock, RefreshCw, CheckCircle2, XCircle, Database, HardDrive, Wifi, WifiOff } from "lucide-react";
 import { useI18n } from "@yyc3/core/i18n";
-import { storageManager } from "../../services/storageManager";
-import type { StorageStatus, StorageEvent } from "../../types/storage";
+import { storageManager } from "@yyc3/core/storageManager";
+import type { StorageStatus, StorageEvent } from "@yyc3/core/types";
 
 interface StorageSyncStatusProps {
   showDetails?: boolean;

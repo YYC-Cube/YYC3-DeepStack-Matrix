@@ -8,15 +8,20 @@
  * @tags: [admin],[barrel]
  */
 
-// 组件（首批入包 10 件）
+// 组件（首批入包 10 件 + P5 收编 5 件）
 export { ModelTable, NodeTable, AgentTable } from "./DataEditorTables";
+export { DataEditorPanel } from "./DataEditorPanel";
 export { EnvConfigEditor } from "./EnvConfigEditor";
 export { InlineEditableTable } from "./InlineEditableTable";
+export { NetworkConfig } from "./NetworkConfig";
 export { OperationAudit } from "./OperationAudit";
 export { PerformanceMonitor } from "./PerformanceMonitor";
 export { PWAInstallPrompt } from "./PWAInstallPrompt";
 export { PWAStatusPanel } from "./PWAStatusPanel";
 export { SecurityMonitor } from "./SecurityMonitor";
+export { StorageConfigPanel } from "./StorageConfigPanel";
+export { StorageManager } from "./StorageManager";
+export { StorageSyncStatus } from "./StorageSyncStatus";
 export { UserManagement } from "./UserManagement";
 export { VariableCenter } from "./VariableCenter";
 

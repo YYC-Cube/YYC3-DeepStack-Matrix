@@ -14,8 +14,8 @@ import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { StorageSyncStatus } from "../modules/admin/StorageSyncStatus";
-import { storageManager } from "../services/storageManager";
+import { StorageSyncStatus } from "@yyc3/admin/storage-sync-status";
+import { storageManager } from "@yyc3/core/storageManager";
 
 const statusState = {
   connected: true,
@@ -43,7 +43,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../services/storageManager", () => ({
+vi.mock("@yyc3/core/storageManager", () => ({
   storageManager: {
     getStatus: () => ({ ...statusState }),
     getConfig: () => ({ ...configState }),

@@ -10,7 +10,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { usePersistedList } from "./usePersistedState";
+import { usePersistedList } from "@yyc3/core/use-persisted-state";
 
 // ============================================================
 // Types — centralized in types/index.ts

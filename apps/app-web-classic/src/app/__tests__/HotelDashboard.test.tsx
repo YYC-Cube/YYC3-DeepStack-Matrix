@@ -13,7 +13,7 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HotelDashboard } from '../components/HotelDashboard';
 
-vi.mock('../lib/ai-family-hotel-manager', () => ({
+vi.mock('@yyc3/business/hotel-engines/ai-family-hotel-manager', () => ({
   AIFamilyHotelManager: vi.fn().mockImplementation(function () {
     return {
       getAllStaffMembers: () => [],
@@ -29,7 +29,7 @@ vi.mock('../lib/zhipu-ai-service', () => ({
   }),
 }));
 
-vi.mock('../lib/hotel-voice-service', () => ({
+vi.mock('@yyc3/business/hotel-engines/hotel-voice-service', () => ({
   getHotelVoiceService: vi.fn().mockReturnValue({
     startListening: vi.fn(),
     stopListening: vi.fn(),
@@ -46,7 +46,7 @@ vi.mock('../lib/hotel-voice-service', () => ({
   }),
 }));
 
-vi.mock('../lib/hotel-knowledge-base', () => ({
+vi.mock('@yyc3/business/hotel-engines/hotel-knowledge-base', () => ({
   getHotelKnowledgeBase: vi.fn().mockReturnValue({
     getCategories: () => [],
     getStats: () => ({
@@ -82,7 +82,7 @@ vi.mock('../components/ai-family/shared', () => ({
   },
 }));
 
-vi.mock('../lib/ai-learning-engine', () => ({
+vi.mock('@yyc3/business/hotel-engines/ai-learning-engine', () => ({
   getAILearningEngine: vi.fn().mockReturnValue({
     getLearningSummary: () => ({
       totalFeedbackRecords: 0,

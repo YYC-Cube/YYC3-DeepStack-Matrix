@@ -34,7 +34,8 @@
     "./i18n/zh-CN": "./src/i18n/zh-CN.ts",
     "./i18n/en-US": "./src/i18n/en-US.ts",
     "./connection-test-engine": "./src/connection-test-engine.ts",
-    "./variable-center": "./src/variable-center.ts"
+    "./variable-center": "./src/variable-center.ts",
+    "./use-persisted-state": "./src/use-persisted-state.ts"
   },
   "peerDependencies": {
     "react": "^18 || ^19"

@@ -22,10 +22,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 // ============================================================
 
 describe("🌟 场景1: VIP铂金会员张先生入住全流程", () => {
-  let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+  let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
   beforeEach(async () => {
-    const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+    const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
     hotelManager = new AIFamilyHotelManager();
 
     // 禁用自动回复以防止测试中的消息循环死锁
@@ -215,10 +215,10 @@ describe("🌟 场景1: VIP铂金会员张先生入住全流程", () => {
 // ============================================================
 
 describe("⚠️ 场景2: 钻石会员投诉升级处理", () => {
-  let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+  let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
   beforeEach(async () => {
-    const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+    const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
     hotelManager = new AIFamilyHotelManager();
   });
 
@@ -383,10 +383,10 @@ describe("⚠️ 场景2: 钻石会员投诉升级处理", () => {
 // ============================================================
 
 describe("🎊 场景3: 企业团建活动协调 (50人规模)", () => {
-  let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+  let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
   beforeEach(async () => {
-    const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+    const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
     hotelManager = new AIFamilyHotelManager();
   });
 
@@ -532,10 +532,10 @@ describe("🎊 场景3: 企业团建活动协调 (50人规模)", () => {
 // ============================================================
 
 describe("🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应", () => {
-  let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+  let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
   beforeEach(async () => {
-    const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+    const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
     hotelManager = new AIFamilyHotelManager();
   });
 
@@ -698,10 +698,10 @@ describe("🚨 场景4: 紧急事件 - 火警演练/真实警报协同响应", (
 // ============================================================
 
 describe("📊 场景5: 不同模型在酒店场景中的性能对比", () => {
-  let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+  let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
   beforeEach(async () => {
-    const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+    const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
     hotelManager = new AIFamilyHotelManager();
   });
 

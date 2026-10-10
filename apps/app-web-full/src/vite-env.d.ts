@@ -147,9 +147,9 @@ declare module "dompurify" {
   }
 }
 
-import type { MessageContent as BaseMessageContent } from "./app/lib/ai-family-hotel.types";
+import type { MessageContent as BaseMessageContent } from "@yyc3/business/hotel-engines/ai-family-hotel.types";
 
-declare module "./app/lib/ai-family-hotel.types" {
+declare module "@yyc3/business/hotel-engines/ai-family-hotel.types" {
   interface MessageContent extends BaseMessageContent {
     priority?: "low" | "normal" | "high" | "urgent" | "critical";
     context?: Record<string, unknown>;

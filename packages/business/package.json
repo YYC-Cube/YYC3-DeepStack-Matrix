@@ -1,0 +1,35 @@
+{
+  "name": "@yyc3/business",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一业务域包 — hotel-engines 业务引擎束 + comm-station 面板（主文档 Phase 4 / M4-2b）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./comm-station-panel": "./src/comm-station-panel.tsx",
+    "./hotel-engines/ai-family-hotel-manager": "./src/hotel-engines/ai-family-hotel-manager.ts",
+    "./hotel-engines/ai-family-hotel.types": "./src/hotel-engines/ai-family-hotel.types.ts",
+    "./hotel-engines/ai-learning-engine": "./src/hotel-engines/ai-learning-engine.ts",
+    "./hotel-engines/hotel-knowledge-base": "./src/hotel-engines/hotel-knowledge-base.ts",
+    "./hotel-engines/hotel-voice-service": "./src/hotel-engines/hotel-voice-service.ts"
+  },
+  "peerDependencies": {
+    "lucide-react": "^1.8.0",
+    "react": "^18 || ^19",
+    "sonner": "^1.7 || ^2"
+  },
+  "dependencies": {
+    "@yyc3/core": "workspace:*",
+    "@yyc3/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.0",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3"
+  }
+}

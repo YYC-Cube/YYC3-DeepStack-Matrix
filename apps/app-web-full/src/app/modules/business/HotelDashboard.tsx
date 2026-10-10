@@ -17,11 +17,11 @@
 
 import { Activity, Building2, Mic, MicOff } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AIFamilyHotelManager } from '../../lib/ai-family-hotel-manager';
-import { ConversationParticipant, HOTEL_ROLES, HotelStaffMember, MultiModelConversation } from '../../lib/ai-family-hotel.types';
-import { getAILearningEngine } from '../../lib/ai-learning-engine';
-import { getHotelKnowledgeBase } from '../../lib/hotel-knowledge-base';
-import { HotelVoiceService, getHotelVoiceService } from '../../lib/hotel-voice-service';
+import { AIFamilyHotelManager } from '@yyc3/business/hotel-engines/ai-family-hotel-manager';
+import { ConversationParticipant, HOTEL_ROLES, HotelStaffMember, MultiModelConversation } from '@yyc3/business/hotel-engines/ai-family-hotel.types';
+import { getAILearningEngine } from '@yyc3/business/hotel-engines/ai-learning-engine';
+import { getHotelKnowledgeBase } from '@yyc3/business/hotel-engines/hotel-knowledge-base';
+import { HotelVoiceService, getHotelVoiceService } from '@yyc3/business/hotel-engines/hotel-voice-service';
 import { GlassCard } from '../shared/GlassCard';
 import { MEMBERS_MAP, type FamilyMember } from '../ai-family/components/shared';
 

@@ -23,7 +23,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { usePersistedList } from "./usePersistedState";
+import { usePersistedList } from "@yyc3/core/use-persisted-state";
 import type {
   OperationCategoryType,
   OperationCategoryMeta,

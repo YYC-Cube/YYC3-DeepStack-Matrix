@@ -13,7 +13,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 
-vi.mock("../hooks/usePersistedState", () => ({
+vi.mock("@yyc3/core/use-persisted-state", () => ({
   usePersistedList: () => ({
     items: [],
     prepend: vi.fn(),

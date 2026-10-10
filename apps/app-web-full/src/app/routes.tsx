@@ -174,7 +174,7 @@ const HotelDashboard = lazy(() =>
   import("./modules/business/HotelDashboard").then((m) => ({ default: m.HotelDashboard })),
 );
 const CommStationPanel = lazy(() =>
-  import("./modules/business/CommStationPanel").then((m) => ({ default: m.CommStationPanel })),
+  import("@yyc3/business/comm-station-panel").then((m) => ({ default: m.CommStationPanel })),
 );
 const SDKChatPanel = lazy(() =>
   import("./modules/monitor/SDKChatPanel").then((m) => ({ default: m.SDKChatPanel })),

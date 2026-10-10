@@ -41,7 +41,7 @@ const DEFAULT_STATIONS = [
   { id: "cs-004", name: "YYC3-基站-4G-备份", type: "4g", status: "offline", signal: 0, latency: 0, connections: 0, maxConnections: 128, uptime: 0, location: "D栋-B1-设备间", lastCheck: Date.now() - 3600000 },
 ];
 
-vi.mock("../hooks/usePersistedState", () => ({
+vi.mock("@yyc3/core/use-persisted-state", () => ({
   usePersistedList: (...args: any[]) => mockUsePersistedList(...args),
 }));
 
@@ -58,8 +58,8 @@ vi.mock("sonner", () => ({
   },
 }));
 
-import { CommStationPanel } from "../modules/business/CommStationPanel";
-import { usePersistedList } from "../hooks/usePersistedState";
+import { CommStationPanel } from "@yyc3/business/comm-station-panel";
+import { usePersistedList } from "@yyc3/core/use-persisted-state";
 
 // ─── Helpers ───────────────────────────────────────────────
 

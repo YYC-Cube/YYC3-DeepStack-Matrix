@@ -24,8 +24,8 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useI18n } from "@yyc3/core/i18n";
-import { usePersistedList } from "../../hooks/usePersistedState";
-import { GlassCard } from "../shared/GlassCard";
+import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { GlassCard } from "@yyc3/ui";
 
 interface CommStation {
   id: string;

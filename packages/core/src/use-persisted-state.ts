@@ -17,8 +17,8 @@ import {
   idbDelete,
   idbClear,
   onStorageChange,
-} from "@yyc3/core/yyc3-storage";
-import type { StoreName } from "../types";
+} from "./yyc3-storage";
+import type { StoreName } from "./types";
 
 /**
  * 持久化列表状态 — 适用于告警规则/巡查历史/闭环历史等

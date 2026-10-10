@@ -20,12 +20,12 @@ import { FadeIn } from "./FadeIn";
 import { useI18n } from "@yyc3/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";
 
-import { AIFamilyHotelManager } from "../../lib/ai-family-hotel-manager";
-import { getHotelVoiceService } from "../../lib/hotel-voice-service";
-import { getHotelKnowledgeBase } from "../../lib/hotel-knowledge-base";
+import { AIFamilyHotelManager } from "@yyc3/business/hotel-engines/ai-family-hotel-manager";
+import { getHotelVoiceService } from "@yyc3/business/hotel-engines/hotel-voice-service";
+import { getHotelKnowledgeBase } from "@yyc3/business/hotel-engines/hotel-knowledge-base";
 import {
   type MultiModelConversation,
-} from "../../lib/ai-family-hotel.types";
+} from "@yyc3/business/hotel-engines/ai-family-hotel.types";
 import { useFamilyMemberSlice } from "../../store";
 import {
   toHotelStaffCard,

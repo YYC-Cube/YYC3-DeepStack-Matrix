@@ -22,7 +22,7 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
 
   describe("📦 酒店人类型系统", () => {
     it("应正确导出智谱AI模型配置", async () => {
-      const { ZHIPU_MODELS } = await import("../lib/ai-family-hotel.types");
+      const { ZHIPU_MODELS } = await import("@yyc3/business/hotel-engines/ai-family-hotel.types");
 
       // 验证4个核心模型存在
       expect(ZHIPU_MODELS["chatglm3-6b"]).toBeDefined();
@@ -43,7 +43,7 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
     });
 
     it("应定义完整的酒店角色体系", async () => {
-      const { HOTEL_ROLES } = await import("../lib/ai-family-hotel.types");
+      const { HOTEL_ROLES } = await import("@yyc3/business/hotel-engines/ai-family-hotel.types");
 
       // 验证关键角色
       expect(HOTEL_ROLES["front-desk"].label).toBe("前台接待");
@@ -56,7 +56,7 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
     });
 
     it("应提供默认路由策略", async () => {
-      const { DEFAULT_ROUTING_STRATEGY } = await import("../lib/ai-family-hotel.types");
+      const { DEFAULT_ROUTING_STRATEGY } = await import("@yyc3/business/hotel-engines/ai-family-hotel.types");
 
       expect(DEFAULT_ROUTING_STRATEGY.strategyName).toBe("hotel-default");
       expect(DEFAULT_ROUTING_STRATEGY.rules.length).toBeGreaterThan(0);
@@ -70,10 +70,10 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
   // ============================================================
 
   describe("👥 酒店团队管理", () => {
-    let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+    let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
     beforeEach(async () => {
-      const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+      const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
       hotelManager = new AIFamilyHotelManager();
     });
 
@@ -155,10 +155,10 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
   // ============================================================
 
   describe("💬 多模型对话引擎", () => {
-    let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+    let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
     beforeEach(async () => {
-      const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+      const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
       hotelManager = new AIFamilyHotelManager();
     });
 
@@ -273,10 +273,10 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
   // ============================================================
 
   describe("🤖 模型响应风格差异", () => {
-    let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+    let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
     beforeEach(async () => {
-      const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+      const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
       hotelManager = new AIFamilyHotelManager();
     });
 
@@ -387,10 +387,10 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
   // ============================================================
 
   describe("⚠️ 升级与协作流程", () => {
-    let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+    let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
     beforeEach(async () => {
-      const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+      const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
       hotelManager = new AIFamilyHotelManager();
     });
 
@@ -449,10 +449,10 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
   // ============================================================
 
   describe("📊 性能与监控", () => {
-    let hotelManager: InstanceType<typeof import("../lib/ai-family-hotel-manager").AIFamilyHotelManager>;
+    let hotelManager: InstanceType<typeof import("@yyc3/business/hotel-engines/ai-family-hotel-manager").AIFamilyHotelManager>;
 
     beforeEach(async () => {
-      const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+      const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
       hotelManager = new AIFamilyHotelManager();
     });
 
@@ -500,7 +500,7 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
 
   describe("🎭 完整业务场景演示", () => {
     it("应演示 VIP 入住全流程", async () => {
-      const { AIFamilyHotelManager } = await import("../lib/ai-family-hotel-manager");
+      const { AIFamilyHotelManager } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
       const manager = new AIFamilyHotelManager();
 
       console.info("\n=== 🏨 YYC3 智慧酒店 - VIP 入住流程演示 ===\n");
@@ -599,7 +599,7 @@ describe("🏨 AI Family 酒店人系统 - 多模型协作测试", () => {
     });
 
     it("应展示完整的多模型协作能力", async () => {
-      const { HOTEL_TEAM_MEMBERS, ZHIPU_MODELS } = await import("../lib/ai-family-hotel-manager");
+      const { HOTEL_TEAM_MEMBERS, ZHIPU_MODELS } = await import("@yyc3/business/hotel-engines/ai-family-hotel-manager");
 
       console.info("\n🏆 **AI Family 酒店人团队阵容**\n");
 

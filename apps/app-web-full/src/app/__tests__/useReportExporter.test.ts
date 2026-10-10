@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useReportExporter } from "../hooks/useReportExporter";
 
-vi.mock("../hooks/usePersistedState", () => ({
+vi.mock("@yyc3/core/use-persisted-state", () => ({
   usePersistedList: vi.fn((key: string, initial: any) => {
     return {
       items: initial,

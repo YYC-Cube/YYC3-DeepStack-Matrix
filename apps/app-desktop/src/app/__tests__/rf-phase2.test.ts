@@ -248,7 +248,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
   });
 
   it("usePersistedList 可导入且为函数", async () => {
-    const mod = await import("../hooks/usePersistedState");
+    const mod = await import("@yyc3/core/use-persisted-state");
     expect(mod.usePersistedList).toBeDefined();
     expect(typeof mod.usePersistedList).toBe("function");
   });
@@ -288,7 +288,7 @@ describe("Phase 2 综合验证", () => {
       import("@yyc3/core/api-config"),
       import("../hooks/useAlertRules"),
       import("../hooks/useHostFileSystem"),
-      import("../hooks/usePersistedState"),
+      import("@yyc3/core/use-persisted-state"),
       import("../types"),
     ]);
     for (const result of results) {

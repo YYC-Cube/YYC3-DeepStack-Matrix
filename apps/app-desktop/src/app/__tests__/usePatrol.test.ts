@@ -21,7 +21,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../hooks/usePersistedState", () => ({
+vi.mock("@yyc3/core/use-persisted-state", () => ({
   usePersistedList: () => ({
     items: [],
     setItems: vi.fn(),

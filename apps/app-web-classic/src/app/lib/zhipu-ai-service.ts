@@ -18,7 +18,7 @@
 import type {
   FamilyMessage,
   HotelStaffMember,
-} from "./ai-family-hotel.types";
+} from "@yyc3/business/hotel-engines/ai-family-hotel.types";
 
 // ============================================================
 // 类型定义

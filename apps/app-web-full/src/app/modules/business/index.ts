@@ -9,8 +9,8 @@
  * tags: [module],[business],[barrel]
  */
 
-// 酒店管理
+// 酒店管理（暂缓包化，见 phase4-ledger/02 D4：M4-6 与 ai-family 同窗处理）
 export { HotelDashboard } from './HotelDashboard';
 
-// 通讯站
-export { CommStationPanel } from './CommStationPanel';
+// 通讯站（@yyc3/business 包化，M4-2b）
+export { CommStationPanel } from '@yyc3/business/comm-station-panel';

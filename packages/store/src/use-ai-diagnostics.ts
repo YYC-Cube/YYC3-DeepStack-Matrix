@@ -22,7 +22,7 @@ import type {
   PredictiveForecast, DiagnosticSession,
   DiagnosticsOptions,
   DiagnosticHistoryEntry, DiagnosticView,
-} from "../types";
+} from "@yyc3/core/types";
 
 // RF-011: Re-export 已移除 — 所有类型统一从 types/index.ts 导入
 // 注意: 本 hook 使用 DiagnosticPattern (Section 37)，区别于 DetectedPattern (Section 15 AI Decision)

@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { ModelProviderPanel } from "../modules/ai/ModelProviderPanel";
+import { ModelProviderPanel } from "@yyc3/ai/model-provider-panel";
 
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     configuredModels: [],

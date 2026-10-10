@@ -21,7 +21,7 @@ vi.mock("@yyc3/core/use-persisted-state", () => ({
   }),
 }));
 
-import { useAIDiagnostics } from "../hooks/useAIDiagnostics";
+import { useAIDiagnostics } from "@yyc3/store/use-ai-diagnostics";
 
 describe("useAIDiagnostics", () => {
   beforeEach(() => {

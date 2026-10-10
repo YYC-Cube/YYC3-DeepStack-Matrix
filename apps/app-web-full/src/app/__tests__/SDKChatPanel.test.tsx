@@ -61,7 +61,7 @@ const mockConfiguredModels = [
   },
 ];
 
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: () => ({
     configuredModels: mockConfiguredModels,
     providers: [],

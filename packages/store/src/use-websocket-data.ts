@@ -32,11 +32,11 @@ import type {
   ThroughputPoint,
   WSMessage,
   WebSocketDataState,
-} from "../types";
+} from "@yyc3/core/types";
 
 import { getAPIConfig } from "@yyc3/core/api-config";
 import { dataBus } from "@yyc3/core/data-bus";
-import { useNodeSlice } from "@yyc3/store/node-slice";
+import { useNodeSlice } from "./node-slice";
 
 // ============================================================
 // Simulated Data Generator — 从 useNodeSlice 读取初始数据

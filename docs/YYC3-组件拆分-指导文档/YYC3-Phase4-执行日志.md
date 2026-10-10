@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase4-执行日志.md
-description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化达成
+description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai 域包化达成
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.2.0
+version: v1.3.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[handoff]
+tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[handoff]
 category: report
 ---
 
@@ -24,6 +24,39 @@ category: report
 | M4-2b ai 域包化 | ⏸ | 重新定性：与 zustand store 上收绑定（见偏差 #2），随 M4-3 |
 | **M4-3 store 上收** | ✅ | **`@yyc3/store` 新包达成**（16 件 L0 + 依赖链两 lib 入 core + 27 类型补录 + 三端切换 232 处）；**五域包化硬前置解除** |
 | **M4-2b business 域包化** | ✅ | **`@yyc3/business` 新包达成**（hotel-engines 5 lib + comm-station-panel + usePersistedState 入 core；切引 69 文件 + 删源件 16）；HotelDashboard/hotel-bridge 暂缓 M4-6（D4/D7） |
+| **M4-2/3 ai 域包化** | ✅ | **`@yyc3/ai` 新包达成**（4 组件 + 3 hooks 上收 store + view-context/types 桥接入 core；133 文件 +751/−6164）；websocket-data 因 node-slice 归 store（防 core→store 循环） |
+
+## M4-2/3 关键实证（2026-10-10 第四轮，方案 [`phase4-ledger/03`](./phase4-ledger/03-M4-2-3-ai域包化方案.md)）
+
+### ai 域仲裁（三度再现全 L0 实质同源模式）
+
+- **组件 4 件**（AIDiagnostics 551L / ModelProviderPanel 557L / AddModelModal 456L / ProviderEditorModal 372L）：P3=P4 md5 同、P1 diff 全为相对路径深度差（14/10/4/4 行）→ **L0 纯路径差**
+- **hooks 3 件 + view-context**：useModelProvider 169L（provider-slice 纯 wrapper）/ useAIDiagnostics 259L / useWebSocketData 310L / view-context 24L——**三端 md5 逐字节全同**
+- **types 3 文件**：diagnostic-types 114L（自包含零撞名）/ websocket-types 80L（AlertLevel/AlertData/NodeData 与 core 逐字段同）/ layout-types 26L——三端 md5 全同
+- ModelProviderPanel→AddModelModal/ProviderEditorModal 唯一消费闭环；P1 modules/ai/index.ts barrel **零消费方**；P2 零涉及
+
+### 决策落地（phase4-ledger/03 D1-D9，含 1 项执行中修订）
+
+| 决策 | 落地 |
+| ---- | ---- |
+| D1 `@yyc3/ai` 建包 | 4 组件全量包化（view-context 桥接解除唯一卡点，不裁断）；exports 5 条 + barrel |
+| D2 diagnostic-types 13 类型入 core/types | 自包含零撞名，追加聚合段 |
+| D3 websocket-types 5 新类型入 core | AlertLevel/AlertData/NodeData 删重定义（core 已同定义）；app 侧具名 re-export 桥 |
+| D4 layout-types 全 3 类型入 core | （微调：原计划摘 2，文件仅 26L 全并入更净）Breakpoint/ViewState/ErrorBoundaryLevel |
+| D5 view-context 上收 `@yyc3/core/view-context` + 桥 | app/lib/view-context.ts × 3 改 `export *` 桥 → **60+ 消费方零切换** |
+| D6 hooks 上收（**执行中修订**） | useModelProvider/useAIDiagnostics/useWebSocketData **均归 `@yyc3/store`**（原计划 websocket-data 归 core，实测其引 node-slice——**core→store 循环依赖警报**，改判 store；store peer +react） |
+| D7 包依赖 | peer react/lucide-react + dep @yyc3/core + @yyc3/store + @yyc3/ui |
+| D8 切引 | routes × 3（2 lazy/端）+ hooks 消费方（import 42 处含测试 + vi.mock 34 处）+ 组件测试 7 处切包路径 |
+| D9 pattern 纪律 | 双引号类 + 深度同批枚举（本轮仍中招一次，见偏差 #10） |
+
+### 三端切换实测
+
+- **core 扩容**：types.ts 516→695L（+21 类型）+ view-context 24L + exports +1
+- **store 扩容**：+3 hooks（use-model-provider/use-ai-diagnostics/use-websocket-data）+ peer react + exports +3
+- **删源件 23**：P1 modules/ai 6 文件（4 mv + index.ts 删 + DEV-GUIDE.md mv 包根）+ P3/P4 组件 × 8 + 三端 hooks × 9 + view-context/useWebSocketData P3/P4 × 4（并入前述计数口径为 27 文件减项，git stat 133 文件 +751/−6164）
+- 桥文件 12：view-context/diagnostic-types/websocket-types/layout-types × 3 端（app 内消费者零切换）
+- P1 tsc = 67 基线精确持平、P3/P4 = 0、P2 build = 7 基线（零涉及 ✅）、build 三绿（824/773/771ms）
+- **偏差 #10**：hooks 切引深度 1 pattern 笔误（`\./hooks/` 写成当前目录，应为 `\.\./hooks/` 上级）→ 首轮 P3/P4 残留 15 处 → 补刀归零（**偏差 #8 同族三犯：深度枚举纪律升级为「先 grep 实际形态再写 pattern」**）
 
 ## M4-3 关键实证（2026-10-10 第二轮）
 
@@ -140,17 +173,19 @@ category: report
 | 7 | zsh 终端间歇性 PATH 污染（cp/md5 触发 `__safe_rm_realpath` 钩子 → dirname not found） | 绕过：Write 工具直写文件；教训：**shell 异常时优先工具链替代，勿反复重试同一命令** |
 | 8 | **zhipu-ai-service 同目录引漏切**（勘察已见 `./ai-family-hotel.types`，切引 pattern 只覆盖 `\.\./lib/` 形态）→ 三端 +2 回归 | 补刀 pattern `(["'])\./ai-family-hotel\.types\1` 三端修复；教训：**偏差 #4 同族再现——同目录 `./` 与上层 `../` 深度必须同批枚举** |
 | 9 | 新包 pnpm install 报 `ERR_PNPM_OUTDATED_LOCKFILE`（frozen-lockfile 在本环境默认 true） | `pnpm install --no-frozen-lockfile`；教训：**workspace 新增包首次 install 必带此 flag** |
+| 10 | hooks 切引深度 1 pattern 笔误（`\./hooks/` 写成当前目录，实需 `\.\./hooks/` 上级）→ 首轮三端残留 15 处（P3/P4 tsc +3/+3 捕获） | 补刀归零；**偏差 #8 同族三犯，纪律升级：写 pattern 前先 grep 实际形态清单** |
+| 11 | useWebSocketData 原计划入 core，实施发现其引 `@yyc3/store/node-slice`——core→store 循环依赖 | **D6 执行中修订**：改归 `@yyc3/store`（引 node-slice 决定归属）；教训：hooks 归属按其依赖实测定，不按语义预判 |
 
 ## 后续登记
 
-- **M4-2/3 ai + ops 域包化**：store 前置已解除（M4-3）+ usePersistedState 已入 core（M4-2b）——域 hooks 引 `@yyc3/store` + `@yyc3/core/use-persisted-state` 即可包化；ai 域（5 件）+ ops 域（19 件）
-- **M4-4 admin+monitor 域**
+- **M4-2/3 ops 域包化**：ai 域已达成（本轮）；ops 域 19 件为同批登记余项（ConfigExportCenter 等 9 件已切引 store hooks，域件包化随批）
+- **M4-4 admin+monitor 域**：useWebSocketData/useModelProvider/useAIDiagnostics 已入 `@yyc3/store`，域件切引已就绪
 - **M4-5 shared 域定性**（部分属 Phase 5 壳层）
 - **M4-6 特深域 ai-family（扩容）**：24 独有件 + family-* 13 slices + **HotelDashboard 包化（MEMBERS_MAP 破环：ai-family shared.ts members 静态数据模块化）+ hotel-bridge 裁断 + 智慧酒店双版本 L1 视觉融合样板（density="compact"）+ ai-family types 跨端仲裁**——M4-2b D4/D7 移交项集中于此
-- **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项
+- **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项（useWebSocketData 已入 store，ide-mock-data 注解引用不阻）
 - **M4-8**：反向独有 5 件定性 + NavRegistry 单源 + PageShell 七型谱
 - **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
-- **types 单源收敛**（app 28 分件 vs core 按需 +29 件重复定义，Phase 3 登记、M4-3 扩容）
+- **types 单源收敛**（app 28 分件 vs core 按需 +50 件（M4-3 +27 / M4-2/3 +21 诊断·websocket·layout 系），Phase 3 登记；桥接模式已立（diagnostic/websocket/layout/view-context 四桥），收敛=桥原地翻正）
 
 ## 交接快照
 
@@ -158,25 +193,27 @@ category: report
 # 复验矩阵（全绿可复现）
 cd packages/core && pnpm exec tsc --noEmit          # 0 错
 cd packages/store && pnpm exec tsc --noEmit         # 0 错
-cd packages/business && pnpm exec tsc --noEmit      # 0 错（M4-2b 新增）
+cd packages/business && pnpm exec tsc --noEmit      # 0 错
+cd packages/ai && pnpm exec tsc --noEmit            # 0 错（M4-2/3 新增）
 cd apps/app-web-full    && pnpm exec tsc --noEmit   # 67（基线）
 cd apps/app-desktop     && pnpm exec tsc --noEmit   # 0
 cd apps/app-web-classic && pnpm exec tsc --noEmit   # 0
-# build：P1 789ms / P3 811ms / P4 768ms 三绿；P2 = 7 基线
+# build：P1 824ms / P3 773ms / P4 771ms 三绿；P2 = 7 基线
 
-# 包拓扑（M4-2b 后）
-# apps/app-web-full    → @yyc3/ui + @yyc3/theme + @yyc3/core + @yyc3/store + @yyc3/business
+# 包拓扑（M4-2/3 后）
+# apps/app-web-full    → @yyc3/ui + @yyc3/theme + @yyc3/core + @yyc3/store + @yyc3/business + @yyc3/ai
 # apps/app-desktop     → 同上
 # apps/app-web-classic → 同上
 # apps/app-sandbox-lite → 无 @yyc3 依赖（P2 基线隔离）
+# 依赖方向：ai → store/core/ui；business → core/ui；store → core（store 三 hooks 为状态域出口）
 
 # 下次会话起点
-# → M4-2/3：ai + ops 域包化（store 与 usePersistedState 前置均已解除）
-# → ai 域先行（5 件，域 hooks 引 @yyc3/store）；ops 域 19 件随后
+# → M4-2/3 余项：ops 域包化（19 件，9 件 hooks 切引已就绪）
+# → 或跳 M4-4 admin+monitor 域（前置同已解除）
 # → HotelDashboard/hotel-bridge/智慧酒店 L1 融合 → M4-6 集中处理
 ```
 
 ---
 
 **会话状态**: ✅ 正常结束
-**Phase 4 定性**: 勘察/规划/i18n 上收/store 上收/business 域包化达成；「组件件 + lib 束 + 通用 hooks」三形态域包化工艺定型，进入批量域包化实施期
+**Phase 4 定性**: 勘察/规划/i18n 上收/store 上收/business 域包化/ai 域包化达成；「组件件 + lib 束 + 通用 hooks + 桥接 types」四形态域包化工艺定型，批量域包化实施期过半

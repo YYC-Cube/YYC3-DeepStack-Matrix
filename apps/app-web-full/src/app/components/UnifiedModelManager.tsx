@@ -28,7 +28,7 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useI18n } from "@yyc3/core/i18n";
-import { useModelProvider } from "../hooks/useModelProvider";
+import { useModelProvider } from "@yyc3/store/use-model-provider";
 import type { ConfiguredModel } from "../types";
 import { GlassCard } from "../modules/shared/GlassCard";
 

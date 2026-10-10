@@ -21,7 +21,7 @@ import { OfflineIndicator } from "./OfflineIndicator";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { CommandPalette } from "./CommandPalette";
 import { IntegratedTerminal } from "./IntegratedTerminal";
-import { useWebSocketData } from "../hooks/useWebSocketData";
+import { useWebSocketData } from "@yyc3/store/use-websocket-data";
 import { useMobileView } from "../hooks/useMobileView";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { AuthContext } from "../lib/authContext";

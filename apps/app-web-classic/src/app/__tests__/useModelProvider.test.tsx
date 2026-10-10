@@ -35,7 +35,7 @@ global.fetch = vi.fn(() => { throw new Error("Network error"); }) as any;
 import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "@yyc3/store/provider-slice";
 
 // Import hook after mocks
-import { MODEL_PROVIDERS, useModelProvider } from "../hooks/useModelProvider";
+import { MODEL_PROVIDERS, useModelProvider } from "@yyc3/store/use-model-provider";
 
 describe("useModelProvider", () => {
   beforeEach(() => {

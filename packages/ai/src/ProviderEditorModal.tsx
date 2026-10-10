@@ -16,7 +16,7 @@ import {
   ChevronDown, Save, RotateCcw,
 } from "lucide-react";
 import { useI18n } from "@yyc3/core/i18n";
-import type { ModelProviderDef } from "../types";
+import type { ModelProviderDef } from "@yyc3/core/types";
 
 // ============================================================
 // Types

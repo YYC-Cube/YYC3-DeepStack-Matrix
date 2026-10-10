@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ConfigExportCenter } from "../modules/ops/ConfigExportCenter";
 
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     configuredModels: [],

@@ -291,7 +291,7 @@ describe("env-config — 环境变量可编辑", () => {
 
 describe("useModelProvider — 类型验证", () => {
   it("MODEL_PROVIDERS 内置列表包含 Ollama", async () => {
-    const { MODEL_PROVIDERS } = await import("../hooks/useModelProvider");
+    const { MODEL_PROVIDERS } = await import("@yyc3/store/use-model-provider");
 
     expect(MODEL_PROVIDERS.length).toBeGreaterThan(0);
 

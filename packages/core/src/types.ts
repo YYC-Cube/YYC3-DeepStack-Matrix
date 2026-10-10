@@ -514,3 +514,181 @@ export interface OllamaModel {
 export interface OllamaTagsResponse {
   models: OllamaModel[];
 }
+
+// diagnostic-types.ts（M4-2/3: 自 @yyc3/ai 域上收，自包含零撞名）
+/** 诊断状态 */
+export type DiagnosticStatus = "idle" | "analyzing" | "complete" | "error";
+
+/** 模式类型 */
+export type PatternType = "recurring" | "gradual" | "spike" | "correlation" | "seasonal";
+
+/** 置信度等级 */
+export type ConfidenceLevel = "high" | "medium" | "low";
+
+/** 操作优先级 */
+export type ActionPriority = "urgent" | "recommended" | "optional";
+
+/** 诊断检测模式 */
+export interface DiagnosticPattern {
+  id: string;
+  type: PatternType;
+  title: string;
+  description: string;
+  confidence: ConfidenceLevel;
+  affectedNodes: string[];
+  detectedAt: number;
+  dataPoints: number[];
+  metric: string;
+  /** RF-005: 使用 BaseSeverity 子集 */
+  severity: "critical" | "warning" | "error" | "info";
+}
+
+/** 异常记录 */
+export interface AnomalyRecord {
+  id: string;
+  timestamp: number;
+  nodeId: string;
+  metric: string;
+  expectedValue: number;
+  actualValue: number;
+  deviation: number;
+  rootCause: string;
+  relatedPatternId?: string;
+}
+
+/** AI 建议操作 */
+export interface SuggestedAction {
+  id: string;
+  priority: ActionPriority;
+  title: string;
+  description: string;
+  estimatedImpact: string;
+  confidence: ConfidenceLevel;
+  steps: string[];
+  autoExecutable: boolean;
+  relatedPatternId: string;
+}
+
+/** 预测性预报 */
+export interface PredictiveForecast {
+  metric: string;
+  currentValue: number;
+  predictedValue: number;
+  timeframe: string;
+  trend: "up" | "down" | "stable";
+  riskLevel: "safe" | "warning" | "danger";
+  explanation: string;
+}
+
+/** 诊断会话 */
+export interface DiagnosticSession {
+  id: string;
+  startedAt: number;
+  completedAt: number | null;
+  status: DiagnosticStatus;
+  patterns: DiagnosticPattern[];
+  anomalies: AnomalyRecord[];
+  actions: SuggestedAction[];
+  forecasts: PredictiveForecast[];
+  summary: string;
+}
+
+/** WebSocket 节点快照 (诊断用) */
+export interface WsNodeSnapshot {
+  id: string;
+  gpu: number;
+  mem: number;
+  temp: number;
+  status: string;
+}
+
+/** 诊断选项 */
+export interface DiagnosticsOptions {
+  liveNodes?: WsNodeSnapshot[];
+  liveQPS?: number;
+  liveLatency?: number;
+}
+
+/** 诊断历史条目 */
+export interface DiagnosticHistoryEntry {
+  id: string;
+  time: number;
+  patterns: number;
+  actions: number;
+}
+
+/** 诊断视图类型 */
+export type DiagnosticView = "patterns" | "anomalies" | "actions" | "forecasts";
+
+// websocket-types.ts（M4-2/3: AlertLevel/AlertData/NodeData 已在上方定义，此处仅增量 5 类型）
+/** WebSocket 连接状态 */
+export type ConnectionState =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting"
+  | "simulated";
+
+/** 吞吐量历史数据点 */
+export interface ThroughputPoint {
+  time: string;
+  qps: number;
+  latency: number;
+  tokens: number;
+}
+
+/** 系统总览指标 */
+export interface SystemStats {
+  activeNodes: string;
+  gpuUtil: string;
+  tokenThroughput: string;
+  storageUsed: string;
+}
+
+/** WebSocket 消息类型联合 */
+export type WSMessage =
+  | { type: "qps_update"; payload: { qps: number; trend: string } }
+  | { type: "latency_update"; payload: { latency: number; trend: string } }
+  | { type: "node_status"; payload: NodeData[] }
+  | { type: "alert"; payload: AlertData }
+  | { type: "throughput_history"; payload: ThroughputPoint[] }
+  | { type: "system_stats"; payload: SystemStats }
+  | { type: "heartbeat_ack" };
+
+/** useWebSocketData Hook 返回的完整数据状态 */
+export interface WebSocketDataState {
+  connectionState: ConnectionState;
+  isSimulated: boolean;
+  reconnectCount: number;
+  lastSyncTime: string;
+  liveQPS: number;
+  qpsTrend: string;
+  liveLatency: number;
+  latencyTrend: string;
+  activeNodes: string;
+  gpuUtil: string;
+  tokenThroughput: string;
+  storageUsed: string;
+  nodes: NodeData[];
+  throughputHistory: ThroughputPoint[];
+  alerts: AlertData[];
+  manualReconnect: () => void;
+  clearAlerts: () => void;
+}
+
+// layout-types.ts（M4-2/3: 全 3 类型上收）
+/** 响应式断点 */
+export type Breakpoint = "sm" | "md" | "lg" | "xl" | "2xl";
+
+/** 视口状态 */
+export interface ViewState {
+  breakpoint: Breakpoint;
+  isMobile: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
+  width: number;
+  isTouch: boolean;
+}
+
+/** ErrorBoundary 级别 */
+export type ErrorBoundaryLevel = "page" | "module" | "widget";

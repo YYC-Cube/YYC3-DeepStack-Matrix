@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ServiceConnectionTest } from "../components/ServiceConnectionTest";
 
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     addProvider: vi.fn(),

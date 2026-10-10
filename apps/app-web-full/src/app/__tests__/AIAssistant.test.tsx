@@ -34,7 +34,7 @@ const createMockSettings = () => {
 const mockSettingsStore = createMockSettings();
 
 // Mock hooks BEFORE importing component
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: () => ({
     availableModels: [
       { id: "qwen-72b", name: "本地 Qwen-72B", isLocal: true },

@@ -20,7 +20,7 @@ import { GlassCard } from "./GlassCard";
 import { useI18n } from "@yyc3/core/i18n";
 import { useAlertRules } from "../hooks/useAlertRules";
 import type { AlertSeverity, AlertRule, AlertEvent } from "../types";
-import { useWebSocketData } from "../hooks/useWebSocketData";
+import { useWebSocketData } from "@yyc3/store/use-websocket-data";
 import { CreateRuleModal } from "./CreateRuleModal";
 
 // ============================================================

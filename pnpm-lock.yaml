@@ -149,6 +149,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@yyc3/business':
         specifier: workspace:*
         version: link:../../packages/business
@@ -751,6 +754,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@yyc3/business':
         specifier: workspace:*
         version: link:../../packages/business
@@ -1112,6 +1118,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@yyc3/business':
         specifier: workspace:*
         version: link:../../packages/business
@@ -1342,6 +1351,34 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
 
+  packages/ai:
+    dependencies:
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.9.9
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.3.0
+      lucide-react:
+        specifier: ^1.8.0
+        version: 1.54.0(@types/react@19.3.0)(react@19.3.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.3.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/business:
     dependencies:
       '@yyc3/core':
@@ -1397,6 +1434,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../core
+      react:
+        specifier: ^18 || ^19
+        version: 19.3.0
     devDependencies:
       '@types/node':
         specifier: ^25.6.0

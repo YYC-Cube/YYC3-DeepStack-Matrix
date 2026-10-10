@@ -120,7 +120,7 @@ vi.mock("../hooks/useAlertRules", () => ({
   useAlertRules: () => mockAlertRulesState,
 }));
 
-vi.mock("../hooks/useWebSocketData", () => ({
+vi.mock("@yyc3/store/use-websocket-data", () => ({
   useWebSocketData: () => ({
     nodes: [],
     liveLatency: 0,

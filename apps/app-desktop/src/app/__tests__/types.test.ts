@@ -391,7 +391,7 @@ describe("UI 组件公共类型", () => {
 
 describe("向后兼容 Re-export", () => {
   it("useWebSocketData 模块应 re-export 核心类型", async () => {
-    const mod = await import("../hooks/useWebSocketData");
+    const mod = await import("@yyc3/store/use-websocket-data");
     // These are re-exported types - at runtime they are undefined
     // but the import should not throw
     expect(mod.useWebSocketData).toBeDefined();

@@ -45,7 +45,7 @@ import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useI18n } from "@yyc3/core/i18n";
-import { useModelProvider } from "../hooks/useModelProvider";
+import { useModelProvider } from "@yyc3/store/use-model-provider";
 import type { SettingsToggles, SettingsValues } from "../hooks/useSettingsStore";
 import { useSettingsStore } from "../hooks/useSettingsStore";
 import {

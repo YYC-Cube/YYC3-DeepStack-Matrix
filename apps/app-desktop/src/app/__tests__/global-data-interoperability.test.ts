@@ -323,7 +323,7 @@ describe("🤖 模型供应商管理 - CRUD 完整性审核", () => {
   });
 
   it("应支持自定义供应商的数据结构", async () => {
-    const { BUILTIN_PROVIDERS } = await import("../hooks/useModelProvider");
+    const { BUILTIN_PROVIDERS } = await import("@yyc3/store/use-model-provider");
 
     // Simulate custom provider structure
     const customProvider = {

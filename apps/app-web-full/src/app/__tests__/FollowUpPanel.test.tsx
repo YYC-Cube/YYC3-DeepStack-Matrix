@@ -53,7 +53,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../hooks/useWebSocketData", () => ({
+vi.mock("@yyc3/store/use-websocket-data", () => ({
   useWebSocketData: () => ({
     data: null,
     connected: false,

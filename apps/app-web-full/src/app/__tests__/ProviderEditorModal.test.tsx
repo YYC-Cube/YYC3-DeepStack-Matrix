@@ -21,7 +21,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-import { ProviderEditorModal } from "../modules/ai/ProviderEditorModal";
+import { ProviderEditorModal } from "@yyc3/ai/provider-editor-modal";
 
 // ─── Helpers ───────────────────────────────────────────────
 

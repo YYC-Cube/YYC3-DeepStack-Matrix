@@ -32,7 +32,7 @@ vi.mock("@yyc3/core/api-config", () => ({
   ENDPOINT_META: [],
 }));
 
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     configuredModels: [],

@@ -27,10 +27,10 @@ import {
 } from "lucide-react";
 import React, { useContext, useState } from "react";
 import { useI18n } from "@yyc3/core/i18n";
-import { useModelProvider } from "../hooks/useModelProvider";
-import { ViewContext } from "../lib/view-context";
+import { useModelProvider } from "@yyc3/store/use-model-provider";
+import { ViewContext } from "@yyc3/core/view-context";
 import { AddModelModal } from "./AddModelModal";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { ProviderEditorModal } from "./ProviderEditorModal";
 
 function formatSize(bytes: number): string {

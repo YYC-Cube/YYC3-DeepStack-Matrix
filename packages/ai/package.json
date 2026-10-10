@@ -1,0 +1,32 @@
+{
+  "name": "@yyc3/ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一 AI 域组件库 — 诊断 + 模型供应商管理（主文档 Phase 4 M4-2/3）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./aidiagnostics": "./src/AIDiagnostics.tsx",
+    "./model-provider-panel": "./src/ModelProviderPanel.tsx",
+    "./add-model-modal": "./src/AddModelModal.tsx",
+    "./provider-editor-modal": "./src/ProviderEditorModal.tsx"
+  },
+  "peerDependencies": {
+    "lucide-react": "^1.8.0",
+    "react": "^18 || ^19"
+  },
+  "dependencies": {
+    "@yyc3/core": "workspace:*",
+    "@yyc3/store": "workspace:*",
+    "@yyc3/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.0",
+    "typescript": "^5.9.3"
+  }
+}

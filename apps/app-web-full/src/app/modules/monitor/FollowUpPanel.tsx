@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useI18n } from "@yyc3/core/i18n";
-import { useWebSocketData } from "../../hooks/useWebSocketData";
+import { useWebSocketData } from "@yyc3/store/use-websocket-data";
 import { ViewContext } from "../../lib/view-context";
 import { useAlerts } from "../../stores/global-store";
 import type { FollowUpItem, FollowUpStatus } from "../../types";

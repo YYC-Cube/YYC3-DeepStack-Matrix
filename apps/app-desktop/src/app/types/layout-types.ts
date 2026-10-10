@@ -1,26 +1,15 @@
 /**
  * @file: layout-types.ts
- * @description: 响应式布局 + ErrorBoundary 级别类型
+ * @description: 响应式布局类型桥 — 单源已上收 @yyc3/core/types（Phase 4 M4-2/3）
  * @author: YanYuCloudCube Team
- * @version: v1.0.0
- * @created: 2026-04-20
- * @updated: 2026-04-20
+ * @version: v2.0.0
+ * @updated: 2026-10-10
  * @status: active
- * @tags: [types],[layout]
+ * @tags: [types],[layout],[bridge]
  */
 
-/** 响应式断点 */
-export type Breakpoint = "sm" | "md" | "lg" | "xl" | "2xl";
-
-/** 视口状态 */
-export interface ViewState {
-  breakpoint: Breakpoint;
-  isMobile: boolean;
-  isTablet: boolean;
-  isDesktop: boolean;
-  width: number;
-  isTouch: boolean;
-}
-
-/** ErrorBoundary 级别 */
-export type ErrorBoundaryLevel = "page" | "module" | "widget";
+export type {
+  Breakpoint,
+  ViewState,
+  ErrorBoundaryLevel,
+} from "@yyc3/core/types";

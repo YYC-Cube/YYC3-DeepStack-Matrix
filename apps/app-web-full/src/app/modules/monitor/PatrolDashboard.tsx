@@ -25,7 +25,7 @@ import {
 import React, { useContext } from "react";
 import { useI18n } from "@yyc3/core/i18n";
 import { usePatrol } from "../../hooks/usePatrol";
-import { useWebSocketData } from "../../hooks/useWebSocketData";
+import { useWebSocketData } from "@yyc3/store/use-websocket-data";
 import { ViewContext } from "../../lib/view-context";
 import { GlassCard } from "../shared/GlassCard";
 import { PatrolHistory } from "./PatrolHistory";

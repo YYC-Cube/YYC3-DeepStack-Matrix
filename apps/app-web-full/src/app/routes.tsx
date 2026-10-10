@@ -87,7 +87,7 @@ const DevGuidePage = lazy(() =>
   import("./modules/dev/DevGuidePage").then((m) => ({ default: m.DevGuidePage })),
 );
 const ModelProviderPanel = lazy(() =>
-  import("./modules/ai/ModelProviderPanel").then((m) => ({ default: m.ModelProviderPanel })),
+  import("@yyc3/ai/model-provider-panel").then((m) => ({ default: m.ModelProviderPanel })),
 );
 const ThemeCustomizer = lazy(() =>
   import("./modules/dev/ThemeCustomizer").then((m) => ({ default: m.ThemeCustomizer })),
@@ -117,7 +117,7 @@ const ReportExporter = lazy(() =>
   import("./modules/ops/ReportExporter").then((m) => ({ default: m.ReportExporter })),
 );
 const AIDiagnostics = lazy(() =>
-  import("./modules/ai/AIDiagnostics").then((m) => ({ default: m.AIDiagnostics })),
+  import("@yyc3/ai/aidiagnostics").then((m) => ({ default: m.AIDiagnostics })),
 );
 const HostFileManager = lazy(() =>
   import("./modules/ops/HostFileManager").then((m) => ({ default: m.HostFileManager })),

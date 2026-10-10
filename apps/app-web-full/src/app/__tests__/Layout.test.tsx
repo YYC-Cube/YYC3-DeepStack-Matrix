@@ -74,7 +74,7 @@ let mockView = {
   isTouch: false,
 };
 
-vi.mock("../hooks/useWebSocketData", () => ({
+vi.mock("@yyc3/store/use-websocket-data", () => ({
   useWebSocketData: () => mockWsData,
 }));
 

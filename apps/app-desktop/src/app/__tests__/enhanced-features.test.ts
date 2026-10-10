@@ -39,7 +39,7 @@ Object.defineProperty(globalThis, "localStorage", {
 
 describe("📦 TypeScript 类型导出 - 增强功能测试", () => {
   it("应导出 BUILTIN_PROVIDERS 常量", async () => {
-    const { BUILTIN_PROVIDERS } = await import("../hooks/useModelProvider");
+    const { BUILTIN_PROVIDERS } = await import("@yyc3/store/use-model-provider");
 
     expect(BUILTIN_PROVIDERS).toBeDefined();
     expect(Array.isArray(BUILTIN_PROVIDERS)).toBe(true);
@@ -52,7 +52,7 @@ describe("📦 TypeScript 类型导出 - 增强功能测试", () => {
   });
 
   it("应导出持久化工具函数", async () => {
-    const { loadProviders, saveProviders, loadModels, saveModels } = await import("../hooks/useModelProvider");
+    const { loadProviders, saveProviders, loadModels, saveModels } = await import("@yyc3/store/use-model-provider");
 
     expect(typeof loadProviders).toBe("function");
     expect(typeof saveProviders).toBe("function");
@@ -61,7 +61,7 @@ describe("📦 TypeScript 类型导出 - 增强功能测试", () => {
   });
 
   it("应导出存储键常量", async () => {
-    const { PROVIDERS_KEY, MODELS_KEY } = await import("../hooks/useModelProvider");
+    const { PROVIDERS_KEY, MODELS_KEY } = await import("@yyc3/store/use-model-provider");
 
     expect(PROVIDERS_KEY).toBe("yyc3_model_providers");
     expect(MODELS_KEY).toBe("yyc3_configured_models");
@@ -533,7 +533,7 @@ describe("🎯 综合集成 - 所有增强功能协同工作", () => {
 
   it("应结合类型导出、验证和事务的完整流程", async () => {
     // 导入类型
-    const { BUILTIN_PROVIDERS } = await import("../hooks/useModelProvider");
+    const { BUILTIN_PROVIDERS } = await import("@yyc3/store/use-model-provider");
     const { validateModelProvider } = await import("@yyc3/core/validators");
     const { createLocalStore } = await import("@yyc3/core/create-local-store");
 

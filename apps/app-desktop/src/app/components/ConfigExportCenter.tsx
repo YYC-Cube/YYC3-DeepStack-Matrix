@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useModelProvider } from "../hooks/useModelProvider";
+import { useModelProvider } from "@yyc3/store/use-model-provider";
 import { useSettingsStore } from "../hooks/useSettingsStore";
 import {
   exportDbData, importDbData,

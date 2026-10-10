@@ -79,7 +79,7 @@ vi.mock("@yyc3/core/api-config", () => ({
   ],
 }));
 
-vi.mock("../hooks/useModelProvider", () => ({
+vi.mock("@yyc3/store/use-model-provider", () => ({
   useModelProvider: () => ({
     availableModels: [
       { id: "gpt-4", name: "GPT-4", isLocal: false },

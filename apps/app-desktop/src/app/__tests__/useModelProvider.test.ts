@@ -31,7 +31,7 @@ global.fetch = vi.fn();
 
 // ── Import store and hook after mocks ─────────────────────────
 
-import { useModelProvider } from "../hooks/useModelProvider";
+import { useModelProvider } from "@yyc3/store/use-model-provider";
 import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "@yyc3/store/provider-slice";
 
 describe("useModelProvider", () => {

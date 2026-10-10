@@ -692,3 +692,332 @@ export interface ViewState {
 
 /** ErrorBoundary 级别 */
 export type ErrorBoundaryLevel = "page" | "module" | "widget";
+
+// ============================================================
+// ops 域类型段（M4-2/3 第二批: @yyc3/ops 包化，自 app/types/ 六文件上收）
+// 来源: operation-types / service-loop-types / database-types(类型段) /
+//       report-export-types / filesystem-types / host-fs-types
+// 注: DatabaseType/DBConnection/DBConnectionStatus/FileItem/FileItemType/
+//     LogLevel/RecentFile core 已有同定义（复用不重复）；数据库桥接函数
+//     toConnectionInfo/toDBConnection 留端侧（仅暂缓件 DatabaseManager 消费）
+// ============================================================
+
+// operation-types.ts
+/** 操作分类 */
+export type OperationCategoryType =
+  | "node"
+  | "model"
+  | "task"
+  | "system"
+  | "custom";
+
+/** 操作分类元信息 */
+export interface OperationCategoryMeta {
+  key: OperationCategoryType;
+  label: string;
+  icon: string;
+  color: string;
+}
+
+/** 操作状态 */
+export type OperationStatus = "pending" | "running" | "success" | "failed" | "cancelled";
+
+/** 操作项 */
+export interface OperationItem {
+  id: string;
+  category: OperationCategoryType;
+  label: string;
+  description: string;
+  icon: string;
+  status: OperationStatus;
+  dangerous?: boolean;
+}
+
+/** 操作模板 */
+export interface OperationTemplateItem {
+  id: string;
+  name: string;
+  description: string;
+  category: OperationCategoryType;
+  steps: string[];
+  createdAt: number;
+  lastUsed?: number;
+}
+
+/** 操作日志条目 */
+export interface OperationLogEntry {
+  id: string;
+  timestamp: number;
+  category: OperationCategoryType;
+  action: string;
+  user: string;
+  status: OperationStatus;
+  detail?: string;
+  duration?: number;
+}
+
+/** 操作日志筛选 */
+export type LogFilterType = "all" | "byCategory" | "byUser" | "search";
+
+// service-loop-types.ts
+/** 闭环阶段 */
+export type LoopStage =
+  | "monitor"
+  | "analyze"
+  | "decide"
+  | "execute"
+  | "verify"
+  | "optimize";
+
+/** 阶段运行状态 */
+export type StageStatus = "idle" | "running" | "completed" | "error" | "skipped";
+
+/** 单阶段结果 */
+export interface StageResult {
+  stage: LoopStage;
+  status: StageStatus;
+  startedAt: number | null;
+  completedAt: number | null;
+  duration: number | null;
+  summary: string;
+  details: string[];
+  metrics?: Record<string, number>;
+}
+
+/** 闭环运行记录 */
+export interface LoopRun {
+  id: string;
+  startedAt: number;
+  completedAt: number | null;
+  trigger: "manual" | "auto" | "alert";
+  currentStage: LoopStage;
+  stages: StageResult[];
+  overallStatus: StageStatus;
+}
+
+/** 数据流节点类型 */
+export type DataFlowNodeType = "device" | "storage" | "dashboard" | "terminal";
+
+/** 数据流连线 */
+export interface DataFlowEdge {
+  from: DataFlowNodeType;
+  to: DataFlowNodeType;
+  label: string;
+  bandwidth: string;
+  active: boolean;
+}
+
+/** 闭环阶段元信息 */
+export interface StageMeta {
+  key: LoopStage;
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+}
+
+/** 数据流可视化节点 */
+export interface DataFlowNode {
+  type: DataFlowNodeType;
+  label: string;
+  sublabel: string;
+  color: string;
+}
+
+// followup-types.ts（ChainEvent 段; FollowUpItem/QuickAction 等非 ops 消费不上收）
+/** 操作链路条目类型 */
+export type ChainEventType =
+  | "model_load"
+  | "task_start"
+  | "alert_trigger"
+  | "auto_action"
+  | "manual_action"
+  | "resolved"
+  | "system_event";
+
+/** 操作链路单条事件 */
+export interface ChainEvent {
+  id: string;
+  time: string;           // HH:mm:ss
+  type: ChainEventType;
+  label: string;
+  detail: string;
+  isCurrent?: boolean;
+}
+
+// database-types.ts（类型段; 桥接函数留端侧）
+/** 数据库列定义 */
+export interface DBColumn {
+  name: string;
+  dataType: string;
+  nullable: boolean;
+  isPrimaryKey: boolean;
+  defaultValue: string | null;
+}
+
+/** 数据库表信息 */
+export interface DBTable {
+  name: string;
+  schema: string;
+  rowCount: number;
+  sizeBytes: number;
+  columns: DBColumn[];
+}
+
+/** SQL 查询结果 */
+export interface QueryResult {
+  id: string;
+  sql: string;
+  columns: string[];
+  rows: Record<string, unknown>[];
+  rowCount: number;
+  executionTimeMs: number;
+  executedAt: number;
+  error?: string;
+}
+
+/** 数据库备份记录 */
+export interface DBBackup {
+  id: string;
+  connectionId: string;
+  connectionName: string;
+  type: DatabaseType;
+  fileName: string;
+  sizeBytes: number;
+  createdAt: number;
+  status: "completed" | "failed" | "in_progress";
+}
+
+/** SQL 快速模板 */
+export interface SQLTemplate {
+  id: string;
+  label: string;
+  sql: string;
+  dbType: DatabaseType | "all";
+  category: string;
+}
+
+// report-export-types.ts
+/** 导出报告类型 */
+export type ExportReportType = "performance" | "security" | "audit" | "comprehensive";
+
+/** 导出格式 */
+export type ExportFormat = "json" | "csv" | "print";
+
+/** 时间范围 */
+export type TimeRange = "1h" | "6h" | "24h" | "7d" | "30d" | "custom";
+
+/** 报表指标 */
+export interface ReportMetric {
+  label: string;
+  value: string;
+  trend: "up" | "down" | "stable";
+  change: string;
+}
+
+/** 性能快照 */
+export interface PerformanceSnapshot {
+  timestamp: number;
+  cpuUsage: number;
+  gpuUsage: number;
+  memoryUsage: number;
+  latencyP50: number;
+  latencyP99: number;
+  throughput: number;
+  errorRate: number;
+}
+
+/** 安全快照 */
+export interface SecuritySnapshot {
+  timestamp: number;
+  cspScore: number;
+  cookieScore: number;
+  sensitiveScore: number;
+  overallScore: number;
+  activeThreats: number;
+}
+
+/** 导出报告数据 */
+export interface ReportData {
+  id: string;
+  type: ExportReportType;
+  title: string;
+  generatedAt: number;
+  timeRange: { start: number; end: number; label: string };
+  summary: ReportMetric[];
+  performanceHistory: PerformanceSnapshot[];
+  securityHistory: SecuritySnapshot[];
+  recommendations: string[];
+  nodeBreakdown: { nodeId: string; avgCpu: number; avgGpu: number; avgLatency: number; errorRate: number }[];
+}
+
+/** 报告历史条目 (可持久化) */
+export interface ReportHistoryEntry {
+  id: string;
+  type: ExportReportType;
+  time: number;
+  range: string;
+}
+
+// filesystem-types.ts
+/** 日志条目 */
+export interface LogEntry {
+  id: string;
+  timestamp: number;
+  level: LogLevel;
+  source: string;
+  message: string;
+  detail?: string;
+}
+
+/** 报告类型 */
+export type ReportType = "performance" | "health" | "security" | "custom";
+
+/** 报告格式 */
+export type ReportFormat = "json" | "markdown" | "csv";
+
+/** 报告配置 */
+export interface ReportConfig {
+  type: ReportType;
+  format: ReportFormat;
+  dateRange: "today" | "week" | "month" | "custom";
+  includeCharts: boolean;
+  includeRawData: boolean;
+}
+
+/** 报告结果 */
+export interface ReportResult {
+  id: string;
+  config: ReportConfig;
+  generatedAt: number;
+  filename: string;
+  size: number;
+  previewContent: string;
+}
+
+// host-fs-types.ts
+/** 宿主机文件条目 (真实文件系统) */
+export interface HostFileEntry {
+  id: string;
+  name: string;
+  kind: "file" | "directory";
+  path: string;
+  size?: number;
+  lastModified?: number;
+  mimeType?: string;
+  /** File System Access API handle (运行时引用, 不持久化) */
+  handle?: FileSystemHandle;
+  children?: HostFileEntry[];
+}
+
+/** 文件版本快照 */
+export interface FileVersion {
+  id: string;
+  fileId: string;
+  fileName: string;
+  filePath: string;
+  content: string;
+  size: number;
+  savedAt: number;
+  label?: string;
+}

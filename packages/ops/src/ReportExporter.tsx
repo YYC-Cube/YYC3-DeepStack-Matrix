@@ -14,10 +14,10 @@ import {
   FileBarChart, Download, FileJson, FileSpreadsheet, Printer, TrendingUp, TrendingDown, Minus, RefreshCw,
   ChevronRight, BarChart3, Shield, ClipboardList, Layers,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
+import { GlassCard } from "@yyc3/ui";
 import { useI18n } from "@yyc3/core/i18n";
-import { useReportExporter } from "../hooks/useReportExporter";
-import type { ExportReportType as ReportType, TimeRange, ExportFormat } from "../types";
+import { useReportExporter } from "./hooks/useReportExporter";
+import type { ExportReportType as ReportType, TimeRange, ExportFormat } from "@yyc3/core/types";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Area, AreaChart,

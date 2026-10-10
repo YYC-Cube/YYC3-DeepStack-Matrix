@@ -30,7 +30,7 @@ vi.mock("@yyc3/core/use-persisted-state", () => ({
   }),
 }));
 
-import { useServiceLoop, STAGE_META, DATA_FLOW_EDGES, DATA_FLOW_NODES } from "../hooks/useServiceLoop";
+import { useServiceLoop, STAGE_META, DATA_FLOW_EDGES, DATA_FLOW_NODES } from "@yyc3/ops/hooks/use-service-loop";
 
 describe("useServiceLoop", () => {
   beforeEach(() => {

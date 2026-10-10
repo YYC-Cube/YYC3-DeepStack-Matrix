@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { OperationTemplate } from "../components/OperationTemplate";
+import { OperationTemplate } from "@yyc3/ops/operation-template";
 import type { OperationTemplateItem } from "../types";
 
 const mockTemplates: OperationTemplateItem[] = [

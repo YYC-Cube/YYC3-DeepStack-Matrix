@@ -18,7 +18,7 @@ import {
   RefreshCcw, Image, History, Loader2, Code2,
 } from "lucide-react";
 import { GlassCard } from "../shared/GlassCard";
-import { useHostFileSystem, getFileTypeInfo } from "../../hooks/useHostFileSystem";
+import { useHostFileSystem, getFileTypeInfo } from "@yyc3/ops/hooks/use-host-file-system";
 import { CodeEditor, getLanguageLabel } from "../../components/CodeEditor";
 import { ViewContext } from "../../lib/view-context";
 import type { HostFileEntry } from "../../types";

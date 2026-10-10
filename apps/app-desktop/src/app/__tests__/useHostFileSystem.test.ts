@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useHostFileSystem, getExtension, formatSize, isTextFile, isImageFile } from "../hooks/useHostFileSystem";
+import { useHostFileSystem, getExtension, formatSize, isTextFile, isImageFile } from "@yyc3/ops/hooks/use-host-file-system";
 
 vi.mock("sonner", () => ({
   toast: {

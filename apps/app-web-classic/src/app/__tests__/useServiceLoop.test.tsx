@@ -27,7 +27,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useServiceLoop, STAGE_META, DATA_FLOW_NODES, DATA_FLOW_EDGES } from "../hooks/useServiceLoop";
+import { useServiceLoop, STAGE_META, DATA_FLOW_NODES, DATA_FLOW_EDGES } from "@yyc3/ops/hooks/use-service-loop";
 
 vi.mock("sonner", () => ({
   toast: {

@@ -14,9 +14,9 @@ import {
   Search, Radio, CheckCircle, XCircle, Loader2, Clock,
   Server, Brain, ListTodo, Settings, Puzzle,
 } from "lucide-react";
-import { GlassCard } from "./GlassCard";
-import { CATEGORY_META } from "../hooks/useOperationCenter";
-import type { OperationLogEntry, OperationStatus, LogFilterType } from "../types";
+import { GlassCard } from "@yyc3/ui";
+import { CATEGORY_META } from "./hooks/useOperationCenter";
+import type { OperationLogEntry, OperationStatus, LogFilterType } from "@yyc3/core/types";
 
 const statusConfig: Record<OperationStatus, { icon: React.ElementType; color: string; label: string }> = {
   pending:    { icon: Clock,       color: "rgba(0,212,255,0.4)", label: "待执行" },

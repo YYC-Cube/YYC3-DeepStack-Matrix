@@ -25,7 +25,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, cleanup } from "@testing-library/react";
-import { LoopStageCard } from "../components/LoopStageCard";
+import { LoopStageCard } from "@yyc3/ops/loop-stage-card";
 import type { StageResult, StageMeta } from "../types";
 
 const mockMeta: StageMeta = {

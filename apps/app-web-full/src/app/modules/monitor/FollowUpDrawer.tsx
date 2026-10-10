@@ -16,7 +16,7 @@ import {
   ChevronRight, Zap, Bot, CheckCircle, Loader2,
   Link2, Server, Copy, Check,
 } from "lucide-react";
-import { OperationChain } from "../ops/OperationChain";
+import { OperationChain } from "@yyc3/ops/operation-chain";
 import { QuickActionGroup } from "./QuickActionGroup";
 import type { FollowUpItem, FollowUpSeverity, FollowUpStatus } from "../../types";
 

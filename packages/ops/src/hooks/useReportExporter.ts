@@ -20,7 +20,7 @@ import type {
   ExportReportType, ExportFormat, TimeRange,
   PerformanceSnapshot, SecuritySnapshot,
   ReportData, ReportHistoryEntry,
-} from "../types";
+} from "@yyc3/core/types";
 
 // RF-011: Re-export 已移除
 

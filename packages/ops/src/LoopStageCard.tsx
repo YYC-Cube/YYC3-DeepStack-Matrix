@@ -14,8 +14,8 @@ import {
   Activity, BarChart3, Brain, Play, CheckCircle, TrendingUp,
   Loader2, Clock,
 } from "lucide-react";
-import type { StageResult, StageStatus } from "../../types";
-import type { StageMeta } from "../../types";
+import type { StageResult, StageStatus } from "@yyc3/core/types";
+import type { StageMeta } from "@yyc3/core/types";
 
 const iconMap: Record<string, React.ElementType> = {
   Activity, BarChart3, Brain, Play, CheckCircle, TrendingUp,

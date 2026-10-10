@@ -12,11 +12,11 @@
 import React, { useContext } from "react";
 import { Settings, Zap } from "lucide-react";
 import { GlassCard } from "./GlassCard";
-import { OperationCategory } from "./OperationCategory";
+import { OperationCategory } from "@yyc3/ops/operation-category";
 import { QuickActionGrid } from "./QuickActionGrid";
-import { OperationTemplate } from "./OperationTemplate";
-import { OperationLogStream } from "./OperationLogStream";
-import { useOperationCenter } from "../hooks/useOperationCenter";
+import { OperationTemplate } from "@yyc3/ops/operation-template";
+import { OperationLogStream } from "@yyc3/ops/operation-log-stream";
+import { useOperationCenter } from "@yyc3/ops/hooks/use-operation-center";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";
 

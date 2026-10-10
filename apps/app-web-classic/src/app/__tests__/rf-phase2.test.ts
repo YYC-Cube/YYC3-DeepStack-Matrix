@@ -216,7 +216,7 @@ describe("RF-006: API_BASE 硬编码消除", () => {
   });
 
   it("useHostFileSystem 导入了 getAPIConfig (不再有 API_BASE 常量)", async () => {
-    const mod = await import("../hooks/useHostFileSystem");
+    const mod = await import("@yyc3/ops/hooks/use-host-file-system");
     expect(mod.useHostFileSystem).toBeDefined();
     expect(typeof mod.useHostFileSystem).toBe("function");
   });
@@ -287,7 +287,7 @@ describe("Phase 2 综合验证", () => {
       import("@yyc3/core/yyc3-storage"),
       import("@yyc3/core/api-config"),
       import("../hooks/useAlertRules"),
-      import("../hooks/useHostFileSystem"),
+      import("@yyc3/ops/hooks/use-host-file-system"),
       import("@yyc3/core/use-persisted-state"),
       import("../types"),
     ]);
@@ -297,7 +297,7 @@ describe("Phase 2 综合验证", () => {
   });
 
   it("calcBackoffDelay 工具函数正确导出 (useLocalDatabase)", async () => {
-    const mod = await import("../hooks/useLocalDatabase");
+    const mod = await import("@yyc3/ops/hooks/use-local-database");
     expect(mod.calcBackoffDelay).toBeDefined();
     expect(typeof mod.calcBackoffDelay).toBe("function");
     // 验证指数退避逻辑

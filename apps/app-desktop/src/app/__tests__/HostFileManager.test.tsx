@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { HostFileManager } from "../components/HostFileManager";
 
-vi.mock("../hooks/useHostFileSystem", () => ({
+vi.mock("@yyc3/ops/hooks/use-host-file-system", () => ({
   useHostFileSystem: vi.fn(() => ({
     supported: true,
     rootHandle: { name: "test-root" },

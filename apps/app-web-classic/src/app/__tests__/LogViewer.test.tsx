@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { LogViewer } from "../components/LogViewer";
+import { LogViewer } from "@yyc3/ops/log-viewer";
 import type { LogEntry } from "../types";
 
 const mockLogs: LogEntry[] = [

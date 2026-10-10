@@ -11,7 +11,7 @@
 
 import { AlertTriangle, CheckCircle, Cpu, Play, Server, Wrench, Zap } from "lucide-react";
 import React from "react";
-import type { ChainEvent, ChainEventType } from "../../types";
+import type { ChainEvent, ChainEventType } from "@yyc3/core/types";
 
 interface OperationChainProps {
   events: ChainEvent[];

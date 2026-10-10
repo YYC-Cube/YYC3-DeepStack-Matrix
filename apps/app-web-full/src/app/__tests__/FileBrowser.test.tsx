@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { FileBrowser } from "../modules/ops/FileBrowser";
+import { FileBrowser } from "@yyc3/ops/file-browser";
 import type { FileItem } from "../types";
 
 const mockItems: FileItem[] = [

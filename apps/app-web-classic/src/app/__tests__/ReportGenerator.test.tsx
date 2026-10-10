@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { ReportGenerator } from "../components/ReportGenerator";
+import { ReportGenerator } from "@yyc3/ops/report-generator";
 import type { ReportResult } from "../types";
 
 const mockReports: ReportResult[] = [

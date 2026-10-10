@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { DatabaseManager } from "../components/DatabaseManager";
 
-vi.mock("../hooks/useLocalDatabase", () => ({
+vi.mock("@yyc3/ops/hooks/use-local-database", () => ({
   useLocalDatabase: vi.fn(() => ({
     connections: [],
     tables: [],

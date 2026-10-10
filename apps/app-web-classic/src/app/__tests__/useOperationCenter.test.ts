@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useOperationCenter } from "../hooks/useOperationCenter";
+import { useOperationCenter } from "@yyc3/ops/hooks/use-operation-center";
 
 vi.mock("sonner", () => ({
   toast: {

@@ -32,7 +32,7 @@ import type {
   OperationLogEntry,
   OperationStatus,
   LogFilterType,
-} from "../types";
+} from "@yyc3/core/types";
 
 // ============================================================
 // Category Meta

@@ -25,7 +25,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { OperationLogStream } from "../modules/ops/OperationLogStream";
+import { OperationLogStream } from "@yyc3/ops/operation-log-stream";
 import type { OperationLogEntry } from "../types";
 
 const mockLogs: OperationLogEntry[] = [

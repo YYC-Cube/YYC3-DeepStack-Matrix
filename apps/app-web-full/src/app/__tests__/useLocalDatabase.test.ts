@@ -56,7 +56,7 @@ vi.mock("@yyc3/core/api-config", () => ({
   getAPIConfig: mockGetAPIConfig,
 }));
 
-import { useLocalDatabase, SQL_TEMPLATES, calcBackoffDelay } from "../hooks/useLocalDatabase";
+import { useLocalDatabase, SQL_TEMPLATES, calcBackoffDelay } from "@yyc3/ops/hooks/use-local-database";
 
 describe("useLocalDatabase", () => {
   beforeEach(() => {

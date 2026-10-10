@@ -113,7 +113,7 @@ const AlertRulesPanel = lazy(() =>
   import("./components/AlertRulesPanel").then((m) => ({ default: m.AlertRulesPanel })),
 );
 const ReportExporter = lazy(() =>
-  import("./components/ReportExporter").then((m) => ({ default: m.ReportExporter })),
+  import("@yyc3/ops/report-exporter").then((m) => ({ default: m.ReportExporter })),
 );
 const AIDiagnostics = lazy(() =>
   import("@yyc3/ai/aidiagnostics").then((m) => ({ default: m.AIDiagnostics })),

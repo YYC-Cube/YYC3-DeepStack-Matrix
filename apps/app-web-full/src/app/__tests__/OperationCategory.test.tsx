@@ -24,8 +24,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { OperationCategory } from "../modules/ops/OperationCategory";
-import { CATEGORY_META } from "../hooks/useOperationCenter";
+import { OperationCategory } from "@yyc3/ops/operation-category";
+import { CATEGORY_META } from "@yyc3/ops/hooks/use-operation-center";
 
 describe("OperationCategory", () => {
   let onChange: any;

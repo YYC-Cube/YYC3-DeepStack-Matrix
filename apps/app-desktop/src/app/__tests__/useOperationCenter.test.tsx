@@ -25,7 +25,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useOperationCenter } from "../hooks/useOperationCenter";
+import { useOperationCenter } from "@yyc3/ops/hooks/use-operation-center";
 
 vi.mock("sonner", () => ({
   toast: {

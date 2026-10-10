@@ -13,7 +13,7 @@ import React from "react";
 import {
   Server, Brain, ListTodo, Settings, Puzzle, Layers,
 } from "lucide-react";
-import type { OperationCategoryType, OperationCategoryMeta } from "../../types";
+import type { OperationCategoryType, OperationCategoryMeta } from "@yyc3/core/types";
 
 const iconMap: Record<string, React.ElementType> = {
   Server, Brain, ListTodo, Settings, Puzzle, Layers,

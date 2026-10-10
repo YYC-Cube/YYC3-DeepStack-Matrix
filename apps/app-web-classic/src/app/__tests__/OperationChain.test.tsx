@@ -25,7 +25,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, cleanup } from "@testing-library/react";
-import { OperationChain } from "../components/OperationChain";
+import { OperationChain } from "@yyc3/ops/operation-chain";
 import type { ChainEvent } from "../types";
 
 const mockEvents: ChainEvent[] = [

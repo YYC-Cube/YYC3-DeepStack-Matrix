@@ -35,7 +35,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useContext, useState } from "react";
-import { useLocalDatabase } from "../../hooks/useLocalDatabase";
+import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
 import { ViewContext } from "../../lib/view-context";
 import type { DatabaseType } from "../../types";
 import { SQLEditor } from "../../components/CodeEditor";

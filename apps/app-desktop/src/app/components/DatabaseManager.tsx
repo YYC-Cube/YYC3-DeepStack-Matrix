@@ -19,7 +19,7 @@ import {
   History, BookOpen, TestTube,
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
-import { useLocalDatabase } from "../hooks/useLocalDatabase";
+import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
 import { SQLEditor } from "./CodeEditor";
 import { InlineEditableTable } from "./InlineEditableTable";
 import { ViewContext } from "../lib/view-context";

@@ -14,8 +14,8 @@ import {
   FileText, Download, Eye, Loader2, Clock,
   BarChart3, Shield, Activity, Wrench,
 } from "lucide-react";
-import { GlassCard } from "../shared/GlassCard";
-import type { ReportConfig, ReportResult, ReportType, ReportFormat } from "../../types";
+import { GlassCard } from "@yyc3/ui";
+import type { ReportConfig, ReportResult, ReportType, ReportFormat } from "@yyc3/core/types";
 
 const reportTypes: Array<{ key: ReportType; label: string; icon: React.ElementType; color: string }> = [
   { key: "performance", label: "性能报告", icon: BarChart3, color: "#00d4ff" },

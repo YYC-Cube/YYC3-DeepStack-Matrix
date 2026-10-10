@@ -15,9 +15,9 @@ import {
   ToggleLeft, ToggleRight, Workflow,
 } from "lucide-react";
 import { GlassCard } from "../shared/GlassCard";
-import { LoopStageCard } from "./LoopStageCard";
+import { LoopStageCard } from "@yyc3/ops/loop-stage-card";
 import { DataFlowDiagram } from "../../components/DataFlowDiagram";
-import { useServiceLoop } from "../../hooks/useServiceLoop";
+import { useServiceLoop } from "@yyc3/ops/hooks/use-service-loop";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../../lib/view-context";
 

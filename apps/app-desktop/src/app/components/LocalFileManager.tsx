@@ -15,11 +15,11 @@ import {
   Save, X, FileEdit,
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
-import { FileBrowser } from "./FileBrowser";
-import { LogViewer } from "./LogViewer";
-import { ReportGenerator } from "./ReportGenerator";
+import { FileBrowser } from "@yyc3/ops/file-browser";
+import { LogViewer } from "@yyc3/ops/log-viewer";
+import { ReportGenerator } from "@yyc3/ops/report-generator";
 import { CodeEditor, getLanguageLabel } from "./CodeEditor";
-import { useLocalFileSystem } from "../hooks/useLocalFileSystem";
+import { useLocalFileSystem } from "@yyc3/ops/hooks/use-local-file-system";
 import { useI18n } from "@yyc3/core/i18n";
 import { useLogSlice } from "@yyc3/store/log-slice";
 import { ViewContext } from "../lib/view-context";

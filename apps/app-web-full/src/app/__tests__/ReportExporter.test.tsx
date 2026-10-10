@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { ReportExporter } from "../modules/ops/ReportExporter";
+import { ReportExporter } from "@yyc3/ops/report-exporter";
 
 vi.mock("recharts", () => ({
   ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
@@ -28,7 +28,7 @@ vi.mock("recharts", () => ({
   Area: () => <div />,
 }));
 
-vi.mock("../hooks/useReportExporter", () => ({
+vi.mock("@yyc3/ops/hooks/use-report-exporter", () => ({
   useReportExporter: vi.fn(() => ({
     reportType: "performance",
     setReportType: vi.fn(),

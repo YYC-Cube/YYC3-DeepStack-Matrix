@@ -13,8 +13,8 @@ import React from "react";
 import {
   Search, Filter, Bug, Info, AlertTriangle, XCircle, Skull,
 } from "lucide-react";
-import { GlassCard } from "../shared/GlassCard";
-import type { LogEntry, LogLevel } from "../../types";
+import { GlassCard } from "@yyc3/ui";
+import type { LogEntry, LogLevel } from "@yyc3/core/types";
 
 const levelConfig: Record<LogLevel, { icon: React.ElementType; color: string; label: string }> = {
   debug: { icon: Bug,            color: "rgba(0,212,255,0.4)", label: "DEBUG" },

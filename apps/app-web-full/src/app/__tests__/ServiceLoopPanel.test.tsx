@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ServiceLoopPanel } from "../modules/ops/ServiceLoopPanel";
 
-vi.mock("../hooks/useServiceLoop", () => ({
+vi.mock("@yyc3/ops/hooks/use-service-loop", () => ({
   useServiceLoop: vi.fn(() => ({
     currentRun: null,
     history: [],
@@ -62,7 +62,7 @@ vi.mock("../lib/view-context", () => ({
   }),
 }));
 
-vi.mock("../modules/ops/LoopStageCard", () => ({
+vi.mock("@yyc3/ops/loop-stage-card", () => ({
   LoopStageCard: ({ meta }: any) => React.createElement("div", { "data-testid": `stage-${meta.key}` }, meta.labelKey),
 }));
 

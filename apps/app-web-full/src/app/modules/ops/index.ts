@@ -1,44 +1,35 @@
 /**
  * file: index.ts
- * description: OPS 运维模块 · 操作中心、文件管理、数据库、服务闭环、报告导出统一入口
+ * description: OPS 运维模块（暂缓件）— 跨域障碍件端侧保留（详见 phase4-ledger/04 方案 D7）
  * author: YanYuCloudCube Team
- * version: v1.0.0
+ * version: v1.1.0
  * created: 2026-07-25
- * updated: 2026-07-25
+ * updated: 2026-10-10
  * status: active
  * tags: [ops],[module]
  *
- * brief: OPS 模块 Barrel 导出
+ * brief: OPS 模块 Barrel 导出（M4-2/3 第二批后仅暂缓件；首批 9 组件 + 6 hooks 已迁 @yyc3/ops）
  *
- * exports: OperationCenter, LocalFileManager, DatabaseManager, ServiceLoopPanel, ReportExporter, etc.
+ * exports: OperationCenter, DatabaseManager, HostFileManager, ConfigExportCenter, etc.
  */
 
-// 操作中心
+// 操作中心（暂缓: QuickActionGrid 跨域障碍 → M4-5 shared 后随批）
 export { OperationCenter } from './OperationCenter';
-export { OperationChain } from './OperationChain';
-export { OperationCategory } from './OperationCategory';
-export { OperationLogStream } from './OperationLogStream';
-export { OperationTemplate } from './OperationTemplate';
 
-// 文件管理
+// 文件管理（暂缓: CodeEditor 跨域障碍 → M4-7 ide/ui 扩容后随批）
 export { LocalFileManager } from './LocalFileManager';
-export { FileBrowser } from './FileBrowser';
 export { HostFileManager } from './HostFileManager';
 
-// 数据库
+// 数据库（暂缓: CodeEditor + InlineEditableTable + src/database 引擎障碍 → M4-4/M4-7 随批）
 export { DatabaseManager } from './DatabaseManager';
 export { DatabaseConnectionPanel } from './DatabaseConnectionPanel';
 
-// 服务闭环
+// 服务闭环（暂缓: DataFlowDiagram 跨域障碍 → M4-5 shared 后随批）
 export { ServiceLoopPanel } from './ServiceLoopPanel';
-export { LoopStageCard } from './LoopStageCard';
 export { ServiceConnectionTest } from './ServiceConnectionTest';
 
-// 报告导出
-export { ReportExporter } from './ReportExporter';
-export { ReportGenerator } from './ReportGenerator';
+// 报告导出（暂缓: useSettingsStore + full-backup 跨域障碍 → M4-4 admin 后随批）
 export { ConfigExportCenter } from './ConfigExportCenter';
 
-// 监控
+// 监控（暂缓: src/database 引擎层障碍 → 引擎层包化专项）
 export { ConnectionMonitorPanel } from './ConnectionMonitorPanel';
-export { LogViewer } from './LogViewer';

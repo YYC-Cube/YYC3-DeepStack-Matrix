@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useReportExporter } from "../hooks/useReportExporter";
+import { useReportExporter } from "@yyc3/ops/hooks/use-report-exporter";
 
 vi.mock("@yyc3/core/use-persisted-state", () => ({
   usePersistedList: vi.fn((key: string, initial: any) => {

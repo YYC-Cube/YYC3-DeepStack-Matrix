@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { LocalFileManager } from "../modules/ops/LocalFileManager";
 
-vi.mock("../hooks/useLocalFileSystem", () => ({
+vi.mock("@yyc3/ops/hooks/use-local-file-system", () => ({
   useLocalFileSystem: vi.fn(() => ({
     files: [],
     logs: [],
@@ -69,15 +69,15 @@ vi.mock("../modules/shared/GlassCard", () => ({
   ),
 }));
 
-vi.mock("../modules/ops/FileBrowser", () => ({
+vi.mock("@yyc3/ops/file-browser", () => ({
   FileBrowser: () => <div data-testid="file-browser">FileBrowser</div>,
 }));
 
-vi.mock("../modules/ops/LogViewer", () => ({
+vi.mock("@yyc3/ops/log-viewer", () => ({
   LogViewer: () => <div data-testid="log-viewer">LogViewer</div>,
 }));
 
-vi.mock("../modules/ops/ReportGenerator", () => ({
+vi.mock("@yyc3/ops/report-generator", () => ({
   ReportGenerator: () => <div data-testid="report-generator">ReportGenerator</div>,
 }));
 

@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { OperationCenter } from "../components/OperationCenter";
 
-vi.mock("../hooks/useOperationCenter", () => ({
+vi.mock("@yyc3/ops/hooks/use-operation-center", () => ({
   useOperationCenter: vi.fn(() => ({
     categories: [
       { key: "system", label: "系统操作", icon: "Settings", color: "#ffaa00" },

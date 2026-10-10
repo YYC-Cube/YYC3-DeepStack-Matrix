@@ -1,0 +1,47 @@
+{
+  "name": "@yyc3/ops",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ 四端统一 OPS 运维域组件库 — 操作中心 + 文件管理 + 报告导出（主文档 Phase 4 M4-2/3 第二批）",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./file-browser": "./src/FileBrowser.tsx",
+    "./log-viewer": "./src/LogViewer.tsx",
+    "./loop-stage-card": "./src/LoopStageCard.tsx",
+    "./operation-category": "./src/OperationCategory.tsx",
+    "./operation-chain": "./src/OperationChain.tsx",
+    "./operation-log-stream": "./src/OperationLogStream.tsx",
+    "./operation-template": "./src/OperationTemplate.tsx",
+    "./report-generator": "./src/ReportGenerator.tsx",
+    "./report-exporter": "./src/ReportExporter.tsx",
+    "./hooks/use-operation-center": "./src/hooks/useOperationCenter.ts",
+    "./hooks/use-service-loop": "./src/hooks/useServiceLoop.ts",
+    "./hooks/use-report-exporter": "./src/hooks/useReportExporter.ts",
+    "./hooks/use-local-file-system": "./src/hooks/useLocalFileSystem.ts",
+    "./hooks/use-local-database": "./src/hooks/useLocalDatabase.ts",
+    "./hooks/use-host-file-system": "./src/hooks/useHostFileSystem.ts"
+  },
+  "peerDependencies": {
+    "lucide-react": "^1.8.0",
+    "react": "^18 || ^19",
+    "recharts": "^3.8.1",
+    "sonner": "^2.0.7"
+  },
+  "dependencies": {
+    "@yyc3/core": "workspace:*",
+    "@yyc3/store": "workspace:*",
+    "@yyc3/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.0",
+    "recharts": "^3.8.1",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3"
+  }
+}

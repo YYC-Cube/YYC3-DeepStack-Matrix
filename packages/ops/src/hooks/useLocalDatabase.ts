@@ -21,7 +21,7 @@ import type {
   QueryResult,
   DBBackup,
   SQLTemplate,
-} from "../types";
+} from "@yyc3/core/types";
 
 // RF-011: Re-export 已移除
 

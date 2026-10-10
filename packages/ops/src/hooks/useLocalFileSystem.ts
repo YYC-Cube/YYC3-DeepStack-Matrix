@@ -20,7 +20,7 @@ import type {
   ReportConfig,
   ReportResult,
   ReportFormat,
-} from "../types";
+} from "@yyc3/core/types";
 
 // ============================================================
 // 默认文件树 (首次初始化)

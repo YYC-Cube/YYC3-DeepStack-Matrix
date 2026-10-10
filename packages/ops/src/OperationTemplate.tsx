@@ -14,9 +14,9 @@ import {
   Plus, Play, Trash2, ChevronDown, ChevronUp,
   FileText, ListOrdered,
 } from "lucide-react";
-import { GlassCard } from "../shared/GlassCard";
-import { CATEGORY_META } from "../../hooks/useOperationCenter";
-import type { OperationTemplateItem, OperationCategoryType } from "../../types";
+import { GlassCard } from "@yyc3/ui";
+import { CATEGORY_META } from "./hooks/useOperationCenter";
+import type { OperationTemplateItem, OperationCategoryType } from "@yyc3/core/types";
 
 interface OperationTemplateProps {
   templates: OperationTemplateItem[];

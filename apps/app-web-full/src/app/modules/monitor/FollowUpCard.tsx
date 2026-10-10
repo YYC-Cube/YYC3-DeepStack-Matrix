@@ -15,7 +15,7 @@ import {
   Clock, User, Tag, ExternalLink,
 } from "lucide-react";
 import { GlassCard } from "../shared/GlassCard";
-import { OperationChain } from "../ops/OperationChain";
+import { OperationChain } from "@yyc3/ops/operation-chain";
 import { QuickActionGroup } from "./QuickActionGroup";
 import type { FollowUpItem, FollowUpSeverity, FollowUpStatus } from "../../types";
 

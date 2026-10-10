@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useSecurityMonitor } from "../hooks/useSecurityMonitor";
+import { useSecurityMonitor } from "@yyc3/admin/hooks/use-security-monitor";
 
 describe("useSecurityMonitor", () => {
   beforeEach(() => {

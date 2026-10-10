@@ -21,7 +21,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { FollowUpEditDialog } from "../modules/monitor/FollowUpEditDialog";
+import { FollowUpEditDialog } from "@yyc3/monitor/follow-up-edit-dialog";
 import type { FollowUpRecord, UserRecord } from "../types";
 
 // Mock GlassCard

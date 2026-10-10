@@ -12,9 +12,9 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { PWAInstallPrompt } from "../modules/admin/PWAInstallPrompt";
+import { PWAInstallPrompt } from "@yyc3/admin/pwa-install-prompt";
 
-vi.mock("../hooks/useInstallPrompt", () => ({
+vi.mock("@yyc3/admin/hooks/use-install-prompt", () => ({
   useInstallPrompt: vi.fn(),
 }));
 
@@ -22,7 +22,7 @@ vi.mock("../modules/shared/YYC3Logo", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
 
-import { useInstallPrompt } from "../hooks/useInstallPrompt";
+import { useInstallPrompt } from "@yyc3/admin/hooks/use-install-prompt";
 
 describe("PWAInstallPrompt", () => {
   afterEach(() => {

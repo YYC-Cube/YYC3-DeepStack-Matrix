@@ -82,7 +82,7 @@ vi.mock("../modules/dev/CodeEditor", () => ({
   ),
 }));
 
-vi.mock("../modules/admin/InlineEditableTable", () => ({
+vi.mock("@yyc3/admin/inline-editable-table", () => ({
   InlineEditableTable: () => <div data-testid="inline-editable-table" />,
 }));
 

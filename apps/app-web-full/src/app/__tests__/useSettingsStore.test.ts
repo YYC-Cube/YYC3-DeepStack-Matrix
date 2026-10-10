@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useSettingsStore } from "../hooks/useSettingsStore";
+import { useSettingsStore } from "@yyc3/store/use-settings-store";
 
 vi.mock("@yyc3/core/broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => ({

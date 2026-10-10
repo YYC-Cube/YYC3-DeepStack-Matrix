@@ -87,8 +87,8 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../stores/global-store", () => {
-  const actual = vi.importActual("../stores/global-store");
+vi.mock("@yyc3/store/global-store", () => {
+  const actual = vi.importActual("@yyc3/store/global-store");
   return {
     ...actual,
     useAlerts: vi.fn(() => ({
@@ -97,7 +97,7 @@ vi.mock("../stores/global-store", () => {
   };
 });
 
-vi.mock("../components/AlertBanner", () => ({
+vi.mock("@yyc3/monitor/alert-banner", () => ({
   AlertBanner: () => null,
 }));
 
@@ -109,7 +109,7 @@ vi.mock("../components/GlassCard", () => ({
   ),
 }));
 
-vi.mock("../components/NodeDetailModal", () => ({
+vi.mock("@yyc3/monitor/node-detail-modal", () => ({
   NodeDetailModal: () => null,
 }));
 
@@ -135,7 +135,7 @@ describe("Dashboard", () => {
 
   it("should render dashboard page", async () => {
     // Dynamic import to avoid circular dependencies
-    const { Dashboard } = await import("../components/Dashboard");
+    const { Dashboard } = await import("@yyc3/monitor/dashboard");
 
     render(React.createElement(Dashboard));
     
@@ -144,7 +144,7 @@ describe("Dashboard", () => {
   });
 
   it("should render chart tabs on mobile", async () => {
-    const { Dashboard } = await import("../components/Dashboard");
+    const { Dashboard } = await import("@yyc3/monitor/dashboard");
     const { ViewContext } = await import("../lib/view-context");
 
     // Wrap Dashboard with mobile ViewContext provider
@@ -169,7 +169,7 @@ describe("Dashboard", () => {
   });
 
   it("should render refresh button", async () => {
-    const { Dashboard } = await import("../components/Dashboard");
+    const { Dashboard } = await import("@yyc3/monitor/dashboard");
 
     render(React.createElement(Dashboard));
     
@@ -179,7 +179,7 @@ describe("Dashboard", () => {
   });
 
   it("should render panorama button", async () => {
-    const { Dashboard } = await import("../components/Dashboard");
+    const { Dashboard } = await import("@yyc3/monitor/dashboard");
 
     render(React.createElement(Dashboard));
     

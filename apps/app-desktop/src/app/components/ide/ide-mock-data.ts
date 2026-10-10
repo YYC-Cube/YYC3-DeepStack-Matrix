@@ -75,7 +75,7 @@ export default function App() {
 }`,
   "routes-ts": `import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
-import { DataMonitoring } from "./components/DataMonitoring";
+import { DataMonitoring } from "@yyc3/monitor/data-monitoring";
 
 export const router = createBrowserRouter([
   {

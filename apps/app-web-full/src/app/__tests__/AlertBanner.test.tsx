@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { AlertBanner } from "../modules/monitor/AlertBanner";
+import { AlertBanner } from "@yyc3/monitor/alert-banner";
 
 const mockNavigate = vi.fn();
 
@@ -20,7 +20,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock("../stores/global-store", () => ({
+vi.mock("@yyc3/store/global-store", () => ({
   useAlerts: () => ({
     followUps: [
       {

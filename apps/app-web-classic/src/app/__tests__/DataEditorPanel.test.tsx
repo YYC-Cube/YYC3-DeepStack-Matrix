@@ -34,7 +34,7 @@ vi.mock("@yyc3/core/db-queries", () => ({
   resetDbNodes: vi.fn(),
 }));
 
-vi.mock("../hooks/useValidation", () => ({
+vi.mock("@yyc3/admin/hooks/use-validation", () => ({
   useValidation: vi.fn(() => ({
     errors: {},
     validate: vi.fn(),

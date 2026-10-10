@@ -1,45 +1,48 @@
 /**
  * file: index.ts
- * description: Monitor 模块 barrel 文件 · 统一导出监控与巡检相关组件
+ * description: Monitor 模块 barrel —— M4-4 后首批 21 件转 @yyc3/monitor re-export；暂缓 1 件（AISuggestionPanel）保持端内导出
  * author: YanYuCloudCube Team
- * version: v1.0.0
- * created: 2026-07-25
- * updated: 2026-07-25
+ * version: v1.1.0
+ * updated: 2026-10-10
  * status: active
  * tags: [module],[monitor],[barrel]
  */
 
+// —— 已入包 @yyc3/monitor（M4-4 首批，re-export 衔接）——
+
 // 仪表盘
-export { DataMonitoring } from './DataMonitoring';
-export { Dashboard } from './Dashboard';
+export { DataMonitoring } from '@yyc3/monitor';
+export { Dashboard } from '@yyc3/monitor';
 
 // 跟进管理
-export { FollowUpPanel } from './FollowUpPanel';
-export { FollowUpManager } from './FollowUpManager';
-export { FollowUpCard } from './FollowUpCard';
-export { FollowUpDrawer } from './FollowUpDrawer';
-export { FollowUpEditDialog } from './FollowUpEditDialog';
+export { FollowUpPanel } from '@yyc3/monitor';
+export { FollowUpManager } from '@yyc3/monitor';
+export { FollowUpCard } from '@yyc3/monitor';
+export { FollowUpDrawer } from '@yyc3/monitor';
+export { FollowUpEditDialog } from '@yyc3/monitor';
 
 // 巡查
-export { PatrolDashboard } from './PatrolDashboard';
-export { PatrolReport } from './PatrolReport';
-export { PatrolScheduler } from './PatrolScheduler';
-export { PatrolHistory } from './PatrolHistory';
+export { PatrolDashboard } from '@yyc3/monitor';
+export { PatrolReport } from '@yyc3/monitor';
+export { PatrolScheduler } from '@yyc3/monitor';
+export { PatrolHistory } from '@yyc3/monitor';
 
 // 告警
-export { AlertBanner } from './AlertBanner';
-export { AlertRulesPanel } from './AlertRulesPanel';
-export { CreateRuleModal } from './CreateRuleModal';
+export { AlertBanner } from '@yyc3/monitor';
+export { AlertRulesPanel } from '@yyc3/monitor';
+export { CreateRuleModal } from '@yyc3/monitor';
 
 // AI 建议
-export { AISuggestionPanel } from './AISuggestionPanel';
-export { ActionRecommender } from './ActionRecommender';
-export { PatternAnalyzer } from './PatternAnalyzer';
-export { SDKChatPanel } from './SDKChatPanel';
+export { ActionRecommender } from '@yyc3/monitor';
+export { PatternAnalyzer } from '@yyc3/monitor';
+export { SDKChatPanel } from '@yyc3/monitor';
 
 // 快捷操作
-export { QuickActionGroup } from './QuickActionGroup';
+export { QuickActionGroup } from '@yyc3/monitor';
 
 // 通用组件
-export { NodeDetailModal } from './NodeDetailModal';
-export { UnifiedModelSelector } from './UnifiedModelSelector';
+export { NodeDetailModal } from '@yyc3/monitor';
+export { UnifiedModelSelector } from '@yyc3/monitor';
+
+// —— 暂缓留端 ——
+export { AISuggestionPanel } from './AISuggestionPanel';

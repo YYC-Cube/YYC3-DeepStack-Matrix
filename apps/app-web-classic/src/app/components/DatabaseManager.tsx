@@ -40,7 +40,7 @@ import { ViewContext } from "../lib/view-context";
 import type { DatabaseType } from "../types";
 import { SQLEditor } from "./CodeEditor";
 import { GlassCard } from "./GlassCard";
-import { InlineEditableTable } from "./InlineEditableTable";
+import { InlineEditableTable } from "@yyc3/admin/inline-editable-table";
 
 // ── 样式常量 ──
 const textPrimary = "#e0f0ff";

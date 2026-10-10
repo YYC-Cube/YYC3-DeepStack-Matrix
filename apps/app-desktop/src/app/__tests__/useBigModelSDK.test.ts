@@ -26,7 +26,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, cleanup, waitFor } from "@testing-library/react";
-import { useBigModelSDK } from "../hooks/useBigModelSDK";
+import { useBigModelSDK } from "@yyc3/store/use-big-model-sdk";
 import { useSDKSessionSlice } from "@yyc3/store/sdk-session-slice";
 import type { ConfiguredModel, SDKCapability } from "../types";
 

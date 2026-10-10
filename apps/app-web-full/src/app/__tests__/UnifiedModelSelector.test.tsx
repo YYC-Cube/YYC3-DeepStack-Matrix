@@ -112,7 +112,7 @@ vi.mock("@yyc3/store/provider-slice", () => ({
 }));
 
 // import 必须在 vi.mock 之后
-import { UnifiedModelSelector } from "../modules/monitor/UnifiedModelSelector";
+import { UnifiedModelSelector } from "@yyc3/monitor/unified-model-selector";
 
 describe("UnifiedModelSelector", () => {
   // 类型修复：Vitest 4 vi.fn 仅接受 0-1 个泛型参数（整函数签名），且与 OnChangeFn 交叉

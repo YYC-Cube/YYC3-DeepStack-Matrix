@@ -19,7 +19,7 @@
 import React from "react";
 import { renderHook, act, cleanup } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { useSecurityMonitor } from "../hooks/useSecurityMonitor";
+import { useSecurityMonitor } from "@yyc3/admin/hooks/use-security-monitor";
 
 describe("useSecurityMonitor", () => {
   beforeEach(() => {

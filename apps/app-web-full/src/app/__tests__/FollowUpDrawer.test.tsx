@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
-import { FollowUpDrawer } from "../modules/monitor/FollowUpDrawer";
+import { FollowUpDrawer } from "@yyc3/monitor/follow-up-drawer";
 import type { FollowUpItem } from "../types";
 
 vi.mock("react-router", () => ({

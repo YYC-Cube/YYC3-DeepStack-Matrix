@@ -21,7 +21,7 @@ import {
 import { GlassCard } from "./GlassCard";
 import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
 import { SQLEditor } from "./CodeEditor";
-import { InlineEditableTable } from "./InlineEditableTable";
+import { InlineEditableTable } from "@yyc3/admin/inline-editable-table";
 import { ViewContext } from "../lib/view-context";
 import type { DatabaseType } from "../types";
 

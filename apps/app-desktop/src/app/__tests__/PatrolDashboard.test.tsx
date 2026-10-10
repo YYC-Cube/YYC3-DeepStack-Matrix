@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { PatrolDashboard } from "../components/PatrolDashboard";
+import { PatrolDashboard } from "@yyc3/monitor/patrol-dashboard";
 
-vi.mock("../hooks/usePatrol", () => ({
+vi.mock("@yyc3/monitor/hooks/use-patrol", () => ({
   usePatrol: vi.fn(() => ({
     patrolStatus: "idle",
     currentResult: null,

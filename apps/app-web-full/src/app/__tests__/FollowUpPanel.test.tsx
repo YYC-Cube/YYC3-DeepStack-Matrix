@@ -127,7 +127,7 @@ let mockAddFn: ReturnType<typeof vi.fn>;
 let mockUpdateFn: ReturnType<typeof vi.fn>;
 let mockRemoveFn: ReturnType<typeof vi.fn>;
 
-vi.mock("../stores/global-store", () => ({
+vi.mock("@yyc3/store/global-store", () => ({
   useAlerts: () => ({
     followUps: mockGlobalFollowUps,
     addFollowUp: mockAddFn,
@@ -137,7 +137,7 @@ vi.mock("../stores/global-store", () => ({
 }));
 
 // import 必须放在 vi.mock 之后
-import { FollowUpPanel } from "../modules/monitor/FollowUpPanel";
+import { FollowUpPanel } from "@yyc3/monitor/follow-up-panel";
 
 describe("FollowUpPanel", () => {
   beforeEach(() => {

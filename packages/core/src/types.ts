@@ -1021,3 +1021,440 @@ export interface FileVersion {
   savedAt: number;
   label?: string;
 }
+
+// ============================================================
+// admin/monitor 域类型段（M4-4，自 P1 types/ 六子文件上收，撞名复用：
+// BaseSeverity/ChainEvent/ChainEventType/ChangeType/ChatMessage/ChatSession/
+// ConfiguredModel/ModelProviderId/SDKUsageStats/DatabaseType）
+// ============================================================
+
+// alert-rules-types.ts
+/** 告警严重级别 (规则引擎) — RF-005: 补充 'error' 级别，与 BaseSeverity 对齐 */
+export type AlertSeverity = "info" | "warning" | "error" | "critical";
+
+/** 告警指标类型 */
+export type AlertMetric = "cpu" | "gpu" | "memory" | "latency" | "disk" | "network" | "error_rate" | "throughput";
+
+/** 告警比较条件 */
+export type AlertCondition = "gt" | "lt" | "gte" | "lte" | "eq" | "neq";
+
+/** 升级等级 */
+export type EscalationLevel = 1 | 2 | 3;
+
+/** 告警阈值配置 */
+export interface AlertThreshold {
+  metric: AlertMetric;
+  condition: AlertCondition;
+  value: number;
+  unit: string;
+  duration: number;
+}
+
+/** 升级策略 */
+export interface EscalationPolicy {
+  level: EscalationLevel;
+  delayMinutes: number;
+  notifyChannels: string[];
+  autoAction?: string;
+}
+
+/** 告警规则 */
+export interface AlertRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  severity: AlertSeverity;
+  thresholds: AlertThreshold[];
+  aggregation: {
+    enabled: boolean;
+    windowMinutes: number;
+    maxGroupSize: number;
+  };
+  deduplication: {
+    enabled: boolean;
+    cooldownMinutes: number;
+  };
+  escalation: EscalationPolicy[];
+  targets: string[];
+  createdAt: number;
+  lastTriggered: number | null;
+  triggerCount: number;
+}
+
+/** 告警事件 */
+export interface AlertEvent {
+  id: string;
+  ruleId: string;
+  ruleName: string;
+  severity: AlertSeverity;
+  message: string;
+  metric: AlertMetric;
+  currentValue: number;
+  threshold: number;
+  nodeId: string;
+  timestamp: number;
+  acknowledged: boolean;
+  resolved: boolean;
+  escalationLevel: EscalationLevel;
+}
+
+/** 告警规则 Hook 选项 */
+export interface AlertRulesOptions {
+  liveNodes?: { id: string; gpu: number; mem: number; temp: number; status: string }[];
+  liveLatency?: number;
+}
+
+// patrol-types.ts
+/** 巡查运行状态 */
+export type PatrolStatus = "idle" | "running" | "completed" | "failed";
+
+/** 巡查项状态 */
+export type CheckStatus = "pass" | "warning" | "critical" | "skipped";
+
+/** 自动巡查间隔 (分钟) */
+export type PatrolInterval = 5 | 10 | 15 | 30 | 60;
+
+/** 巡查检查项 */
+export interface PatrolCheckItem {
+  id: string;
+  category: string;
+  label: string;
+  status: CheckStatus;
+  value: string;
+  threshold?: string;
+  detail?: string;
+}
+
+/** 巡查结果 */
+export interface PatrolResult {
+  id: string;
+  timestamp: number;
+  duration: number;
+  status: PatrolStatus;
+  healthScore: number;
+  totalChecks: number;
+  passCount: number;
+  warningCount: number;
+  criticalCount: number;
+  skippedCount: number;
+  checks: PatrolCheckItem[];
+  triggeredBy: "manual" | "auto" | "scheduled";
+}
+
+/** 巡查计划 */
+export interface PatrolSchedule {
+  enabled: boolean;
+  interval: PatrolInterval;
+  lastRun: number | null;
+  nextRun: number | null;
+}
+
+// followup-types.ts（ChainEventType/ChainEvent 已有，复用）
+/** 告警 / 异常严重级别 — RF-005: BaseSeverity 别名 */
+export type FollowUpSeverity = BaseSeverity;
+
+/** 告警状态 */
+export type FollowUpStatus = "active" | "investigating" | "resolved" | "ignored";
+
+/** 跟进卡片数据 */
+export interface FollowUpItem {
+  id: string;
+  severity: FollowUpSeverity;
+  title: string;
+  source: string;
+  metric?: string;
+  status: FollowUpStatus;
+  timestamp: number;
+  chain: ChainEvent[];
+  relatedAlerts?: string[];
+  assignee?: string;
+  tags?: string[];
+}
+
+// security-types.ts（全族闭合）
+/** 安全监控标签页 */
+export type SecurityTab = "security" | "performance" | "diagnostics" | "dataManagement";
+
+/** 扫描状态 */
+export type ScanStatus = "idle" | "scanning" | "complete";
+
+/** 风险等级 */
+export type RiskLevel = "safe" | "warning" | "danger";
+
+/** Web Vitals 评级 */
+export type VitalRating = "good" | "needs-improvement" | "poor";
+
+/** CSP 检测结果 */
+export interface CSPResult {
+  enabled: boolean;
+  directives: { name: string; value: string; status: "pass" | "warn" | "fail" }[];
+  inlineBlocked: boolean;
+  recommendations: string[];
+  score: number;
+}
+
+/** Cookie 检查结果 */
+export interface CookieResult {
+  count: number;
+  checks: { name: string; status: "pass" | "warn" | "fail"; detail: string }[];
+  score: number;
+}
+
+/** 敏感数据检测结果 */
+export interface SensitiveDataResult {
+  localStorage: { key: string; risk: RiskLevel; detail: string }[];
+  sessionStorage: { key: string; risk: RiskLevel; detail: string }[];
+  consoleRisks: number;
+  totalRisks: number;
+  score: number;
+}
+
+/** 资源加载条目 */
+export interface ResourceEntry {
+  name: string;
+  type: string;
+  size: number;
+  loadTime: number;
+  cached: boolean;
+}
+
+/** 性能分析结果 */
+export interface PerformanceResult {
+  resources: ResourceEntry[];
+  totalResources: number;
+  totalSize: number;
+  pageLoadTime: number;
+  imgOptimizations: string[];
+  jsBundles: { name: string; size: number; gzipped: number }[];
+  lazyLoadSavings: number;
+}
+
+/** 内存分析结果 */
+export interface MemoryResult {
+  usedJSHeap: number;
+  totalJSHeap: number;
+  jsHeapLimit: number;
+  listeners: number;
+  timers: number;
+  domNodes: number;
+  leakRisk: RiskLevel;
+  trend: number[];
+}
+
+/** Web Vitals 指标 */
+export interface WebVital {
+  name: string;
+  value: number;
+  unit: string;
+  rating: VitalRating;
+  target: string;
+}
+
+/** 设备信息 */
+export interface DeviceInfo {
+  cpuCores: number;
+  memory: number | null;
+  screen: string;
+  pixelRatio: number;
+  touchSupport: boolean;
+  gpu: string;
+  platform: string;
+  userAgent: string;
+}
+
+/** 网络信息 */
+export interface NetworkInfo {
+  type: string;
+  downlink: number;
+  rtt: number;
+  effectiveType: string;
+  isStable: boolean;
+  saveData: boolean;
+}
+
+/** 浏览器特性支持 */
+export interface BrowserFeature {
+  name: string;
+  supported: boolean;
+  polyfillNeeded: boolean;
+}
+
+/** 浏览器信息 */
+export interface BrowserInfo {
+  name: string;
+  version: string;
+  features: BrowserFeature[];
+  upgradeNeeded: boolean;
+}
+
+/** 存储使用情况 */
+export interface StorageUsage {
+  localStorage: number;
+  sessionStorage: number;
+  indexedDB: number;
+  cacheAPI: number;
+  total: number;
+}
+
+/** 数据管理状态 */
+export interface DataManagementState {
+  storage: StorageUsage;
+  lastBackup: number | null;
+  syncEnabled: boolean;
+  expiredItems: number;
+  cacheSize: number;
+}
+
+/** 安全监控完整状态 */
+export interface SecurityMonitorState {
+  activeTab: SecurityTab;
+  scanStatus: ScanStatus;
+  lastScanTime: number | null;
+  overallScore: number;
+  overallRisk: RiskLevel;
+  csp: CSPResult | null;
+  cookie: CookieResult | null;
+  sensitive: SensitiveDataResult | null;
+  performance: PerformanceResult | null;
+  memory: MemoryResult | null;
+  vitals: WebVital[];
+  device: DeviceInfo | null;
+  network: NetworkInfo | null;
+  browser: BrowserInfo | null;
+  dataManagement: DataManagementState | null;
+}
+
+// ui-types.ts（PWA 段；ChatMessage 已有复用）
+/** Service Worker 状态 */
+export type SWStatus = "idle" | "installing" | "waiting" | "active" | "error" | "unsupported";
+
+/** 缓存条目 */
+export interface CacheEntry {
+  name: string;
+  size: number;
+  count: number;
+  lastUpdated: number;
+}
+
+/** PWA 状态概览 */
+export interface PWAState {
+  swStatus: SWStatus;
+  swVersion: string;
+  isOnline: boolean;
+  cacheEntries: CacheEntry[];
+  totalCacheSize: number;
+  offlineReady: boolean;
+  lastCacheUpdate: number;
+}
+
+/** PWA beforeinstallprompt 事件接口 */
+export interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+// sdk-types.ts（ChatMessage/ChatSession/SDKUsageStats/ModelProviderId 已有复用）
+/** SDK 连接状态 */
+export type SDKConnectionStatus = "idle" | "connecting" | "connected" | "error";
+
+/** 聊天消息角色 */
+export type ChatRole = "system" | "user" | "assistant";
+
+/** SDK 能力枚举 */
+export type SDKCapability =
+  | "chat"
+  | "chat-stream"
+  | "file-upload"
+  | "knowledge-base"
+  | "image-gen"
+  | "tts"
+  | "stt"
+  | "video-gen"
+  | "code-gen";
+
+/** SDK 提供商能力映射 */
+export interface SDKProviderCapabilities {
+  providerId: ModelProviderId;
+  capabilities: SDKCapability[];
+}
+
+/** SDK Chat Completion 响应 */
+export interface SDKChatResponse {
+  id: string;
+  model: string;
+  content: string;
+  finishReason: string;
+  usage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  latencyMs: number;
+}
+
+// database-types.ts（ChangeType 定义随迁）
+/** 变更操作类型 */
+export type ChangeType = "update" | "delete";
+
+/** 可编辑单元格变更 */
+export interface EditableCellChange {
+  rowIndex: number;
+  column: string;
+  oldValue: unknown;
+  newValue: string;
+  type: ChangeType;
+  sql?: string;
+  rollbackSQL?: string;
+}
+
+/** 已提交的变更记录 (用于 Undo, IndexedDB 持久化) */
+export interface CommittedChange {
+  id: string;
+  tableName: string;
+  changes: EditableCellChange[];
+  committedAt: number;
+  rolledBack: boolean;
+  rolledBackIndices?: number[];
+}
+
+// network-types.ts
+/** 连接测试状态 */
+export type TestStatus = "idle" | "testing" | "success" | "failed";
+
+// storage.ts（DatabaseConfig 自 database/types 引擎层上收，DatabaseType 已有复用）
+export interface DatabaseConfig {
+  type: DatabaseType;
+  host: string;
+  port: number;
+  database: string;
+  username: string;
+  password: string;
+  ssl?: boolean;
+  connectionTimeout?: number;
+  maxRetries?: number;
+}
+
+export type StorageType = "localStorage" | "database";
+
+export interface StorageConfig {
+  type: StorageType;
+  database?: DatabaseConfig;
+  syncInterval: number;
+  autoSync: boolean;
+  offlineMode: boolean;
+  conflictResolution: "local" | "remote" | "merge";
+}
+
+export interface StorageStatus {
+  connected: boolean;
+  syncing: boolean;
+  lastSync: number | null;
+  pendingChanges: number;
+  error?: string;
+}
+
+export interface StorageEvent {
+  type: "syncStart" | "syncComplete" | "syncError" | "offline" | "online" | "offlineOperationAdded" | "offlineQueueProcessed";
+  data?: unknown;
+  error?: string;
+}

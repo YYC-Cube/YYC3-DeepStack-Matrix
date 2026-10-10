@@ -25,7 +25,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { PWAStatusPanel } from "../modules/admin/PWAStatusPanel";
+import { PWAStatusPanel } from "@yyc3/admin/pwa-status-panel";
 import { ViewContext } from "../lib/view-context";
 import { I18nContext } from "@yyc3/core/i18n";
 import { zhCN } from "@yyc3/core/i18n";

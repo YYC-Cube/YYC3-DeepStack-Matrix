@@ -56,13 +56,13 @@ function withSuspense<T extends object>(
 // ============================================================
 
 const DataMonitoring = lazy(() =>
-  import("./components/DataMonitoring").then((m) => ({ default: m.DataMonitoring })),
+  import("@yyc3/monitor/data-monitoring").then((m) => ({ default: m.DataMonitoring })),
 );
 const FollowUpPanel = lazy(() =>
-  import("./components/FollowUpPanel").then((m) => ({ default: m.FollowUpPanel })),
+  import("@yyc3/monitor/follow-up-panel").then((m) => ({ default: m.FollowUpPanel })),
 );
 const PatrolDashboard = lazy(() =>
-  import("./components/PatrolDashboard").then((m) => ({ default: m.PatrolDashboard })),
+  import("@yyc3/monitor/patrol-dashboard").then((m) => ({ default: m.PatrolDashboard })),
 );
 const OperationCenter = lazy(() =>
   import("./components/OperationCenter").then((m) => ({ default: m.OperationCenter })),
@@ -77,7 +77,7 @@ const ServiceLoopPanel = lazy(() =>
   import("./components/ServiceLoopPanel").then((m) => ({ default: m.ServiceLoopPanel })),
 );
 const PWAStatusPanel = lazy(() =>
-  import("./components/PWAStatusPanel").then((m) => ({ default: m.PWAStatusPanel })),
+  import("@yyc3/admin/pwa-status-panel").then((m) => ({ default: m.PWAStatusPanel })),
 );
 const DesignSystemPage = lazy(() =>
   import("./components/design-system/DesignSystemPage").then((m) => ({ default: m.DesignSystemPage })),
@@ -98,19 +98,19 @@ const IDEPanel = lazy(() =>
   import("./components/IDEPanel").then((m) => ({ default: m.IDEPanel })),
 );
 const OperationAudit = lazy(() =>
-  import("./components/OperationAudit").then((m) => ({ default: m.OperationAudit })),
+  import("@yyc3/admin/operation-audit").then((m) => ({ default: m.OperationAudit })),
 );
 const UserManagement = lazy(() =>
-  import("./components/UserManagement").then((m) => ({ default: m.UserManagement })),
+  import("@yyc3/admin/user-management").then((m) => ({ default: m.UserManagement })),
 );
 const SystemSettings = lazy(() =>
   import("./components/SystemSettings").then((m) => ({ default: m.SystemSettings })),
 );
 const SecurityMonitor = lazy(() =>
-  import("./components/SecurityMonitor").then((m) => ({ default: m.SecurityMonitor })),
+  import("@yyc3/admin/security-monitor").then((m) => ({ default: m.SecurityMonitor })),
 );
 const AlertRulesPanel = lazy(() =>
-  import("./components/AlertRulesPanel").then((m) => ({ default: m.AlertRulesPanel })),
+  import("@yyc3/monitor/alert-rules-panel").then((m) => ({ default: m.AlertRulesPanel })),
 );
 const ReportExporter = lazy(() =>
   import("@yyc3/ops/report-exporter").then((m) => ({ default: m.ReportExporter })),
@@ -131,10 +131,10 @@ const DataEditorPanel = lazy(() =>
   import("./components/DataEditorPanel").then((m) => ({ default: m.DataEditorPanel })),
 );
 const PerformanceMonitor = lazy(() =>
-  import("./components/PerformanceMonitor").then((m) => ({ default: m.PerformanceMonitor })),
+  import("@yyc3/admin/performance-monitor").then((m) => ({ default: m.PerformanceMonitor })),
 );
 const EnvConfigEditor = lazy(() =>
-  import("./components/EnvConfigEditor").then((m) => ({ default: m.EnvConfigEditor })),
+  import("@yyc3/admin/env-config-editor").then((m) => ({ default: m.EnvConfigEditor })),
 );
 const DatabaseConnectionPanel = lazy(() =>
   import("./components/DatabaseConnectionPanel").then((m) => ({ default: m.DatabaseConnectionPanel })),
@@ -158,13 +158,13 @@ const ServiceConnectionTest = lazy(() =>
   import("./components/ServiceConnectionTest").then((m) => ({ default: m.ServiceConnectionTest })),
 );
 const FollowUpManager = lazy(() =>
-  import("./components/FollowUpManager").then((m) => ({ default: m.FollowUpManager })),
+  import("@yyc3/monitor/follow-up-manager").then((m) => ({ default: m.FollowUpManager })),
 );
 const ConfigCenter = lazy(() =>
   import("./components/ConfigCenter").then((m) => ({ default: m.ConfigCenter })),
 );
 const VariableCenter = lazy(() =>
-  import("./components/VariableCenter").then((m) => ({ default: m.VariableCenter })),
+  import("@yyc3/admin/variable-center").then((m) => ({ default: m.VariableCenter })),
 );
 const UnifiedSettingsPanel = lazy(() =>
   import("./components/UnifiedSettingsPanel").then((m) => ({ default: m.UnifiedSettingsPanel })),
@@ -176,7 +176,7 @@ const CommStationPanel = lazy(() =>
   import("@yyc3/business/comm-station-panel").then((m) => ({ default: m.CommStationPanel })),
 );
 const SDKChatPanel = lazy(() =>
-  import("./components/SDKChatPanel").then((m) => ({ default: m.SDKChatPanel })),
+  import("@yyc3/monitor/sdk-chat-panel").then((m) => ({ default: m.SDKChatPanel })),
 );
 const ConfigExportCenter = lazy(() =>
   import("./components/ConfigExportCenter").then((m) => ({ default: m.ConfigExportCenter })),

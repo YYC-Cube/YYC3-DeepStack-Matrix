@@ -242,7 +242,7 @@ describe("RF-006: API_BASE 硬编码消除", () => {
 
 describe("RF-007: useAlertRules 复用 usePersistedList", () => {
   it("useAlertRules 可导入且为函数", async () => {
-    const mod = await import("../hooks/useAlertRules");
+    const mod = await import("@yyc3/monitor/hooks/use-alert-rules");
     expect(mod.useAlertRules).toBeDefined();
     expect(typeof mod.useAlertRules).toBe("function");
   });
@@ -255,7 +255,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
 
   it("useAlertRules 导出的类型与 types/index.ts 一致", async () => {
     // 验证 re-export 的类型正确
-    const mod = await import("../hooks/useAlertRules");
+    const mod = await import("@yyc3/monitor/hooks/use-alert-rules");
     // 这些应该存在作为 re-export
     expect(mod).toBeDefined();
   });
@@ -286,7 +286,7 @@ describe("Phase 2 综合验证", () => {
       import("../components/NotFound"),
       import("@yyc3/core/yyc3-storage"),
       import("@yyc3/core/api-config"),
-      import("../hooks/useAlertRules"),
+      import("@yyc3/monitor/hooks/use-alert-rules"),
       import("@yyc3/ops/hooks/use-host-file-system"),
       import("@yyc3/core/use-persisted-state"),
       import("../types"),

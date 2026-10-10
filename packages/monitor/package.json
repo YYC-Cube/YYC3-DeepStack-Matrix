@@ -1,0 +1,62 @@
+{
+  "name": "@yyc3/monitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ monitor 域组件包 — 数据监控/告警/巡查/跟进/SDK 聊天（M4-4 首批 20 组件 + 3 hooks）",
+  "exports": {
+    ".": "./src/index.ts",
+    "./action-recommender": "./src/ActionRecommender.tsx",
+    "./alert-banner": "./src/AlertBanner.tsx",
+    "./alert-rules-panel": "./src/AlertRulesPanel.tsx",
+    "./create-rule-modal": "./src/CreateRuleModal.tsx",
+    "./dashboard": "./src/Dashboard.tsx",
+    "./data-monitoring": "./src/DataMonitoring.tsx",
+    "./follow-up-card": "./src/FollowUpCard.tsx",
+    "./follow-up-drawer": "./src/FollowUpDrawer.tsx",
+    "./follow-up-edit-dialog": "./src/FollowUpEditDialog.tsx",
+    "./follow-up-manager": "./src/FollowUpManager.tsx",
+    "./follow-up-panel": "./src/FollowUpPanel.tsx",
+    "./node-detail-modal": "./src/NodeDetailModal.tsx",
+    "./patrol-dashboard": "./src/PatrolDashboard.tsx",
+    "./patrol-history": "./src/PatrolHistory.tsx",
+    "./patrol-report": "./src/PatrolReport.tsx",
+    "./patrol-scheduler": "./src/PatrolScheduler.tsx",
+    "./pattern-analyzer": "./src/PatternAnalyzer.tsx",
+    "./quick-action-group": "./src/QuickActionGroup.tsx",
+    "./sdk-chat-panel": "./src/SDKChatPanel.tsx",
+    "./unified-model-selector": "./src/UnifiedModelSelector.tsx",
+    "./hooks/use-patrol": "./src/hooks/usePatrol.ts",
+    "./hooks/use-alert-rules": "./src/hooks/useAlertRules.ts",
+    "./hooks/use-ai-suggestion": "./src/hooks/useAISuggestion.ts"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^19.2.5",
+    "lucide-react": "^1.8.0",
+    "react-router": "^7.13.1",
+    "react-swipeable": "^7.0.2",
+    "recharts": "^3.8.1",
+    "sonner": "^1.7 || ^2",
+    "zustand": "^5.0.12"
+  },
+  "dependencies": {
+    "@yyc3/core": "workspace:*",
+    "@yyc3/store": "workspace:*",
+    "@yyc3/ui": "workspace:*",
+    "@yyc3/ops": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.5",
+    "react-router": "^7.13.1",
+    "react-swipeable": "^7.0.2",
+    "recharts": "^3.8.1",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3",
+    "zustand": "^5.0.12"
+  }
+}

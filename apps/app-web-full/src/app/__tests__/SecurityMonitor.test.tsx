@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { SecurityMonitor } from "../modules/admin/SecurityMonitor";
+import { SecurityMonitor } from "@yyc3/admin/security-monitor";
 
-vi.mock("../hooks/useSecurityMonitor", () => ({
+vi.mock("@yyc3/admin/hooks/use-security-monitor", () => ({
   useSecurityMonitor: vi.fn(() => ({
     activeTab: "security",
     setActiveTab: vi.fn(),

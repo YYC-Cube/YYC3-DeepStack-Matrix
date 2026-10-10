@@ -43,7 +43,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   })),
 }));
 
-vi.mock("../hooks/useSettingsStore", () => ({
+vi.mock("@yyc3/store/use-settings-store", () => ({
   useSettingsStore: vi.fn(() => ({
     settings: {
       darkMode: true,

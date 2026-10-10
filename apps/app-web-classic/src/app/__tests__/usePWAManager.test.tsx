@@ -28,7 +28,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { usePWAManager } from "../hooks/usePWAManager";
+import { usePWAManager } from "@yyc3/admin/hooks/use-pwa-manager";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), info: vi.fn(), error: vi.fn() },

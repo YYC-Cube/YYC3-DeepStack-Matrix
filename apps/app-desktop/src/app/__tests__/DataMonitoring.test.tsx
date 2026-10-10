@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { DataMonitoring } from "../components/DataMonitoring";
+import { DataMonitoring } from "@yyc3/monitor/data-monitoring";
 
-vi.mock("../components/Dashboard", () => ({
+vi.mock("@yyc3/monitor/dashboard", () => ({
   Dashboard: () => <div data-testid="dashboard">Dashboard</div>,
 }));
 

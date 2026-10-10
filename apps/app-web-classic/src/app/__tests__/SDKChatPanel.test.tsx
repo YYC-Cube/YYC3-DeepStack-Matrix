@@ -97,7 +97,7 @@ const mockAbort = vi.fn() as any;
 const mockResetStats = vi.fn() as any;
 const mockSetActiveSessionId = vi.fn() as any;
 
-vi.mock("../hooks/useBigModelSDK", () => ({
+vi.mock("@yyc3/store/use-big-model-sdk", () => ({
   useBigModelSDK: () => ({
     sessions: [
       {
@@ -197,7 +197,7 @@ vi.mock("../components/Layout", () => ({
 // 测试
 // ===============================
 
-import { SDKChatPanel } from "../components/SDKChatPanel";
+import { SDKChatPanel } from "@yyc3/monitor/sdk-chat-panel";
 
 describe("SDKChatPanel", () => {
   beforeEach(() => {

@@ -116,7 +116,7 @@ const defaultMockState = {
 let mockAlertRulesState = { ...defaultMockState };
 let mockConnectionState: string = "connected";
 
-vi.mock("../hooks/useAlertRules", () => ({
+vi.mock("@yyc3/monitor/hooks/use-alert-rules", () => ({
   useAlertRules: () => mockAlertRulesState,
 }));
 
@@ -136,7 +136,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../modules/monitor/CreateRuleModal", () => ({
+vi.mock("@yyc3/monitor/create-rule-modal", () => ({
   CreateRuleModal: ({ open, onClose, onSubmit }: any) => {
     if (!open) {return null;}
     return (
@@ -169,13 +169,13 @@ describe("AlertRulesPanel", () => {
 
   describe("基础渲染", () => {
     it("should render alert rules panel title", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText("alerts.title")).toBeInTheDocument();
     });
 
     it("should render stats labels", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText("alerts.totalRules")).toBeInTheDocument();
       expect(screen.getByText("alerts.activeRules")).toBeInTheDocument();
@@ -184,20 +184,20 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should render add rule button", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByTestId("create-rule-btn")).toBeInTheDocument();
     });
 
     it("should render tabs", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText("alerts.rulesTab")).toBeInTheDocument();
       expect(screen.getByText("alerts.eventsTab")).toBeInTheDocument();
     });
 
     it("should render WebSocket status indicator", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       const wsElements = screen.getAllByText((_content, element) => {
         return element?.textContent?.includes("WebSocket Connected") ?? false;
@@ -208,27 +208,27 @@ describe("AlertRulesPanel", () => {
 
   describe("规则列表渲染", () => {
     it("should render rule cards", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText("GPU Utilization High")).toBeInTheDocument();
       expect(screen.getByText("Latency Anomaly")).toBeInTheDocument();
     });
 
     it("should show rule thresholds", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText(/gpu gt 95%/)).toBeInTheDocument();
       expect(screen.getByText(/latency gt 2000ms/)).toBeInTheDocument();
     });
 
     it("should display rule targets count", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText(/2 alerts.nodes/)).toBeInTheDocument();
     });
 
     it("should show trigger count", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText(/23 alerts.triggers/)).toBeInTheDocument();
     });
@@ -236,7 +236,7 @@ describe("AlertRulesPanel", () => {
 
   describe("规则交互", () => {
     it("should toggle rule when toggle button clicked", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const editBtn = screen.getByTestId("edit-rule-rule-001");
@@ -246,7 +246,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should select rule when card clicked", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const ruleText = screen.getByText("GPU Utilization High");
@@ -257,7 +257,7 @@ describe("AlertRulesPanel", () => {
 
   describe("事件列表渲染", () => {
     it("should switch to events tab", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const eventsTab = screen.getByText("alerts.eventsTab");
@@ -269,7 +269,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should render event messages", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -281,7 +281,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should show event node IDs", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -293,7 +293,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should display acknowledge button for unacknowledged events", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -304,7 +304,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should display resolve button for unresolved events", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -317,7 +317,7 @@ describe("AlertRulesPanel", () => {
 
   describe("事件交互", () => {
     it("should acknowledge event when acknowledge button clicked", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -330,7 +330,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should resolve event when resolve button clicked", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -345,7 +345,7 @@ describe("AlertRulesPanel", () => {
 
   describe("过滤功能", () => {
     it("should filter by severity critical", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const criticalFilter = screen.getByText("alerts.severityCritical");
@@ -354,7 +354,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should filter by warning", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const warningFilter = screen.getByText("alerts.severityWarning");
@@ -363,7 +363,7 @@ describe("AlertRulesPanel", () => {
     });
 
     it("should show all when all filter selected", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const allFilter = screen.getByText("alerts.filterAll");
@@ -374,7 +374,7 @@ describe("AlertRulesPanel", () => {
 
   describe("创建规则", () => {
     it("should open create rule modal when create button clicked", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       const createButton = screen.getByTestId("create-rule-btn");
@@ -385,7 +385,7 @@ describe("AlertRulesPanel", () => {
 
     it("should render create rule modal when isCreating is true", async () => {
       mockAlertRulesState = { ...defaultMockState, isCreating: true };
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       await waitFor(() => {
@@ -397,7 +397,7 @@ describe("AlertRulesPanel", () => {
   describe("WebSocket状态显示", () => {
     it("should display connected status", async () => {
       mockConnectionState = "connected";
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       const wsElements = screen.getAllByText((_content, element) =>
         element?.textContent?.includes("WebSocket Connected") ?? false
@@ -407,7 +407,7 @@ describe("AlertRulesPanel", () => {
 
     it("should display simulated status", async () => {
       mockConnectionState = "simulated";
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       const wsElements = screen.getAllByText((_content, element) =>
         element?.textContent?.includes("Simulated Data") ?? false
@@ -418,7 +418,7 @@ describe("AlertRulesPanel", () => {
 
   describe("统计信息", () => {
     it("should display stats values", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getAllByText("2").length).toBeGreaterThan(0);
       expect(screen.getAllByText("1").length).toBeGreaterThan(0);
@@ -427,7 +427,7 @@ describe("AlertRulesPanel", () => {
 
   describe("视图切换", () => {
     it("should switch between rules and events tabs", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));
@@ -447,13 +447,13 @@ describe("AlertRulesPanel", () => {
   describe("边界情况", () => {
     it("should handle empty rules list", async () => {
       mockAlertRulesState = { ...defaultMockState, rules: [], events: [], stats: { totalRules: 0, activeRules: 0, unresolvedEvents: 0, criticalEvents: 0 } };
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
       expect(screen.getByText("alerts.title")).toBeInTheDocument();
     });
 
     it("should handle events with resolved status", async () => {
-      const { AlertRulesPanel } = await import("../modules/monitor/AlertRulesPanel");
+      const { AlertRulesPanel } = await import("@yyc3/monitor/alert-rules-panel");
       render(React.createElement(AlertRulesPanel));
 
       fireEvent.click(screen.getByText("alerts.eventsTab"));

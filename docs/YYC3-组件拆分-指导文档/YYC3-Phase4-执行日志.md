@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase4-执行日志.md
-description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化达成
+description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化达成
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.4.0
+version: v1.5.0
 created: 2026-10-10
 updated: 2026-10-10
 status: active
-tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[handoff]
+tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[handoff]
 category: report
 ---
 
@@ -26,6 +26,37 @@ category: report
 | **M4-2b business 域包化** | ✅ | **`@yyc3/business` 新包达成**（hotel-engines 5 lib + comm-station-panel + usePersistedState 入 core；切引 69 文件 + 删源件 16）；HotelDashboard/hotel-bridge 暂缓 M4-6（D4/D7） |
 | **M4-2/3 ai 域包化** | ✅ | **`@yyc3/ai` 新包达成**（4 组件 + 3 hooks 上收 store + view-context/types 桥接入 core；133 文件 +751/−6164）；websocket-data 因 node-slice 归 store（防 core→store 循环） |
 | **M4-2/3 ops 域包化** | ✅ | **`@yyc3/ops` 新包达成**（首批 9 组件 + 6 域 hooks 随包 + core/types ops 段 +37 类型；暂缓 9 件跨域障碍定性留端侧）；**M4-0「真全异」定性翻转：OperationChain/DatabaseManager 实为 P1≡P4 同源 + P3 单端滞后**；OperationChain 随包即 P3 升级 |
+| **M4-4 admin+monitor 域包化** | ✅ | **`@yyc3/admin` + `@yyc3/monitor` 双新包达成**（10+20 组件、4+3 域 hooks 随包 + core/types admin/monitor 段 +54 类型 + store 收编 useSettingsStore/useBigModelSDK/global-store + useCopyFeedback 入 core）；**M4-0「真全异」归零**（CreateRuleModal 翻转 P1≡P4 同源）；三端切换 123 文件 + 端侧删 38 件/端；七包 tsc=0 + P1=67 基线 + build 三绿 |
+
+## M4-4 admin+monitor 域关键实证（2026-10-10 第六轮，方案 [`phase4-ledger/05`](./phase4-ledger/05-M4-4-admin-monitor域包化方案.md)）
+
+### 勘察仲裁（40 件终局 + hooks 三向收编）
+
+- **40 件 md5 终局**：L0 全同 ×3（VariableCenter/UserManagement/SDKChatPanel）+ L1 纯路径差 ×36（2~15 行）+ **CreateRuleModal 翻转**（P1≡P4 同源仅 1 行 types 路径差、P3 滞后 176 行）→ **「真全异」3→0 归零**；UnifiedModelManager 复判「三端均有、P1 独走版」→ **反向独有 5→4**
+- **12 hooks 三端 md5 全 L0**：域内随包 7（admin 4：useSecurityMonitor/usePWAManager/useInstallPrompt/useValidation；monitor 3：usePatrol/useAlertRules/useAISuggestion）+ 跨域入 store 3（useSettingsStore 带 @deprecated / useBigModelSDK / global-store 组合层）+ 跨域入 core 1（useCopyFeedback）+ 留端 2（usePageConfig/useNetworkConfig 带 config/network-utils 障碍）
+- **跨域障碍九分法 +2 形态**：storageManager 引 src/database 引擎层（→StorageManager/StorageSyncStatus 暂缓）、config 跨域消费（→ConfigCenter/PageConfigEditor 暂缓）；暂缓终值 10 件（admin 9 + monitor 1）
+- **types 传递闭包**：44 直缺 → 终值 **+54**（SecurityMonitorState 全族 18 + StorageConfig→DatabaseConfig 链等；撞名 13 候选复核全复用不重定义）
+
+### 决策落地（phase4-ledger/05 D1-D10）
+
+| 决策 | 落地 |
+| ---- | ---- |
+| D1/D2 双包 | @yyc3/admin exports 15 条（10 组件 kebab + 4 hooks）；@yyc3/monitor exports 24 条（20 组件 + 3 hooks） |
+| D3 包依赖 | admin dep core+store+ui；monitor dep core+store+ui+**ops**（FollowUpCard/FollowUpDrawer 引 operation-chain） |
+| D4 types +54 | core/types.ts 1023→1458L，admin/monitor 语义段追加（alert 9/patrol 6/followup 3/security 18/pwa 4/sdk 5/database 3/network 1/storage 5） |
+| D5 hooks 三向 | 见上；store exports +3、core exports +./use-copy-feedback |
+| D6 切引 | P1 routes 13（暂缓 7 保留）+ 测试件 57 文件 41 条映射；P3/P4 routes 13/端 + 测试件 51/52 文件 + 端侧删 38 件/端 |
+| D7 barrel | P1 端双 index.ts 改写：admin 9 件 + monitor 21 件转包 re-export、暂缓件保持本地导出（**端侧 barrel = 第四消费形态**） |
+| D8 暂缓件切引 | 暂缓件留端但依赖被收编的 hooks 切包引（端→包方向合法）：SystemSettings/DataEditorPanel/UnifiedSettingsPanel/AISuggestionPanel/DatabaseManager 等 |
+| D9 ui 补导 | barrel 补 `./brand/YYC3LogoSvg`（包内 SDKChatPanel 消费） |
+| D10 peer 实扫 | admin +recharts/zustand；monitor +react-dom/react-router/react-swipeable/zustand（组件实扫定 peer，不凭域想象） |
+
+### 验证矩阵（全绿）
+
+- 七包 tsc=0：core / store / ui / ops / ai / **admin** / **monitor**
+- P1 tsc = **67 基线精确持平**（101→67 回落过程暴露并修复 barrel/切引残留，见偏差 #15-#17）；P3 = P4 = 0
+- build 三绿：P1 844ms / P3 792ms / P4 807ms；P2 = 7 错基线（零涉及 ✅）
+- 切引总量：三端 123 文件（P1 72 + P3 51 + P4 52 口径含重叠，实测 perl 处理 129 次文件写入）
 
 ## M4-2/3 关键实证（2026-10-10 第四轮，方案 [`phase4-ledger/03`](./phase4-ledger/03-M4-2-3-ai域包化方案.md)）
 
@@ -209,17 +240,21 @@ category: report
 | 12 | perl 替换串 `@` 插值陷阱：`s{}{from "@yyc3/..."}` 的 `@yyc3` 被当空数组插值 → 22 处写成 `from "/core/types"` | `\@` 转义补刀归零；教训：**perl 替换串中 `@` 必须写 `\@`** |
 | 13 | P3/P4 hooks 测试件漏测绘（勘察口径只数 9 组件测试）→ 三端 tsc +31/+31 | 补切（from/vi.mock(/动态 import 三形态）归零；教训：**消费面测绘按三形态枚举，文件名清单 ≠ 消费面** |
 | 14 | vi.mock pattern 漏 `(`（`vi\.mock"` 未匹配 `vi.mock(`，13 处残留） | 补刀 `vi\.mock\(` 归零；**#8 同族第四犯，纪律再升级：先贴实际行再写 pattern** |
+| 15 | 新包配置半抄先例：tsconfig 抄了但 package.json devDependencies 漏抄 → 双包首验 TS7016/TS7026（@types/react 未解析） | 对照 ops 先例补齐 devDeps（@types/node/@types/react/typescript + peer 本地化）；教训：**新包四件套必须整抄先例 + peer 按组件实扫** |
+| 16 | P1 端 barrel（modules/admin\|monitor/index.ts）未列入 D 批切引清单 → 移走件后 29 错爆发 | 双 index.ts 改写（admin 9 + monitor 21 转包 re-export）；教训：**端侧 barrel 是第四消费形态（静态路由/vi.mock/动态引之外），域包化必查** |
+| 17 | perl 替换串手写包裹引号 → `""@yyc3/…""`（57 文件）；修复轮 $1 已含前缀又手补 `\@yyc3/` → `@yyc3/@yyc3/`（117 处） | 两轮修复归零；教训：**替换串一律 `$1…$1` 直拼不加工；修复串不得重复添加捕获组已含的前缀**（#12 同族：替换串必须原样直拼，任何手写装饰都是坑） |
+| 18 | `?raw` 后缀路径（rf-phase2.test.ts 源码审计引）不在路径映射覆盖内 | 单点手工切 `@yyc3/monitor/hooks/use-alert-rules?raw`；教训：**`?query` 后缀路径是 pattern 盲区，勘察时需单独枚举** |
 
 ## 后续登记
 
-- **M4-2/3 ops 域包化**：✅ 已达成（第五轮）——首批 9 组件 + 6 hooks 入 `@yyc3/ops`；**暂缓 9 件二次包化路线已绑定**：OperationCenter/ServiceLoopPanel→M4-5（QuickActionGrid/DataFlowDiagram）、LocalFileManager/HostFileManager/DatabaseConnectionPanel→M4-7 或 ui 扩容（CodeEditor）、DatabaseManager（双障碍+P3 滞后 227 行定性）/ConfigExportCenter→M4-4、ConnectionMonitorPanel→src/database 引擎层专项
-- **M4-4 admin+monitor 域**：useWebSocketData/useModelProvider/useAIDiagnostics 已入 `@yyc3/store`，域件切引已就绪
-- **M4-5 shared 域定性**（部分属 Phase 5 壳层）
+- **M4-2/3 ops 域包化**：✅ 已达成（第五轮）——首批 9 组件 + 6 hooks 入 `@yyc3/ops`；**暂缓 9 件二次包化路线已绑定**：OperationCenter/ServiceLoopPanel→M4-5（QuickActionGrid/DataFlowDiagram）、LocalFileManager/HostFileManager/DatabaseConnectionPanel→M4-7 或 ui 扩容（CodeEditor）、DatabaseManager（双障碍+P3 滞后 227 行定性；M4-4 已切 `@yyc3/admin/inline-editable-table`）/ConfigExportCenter→M4-4、ConnectionMonitorPanel→src/database 引擎层专项
+- **M4-4 admin+monitor 域**：✅ 已达成（第六轮）——`@yyc3/admin`（10 组件 + 4 hooks）+ `@yyc3/monitor`（20 组件 + 3 hooks）双包达成；暂缓 10 件留端（admin 9 + AISuggestionPanel，含端侧 barrel re-export 衔接）；「真全异」归零、反向独有 5→4
+- **M4-5 shared 域定性**（部分属 Phase 5 壳层；**下次会话起点**）
 - **M4-6 特深域 ai-family（扩容）**：24 独有件 + family-* 13 slices + **HotelDashboard 包化（MEMBERS_MAP 破环：ai-family shared.ts members 静态数据模块化）+ hotel-bridge 裁断 + 智慧酒店双版本 L1 视觉融合样板（density="compact"）+ ai-family types 跨端仲裁**——M4-2b D4/D7 移交项集中于此
 - **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项（useWebSocketData 已入 store，ide-mock-data 注解引用不阻）
-- **M4-8**：反向独有 5 件定性 + NavRegistry 单源 + PageShell 七型谱
+- **M4-8**：反向独有 4 件定性（UnifiedModelManager 已归此：三端均有、P1 独走版）+ NavRegistry 单源 + PageShell 七型谱
 - **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
-- **types 单源收敛**（app 28 分件 vs core 按需 +87 件（M4-3 +27 / M4-2/3 ai +21 诊断·websocket·layout 系 / M4-2/3 ops +37 六语义段 + ChainEvent），Phase 3 登记；桥接模式已立（diagnostic/websocket/layout/view-context 四桥），收敛=桥原地翻正）
+- **types 单源收敛**（app 28 分件 vs core 按需 +141 件（M4-3 +27 / M4-2/3 ai +21 诊断·websocket·layout 系 / M4-2/3 ops +37 六语义段 + ChainEvent / M4-4 admin·monitor +54 九语义段），Phase 3 登记；桥接模式已立（diagnostic/websocket/layout/view-context 四桥），收敛=桥原地翻正）
 
 ## 交接快照
 
@@ -227,29 +262,33 @@ category: report
 # 复验矩阵（全绿可复现）
 cd packages/core && pnpm exec tsc --noEmit          # 0 错
 cd packages/store && pnpm exec tsc --noEmit         # 0 错
+cd packages/ui && pnpm exec tsc --noEmit            # 0 错
 cd packages/business && pnpm exec tsc --noEmit      # 0 错
 cd packages/ai && pnpm exec tsc --noEmit            # 0 错
 cd packages/ops && pnpm exec tsc --noEmit           # 0 错（M4-2/3 第五轮新增）
+cd packages/admin && pnpm exec tsc --noEmit         # 0 错（M4-4 第六轮新增）
+cd packages/monitor && pnpm exec tsc --noEmit       # 0 错（M4-4 第六轮新增）
 cd apps/app-web-full    && pnpm exec tsc --noEmit   # 67（基线）
 cd apps/app-desktop     && pnpm exec tsc --noEmit   # 0
 cd apps/app-web-classic && pnpm exec tsc --noEmit   # 0
-# build：P1 787ms / P3 772ms / P4 802ms 三绿；P2 = 7 基线
+# build：P1 844ms / P3 792ms / P4 807ms 三绿；P2 = 7 基线
 
-# 包拓扑（M4-2/3 ops 后）
-# apps/app-web-full    → @yyc3/ui + @yyc3/theme + @yyc3/core + @yyc3/store + @yyc3/business + @yyc3/ai + @yyc3/ops
+# 包拓扑（M4-4 admin/monitor 后）
+# apps/app-web-full    → @yyc3/ui + theme + core + store + business + ai + ops + admin + monitor（9 包）
 # apps/app-desktop     → 同上
 # apps/app-web-classic → 同上
 # apps/app-sandbox-lite → 无 @yyc3 依赖（P2 基线隔离）
-# 依赖方向：ai → store/core/ui；business → core/ui；ops → core/store/ui；store → core（store 三 hooks 为状态域出口）
-# @yyc3/ops exports 16 条：9 组件子路径 + /hooks/* 6 条 + barrel；暂缓 9 件留 P1 modules/ops（index.ts v1.1.0）
+# 依赖方向：admin → core/store/ui；monitor → core/store/ui/ops（operation-chain）；ops → core/store/ui；ai → store/core/ui；business → core/ui；store → core
+# @yyc3/admin exports 15 条：10 组件子路径 + /hooks/* 4 条 + barrel；@yyc3/monitor exports 24 条：20 组件 + /hooks/* 3 条 + barrel
+# P1 端 barrel：modules/admin/index.ts v1.1.0（9 包 re-export + 9 暂缓本地）/ modules/monitor/index.ts v1.1.0（21 包 re-export + AISuggestionPanel 本地）
 
 # 下次会话起点
-# → M4-4 admin+monitor 域（hooks 切引已就绪；含 CreateRuleModal「真全异」复验 + DatabaseManager P3 滞后 227 行升级定性）
-# → 或 M4-5 shared 域定性（解锁 OperationCenter/ServiceLoopPanel 二次包化）
+# → M4-5 shared 域定性（解锁 OperationCenter/ServiceLoopPanel 二次包化；端侧 shared/ 剩余件清点）
+# → M4-6 ai-family 扩容 / M4-7 @yyc3/ide / M4-8 反向独有 4 件 + NavRegistry + PageShell
 # → HotelDashboard/hotel-bridge/智慧酒店 L1 融合 → M4-6 集中处理
 ```
 
 ---
 
 **会话状态**: ✅ 正常结束
-**Phase 4 定性**: 勘察/规划/i18n 上收/store 上收/business 域包化/ai 域包化/ops 域包化达成；「组件件 + lib 束 + 通用 hooks（域内随包/跨域入 store 二分）+ 桥接 types」四形态域包化工艺定型，批量域包化实施期过半
+**Phase 4 定性**: 勘察/规划/i18n 上收/store 上收/business 域包化/ai 域包化/ops 域包化/**admin+monitor 双域包化**达成；「组件件 + lib 束 + 通用 hooks（域内随包/跨域入 store 二分）+ 桥接 types」四形态域包化工艺定型并经第六轮再现验证；M4-0 仲裁定性终局（真全异归零/反向独有 4）；批量域包化主体完成，剩 shared 定性与特深域扩容

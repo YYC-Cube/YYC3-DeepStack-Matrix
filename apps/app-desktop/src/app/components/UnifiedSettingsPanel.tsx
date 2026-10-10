@@ -30,7 +30,7 @@ import {
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCopyFeedback } from "../hooks/useCopyFeedback";
+import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
 import { useI18n } from "@yyc3/core/i18n";
 import { isCryptoAvailable } from "../lib/crypto-vault";
 import { downloadFullBackup, importFullBackup } from "../lib/full-backup";
@@ -40,7 +40,7 @@ import {
   importStoreData,
   useAlerts,
   useDatabase,
-} from "../stores/global-store";
+} from "@yyc3/store/global-store";
 import { GlassCard } from "./GlassCard";
 import {
   AlertDialog,

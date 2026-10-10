@@ -111,7 +111,7 @@ vi.mock("../modules/dev/IntegratedTerminal", () => ({
   IntegratedTerminal: () => <div data-testid="integrated-terminal" />,
 }));
 
-vi.mock("../modules/admin/PWAInstallPrompt", () => ({
+vi.mock("@yyc3/admin/pwa-install-prompt", () => ({
   PWAInstallPrompt: () => <div data-testid="pwa-prompt" />,
 }));
 

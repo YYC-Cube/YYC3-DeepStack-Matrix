@@ -105,7 +105,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   }),
 }));
 
-vi.mock("../hooks/useSettingsStore", () => ({
+vi.mock("@yyc3/store/use-settings-store", () => ({
   useSettingsStore: () => ({
     settings: {
       darkMode: true, autoScale: true, healthCheck: true, alertEmail: false,
@@ -270,7 +270,7 @@ describe("SystemSettings 集成测试", () => {
 // 2. UserManagement 集成测试
 // ============================================================
 
-import { UserManagement } from "../modules/admin/UserManagement";
+import { UserManagement } from "@yyc3/admin/user-management";
 import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
 
 describe("UserManagement 集成测试", () => {

@@ -16,7 +16,7 @@ import { TopBar } from "./TopBar";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { AIAssistant } from "./AIAssistant";
-import { PWAInstallPrompt } from "./PWAInstallPrompt";
+import { PWAInstallPrompt } from "@yyc3/admin";
 import { OfflineIndicator } from "./OfflineIndicator";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { CommandPalette } from "./CommandPalette";

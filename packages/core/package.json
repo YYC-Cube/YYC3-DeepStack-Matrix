@@ -36,6 +36,7 @@
     "./connection-test-engine": "./src/connection-test-engine.ts",
     "./variable-center": "./src/variable-center.ts",
     "./use-persisted-state": "./src/use-persisted-state.ts",
+    "./use-copy-feedback": "./src/use-copy-feedback.ts",
     "./view-context": "./src/view-context.ts"
   },
   "peerDependencies": {

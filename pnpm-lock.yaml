@@ -149,6 +149,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/admin':
+        specifier: workspace:*
+        version: link:../../packages/admin
       '@yyc3/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -158,6 +161,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@yyc3/monitor':
+        specifier: workspace:*
+        version: link:../../packages/monitor
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../../packages/ops
@@ -757,6 +763,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/admin':
+        specifier: workspace:*
+        version: link:../../packages/admin
       '@yyc3/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -766,6 +775,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@yyc3/monitor':
+        specifier: workspace:*
+        version: link:../../packages/monitor
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../../packages/ops
@@ -1124,6 +1136,9 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3/admin':
+        specifier: workspace:*
+        version: link:../../packages/admin
       '@yyc3/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -1133,6 +1148,9 @@ importers:
       '@yyc3/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@yyc3/monitor':
+        specifier: workspace:*
+        version: link:../../packages/monitor
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../../packages/ops
@@ -1360,6 +1378,43 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
 
+  packages/admin:
+    dependencies:
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.9.9
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.3.0
+      lucide-react:
+        specifier: ^1.8.0
+        version: 1.54.0(@types/react@19.3.0)(react@19.3.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.3.0
+      recharts:
+        specifier: ^3.8.1
+        version: 3.10.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react-is@19.3.0)(react@19.3.0)(redux@5.0.1)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      zustand:
+        specifier: ^5.0.12
+        version: 5.0.15(@types/react@19.3.0)(immer@11.1.21)(react@19.3.0)(use-sync-external-store@1.7.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react@19.3.0))
+
   packages/ai:
     dependencies:
       '@yyc3/core':
@@ -1437,6 +1492,58 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  packages/monitor:
+    dependencies:
+      '@yyc3/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3/ops':
+        specifier: workspace:*
+        version: link:../ops
+      '@yyc3/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.9.9
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.3.0(@types/react@19.3.0)
+      lucide-react:
+        specifier: ^1.8.0
+        version: 1.54.0(@types/react@19.3.0)(react@19.3.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.3.0(react@19.3.0)
+      react-router:
+        specifier: ^7.13.1
+        version: 7.18.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react-swipeable:
+        specifier: ^7.0.2
+        version: 7.0.2(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
+      recharts:
+        specifier: ^3.8.1
+        version: 3.10.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react-is@19.3.0)(react@19.3.0)(redux@5.0.1)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      zustand:
+        specifier: ^5.0.12
+        version: 5.0.15(@types/react@19.3.0)(immer@11.1.21)(react@19.3.0)(use-sync-external-store@1.7.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react@19.3.0))
 
   packages/ops:
     dependencies:

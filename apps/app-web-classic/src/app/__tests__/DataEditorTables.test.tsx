@@ -13,7 +13,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import * as React from "react";
-import { ModelTable, NodeTable, AgentTable } from "../components/DataEditorTables";
+import { ModelTable, NodeTable, AgentTable } from "@yyc3/admin/data-editor-tables";
 import type { Model, NodeStatusRecord, Agent } from "../types";
 
 vi.mock("sonner", () => ({

@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { EnvConfigEditor } from "../components/EnvConfigEditor";
+import { EnvConfigEditor } from "@yyc3/admin/env-config-editor";
 
 const mockConfig = {
   SYSTEM_NAME: "YYC3",

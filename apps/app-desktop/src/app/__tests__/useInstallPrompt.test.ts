@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup, waitFor } from "@testing-library/react";
-import { useInstallPrompt } from "../hooks/useInstallPrompt";
+import { useInstallPrompt } from "@yyc3/admin/hooks/use-install-prompt";
 
 describe("useInstallPrompt", () => {
   const mockMatchMedia = vi.fn();

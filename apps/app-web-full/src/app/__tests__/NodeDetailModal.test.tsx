@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { NodeDetailModal } from "../modules/monitor/NodeDetailModal";
+import { NodeDetailModal } from "@yyc3/monitor/node-detail-modal";
 import type { NodeData } from "../types";
 
 // Mock recharts (jsdom 不支持 SVG 渲染)

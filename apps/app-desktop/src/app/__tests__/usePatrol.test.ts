@@ -29,7 +29,7 @@ vi.mock("@yyc3/core/use-persisted-state", () => ({
   }),
 }));
 
-import { usePatrol } from "../hooks/usePatrol";
+import { usePatrol } from "@yyc3/monitor/hooks/use-patrol";
 
 describe("usePatrol", () => {
   beforeEach(() => {

@@ -49,8 +49,8 @@ import {
   Zap
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCopyFeedback } from "../../hooks/useCopyFeedback";
-import { useSettingsStore } from "../../hooks/useSettingsStore";
+import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
+import { useSettingsStore } from "@yyc3/store/use-settings-store";
 import { useWebSocketData } from "@yyc3/store/use-websocket-data";
 import { runFullSystemDiagnostic, testAIConnection, type AIConnectionConfig, type SystemDiagnosticResult } from "@yyc3/core/connection-test-engine";
 import { useNodeSlice } from "@yyc3/store/node-slice";

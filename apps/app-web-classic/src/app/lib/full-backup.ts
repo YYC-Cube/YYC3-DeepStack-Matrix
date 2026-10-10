@@ -17,7 +17,7 @@
  * - 恢复时逐层还原，支持版本兼容迁移
  */
 
-import { exportStoreData, importStoreData } from "../stores/global-store";
+import { exportStoreData, importStoreData } from "@yyc3/store/global-store";
 import { exportAllData, importAllData } from "@yyc3/core/yyc3-storage";
 
 // ============================================================

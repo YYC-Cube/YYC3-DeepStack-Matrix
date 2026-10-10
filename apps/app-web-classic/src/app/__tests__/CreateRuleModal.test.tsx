@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
-import { CreateRuleModal } from "../components/CreateRuleModal";
+import { CreateRuleModal } from "@yyc3/monitor/create-rule-modal";
 import type { AlertRule } from "../types";
 
 const mockOnClose = vi.fn();

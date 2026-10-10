@@ -26,7 +26,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { usePatrol } from "../hooks/usePatrol";
+import { usePatrol } from "@yyc3/monitor/hooks/use-patrol";
 
 // Mock sonner toast
 vi.mock("sonner", () => ({

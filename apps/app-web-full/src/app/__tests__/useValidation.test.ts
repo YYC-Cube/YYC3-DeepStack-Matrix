@@ -22,7 +22,7 @@ import {
   validateRange,
   validateFields,
   type ValidationRule,
-} from "../hooks/useValidation";
+} from "@yyc3/admin/hooks/use-validation";
 
 describe("validateUrl", () => {
   it("should return null for valid http URL", () => {

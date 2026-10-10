@@ -244,7 +244,7 @@ describe("RF-006: API_BASE 硬编码消除", () => {
 
 describe("RF-007: useAlertRules 复用 usePersistedList", () => {
   it("useAlertRules 可导入且为函数", async () => {
-    const mod = await import("../hooks/useAlertRules");
+    const mod = await import("@yyc3/monitor/hooks/use-alert-rules");
     expect(mod.useAlertRules).toBeDefined();
     expect(typeof mod.useAlertRules).toBe("function");
   });
@@ -257,7 +257,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
 
   it("useAlertRules 导出的类型与 types/index.ts 一致", async () => {
     // 验证 re-export 的类型正确
-    const mod = await import("../hooks/useAlertRules");
+    const mod = await import("@yyc3/monitor/hooks/use-alert-rules");
     // 这些应该存在作为 re-export
     expect(mod).toBeDefined();
   });
@@ -265,7 +265,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
   it("useAlertRules 不再直接导入底层 idbGetAll/idbPut", async () => {
     try {
       // @ts-expect-error -- Vite ?raw import
-      const source = await import("../hooks/useAlertRules?raw") as any;
+      const source = await import("@yyc3/monitor/hooks/use-alert-rules?raw") as any;
       if (typeof source.default === "string") {
         // 验证不包含直接的 idbGetAll/idbPut 导入
         expect(source.default).not.toContain("from \"../lib/yyc3-storage\"");
@@ -288,7 +288,7 @@ describe("Phase 2 综合验证", () => {
       import("../modules/shared/NotFound"),
       import("@yyc3/core/yyc3-storage"),
       import("@yyc3/core/api-config"),
-      import("../hooks/useAlertRules"),
+      import("@yyc3/monitor/hooks/use-alert-rules"),
       import("@yyc3/ops/hooks/use-host-file-system"),
       import("@yyc3/core/use-persisted-state"),
       import("../types"),

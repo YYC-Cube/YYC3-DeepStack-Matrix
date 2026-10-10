@@ -25,7 +25,7 @@ import {
   addDbAgent, updateDbAgent, deleteDbAgent,
   resetDbModels, resetDbAgents, resetDbNodes,
 } from "@yyc3/core/db-queries";
-import { useValidation, validateRange, validateModelName } from "../hooks/useValidation";
+import { useValidation, validateRange, validateModelName } from "@yyc3/admin/hooks/use-validation";
 import { ViewContext } from "../lib/view-context";
 import { toast } from "sonner";
 import type { Model, NodeStatusRecord, Agent, NodeStatusType, LogLevel } from "../types";

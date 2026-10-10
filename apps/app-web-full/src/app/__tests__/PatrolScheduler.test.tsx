@@ -25,7 +25,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { PatrolScheduler } from "../modules/monitor/PatrolScheduler";
+import { PatrolScheduler } from "@yyc3/monitor/patrol-scheduler";
 import type { PatrolSchedule } from "../types";
 
 const defaultSchedule: PatrolSchedule = {

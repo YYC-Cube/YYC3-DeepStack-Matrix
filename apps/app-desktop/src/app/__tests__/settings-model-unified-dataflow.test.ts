@@ -24,7 +24,7 @@ Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 import { describe, it, expect, beforeEach } from "vitest";
 import React from "react";
 import { createLocalStore } from "@yyc3/core/create-local-store";
-import type { SettingsValues } from "../hooks/useSettingsStore";
+import type { SettingsValues } from "@yyc3/store/use-settings-store";
 
 // ============================================================
 // Tests

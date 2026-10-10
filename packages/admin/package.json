@@ -1,0 +1,45 @@
+{
+  "name": "@yyc3/admin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ admin 域组件包 — 配置管理/安全监控/PWA/用户管理（M4-4 首批 10 组件 + 4 hooks）",
+  "exports": {
+    ".": "./src/index.ts",
+    "./data-editor-tables": "./src/DataEditorTables.tsx",
+    "./env-config-editor": "./src/EnvConfigEditor.tsx",
+    "./inline-editable-table": "./src/InlineEditableTable.tsx",
+    "./operation-audit": "./src/OperationAudit.tsx",
+    "./performance-monitor": "./src/PerformanceMonitor.tsx",
+    "./pwa-install-prompt": "./src/PWAInstallPrompt.tsx",
+    "./pwa-status-panel": "./src/PWAStatusPanel.tsx",
+    "./security-monitor": "./src/SecurityMonitor.tsx",
+    "./user-management": "./src/UserManagement.tsx",
+    "./variable-center": "./src/VariableCenter.tsx",
+    "./hooks/use-security-monitor": "./src/hooks/useSecurityMonitor.ts",
+    "./hooks/use-pwa-manager": "./src/hooks/usePWAManager.ts",
+    "./hooks/use-install-prompt": "./src/hooks/useInstallPrompt.ts",
+    "./hooks/use-validation": "./src/hooks/useValidation.ts"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "lucide-react": "^1.8.0",
+    "recharts": "^3.8.1",
+    "sonner": "^1.7 || ^2",
+    "zustand": "^5.0.12"
+  },
+  "dependencies": {
+    "@yyc3/core": "workspace:*",
+    "@yyc3/store": "workspace:*",
+    "@yyc3/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.0",
+    "recharts": "^3.8.1",
+    "sonner": "^2.0.7",
+    "typescript": "^5.9.3",
+    "zustand": "^5.0.12"
+  }
+}

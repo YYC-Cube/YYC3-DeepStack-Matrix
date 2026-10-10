@@ -58,6 +58,7 @@ export * from "./tooltip";
 
 export * from "./brand/GlassCard";
 export * from "./brand/YYC3Logo";
+export * from "./brand/YYC3LogoSvg";
 export * from "./brand/empty-state";
 
 export { cn } from "./utils";

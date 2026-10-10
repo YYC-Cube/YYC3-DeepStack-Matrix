@@ -39,19 +39,19 @@ vi.mock("lucide-react", async (importOriginal) => {
   return icons;
 });
 
-vi.mock("../modules/monitor/SDKChatPanel", () => ({
+vi.mock("@yyc3/monitor/sdk-chat-panel", () => ({
   __esModule: true,
   SDKChatPanel: () => React.createElement("div", { "data-testid": "sdk-chat-panel" }, "SDK Chat Panel Mock"),
   default: () => React.createElement("div", { "data-testid": "sdk-chat-panel" }, "SDK Chat Panel Mock"),
 }));
 
-vi.mock("../modules/monitor/PatternAnalyzer", () => ({
+vi.mock("@yyc3/monitor/pattern-analyzer", () => ({
   __esModule: true,
   PatternAnalyzer: () => React.createElement("div", { "data-testid": "pattern-analyzer" }, "Pattern Analyzer Mock"),
   default: () => React.createElement("div", { "data-testid": "pattern-analyzer" }, "Pattern Analyzer Mock"),
 }));
 
-vi.mock("../modules/monitor/ActionRecommender", () => ({
+vi.mock("@yyc3/monitor/action-recommender", () => ({
   __esModule: true,
   ActionRecommender: () => React.createElement("div", { "data-testid": "action-recommender" }, "Action Recommender Mock"),
   default: () => React.createElement("div", { "data-testid": "action-recommender" }, "Action Recommender Mock"),
@@ -99,7 +99,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 describe("AISuggestionPanel", () => {
   beforeEach(() => {
     cleanup();
-    vi.mock("../hooks/useAISuggestion", () => ({
+    vi.mock("@yyc3/monitor/hooks/use-ai-suggestion", () => ({
       useAISuggestion: () => ({
         patterns: [
           {

@@ -27,13 +27,13 @@ import {
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { useAIFamilyNav } from "../hooks/useAIFamilyNav";
-import { useAISuggestion } from "../hooks/useAISuggestion";
+import { useAISuggestion } from "@yyc3/monitor/hooks/use-ai-suggestion";
 import { useI18n } from "@yyc3/core/i18n";
 import { ViewContext } from "../lib/view-context";
-import { ActionRecommender } from "./ActionRecommender";
+import { ActionRecommender } from "@yyc3/monitor/action-recommender";
 import { GlassCard } from "./GlassCard";
-import { PatternAnalyzer } from "./PatternAnalyzer";
-import { SDKChatPanel } from "./SDKChatPanel";
+import { PatternAnalyzer } from "@yyc3/monitor/pattern-analyzer";
+import { SDKChatPanel } from "@yyc3/monitor/sdk-chat-panel";
 
 type AITab = "analysis" | "chat" | "family";
 

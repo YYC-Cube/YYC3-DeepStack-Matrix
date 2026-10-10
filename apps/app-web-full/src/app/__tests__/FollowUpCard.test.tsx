@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { FollowUpCard } from "../modules/monitor/FollowUpCard";
+import { FollowUpCard } from "@yyc3/monitor/follow-up-card";
 import type { FollowUpItem } from "../types";
 
 // Mock react-router (needed by sub-components)

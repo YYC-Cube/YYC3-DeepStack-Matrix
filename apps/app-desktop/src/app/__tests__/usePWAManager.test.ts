@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { usePWAManager } from "../hooks/usePWAManager";
+import { usePWAManager } from "@yyc3/admin/hooks/use-pwa-manager";
 
 vi.mock("sonner", () => ({
   toast: {

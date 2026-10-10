@@ -26,7 +26,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
-import { QuickActionGroup } from "../modules/monitor/QuickActionGroup";
+import { QuickActionGroup } from "@yyc3/monitor/quick-action-group";
 
 describe("QuickActionGroup", () => {
   beforeEach(() => {

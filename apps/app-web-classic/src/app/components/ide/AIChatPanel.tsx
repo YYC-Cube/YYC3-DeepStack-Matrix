@@ -30,8 +30,8 @@ import {
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useBigModelSDK } from "../../hooks/useBigModelSDK";
-import { useCopyFeedback } from "../../hooks/useCopyFeedback";
+import { useBigModelSDK } from "@yyc3/store/use-big-model-sdk";
+import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
 import { useI18n } from "@yyc3/core/i18n";
 import type { KnowledgeSearchResult } from "../../lib/local-knowledge-base";
 import {

@@ -40,7 +40,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
-vi.mock("../modules/monitor/FollowUpEditDialog", () => ({
+vi.mock("@yyc3/monitor/follow-up-edit-dialog", () => ({
   FollowUpEditDialog: ({ isOpen, onClose, onSave, followUp, users }: any) => {
     if (!isOpen) return null;
     const isEdit = !!followUp;
@@ -112,7 +112,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-import { FollowUpManager } from "../modules/monitor/FollowUpManager";
+import { FollowUpManager } from "@yyc3/monitor/follow-up-manager";
 
 // ──────────────────────────────────────────────────────────────────
 // 种子数据

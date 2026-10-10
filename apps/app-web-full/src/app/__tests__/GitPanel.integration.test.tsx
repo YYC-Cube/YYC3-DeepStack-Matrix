@@ -87,8 +87,8 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../stores/global-store", () => {
-  const actual = vi.importActual("../stores/global-store");
+vi.mock("@yyc3/store/global-store", () => {
+  const actual = vi.importActual("@yyc3/store/global-store");
   return {
     ...actual,
     useAlerts: vi.fn(() => ({
@@ -97,7 +97,7 @@ vi.mock("../stores/global-store", () => {
   };
 });
 
-vi.mock("../modules/monitor/AlertBanner", () => ({
+vi.mock("@yyc3/monitor/alert-banner", () => ({
   AlertBanner: () => null,
 }));
 
@@ -109,7 +109,7 @@ vi.mock("../modules/shared/GlassCard", () => ({
   ),
 }));
 
-vi.mock("../modules/monitor/NodeDetailModal", () => ({
+vi.mock("@yyc3/monitor/node-detail-modal", () => ({
   NodeDetailModal: () => null,
 }));
 

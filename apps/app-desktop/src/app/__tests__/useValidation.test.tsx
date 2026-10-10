@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useValidation } from "../hooks/useValidation";
+import { useValidation } from "@yyc3/admin/hooks/use-validation";
 
 describe("useValidation", () => {
   beforeEach(() => {

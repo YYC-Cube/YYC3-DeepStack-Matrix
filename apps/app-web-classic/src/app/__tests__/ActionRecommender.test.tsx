@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { ActionRecommender } from "../components/ActionRecommender";
+import { ActionRecommender } from "@yyc3/monitor/action-recommender";
 import type { AIRecommendation } from "../types";
 
 afterEach(() => {

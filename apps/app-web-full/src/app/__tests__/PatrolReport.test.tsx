@@ -27,7 +27,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { PatrolReport } from "../modules/monitor/PatrolReport";
+import { PatrolReport } from "@yyc3/monitor/patrol-report";
 import type { PatrolResult } from "../types";
 
 const mockResult: PatrolResult = {

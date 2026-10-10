@@ -60,7 +60,7 @@ vi.mock("@yyc3/store/provider-slice", () => ({
   }),
 }));
 
-vi.mock("../hooks/useSettingsStore", () => ({
+vi.mock("@yyc3/store/use-settings-store", () => ({
   useSettingsStore: () => mockSettingsStore,
 }));
 

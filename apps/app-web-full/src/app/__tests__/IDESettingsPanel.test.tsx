@@ -40,7 +40,7 @@ const DEFAULT_SETTINGS = {
   bracketPairColorization: true,
 };
 
-vi.mock("../store/slices/ide-settings-slice", () => ({
+vi.mock("@yyc3/ide/ide-settings-slice", () => ({
   useIDESettingsSlice: (selector: (s: any) => any) => {
     const state = {
       settings: DEFAULT_SETTINGS,
@@ -51,7 +51,7 @@ vi.mock("../store/slices/ide-settings-slice", () => ({
   },
 }));
 
-import { IDESettingsPanel } from "../modules/dev/ide/IDESettingsPanel";
+import { IDESettingsPanel } from "@yyc3/ide/ide-settings-panel";
 
 // ─── Helpers ───────────────────────────────────────────────
 

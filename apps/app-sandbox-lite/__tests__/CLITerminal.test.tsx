@@ -19,11 +19,11 @@ vi.mock("lucide-react", () => ({
   ChevronRight: () => React.createElement("span", { "data-testid": "icon-chevron" }),
 }));
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
-vi.mock("../hooks/useTerminal", () => ({
+vi.mock("@yyc3/ide/hooks/use-terminal", () => ({
   useTerminal: () => ({
     history: [],
     inputValue: "",

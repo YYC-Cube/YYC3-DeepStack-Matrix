@@ -39,7 +39,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
@@ -51,7 +51,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
 

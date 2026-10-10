@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
-import { FileExplorer } from "../components/ide/FileExplorer";
+import { FileExplorer } from "@yyc3/ide/file-explorer";
 
 vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
@@ -34,7 +34,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../components/ide/GitPanel", () => ({
+vi.mock("@yyc3/ide/git-panel", () => ({
   GitPanel: () => <div data-testid="git-panel">Git Panel</div>,
 }));
 

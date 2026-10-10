@@ -20,7 +20,7 @@ import {
   MOCK_GIT_CHANGES,
   MOCK_GIT_COMMITS,
   MOCK_NOTIFICATIONS,
-} from "../modules/dev/ide/ide-mock-data";
+} from "@yyc3/ide/ide-mock-data";
 
 describe("ide-mock-data", () => {
   describe("MOCK_FILE_TREE", () => {

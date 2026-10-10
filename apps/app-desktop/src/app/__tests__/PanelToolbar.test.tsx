@@ -13,7 +13,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
-import { PanelToolbar } from "../components/ide/PanelToolbar";
+import { PanelToolbar } from "@yyc3/ide/panel-toolbar";
 
 const mockAddPanel = vi.fn();
 const mockUpdateLayoutConfig = vi.fn();
@@ -28,7 +28,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../components/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   useLayoutContext: () => ({
     layoutConfig: {
       panels: [],

@@ -44,7 +44,7 @@ import { useFamilyMessageSlice } from "@yyc3/ai-family/store/family-message-slic
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: React.forwardRef(({ children, className, ...rest }: any, ref: React.Ref<HTMLDivElement>) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ref, ...rest }, children),
   ),

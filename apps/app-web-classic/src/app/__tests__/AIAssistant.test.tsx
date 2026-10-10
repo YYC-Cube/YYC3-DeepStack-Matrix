@@ -64,7 +64,7 @@ vi.mock("@yyc3/store/use-settings-store", () => ({
   useSettingsStore: () => mockSettingsStore,
 }));
 
-vi.mock("../components/YYC3LogoSvg", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3LogoSvg: () => <div data-testid="yyc3-logo-svg" />,
 }));
 

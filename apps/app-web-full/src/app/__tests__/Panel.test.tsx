@@ -12,11 +12,11 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { Panel } from "../modules/dev/ide/Panel";
-import type { Panel as PanelType } from "../modules/dev/ide/ide-layout-types";
+import { Panel } from "@yyc3/ide/panel";
+import type { Panel as PanelType } from "@yyc3/ide/ide-layout-types";
 
 // Mock LayoutContext since PanelContent and TabBar use it
-vi.mock("../modules/dev/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   useLayoutContext: () => ({
     switchTab: vi.fn(),
     removeTab: vi.fn(),

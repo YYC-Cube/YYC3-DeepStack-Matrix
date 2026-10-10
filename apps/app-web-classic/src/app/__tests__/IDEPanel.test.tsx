@@ -43,7 +43,7 @@ vi.mock("../components/Layout", () => ({
 let currentTab = "monitor";
 const { useState } = React;
 
-vi.mock("../components/ide/IDELayout", () => ({
+vi.mock("@yyc3/ide/ide-layout", () => ({
   IDELayout: () => {
     const [activeTab, setActiveTab] = useState("monitor");
 
@@ -137,7 +137,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({ t: mockT }),
 }));
 
-import { IDEPanel } from "../components/IDEPanel";
+import { IDEPanel } from "@yyc3/ide";
 
 describe("IDEPanel", () => {
   beforeEach(() => {

@@ -1,12 +1,12 @@
 ---
 file: YYC3-Phase4-执行日志.md
-description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化 + M4-5 shared 域定性 + M4-6 ai-family 特深域包化达成
+description: Phase 4 @yyc3/business — M4-0 勘察仲裁实证 + M4-1 分批规划 + i18n 上收 + M4-3 store 上收 + M4-2b business 域包化 + M4-2/3 ai/ops 域包化 + M4-4 admin/monitor 域包化 + M4-5 shared 域定性 + M4-6 ai-family 特深域包化 + M4-7/8 ide 域包化与收尾——工程面全达成
 author: Intelligent Application Implementation Expert <admin@0379.email>
-version: v1.7.0
+version: v1.8.0
 created: 2026-10-10
 updated: 2026-10-10
-status: active
-tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[shared],[ai-family],[handoff]
+status: stable
+tags: [phase4],[business],[i18n],[store],[arbitration],[domain-package],[ai],[ops],[admin],[monitor],[shared],[ai-family],[ide],[closure],[handoff]
 category: report
 ---
 
@@ -29,6 +29,29 @@ category: report
 | **M4-4 admin+monitor 域包化** | ✅ | **`@yyc3/admin` + `@yyc3/monitor` 双新包达成**（10+20 组件、4+3 域 hooks 随包 + core/types admin/monitor 段 +54 类型 + store 收编 useSettingsStore/useBigModelSDK/global-store + useCopyFeedback 入 core）；**M4-0「真全异」归零**（CreateRuleModal 翻转 P1≡P4 同源）；三端切换 123 文件 + 端侧删 38 件/端；七包 tsc=0 + P1=67 基线 + build 三绿 |
 | **M4-5 shared 域定性** | ✅ | **品牌 3 件消重（= @yyc3/ui 逐字节同）+ ops 二次包化 4 件（OperationCenter/ServiceLoopPanel 解锁 + QuickActionGrid/DataFlowDiagram）+ Phase 3 漏网 5 lib 收编 core + P2 同窗仲裁（切 2 留 3）**；DataFlowDiagram「反向独有」误登修正 4→3；九包 tsc=0 + P1 67→48（品牌断引修复正向）+ P2 基线逐字同 + build 三绿 |
 | **M4-6 ai-family 特深域包化** | ✅ | **`@yyc3/ai-family` 新包达成（86 件 / exports 90 条：组件 37 + Page + slices 13 + hooks 5 + types 3 + lib 26 含 hotel-bridge）** + P1 死副本 36 件清障（tsc 48→0）+ P2 断链修复（tsc 7→0 + build 首绿）+ useClock 入 core + inference 6 类型并入 + MEMBERS_MAP 破环（store-backed 闭环包内）+ HotelDashboard 切包；**四端 tsc=0 / build 全绿——Phase 4 首次全零全绿** |
+| **M4-7/8 ide 域包化与收尾** | ✅ | **`@yyc3/ide` 新包达成（37 件 / exports 37 条：ide/ 30 + IDEPanel + theme/ 4 含 theme-presets 引擎 + useTerminal + CodeEditor + ide-settings-slice；peer 21 项实扫含 CodeMirror×11/@xterm×3）** + CodeEditor 入包解锁 ops 暂缓件二包路线 + **「反向独有」5→0 终局归零**（#26：取样框系统性误登）+ DesignSystemEditor×3/ImageWithFallback×4 死代码删 + NavRegistry→Phase 5/PageShell 结案 + **失效 vi.mock 141→0 全清**（node 检测脚本实证）；三端 store/slices 目录清空；**十一包 tsc=0 + 四端全零全绿——Phase 4 工程面全达成** |
+
+## M4-7/8 ide 域包化与 Phase 4 收尾关键实证（2026-10-10 第九轮，方案 [`phase4-ledger/08`](./phase4-ledger/08-M4-7-8-ide域包化与收尾方案.md)）
+
+### ide 域仲裁与建包
+
+- **ide/ 30 件三方零异**（L0×21 + L1×8 纯路径差）+ IDEPanel（27L L0）+ theme/ 4 件（L0，theme-presets 零 import 自包含——Phase 2 引擎登记项兑现）+ useTerminal（903L 单行差）+ CodeEditor（323L 三端 L0——**消费主面 ide 域内 + ops 暂缓件，入包即解锁二包路线**）+ ide-settings-slice（L1 纯路径差）→ `@yyc3/ide` 37 件 / exports 37 条 / peer 21 项实扫（zustand 首漏补齐 + @xterm/addon-fit/web-links + CodeMirror×11）
+- 包内分流修正：`../../../types` 具名分流（NodeData/NodeStatusType/ConfiguredModel/TerminalHistoryEntry → core/types，后者并入 types 1596L）；ide-settings-slice/CodeEditor 同包化；ide-mock-data 模板字符串内 vite/path 为 IDE 演示数据非真实依赖（M4-6 注记复证）
+- 三端切换两段法（前缀归一占位 → hash 精确展开，零 UNKNOWN）35+34+32 文件 + 补刀两轮（P1 dev barrel 单层 `./`×5 / P3/P4 `./CodeEditor` 同目录 + `./slices/` 无段）+ P3/P4 删副本 74 件；**三端 tsc 全 0 保持**
+
+### M4-8 终局（反向独有 5→0 + 概念项结案）
+
+- **「反向独有」全数误登终局修正（偏差 #26）**：CodeEditor 三端 L0 随包 / DesignSystemEditor（279L）+ ImageWithFallback（38L，figma/ 子目录）四端零引用死代码删 7 件——M4-0 登记 5 件全为**取样框漏检 P1 app/components/ 平铺层**（#19 DataFlowDiagram + 本批三件 + M4-4 UnifiedModelManager 复核）；教训：**取样框 = modules/ + app/components/ + 子目录全树 find，非目录清单差集**
+- **NavRegistry**：无实体件（Sidebar 导航数据单源化概念项）→ Phase 5 壳层同窗；**PageShell 七型谱**：主文档方法论沉淀项 → 结案
+
+### 失效 vi.mock 全清（141→0）
+
+- node 检测脚本（resolve 相对路径验目标存在性）实测 141 处真失效 → 五类映射批量替换（品牌 74 / ui shadcn 22 / core 10 / ai-family 25 / ide 4）+ 单引号尾刀 1（#22 同族）→ **STALE=0 复测归零**；P1 抽测 222/222 全绿实证 mock 说明符改包路径生效（TopBar/Sidebar/CLITerminal/HotelDashboard 修复件在内）
+
+### 验证矩阵（Phase 4 终态）
+
+- **十一包 tsc=0**（theme/core/store/ui/business/ai/ops/admin/monitor/ai-family/**ide**）；**四端 tsc=0 / build 全绿**（809/763/728ms + P2）——连续两轮全零全绿
+- **Phase 4 九轮全域终态**：L0 合流 + 域包化 8 批 11 包 + 真全异归零 + 反向独有归零 + 四端死代码三清（P1 死副本 36 + P2 死件 2 + M4-8 死件 7）+ 测试基建一致性工具沉淀
 
 ## M4-6 ai-family 特深域关键实证（2026-10-10 第八轮，方案 [`phase4-ledger/07`](./phase4-ledger/07-M4-6-ai-family域包化方案.md)）
 
@@ -297,6 +320,7 @@ category: report
 | 23 | **perl 捕获组错位**（#17 同族第五犯）：`s{(\.\./)+lib/(ALT)}{\@yyc3/ai-family/lib/$1}` 的 $1 指向前缀组而非 ALT 组 → 56 文件产出 `@yyc3/ai-family/lib/../`（ALT 内容丢弃），三端 tsc 75/49/49 爆发 | 判据检出（grep `ai-family/lib/\.\./`）→ checkout 恢复 56 件 → `$2` 修复版重切归零；教训：**多捕获组替换前先数组序，前缀组+目标组结构从 $2 起用** |
 | 24 | **grep 筛选断言误写**：首轮清单 pattern `yyc3-cluster\|zhipu-ai-service)"` 中 `yyc3-cluster` 后 `"` 断言不匹配 `.types` 后缀 → yyc3-cluster.test 首轮漏筛，mv 后 39 错/端 | 精确 ALT 全名重切；教训：**前缀关系候选（X 与 X.types）必须全列，断言边界逐字对齐** |
 | 25 | **相对无段形态三漏**（#6/#8 族）：`./modules/ai-family/lib/`（App.tsx 单点）、`../ai-family/`（modules 互引无 modules 段：HotelDashboard/AISuggestionPanel）、`./slices/`（P3/P4 store barrel 内引） | 三轮补刀归零；教训固化：**路径形态枚举必含「同目录单层 / 上级无段 / barrel 内引」三类无段形态** |
+| 26 | **「反向独有」全数误登终局**（#19 族系统性复现）：M4-0 登记 5 件（CodeEditor/DesignSystemEditor/ImageWithFallback/DataFlowDiagram/UnifiedModelManager）全为取样框漏检 P1 `app/components/` 平铺层及子目录（figma/）——三端均有，CodeEditor/DataFlowDiagram L0 全同随包，余二零引用死代码删 | 反向独有 5→0 终局归零；教训沉淀：**取样框 = modules/ + app/components/ + 子目录（figma/ide/design-system）全树 find，非目录清单差集** |
 
 ## 后续登记
 
@@ -304,17 +328,17 @@ category: report
 - **M4-4 admin+monitor 域**：✅ 已达成（第六轮）——`@yyc3/admin`（10 组件 + 4 hooks）+ `@yyc3/monitor`（20 组件 + 3 hooks）双包达成；暂缓 10 件留端（admin 9 + AISuggestionPanel，含端侧 barrel re-export 衔接）；「真全异」归零、反向独有 5→4
 - **M4-5 shared 域定性**：✅ 已达成（第七轮）——品牌 3 件消重 + ops 二包 4 件（OperationCenter/ServiceLoopPanel 解锁）+ Phase 3 漏网 5 lib 收编 core + P2 切 2 留 3；壳层 9 + 路由级 3 留端 Phase 5；反向独有 4→3
 - **M4-6 ai-family 特深域**：✅ 已达成（第八轮）——`@yyc3/ai-family` 86 件 / exports 90 条；P1 死副本 36 清障（48→0）+ P2 断链修复（7→0 + build 首绿）+ MEMBERS_MAP 破环 + HotelDashboard 切包 + useClock 入 core + inference 6 类型并入；P2 AIFamilyPage 独走留端；智慧酒店 L1 视觉融合（density="compact"）归 Phase 5 专项
-- **M4-7 `@yyc3/ide`**：ide-settings-slice + ide-types 227L + Phase 2 theme-presets 引擎登记项（useWebSocketData 已入 store，ide-mock-data 注解引用不阻）+ **失效 vi.mock 清扫（M4-6 技术债）**
-- **M4-8**：反向独有 3 件定性（CodeEditor/DesignSystemEditor/ImageWithFallback；DataFlowDiagram 经 M4-5 修正随 ops 入包）+ NavRegistry 单源 + PageShell 七型谱
+- **M4-7 `@yyc3/ide`**：✅ 已达成（第九轮）——37 件 / exports 37 条（ide 30 + IDEPanel + theme 4 引擎 + useTerminal + CodeEditor + ide-settings-slice）；三端 store/slices 清空；失效 vi.mock 141→0 全清
+- **M4-8**：✅ 已达成（第九轮同窗）——反向独有 5→0 终局（#26 取样框系统性误登全修正）+ DesignSystemEditor×3/ImageWithFallback×4 死代码删 + NavRegistry→Phase 5 壳层同窗 + PageShell 结案
 - **69 视觉对照 + a11y**（Phase 2 登记，跨阶段）
 - **types 单源收敛**（app 28 分件 vs core 按需 +141 件（M4-3 +27 / M4-2/3 ai +21 诊断·websocket·layout 系 / M4-2/3 ops +37 六语义段 + ChainEvent / M4-4 admin·monitor +54 九语义段），Phase 3 登记；桥接模式已立（diagnostic/websocket/layout/view-context 四桥），收敛=桥原地翻正）
 
 ## 交接快照
 
 ```bash
-# 复验矩阵（M4-6 后：四端全零全绿首态）
+# 复验矩阵（M4-7/8 后：Phase 4 终态——十一包 + 四端全零全绿连续两轮）
 cd packages/theme && pnpm exec tsc --noEmit       # 0 错
-cd packages/core && pnpm exec tsc --noEmit        # 0 错（useClock 入包后 34 件 + i18n）
+cd packages/core && pnpm exec tsc --noEmit        # 0 错（34 件 + i18n，types 1596L）
 cd packages/store && pnpm exec tsc --noEmit       # 0 错
 cd packages/ui && pnpm exec tsc --noEmit          # 0 错
 cd packages/business && pnpm exec tsc --noEmit    # 0 错
@@ -322,27 +346,30 @@ cd packages/ai && pnpm exec tsc --noEmit          # 0 错
 cd packages/ops && pnpm exec tsc --noEmit         # 0 错
 cd packages/admin && pnpm exec tsc --noEmit       # 0 错
 cd packages/monitor && pnpm exec tsc --noEmit     # 0 错
-cd packages/ai-family && pnpm exec tsc --noEmit   # 0 错（M4-6 新包 86 件）
-cd apps/app-web-full && pnpm exec tsc --noEmit    # 0（48→0 死副本清障）
+cd packages/ai-family && pnpm exec tsc --noEmit   # 0 错（86 件）
+cd packages/ide && pnpm exec tsc --noEmit         # 0 错（M4-7 新包 37 件）
+cd apps/app-web-full && pnpm exec tsc --noEmit    # 0
 cd apps/app-desktop && pnpm exec tsc --noEmit     # 0
 cd apps/app-web-classic && pnpm exec tsc --noEmit # 0
-cd apps/app-sandbox-lite && pnpm exec tsc --noEmit # 0（7→0 断链修复，史上首零）
-# build：P1 813ms / P3 776ms / P4 779ms / P2 全绿（存量 7 错基线首零）——四端 build 全绿
-# P2 vitest：1813 通过（rf-phase2 29/29）；P1 ai-family 抽测 136 例绿
+cd apps/app-sandbox-lite && pnpm exec tsc --noEmit # 0
+# build：P1 809ms / P3 763ms / P4 728ms / P2 全绿——四端 build 全绿
+# 失效 vi.mock 复测：node mock-audit（resolve 验存）STALE=0
 
-# 包拓扑（M4-6 后：十包）
-# @yyc3/ai-family：86 件（组件 37 + Page + slices 13 + hooks 5 + types 3 + lib 26），exports 90 条
-#   peer：react/lucide-react/motion/react-router/zustand/clsx/@mlc-ai/web-llm；dep：core/store/ui/business
-# @yyc3/core：34 件 + i18n，exports 46 条（+useClock），types 1583L（+inference 6）
-# 端侧：P1 modules/ 目录 ai-family 整域消失；P3/P4 components/ai-family 清空；P2 AIFamilyPage 独走留端
+# 包拓扑（Phase 4 终态：十一包）
+# theme/core/store/ui/business/ai/ops/admin/monitor/ai-family/ide
+# @yyc3/ide：37 件（ide 30 + IDEPanel + theme 4 + useTerminal + CodeEditor + ide-settings-slice），exports 37 条
+#   peer 21 项（CodeMirror×11 + @xterm×3 + zustand + react 系 + sonner/recharts/lucide）；dep：core/store/ui
+# 端侧清空：三端 store/slices 目录空；P3/P4 components/ide 空；四端 figma/ 空；P1 modules/dev 剩 9 件（dev 域非 ide）
+# 端侧留白：P1 shared 12 件（壳层 Phase 5）+ P1/P3/P4 ops 暂缓 7 件 + P1 dev 9 件 + P2 独走 6 件（AIFamilyPage + lib 5）
 
 # 下次会话起点
-# → M4-7 @yyc3/ide（ide-settings-slice + ide-types + theme-presets 引擎 + 失效 vi.mock 清扫）
-# → M4-8 反向独有 3 件 + NavRegistry + PageShell
-# → Phase 5 壳层（shared 留端 12 件 + 智慧酒店 L1 视觉融合）
+# → Phase 5 壳层专项（Layout/Sidebar/TopBar/BottomNav/CommandPalette + NavRegistry 单源 + 智慧酒店 L1 融合）
+# → 可选：ops 暂缓件二次包化（CodeEditor 障碍已解：DatabaseManager/LocalFileManager/HostFileManager/DatabaseConnectionPanel）
+# → 可选：dev 域 9 件定性（ArchitectureAudit/CLITerminal 等——消费面 routes 级）
+# → 跨阶段：69 视觉对照 + a11y、types 单源收敛（桥原地翻正）
 ```
 
 ---
 
 **会话状态**: ✅ 正常结束
-**Phase 4 定性**: 勘察/规划/i18n 上收/store 上收/business 域包化/ai 域包化/ops 域包化/**admin+monitor 双域包化**达成；「组件件 + lib 束 + 通用 hooks（域内随包/跨域入 store 二分）+ 桥接 types」四形态域包化工艺定型并经第六轮再现验证；M4-0 仲裁定性终局（真全异归零/反向独有 4）；批量域包化主体完成，剩 shared 定性与特深域扩容
+**Phase 4 定性**: **工程面全达成**——九轮推进（勘察/规划/i18n/store/business/ai/ops/admin+monitor/shared/ai-family/ide+收尾），十一包落地、四端 tsc=0 与 build 全绿连续两轮、真全异与反向独有双归零、四端死代码三清、失效 vi.mock 全清；剩余为 Phase 5 壳层专项与视觉走查类

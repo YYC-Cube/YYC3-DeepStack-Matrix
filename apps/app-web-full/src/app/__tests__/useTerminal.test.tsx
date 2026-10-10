@@ -25,7 +25,7 @@
 
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { renderHook, act , cleanup } from "@testing-library/react";
-import { useTerminal } from "../modules/dev/hooks/useTerminal";
+import { useTerminal } from "@yyc3/ide/hooks/use-terminal";
 
 describe("useTerminal", () => {
   beforeEach(() => {

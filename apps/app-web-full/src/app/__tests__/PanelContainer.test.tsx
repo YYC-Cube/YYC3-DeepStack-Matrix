@@ -13,8 +13,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
-import { PanelContainer } from "../modules/dev/ide/PanelContainer";
-import type { Panel } from "../modules/dev/ide/ide-layout-types";
+import { PanelContainer } from "@yyc3/ide/panel-container";
+import type { Panel } from "@yyc3/ide/ide-layout-types";
 
 const mockSelectPanel = vi.fn();
 const mockStartDrag = vi.fn();
@@ -26,7 +26,7 @@ const mockEndResize = vi.fn();
 const mockUpdatePanel = vi.fn();
 const mockRemovePanel = vi.fn();
 
-vi.mock("../modules/dev/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   useLayoutContext: () => ({
     selectPanel: mockSelectPanel,
     startDrag: mockStartDrag,
@@ -40,11 +40,11 @@ vi.mock("../modules/dev/ide/LayoutContext", () => ({
   }),
 }));
 
-vi.mock("../modules/dev/ide/PanelContent", () => ({
+vi.mock("@yyc3/ide/panel-content", () => ({
   PanelContent: ({ panel }: any) => <div data-testid="panel-content">{panel.title}</div>,
 }));
 
-vi.mock("../modules/dev/ide/PanelHeader", () => ({
+vi.mock("@yyc3/ide/panel-header", () => ({
   PanelHeader: ({ panel, isActive, onMouseDown, onMinimize, onMaximize, onClose }: any) => (
     <div data-testid="panel-header" data-active={isActive}>
       <span>{panel.title}</span>
@@ -56,7 +56,7 @@ vi.mock("../modules/dev/ide/PanelHeader", () => ({
   ),
 }));
 
-vi.mock("../modules/dev/ide/PanelResizeHandle", () => ({
+vi.mock("@yyc3/ide/panel-resize-handle", () => ({
   PanelResizeHandle: ({ direction, onMouseDown }: any) => (
     <div data-testid={`resize-${direction}`} onMouseDown={onMouseDown} />
   ),

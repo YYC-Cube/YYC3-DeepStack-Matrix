@@ -12,10 +12,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { PanelContent } from "../components/ide/PanelContent";
-import type { Panel } from "../components/ide/ide-layout-types";
+import { PanelContent } from "@yyc3/ide/panel-content";
+import type { Panel } from "@yyc3/ide/ide-layout-types";
 
-vi.mock("../components/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   useLayoutContext: () => ({
     activePanelId: "panel-1",
     layout: { panels: [], layout: "grid", theme: "dark", showGridLines: false, snapToGrid: false, gridSize: 8 },

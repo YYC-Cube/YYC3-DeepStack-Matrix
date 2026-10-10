@@ -20,7 +20,7 @@ import {
   hsvToRgb,
   rgbToHsv,
   type OklchColor,
-} from "../modules/dev/theme/color-utils";
+} from "@yyc3/ide/theme/color-utils";
 
 describe("color-utils", () => {
   describe("hexToRgb", () => {

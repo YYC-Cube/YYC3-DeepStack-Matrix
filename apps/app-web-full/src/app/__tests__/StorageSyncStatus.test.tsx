@@ -53,7 +53,7 @@ vi.mock("../services/storageManager", () => ({
   },
 }));
 
-vi.mock("../components/ui/card", () => ({
+vi.mock("@yyc3/ui/card", () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "card" }, children),
   CardContent: ({ children }: { children: React.ReactNode }) =>
@@ -66,7 +66,7 @@ vi.mock("../components/ui/card", () => ({
     React.createElement("h3", { className, "data-testid": "card-title" }, children),
 }));
 
-vi.mock("../components/ui/button", () => ({
+vi.mock("@yyc3/ui/button", () => ({
   Button: ({ children, onClick, disabled, className }: {
     children: React.ReactNode;
     onClick?: () => void;
@@ -75,17 +75,17 @@ vi.mock("../components/ui/button", () => ({
   }) => React.createElement("button", { onClick, disabled, className, "data-testid": "button" }, children),
 }));
 
-vi.mock("../components/ui/badge", () => ({
+vi.mock("@yyc3/ui/badge", () => ({
   Badge: ({ children, variant }: { children: React.ReactNode; variant?: string }) =>
     React.createElement("span", { "data-testid": "badge", "data-variant": variant }, children),
 }));
 
-vi.mock("../components/ui/progress", () => ({
+vi.mock("@yyc3/ui/progress", () => ({
   Progress: ({ value, className }: { value: number; className?: string }) =>
     React.createElement("div", { className, "data-testid": "progress", "aria-valuenow": value }),
 }));
 
-vi.mock("../components/ui/tabs", () => ({
+vi.mock("@yyc3/ui/tabs", () => ({
   Tabs: ({ children, defaultValue }: { children: React.ReactNode; defaultValue?: string }) =>
     React.createElement("div", { "data-testid": "tabs", "data-default": defaultValue }, children),
   TabsContent: ({ children, value }: { children: React.ReactNode; value: string }) =>
@@ -96,7 +96,7 @@ vi.mock("../components/ui/tabs", () => ({
     React.createElement("button", { "data-testid": "tabs-trigger", "data-value": value }, children),
 }));
 
-vi.mock("../components/ui/alert", () => ({
+vi.mock("@yyc3/ui/alert", () => ({
   Alert: ({ children }: { children: React.ReactNode }) =>
     React.createElement("div", { "data-testid": "alert" }, children),
   AlertDescription: ({ children }: { children: React.ReactNode }) =>

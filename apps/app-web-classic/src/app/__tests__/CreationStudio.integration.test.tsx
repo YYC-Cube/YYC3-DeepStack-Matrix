@@ -85,13 +85,13 @@ vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   },
 }));
 
-vi.mock("./GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="glass-card">{children}</div>
   ),
 }));
 
-vi.mock("./FadeIn", () => ({
+vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 

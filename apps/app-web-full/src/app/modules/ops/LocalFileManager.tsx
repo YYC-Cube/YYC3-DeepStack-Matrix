@@ -18,7 +18,7 @@ import { GlassCard } from "@yyc3/ui";
 import { FileBrowser } from "@yyc3/ops/file-browser";
 import { LogViewer } from "@yyc3/ops/log-viewer";
 import { ReportGenerator } from "@yyc3/ops/report-generator";
-import { CodeEditor, getLanguageLabel } from "../../components/CodeEditor";
+import { CodeEditor, getLanguageLabel } from "@yyc3/ide/code-editor";
 import { useLocalFileSystem } from "@yyc3/ops/hooks/use-local-file-system";
 import { useI18n } from "@yyc3/core/i18n";
 import { useLogSlice } from "@yyc3/store/log-slice";

@@ -96,7 +96,7 @@ const CLITerminal = lazy(() =>
   import("./modules/dev/CLITerminal").then((m) => ({ default: m.CLITerminal })),
 );
 const IDEPanel = lazy(() =>
-  import("./modules/dev/IDEPanel").then((m) => ({ default: m.IDEPanel })),
+  import("@yyc3/ide").then((m) => ({ default: m.IDEPanel })),
 );
 const OperationAudit = lazy(() =>
   import("@yyc3/admin/operation-audit").then((m) => ({ default: m.OperationAudit })),

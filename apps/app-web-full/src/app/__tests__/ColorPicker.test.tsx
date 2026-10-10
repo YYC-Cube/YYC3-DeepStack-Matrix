@@ -13,7 +13,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, waitFor, act } from "@testing-library/react";
 import React from "react";
-import { ColorPicker } from "../modules/dev/theme/ColorPicker";
+import { ColorPicker } from "@yyc3/ide/theme/color-picker";
 
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
   fillRect: vi.fn(),

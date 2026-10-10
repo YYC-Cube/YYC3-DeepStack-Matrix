@@ -50,7 +50,7 @@ vi.mock("react-router", () => ({
   useNavigate: vi.fn(() => vi.fn()),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   WebSocketContext: React.createContext({
     state: "connected",
     data: null,
@@ -101,7 +101,7 @@ vi.mock("@yyc3/monitor/alert-banner", () => ({
   AlertBanner: () => null,
 }));
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => (
     <div data-testid="glass-card" className={className}>
       {children}

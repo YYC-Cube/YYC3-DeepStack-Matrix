@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
-import { IDELayout } from "../modules/dev/ide/IDELayout";
+import { IDELayout } from "@yyc3/ide/ide-layout";
 
 const mockNavigate = vi.fn();
 
@@ -28,44 +28,44 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../modules/dev/ide/AIChatPanel", () => ({
+vi.mock("@yyc3/ide/ai-chat-panel", () => ({
   AIChatPanel: () => <div>AI Chat Panel</div>,
 }));
 
-vi.mock("../modules/dev/ide/FileExplorer", () => ({
+vi.mock("@yyc3/ide/file-explorer", () => ({
   FileExplorer: () => <div>File Explorer</div>,
 }));
 
-vi.mock("../modules/dev/ide/CodePreviewPanel", () => ({
+vi.mock("@yyc3/ide/code-preview-panel", () => ({
   CodePreviewPanel: () => <div>Code Preview</div>,
 }));
 
-vi.mock("../modules/dev/ide/IDETerminal", () => ({
+vi.mock("@yyc3/ide/ide-terminal", () => ({
   IDETerminal: () => <div>Terminal</div>,
 }));
 
-vi.mock("../modules/dev/ide/IDEStatusBar", () => ({
+vi.mock("@yyc3/ide/ide-status-bar", () => ({
   IDEStatusBar: () => <div>Status Bar</div>,
 }));
 
-vi.mock("../modules/dev/ide/IDETopBar", () => ({
+vi.mock("@yyc3/ide/ide-top-bar", () => ({
   IDETopBar: () => <div>Top Bar</div>,
 }));
 
-vi.mock("../modules/dev/ide/IDEViewSwitcher", () => ({
+vi.mock("@yyc3/ide/ide-view-switcher", () => ({
   IDEViewSwitcher: () => <div>View Switcher</div>,
 }));
 
-vi.mock("../modules/dev/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   LayoutProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("../modules/dev/ide/Workspace", () => ({
+vi.mock("@yyc3/ide/workspace", () => ({
   Workspace: () => <div>Workspace</div>,
 }));
 
 // ── Import the Zustand store after mocks ───────────────────────
-import { useIDESettingsSlice } from "../store/slices/ide-settings-slice";
+import { useIDESettingsSlice } from "@yyc3/ide/ide-settings-slice";
 
 describe("IDELayout", () => {
   beforeEach(() => {

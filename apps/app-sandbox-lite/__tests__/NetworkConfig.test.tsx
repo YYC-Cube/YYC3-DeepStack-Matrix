@@ -21,7 +21,7 @@ import { describe, it, expect, vi, beforeEach , afterEach} from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   __esModule: true,
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
   default: ({ children, className }: any) => <div className={className}>{children}</div>,

@@ -13,9 +13,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
-import { ColorSwatch } from "../modules/dev/theme/ColorSwatch";
+import { ColorSwatch } from "@yyc3/ide/theme/color-swatch";
 
-vi.mock("../modules/dev/theme/ColorPicker", () => ({
+vi.mock("@yyc3/ide/theme/color-picker", () => ({
   ColorPicker: ({ value, onChange }: { value: string; onChange: (hex: string) => void }) => (
     <div data-testid="color-picker">
       <span>ColorPicker: {value}</span>

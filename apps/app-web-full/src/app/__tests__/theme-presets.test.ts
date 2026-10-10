@@ -21,7 +21,7 @@ import {
   type ThemeTypography,
   type ThemeShadow,
   type BrandingConfig,
-} from "../modules/dev/theme/theme-presets";
+} from "@yyc3/ide/theme/theme-presets";
 
 describe("theme-presets", () => {
   describe("DEFAULT_COLORS", () => {

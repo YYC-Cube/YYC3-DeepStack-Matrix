@@ -19,7 +19,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),
 }));
 
-vi.mock("../hooks/useTerminal", () => ({
+vi.mock("@yyc3/ide/hooks/use-terminal", () => ({
   useTerminal: () => ({
     history: [],
     inputValue: "",
@@ -31,7 +31,7 @@ vi.mock("../hooks/useTerminal", () => ({
   }),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false }),
 }));
 

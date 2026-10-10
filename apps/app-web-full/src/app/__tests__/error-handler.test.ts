@@ -32,13 +32,13 @@ import {
   type ValidationErrorDetail,
 } from "@yyc3/core/error-handler";
 
-vi.mock("./yyc3-storage", () => ({
+vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbPut: vi.fn(),
   idbGetAll: vi.fn(() => Promise.resolve([])),
   idbClear: vi.fn(),
 }));
 
-vi.mock("./figma-error-filter", () => ({
+vi.mock("@yyc3/core/figma-error-filter", () => ({
   isFigmaPlatformError: vi.fn(() => false),
 }));
 

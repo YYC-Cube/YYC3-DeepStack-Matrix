@@ -57,7 +57,7 @@ vi.mock("@yyc3/monitor/action-recommender", () => ({
   default: () => React.createElement("div", { "data-testid": "action-recommender" }, "Action Recommender Mock"),
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 

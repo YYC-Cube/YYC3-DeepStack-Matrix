@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
 import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
-import { SQLEditor } from "./CodeEditor";
+import { SQLEditor } from "@yyc3/ide/code-editor";
 import { InlineEditableTable } from "@yyc3/admin/inline-editable-table";
 import { ViewContext } from "../lib/view-context";
 import type { DatabaseType } from "../types";

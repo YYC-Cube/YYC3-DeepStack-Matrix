@@ -24,7 +24,7 @@ vi.mock("@yyc3/core/supabaseClient", () => ({
   },
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo">YYC3 Logo</div>,
 }));
 

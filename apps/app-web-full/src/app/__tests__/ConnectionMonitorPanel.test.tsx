@@ -25,7 +25,7 @@ vi.mock("../../database/ConnectionManager", () => ({
   },
 }));
 
-vi.mock("../../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,
@@ -33,7 +33,7 @@ vi.mock("../../lib/view-context", () => ({
   }),
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div data-testid="glass-card" className={className}>{children}</div>
   ),

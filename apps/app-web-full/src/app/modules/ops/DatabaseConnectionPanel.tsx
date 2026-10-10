@@ -16,7 +16,7 @@ import {
   Settings2, Play, Clock, Layers,
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
-import { SQLEditor } from "../../components/CodeEditor";
+import { SQLEditor } from "@yyc3/ide/code-editor";
 import { ViewContext } from "../../lib/view-context";
 import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
 import type { PoolConfig } from "@yyc3/store/db-conn-slice";

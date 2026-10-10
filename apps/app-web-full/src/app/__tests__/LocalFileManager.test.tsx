@@ -55,7 +55,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,
@@ -63,7 +63,7 @@ vi.mock("../lib/view-context", () => ({
   }),
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className, ...props }: any) => (
     <div className={className} {...props}>{children}</div>
   ),
@@ -81,7 +81,7 @@ vi.mock("@yyc3/ops/report-generator", () => ({
   ReportGenerator: () => <div data-testid="report-generator">ReportGenerator</div>,
 }));
 
-vi.mock("../modules/dev/CodeEditor", () => ({
+vi.mock("@yyc3/ide/code-editor", () => ({
   CodeEditor: () => <div data-testid="code-editor">CodeEditor</div>,
   getLanguageLabel: vi.fn(() => "Text"),
 }));

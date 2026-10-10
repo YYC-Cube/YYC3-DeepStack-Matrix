@@ -64,12 +64,12 @@ vi.mock("@yyc3/store/global-store", () => ({
   })),
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "glass-card" }, children),
 }));
 
-vi.mock("../components/ui/alert-dialog", () => {
+vi.mock("@yyc3/ui/alert-dialog", () => {
   const createElement = React.createElement;
   return {
     AlertDialog: ({ children }: { children: React.ReactNode }) =>
@@ -93,7 +93,7 @@ vi.mock("../components/ui/alert-dialog", () => {
   };
 });
 
-vi.mock("../components/ui/progress", () => ({
+vi.mock("@yyc3/ui/progress", () => ({
   Progress: ({ value, className }: { value: number; className?: string }) =>
     React.createElement("div", { className, "data-testid": "progress", "aria-valuenow": value }),
 }));

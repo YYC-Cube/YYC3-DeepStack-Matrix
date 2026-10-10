@@ -21,13 +21,13 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach , afterEach} from "vitest";
 import { render, screen, fireEvent , cleanup } from "@testing-library/react";
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   __esModule: true,
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
   default: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 

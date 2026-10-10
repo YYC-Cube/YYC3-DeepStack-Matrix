@@ -148,7 +148,7 @@ vi.mock("@yyc3/monitor/create-rule-modal", () => ({
   },
 }));
 
-vi.mock("./GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className, onClick, ...props }: any) => (
     <div className={className} onClick={onClick} data-testid="glass-card" {...props}>
       {children}

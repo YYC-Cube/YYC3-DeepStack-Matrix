@@ -29,8 +29,8 @@ import { ViewContext } from "../../lib/view-context";
 import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
 import { GlassCard } from "@yyc3/ui";
 import { YYC3Logo } from "@yyc3/ui";
-import { ColorSwatch } from "./theme/ColorSwatch";
-import { formatOklch, hexToOklch, oklchToHex } from "./theme/color-utils";
+import { ColorSwatch } from "@yyc3/ide/theme/color-swatch";
+import { formatOklch, hexToOklch, oklchToHex } from "@yyc3/ide/theme/color-utils";
 import {
   DEFAULT_BRANDING,
   DEFAULT_COLORS,
@@ -42,7 +42,7 @@ import {
   type ThemePreset,
   type ThemeShadow,
   type ThemeTypography,
-} from "./theme/theme-presets";
+} from "@yyc3/ide/theme/theme-presets";
 
 // ── Section Accordion ───────────────────────────────
 function Section({ title, icon: Icon, children, defaultOpen = false }: {

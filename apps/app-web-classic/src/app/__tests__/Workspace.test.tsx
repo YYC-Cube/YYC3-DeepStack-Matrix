@@ -13,9 +13,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
-import { Workspace } from "../components/ide/Workspace";
+import { Workspace } from "@yyc3/ide/workspace";
 
-vi.mock("../components/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   useLayoutContext: () => ({
     panels: [
       {
@@ -48,7 +48,7 @@ vi.mock("../components/ide/LayoutContext", () => ({
   }),
 }));
 
-vi.mock("../components/ide/PanelContainer", () => ({
+vi.mock("@yyc3/ide/panel-container", () => ({
   PanelContainer: ({ panel, isActive }: any) => (
     <div data-testid={`panel-${panel.id}`} data-active={isActive}>
       {panel.title}
@@ -56,7 +56,7 @@ vi.mock("../components/ide/PanelContainer", () => ({
   ),
 }));
 
-vi.mock("../components/ide/PanelToolbar", () => ({
+vi.mock("@yyc3/ide/panel-toolbar", () => ({
   PanelToolbar: () => <div data-testid="panel-toolbar">Toolbar</div>,
 }));
 

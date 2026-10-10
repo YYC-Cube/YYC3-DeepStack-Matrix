@@ -45,7 +45,7 @@ vi.mock("@yyc3/core/use-persisted-state", () => ({
   usePersistedList: (...args: any[]) => mockUsePersistedList(...args),
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div data-testid="glass-card" className={className}>{children}</div>
   ),

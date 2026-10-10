@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useTerminal } from "../hooks/useTerminal";
+import { useTerminal } from "@yyc3/ide/hooks/use-terminal";
 
 vi.mock("@yyc3/core/env-config", () => ({
   env: vi.fn((key) => {

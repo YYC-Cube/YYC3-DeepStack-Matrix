@@ -59,7 +59,7 @@ vi.mock('@yyc3/business/hotel-engines/hotel-knowledge-base', () => ({
   }),
 }));
 
-vi.mock('../modules/ai-family/shared', () => ({
+vi.mock('@yyc3/ai-family/shared', () => ({
   FAMILY_MEMBERS: [
     { id: 'navigator', name: '言启·千行', shortName: '千行', color: '#FFD700', icon: () => null, status: 'online' },
     { id: 'thinker', name: '语枢·万物', shortName: '万物', color: '#FF69B4', icon: () => null, status: 'online' },

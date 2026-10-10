@@ -34,15 +34,15 @@
 import * as React from 'react';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, renderHook, act, cleanup } from '@testing-library/react';
-import { LayoutProvider, useLayoutContext } from '../modules/dev/ide/LayoutContext';
-import { useIDESettingsSlice } from '../store/slices/ide-settings-slice';
-import type { Panel, LayoutConfig } from '../modules/dev/ide/ide-layout-types';
+import { LayoutProvider, useLayoutContext } from '@yyc3/ide/layout-context';
+import { useIDESettingsSlice } from '@yyc3/ide/ide-settings-slice';
+import type { Panel, LayoutConfig } from '@yyc3/ide/ide-layout-types';
 
 // ============================================================
 // Mock 依赖：useIDESettingsSlice
 // ============================================================
 
-vi.mock('../store/slices/ide-settings-slice', () => ({
+vi.mock('@yyc3/ide/ide-settings-slice', () => ({
   useIDESettingsSlice: {
     getState: vi.fn(() => ({
       layoutConfig: null,

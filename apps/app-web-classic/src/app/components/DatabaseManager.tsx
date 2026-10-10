@@ -38,7 +38,7 @@ import { useCallback, useContext, useState } from "react";
 import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
 import { ViewContext } from "../lib/view-context";
 import type { DatabaseType } from "../types";
-import { SQLEditor } from "./CodeEditor";
+import { SQLEditor } from "@yyc3/ide/code-editor";
 import { GlassCard } from "@yyc3/ui";
 import { InlineEditableTable } from "@yyc3/admin/inline-editable-table";
 

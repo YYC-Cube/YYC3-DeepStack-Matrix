@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
-import { useTerminal } from "../hooks/useTerminal";
+import { useTerminal } from "@yyc3/ide/hooks/use-terminal";
 import { ViewContext } from "../lib/view-context";
 import { AuthContext } from "@yyc3/core/authContext";
 import { isGhostMode } from "@yyc3/core/supabaseClient";

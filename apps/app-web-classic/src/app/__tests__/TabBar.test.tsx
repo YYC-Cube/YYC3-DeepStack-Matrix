@@ -12,13 +12,13 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { TabBar } from "../components/ide/TabBar";
-import type { Panel, Tab } from "../components/ide/ide-layout-types";
+import { TabBar } from "@yyc3/ide/tab-bar";
+import type { Panel, Tab } from "@yyc3/ide/ide-layout-types";
 
 const mockSwitchTab = vi.fn();
 const mockRemoveTab = vi.fn();
 
-vi.mock("../components/ide/LayoutContext", () => ({
+vi.mock("@yyc3/ide/layout-context", () => ({
   useLayoutContext: () => ({
     switchTab: mockSwitchTab,
     removeTab: mockRemoveTab,

@@ -34,7 +34,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../components/CodeEditor", () => ({
+vi.mock("@yyc3/ide/code-editor", () => ({
   SQLEditor: ({ value, onChange, onExecute }: any) => (
     <div>
       <textarea
@@ -48,7 +48,7 @@ vi.mock("../components/CodeEditor", () => ({
   ),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

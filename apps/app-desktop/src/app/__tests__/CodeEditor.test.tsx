@@ -54,7 +54,7 @@ vi.mock("@codemirror/view", () => ({
 }));
 vi.mock("@codemirror/state", () => ({}));
 
-import { CodeEditor, SQLEditor, getLanguageLabel } from "../components/CodeEditor";
+import { CodeEditor, SQLEditor, getLanguageLabel } from "@yyc3/ide/code-editor";
 
 describe("getLanguageLabel", () => {
   beforeEach(() => {

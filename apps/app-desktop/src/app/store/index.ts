@@ -48,7 +48,7 @@ export type {
 } from '@yyc3/store';
 
 // ── 端侧专属：IDE 设置（依赖 ide-types，随 M4-7 @yyc3/ide 上收）──
-export { useIDESettingsSlice } from './slices/ide-settings-slice';
+export { useIDESettingsSlice } from '@yyc3/ide/ide-settings-slice';
 
 // ── family 域（随 M4-6 @yyc3/ai-family 上收）──
 export { useFamilyMemberSlice } from '@yyc3/ai-family/store/family-member-slice';

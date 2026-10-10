@@ -1581,3 +1581,16 @@ export interface WebGPUPreset {
   description: string;
   bilingual: boolean;
 }
+
+// ══════════════════════════════════════════════════════════
+// M4-7 语义段：terminal（useTerminal 依赖，三端 ui-types L0 并入）
+// ══════════════════════════════════════════════════════════
+
+/** 终端历史条目 */
+export interface TerminalHistoryEntry {
+  id: string;
+  input: string;
+  output: string;
+  timestamp: number;
+  status: "success" | "error" | "info";
+}

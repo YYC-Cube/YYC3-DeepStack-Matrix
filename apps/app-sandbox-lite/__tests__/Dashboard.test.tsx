@@ -89,7 +89,7 @@ vi.mock("../components/AlertBanner", () => ({
   AlertBanner: () => <div data-testid="alert-banner" />,
 }));
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 

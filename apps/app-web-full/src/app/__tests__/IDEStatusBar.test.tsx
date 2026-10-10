@@ -12,8 +12,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
-import { IDEStatusBar } from "../modules/dev/ide/IDEStatusBar";
-import type { OpenTab } from "../modules/dev/ide/ide-types";
+import { IDEStatusBar } from "@yyc3/ide/ide-status-bar";
+import type { OpenTab } from "@yyc3/ide/ide-types";
 
 vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({
@@ -31,7 +31,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("../components/CodeEditor", () => ({
+vi.mock("@yyc3/ide/code-editor", () => ({
   getLanguageLabel: (filename: string) => {
     const ext = filename.split(".").pop()?.toLowerCase();
     if (ext === "ts" || ext === "tsx") {return "TypeScript";}

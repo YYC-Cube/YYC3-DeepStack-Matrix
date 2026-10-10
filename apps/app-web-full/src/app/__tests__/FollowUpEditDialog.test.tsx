@@ -25,7 +25,7 @@ import { FollowUpEditDialog } from "@yyc3/monitor/follow-up-edit-dialog";
 import type { FollowUpRecord, UserRecord } from "../types";
 
 // Mock GlassCard
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => (
     <div className={className}>{children}</div>
   ),

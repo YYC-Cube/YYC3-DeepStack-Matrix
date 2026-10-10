@@ -72,7 +72,7 @@ vi.mock("../config", () => ({
   resetPageConfig: vi.fn(),
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "glass-card" }, children),
 }));

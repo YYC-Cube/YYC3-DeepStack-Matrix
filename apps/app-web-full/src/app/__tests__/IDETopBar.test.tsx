@@ -21,13 +21,13 @@ vi.mock("@yyc3/core/i18n", () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock("../modules/shared/YYC3LogoSvg", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3LogoSvg: ({ size, showText }: { size: number; showText: boolean }) => (
     <div data-testid="yyc3-logo" data-size={size} data-show-text={showText} />
   ),
 }));
 
-vi.mock("../modules/dev/ide/ide-mock-data", () => ({
+vi.mock("@yyc3/ide/ide-mock-data", () => ({
   AI_MODELS: [
     { id: "glm-4-flash", name: "GLM-4 Flash", provider: "Z.ai", status: "online" },
     { id: "gpt-4o", name: "GPT-4o", provider: "OpenAI", status: "online" },
@@ -37,7 +37,7 @@ vi.mock("../modules/dev/ide/ide-mock-data", () => ({
   ],
 }));
 
-import { IDETopBar } from "../modules/dev/ide/IDETopBar";
+import { IDETopBar } from "@yyc3/ide/ide-top-bar";
 
 // ─── Helpers ───────────────────────────────────────────────
 

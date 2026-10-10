@@ -30,7 +30,7 @@ vi.mock("@yyc3/core/figma-error-filter", () => ({
   isFigmaPlatformError: vi.fn(() => false),
 }));
 
-vi.mock("../components/YYC3LogoSvg", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3LogoSvg: () => React.createElement("div", { "data-testid": "yyc3-logo" }),
 }));
 

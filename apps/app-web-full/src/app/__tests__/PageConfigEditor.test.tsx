@@ -75,7 +75,7 @@ vi.mock("../config", () => ({
   PageConfig: {} as any,
 }));
 
-vi.mock("../components/ui/button", () => ({
+vi.mock("@yyc3/ui/button", () => ({
   Button: ({ children, onClick, disabled, variant, size }: {
     children: React.ReactNode;
     onClick?: () => void;
@@ -85,7 +85,7 @@ vi.mock("../components/ui/button", () => ({
   }) => React.createElement("button", { onClick, disabled, "data-testid": "button", "data-variant": variant }, children),
 }));
 
-vi.mock("../components/ui/card", () => ({
+vi.mock("@yyc3/ui/card", () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "card" }, children),
   CardContent: ({ children, className }: { children: React.ReactNode; className?: string }) =>
@@ -98,12 +98,12 @@ vi.mock("../components/ui/card", () => ({
     React.createElement("h3", { className, "data-testid": "card-title" }, children),
 }));
 
-vi.mock("../components/ui/label", () => ({
+vi.mock("@yyc3/ui/label", () => ({
   Label: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("label", { className }, children),
 }));
 
-vi.mock("../components/ui/switch", () => ({
+vi.mock("@yyc3/ui/switch", () => ({
   Switch: ({ checked, onCheckedChange, disabled }: {
     checked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
@@ -116,7 +116,7 @@ vi.mock("../components/ui/switch", () => ({
   }),
 }));
 
-vi.mock("../components/ui/select", () => ({
+vi.mock("@yyc3/ui/select", () => ({
   Select: ({ children, value, onValueChange, disabled }: {
     children: React.ReactNode;
     value?: string;
@@ -132,7 +132,7 @@ vi.mock("../components/ui/select", () => ({
   SelectValue: () => React.createElement("span", { "data-testid": "select-value" }),
 }));
 
-vi.mock("../components/ui/input", () => ({
+vi.mock("@yyc3/ui/input", () => ({
   Input: ({ value, onChange, placeholder, disabled, type, className }: {
     value?: string | number;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -143,7 +143,7 @@ vi.mock("../components/ui/input", () => ({
   }) => React.createElement("input", { value, placeholder, disabled, type, className, onChange, "data-testid": "input" }),
 }));
 
-vi.mock("../components/ui/tabs", () => ({
+vi.mock("@yyc3/ui/tabs", () => ({
   Tabs: ({ children, defaultValue }: { children: React.ReactNode; defaultValue?: string }) =>
     React.createElement("div", { "data-testid": "tabs", "data-default": defaultValue }, children),
   TabsContent: ({ children, value, className }: { children: React.ReactNode; value: string; className?: string }) =>
@@ -154,7 +154,7 @@ vi.mock("../components/ui/tabs", () => ({
     React.createElement("button", { "data-testid": "tabs-trigger", "data-value": value }, children),
 }));
 
-vi.mock("../components/ui/badge", () => ({
+vi.mock("@yyc3/ui/badge", () => ({
   Badge: ({ children, variant, className }: {
     children: React.ReactNode;
     variant?: string;

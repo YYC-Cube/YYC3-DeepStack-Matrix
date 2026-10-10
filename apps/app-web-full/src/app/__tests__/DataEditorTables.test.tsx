@@ -24,7 +24,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => (
     <div className={className} data-testid="glass-card">
       {children}

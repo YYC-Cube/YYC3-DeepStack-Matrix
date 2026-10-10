@@ -18,7 +18,7 @@ vi.mock("@yyc3/admin/hooks/use-install-prompt", () => ({
   useInstallPrompt: vi.fn(),
 }));
 
-vi.mock("../modules/shared/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
 

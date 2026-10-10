@@ -36,7 +36,7 @@ type OnChangeFn = (modelId: string, model: ConfiguredModel) => void;
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));

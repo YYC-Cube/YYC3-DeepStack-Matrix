@@ -50,7 +50,7 @@ vi.mock("react-router", () => ({
   useNavigate: vi.fn(() => vi.fn()),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   WebSocketContext: React.createContext({
     state: "connected",
     data: null,
@@ -101,7 +101,7 @@ vi.mock("@yyc3/monitor/alert-banner", () => ({
   AlertBanner: () => null,
 }));
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => (
     <div data-testid="glass-card" className={className}>
       {children}
@@ -135,7 +135,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Component Rendering", () => {
     it("should render GitPanel with default props", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel));
 
@@ -144,7 +144,7 @@ describe("GitPanel Integration Tests", () => {
     });
 
     it("should render in compact mode", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel, { compact: true }));
 
@@ -152,7 +152,7 @@ describe("GitPanel Integration Tests", () => {
     });
 
     it("should disable AI integration when configured", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel, { showAIIntegration: false }));
 
@@ -162,7 +162,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Platform Detection", () => {
     it("should detect and display platform information on desktop", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel));
 
@@ -173,7 +173,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Tab Navigation", () => {
     it("should have tab navigation elements", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel));
 
@@ -187,7 +187,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Git Operations Integration", () => {
     it("should initialize GitService on mount", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
       const { getGitService } = await import("@yyc3/core/GitService");
 
       render(React.createElement(GitPanel));
@@ -198,7 +198,7 @@ describe("GitPanel Integration Tests", () => {
     });
 
     it("should load Git status after initialization", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel));
 
@@ -210,7 +210,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Responsive Design", () => {
     it("should adapt to different viewports", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
       const { ViewContext } = await import("../lib/view-context");
 
       const mobileViewValue = {
@@ -231,7 +231,7 @@ describe("GitPanel Integration Tests", () => {
     });
 
     it("should handle tablet viewport", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
       const { ViewContext } = await import("../lib/view-context");
 
       const tabletViewValue = {
@@ -254,7 +254,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Error Handling", () => {
     it("should handle Git service errors gracefully", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       const onError = vi.fn();
       const { createGitService } = await import("@yyc3/core/GitService");
@@ -266,7 +266,7 @@ describe("GitPanel Integration Tests", () => {
     });
 
     it("should recover from network errors", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel));
 
@@ -276,7 +276,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("AI Family Integration", () => {
     it("should display AI care messages when enabled", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       render(React.createElement(GitPanel, { showAIIntegration: true }));
 
@@ -286,7 +286,7 @@ describe("GitPanel Integration Tests", () => {
 
   describe("Performance", () => {
     it("should render within acceptable time", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
 
       const startTime = performance.now();
       render(React.createElement(GitPanel));
@@ -297,7 +297,7 @@ describe("GitPanel Integration Tests", () => {
     });
 
     it("should not cause memory leaks on unmount", async () => {
-      const { GitPanel } = await import("../components/ide/GitPanel");
+      const { GitPanel } = await import("@yyc3/ide/git-panel");
       const { getGitService } = await import("@yyc3/core/GitService");
 
       const { unmount } = render(React.createElement(GitPanel));
@@ -332,7 +332,7 @@ describe("GitPanel User Interactions", () => {
   });
 
   it("should handle file staging interactions", async () => {
-    const { GitPanel } = await import("../components/ide/GitPanel");
+    const { GitPanel } = await import("@yyc3/ide/git-panel");
 
     render(React.createElement(GitPanel));
 
@@ -342,7 +342,7 @@ describe("GitPanel User Interactions", () => {
   });
 
   it("should handle commit workflow", async () => {
-    const { GitPanel } = await import("../components/ide/GitPanel");
+    const { GitPanel } = await import("@yyc3/ide/git-panel");
 
     render(React.createElement(GitPanel));
 
@@ -352,7 +352,7 @@ describe("GitPanel User Interactions", () => {
   });
 
   it("should handle branch switching", async () => {
-    const { GitPanel } = await import("../components/ide/GitPanel");
+    const { GitPanel } = await import("@yyc3/ide/git-panel");
 
     render(React.createElement(GitPanel));
 

@@ -27,7 +27,7 @@ vi.mock("../hooks/useI18n", () => ({
   }),
 }));
 
-vi.mock("../components/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   __esModule: true,
   GlassCard: ({ children, className }: { children?: React.ReactNode; className?: string }) => <div className={className}>{children}</div>,
   default: ({ children, className }: { children?: React.ReactNode; className?: string }) => <div className={className}>{children}</div>,
@@ -39,7 +39,7 @@ vi.mock("../components/NetworkConfig", () => ({
   default: () => <div data-testid="network-config" />,
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 

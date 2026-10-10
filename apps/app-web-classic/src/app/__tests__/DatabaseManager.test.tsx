@@ -61,7 +61,7 @@ vi.mock("@yyc3/ops/hooks/use-local-database", () => ({
   })),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,
@@ -76,7 +76,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../components/CodeEditor", () => ({
+vi.mock("@yyc3/ide/code-editor", () => ({
   SQLEditor: ({ value, onChange }: any) => (
     <textarea value={value} onChange={(e: any) => onChange(e.target.value)} />
   ),

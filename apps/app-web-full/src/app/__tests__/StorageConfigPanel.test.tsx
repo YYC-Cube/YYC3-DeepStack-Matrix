@@ -22,7 +22,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("../components/ui/card", () => ({
+vi.mock("@yyc3/ui/card", () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "card" }, children),
   CardContent: ({ children }: { children: React.ReactNode }) =>
@@ -35,7 +35,7 @@ vi.mock("../components/ui/card", () => ({
     React.createElement("h3", { "data-testid": "card-title" }, children),
 }));
 
-vi.mock("../components/ui/button", () => ({
+vi.mock("@yyc3/ui/button", () => ({
   Button: ({ children, onClick, disabled, className, type }: {
     children: React.ReactNode;
     onClick?: () => void;
@@ -45,7 +45,7 @@ vi.mock("../components/ui/button", () => ({
   }) => React.createElement("button", { onClick, disabled, className, type, "data-testid": "button" }, children),
 }));
 
-vi.mock("../components/ui/select", () => ({
+vi.mock("@yyc3/ui/select", () => ({
   Select: ({ children, value, onValueChange }: {
     children: React.ReactNode;
     value?: string;
@@ -61,12 +61,12 @@ vi.mock("../components/ui/select", () => ({
     React.createElement("span", { "data-testid": "select-value" }, placeholder),
 }));
 
-vi.mock("../components/ui/label", () => ({
+vi.mock("@yyc3/ui/label", () => ({
   Label: ({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) =>
     React.createElement("label", { htmlFor }, children),
 }));
 
-vi.mock("../components/ui/switch", () => ({
+vi.mock("@yyc3/ui/switch", () => ({
   Switch: ({ id, checked, onCheckedChange, disabled }: {
     id?: string;
     checked?: boolean;
@@ -81,7 +81,7 @@ vi.mock("../components/ui/switch", () => ({
   }),
 }));
 
-vi.mock("../components/ui/slider", () => ({
+vi.mock("@yyc3/ui/slider", () => ({
   Slider: ({ id, min, max, step, value, onValueChange }: {
     id?: string;
     min?: number;
@@ -101,7 +101,7 @@ vi.mock("../components/ui/slider", () => ({
   }),
 }));
 
-vi.mock("../components/ui/alert", () => ({
+vi.mock("@yyc3/ui/alert", () => ({
   Alert: ({ children, variant, className }: {
     children: React.ReactNode;
     variant?: string;

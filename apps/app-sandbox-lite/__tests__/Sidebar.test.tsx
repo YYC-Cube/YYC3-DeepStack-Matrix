@@ -36,7 +36,7 @@ vi.mock("../hooks/useI18n", () => ({
   }),
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 

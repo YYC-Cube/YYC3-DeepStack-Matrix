@@ -29,7 +29,7 @@ import {
   onStorageChange,
 } from "@yyc3/core/yyc3-storage";
 
-vi.mock("./broadcast-channel", () => ({
+vi.mock("@yyc3/core/broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => ({
     postMessage: vi.fn(),
     onmessage: null,

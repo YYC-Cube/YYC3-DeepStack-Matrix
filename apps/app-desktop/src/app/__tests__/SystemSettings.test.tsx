@@ -141,7 +141,7 @@ vi.mock("../components/NetworkConfig", () => ({
   NetworkConfig: () => React.createElement("div", { "data-testid": "network-config-mock" }),
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => React.createElement("div", { "data-testid": "yyc3-logo-mock" }),
 }));
 

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@yyc3/ui";
 import { useHostFileSystem, getFileTypeInfo } from "@yyc3/ops/hooks/use-host-file-system";
-import { CodeEditor, getLanguageLabel } from "../../components/CodeEditor";
+import { CodeEditor, getLanguageLabel } from "@yyc3/ide/code-editor";
 import { ViewContext } from "../../lib/view-context";
 import type { HostFileEntry } from "../../types";
 

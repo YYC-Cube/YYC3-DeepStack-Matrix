@@ -55,13 +55,13 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className, ...props }: any) => (
     <div className={className} {...props}>{children}</div>
   ),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

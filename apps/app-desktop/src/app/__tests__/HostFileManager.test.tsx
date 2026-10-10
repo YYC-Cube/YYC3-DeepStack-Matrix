@@ -63,14 +63,14 @@ vi.mock("@yyc3/ops/hooks/use-host-file-system", () => ({
   })),
 }));
 
-vi.mock("../components/CodeEditor", () => ({
+vi.mock("@yyc3/ide/code-editor", () => ({
   CodeEditor: ({ value, onChange }: any) => (
     <textarea value={value} onChange={(e) => onChange(e.target.value)} />
   ),
   getLanguageLabel: vi.fn(() => "JavaScript"),
 }));
 
-vi.mock("../lib/view-context", () => ({
+vi.mock("@yyc3/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

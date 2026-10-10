@@ -103,42 +103,42 @@ vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   },
 }));
 
-vi.mock("./FamilyPageHeader", () => ({
+vi.mock("@yyc3/ai-family/family-page-header", () => ({
   FamilyPageHeader: ({ title }: { title: string }) => (
     <div data-testid="family-page-header">{title}</div>
   ),
 }));
 
-vi.mock("./VoiceMusicControlPanel", () => ({
+vi.mock("@yyc3/ai-family/voice-music-control-panel", () => ({
   VoiceMusicControlPanel: () => <div data-testid="voice-control-panel" />,
 }));
 
-vi.mock("./EmotionVisualizer", () => ({
+vi.mock("@yyc3/ai-family/emotion-visualizer", () => ({
   EmotionVisualizer: () => <div data-testid="emotion-visualizer">情感感知</div>,
 }));
 
-vi.mock("./CoverFlow", () => ({
+vi.mock("@yyc3/ai-family/cover-flow", () => ({
   CoverFlow: ({ onSelect }: { onSelect?: (track: unknown) => void }) => (
     <div data-testid="cover-flow">CoverFlow</div>
   ),
 }));
 
-vi.mock("./VinylPhotoPlayer", () => ({
+vi.mock("@yyc3/ai-family/vinyl-photo-player", () => ({
   VinylPhotoPlayer: ({ trackTitle }: { trackTitle?: string }) => (
     <div data-testid="vinyl-player">{trackTitle || "Vinyl Player"}</div>
   ),
   MVPlayerOverlay: () => <div data-testid="mv-overlay" />,
 }));
 
-vi.mock("./CreationStudio", () => ({
+vi.mock("@yyc3/ai-family/creation-studio", () => ({
   CreationStudio: () => <div data-testid="creation-studio">创作工坊</div>,
 }));
 
-vi.mock("./FadeIn", () => ({
+vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("./GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="glass-card">{children}</div>
   ),

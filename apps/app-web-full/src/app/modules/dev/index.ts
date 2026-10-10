@@ -29,34 +29,34 @@ export { DevGuidePage } from './DevGuidePage';
 export { ThemeCustomizer } from './ThemeCustomizer';
 export { CLITerminal } from './CLITerminal';
 export { IntegratedTerminal } from './IntegratedTerminal';
-export { IDEPanel } from './IDEPanel';
+export { IDEPanel } from '@yyc3/ide';
 export { RefactoringReport } from './RefactoringReport';
 export { ArchitectureAudit } from './ArchitectureAudit';
 
 // IDE 子模块
-export { IDELayout } from './ide/IDELayout';
-export { IDETopBar } from './ide/IDETopBar';
-export { IDEStatusBar } from './ide/IDEStatusBar';
-export { IDESettingsPanel } from './ide/IDESettingsPanel';
+export { IDELayout } from '@yyc3/ide/ide-layout';
+export { IDETopBar } from '@yyc3/ide/ide-top-bar';
+export { IDEStatusBar } from '@yyc3/ide/ide-status-bar';
+export { IDESettingsPanel } from '@yyc3/ide/ide-settings-panel';
 
 // Hooks
-export { useTerminal } from './hooks/useTerminal';
+export { useTerminal } from '@yyc3/ide/hooks/use-terminal';
 
 // Theme 子模块
-export { ColorSwatch } from './theme/ColorSwatch';
-export { ColorPicker } from './theme/ColorPicker';
-export { formatOklch, hexToOklch, oklchToHex } from './theme/color-utils';
+export { ColorSwatch } from '@yyc3/ide/theme/color-swatch';
+export { ColorPicker } from '@yyc3/ide/theme/color-picker';
+export { formatOklch, hexToOklch, oklchToHex } from '@yyc3/ide/theme/color-utils';
 export {
   DEFAULT_BRANDING,
   DEFAULT_COLORS,
   DEFAULT_SHADOW,
   DEFAULT_TYPOGRAPHY,
   THEME_PRESETS,
-} from './theme/theme-presets';
+} from '@yyc3/ide/theme/theme-presets';
 export type {
   BrandingConfig,
   ThemeColors,
   ThemePreset,
   ThemeShadow,
   ThemeTypography,
-} from './theme/theme-presets';
+} from '@yyc3/ide/theme/theme-presets';

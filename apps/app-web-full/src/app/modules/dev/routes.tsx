@@ -51,7 +51,7 @@ const CLITerminal = lazy(() =>
   import("./CLITerminal").then((m) => ({ default: m.CLITerminal })),
 );
 const IDEPanel = lazy(() =>
-  import("./IDEPanel").then((m) => ({ default: m.IDEPanel })),
+  import("@yyc3/ide").then((m) => ({ default: m.IDEPanel })),
 );
 const RefactoringReport = lazy(() =>
   import("./RefactoringReport").then((m) => ({ default: m.RefactoringReport })),

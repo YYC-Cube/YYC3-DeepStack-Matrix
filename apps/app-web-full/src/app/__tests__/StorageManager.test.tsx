@@ -60,7 +60,7 @@ vi.mock("../services/storageManager", () => ({
 // Mock: PageHeader
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("../components/ui/page-header", () => ({
+vi.mock("@yyc3/ui/page-header", () => ({
   PageHeader: ({ title, description }: { title: string; description: string }) =>
     React.createElement("div", { "data-testid": "yyc3-page-header" },
       React.createElement("h1", { "data-testid": "yyc3-page-title" }, title),

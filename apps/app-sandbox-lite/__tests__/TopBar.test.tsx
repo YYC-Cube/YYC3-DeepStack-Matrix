@@ -61,7 +61,7 @@ vi.mock("../components/LanguageSwitcher", () => ({
   default: () => <div data-testid="lang-switcher" />,
 }));
 
-vi.mock("../components/YYC3Logo", () => ({
+vi.mock("@yyc3/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 

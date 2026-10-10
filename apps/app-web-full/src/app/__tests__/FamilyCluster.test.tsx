@@ -64,7 +64,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 // 4. Mock GlassCard: 透传 children + className + data-testid
 //    (保证组件内部结构不被破坏，onClick 等事件正常传递)
 // ============================================================
-vi.mock("../modules/shared/GlassCard", () => ({
+vi.mock("@yyc3/ui", () => ({
   GlassCard: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { glowColor?: string }>(
     ({ children, className = "", glowColor, onClick, style, ...rest }, ref) => (
       <div

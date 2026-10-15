@@ -8,7 +8,33 @@
 
 `一码四形态` `Monorepo` `React 19` `TypeScript strict` `Vite 8` `pnpm workspace` `shadcn/ui + Radix`
 
-[![CI 质量门禁](https://img.shields.io/badge/CI-verify--gates%20G1--G6-brightgreen)](.github/workflows/ci.yml) [![十二包 tsc](https://img.shields.io/badge/tsc-12%20pkgs%20%2B%204%20apps-0%20errors-blue)](scripts/verify-gates.sh) [![复用率](https://img.shields.io/badge/三端净承接率-83.5%25%20%E2%9C%85%20DoD%20%E2%89%A580%25-success)](scripts/reuse-report.mjs) [![License](https://img.shields.io/badge/license-MIT-grey)](LICENSE)
+<!-- ━━ ① 实时状态（GitHub Actions 直出 · push 自动刷新）━━ -->
+[![CI 质量门禁](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/actions/workflows/ci.yml/badge.svg)](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/actions/workflows/ci.yml)
+[![发布管线](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/actions/workflows/release.yml/badge.svg)](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/actions/workflows/release.yml)
+
+<!-- ━━ ② 质量门禁基线（本地 gates 实证快照）━━ -->
+[![G1-G6](https://img.shields.io/badge/%E9%97%A8%E7%A6%81-verify--gates%20G1--G6%20%E5%85%A8%E7%BB%BF-brightgreen)](scripts/verify-gates.sh)
+[![tsc](https://img.shields.io/badge/tsc-12%20pkgs%20%2B%204%20apps%20%C2%B7%200%20errors-blue)](scripts/verify-gates.sh)
+[![复用率](https://img.shields.io/badge/%E4%B8%89%E7%AB%AF%E5%87%80%E6%89%BF%E6%8E%A5%E7%8E%87-83.5%25%20%C2%B7%20DoD%E2%89%A580%25-success)](scripts/reuse-report.mjs)
+[![i18n 裸键](https://img.shields.io/badge/i18n%E8%A3%B8%E9%94%AE-0%20%C2%B7%201220%20keys-success)](scripts/i18n-bare-key-scan.mjs)
+[![视觉基线](https://img.shields.io/badge/%E8%A7%86%E8%A7%89%E5%9F%BA%E7%BA%BF-61%E5%BC%A0%20%C2%B7%20diff%E2%89%A40.5%25-purple)](docs/YYC3-组件拆分-指导文档/)
+
+<!-- ━━ ③ 技术栈 ━━ -->
+![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Electron](https://img.shields.io/badge/Electron-41-47848F?logo=electron&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-Radix-black?logo=shadcnui&logoColor=white)
+
+<!-- ━━ ④ 工程与安全 ━━ -->
+![Node](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=nodedotjs&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-workspace%2012-F69220?logo=pnpm&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-%E5%88%86%E7%89%87-6E9F18?logo=vitest&logoColor=white)
+[![CodeQL](https://img.shields.io/badge/SAST-CodeQL-0969DA?logo=github&logoColor=white)](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/security/code-scanning)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-perf%E2%89%A50.9%20%C2%B7%20%E5%AE%9E%E6%B5%8B0.94-F5A623?logo=lighthouse&logoColor=white)](.github/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-grey)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/pulls)
 
 </div>
 
@@ -35,7 +61,7 @@
 ## 一、快速开始
 
 ```bash
-# 环境要求：Node ≥ 22 / pnpm ≥ 9 / Python 3（可选：视觉比对脚本）
+# 环境要求：Node ≥ 22 / pnpm ≥ 10（packageManager 锁 12.11.2）/ Python 3（可选：视觉比对脚本）
 pnpm install                 # 安装（workspace 全量）
 
 # 四端并行开发（端口纪律：3030 起，占用即上移）

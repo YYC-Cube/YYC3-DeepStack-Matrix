@@ -5,7 +5,7 @@
   "packageManager": "pnpm@12.11.2",
   "description": "YYC³ CloudPivot Matrix 统一 Monorepo 底座（M1）— 四端应用 + 共享包",
   "author": "YanYuCloudCube Team <admin@0379.email>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"

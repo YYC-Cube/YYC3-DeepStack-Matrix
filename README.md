@@ -36,6 +36,11 @@
 [![License](https://img.shields.io/badge/license-MIT-grey)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/pulls)
 
+<!-- ━━ ⑤ 社区治理 ━━ -->
+[![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-v2.1-4c1.svg)](CODE_OF_CONDUCT.md)
+[![贡献指南](https://img.shields.io/badge/%E8%B4%A1%E7%8C%AE%E6%8C%87%E5%8D%97-CONTRIBUTING-blue)](CONTRIBUTING.md)
+[![安全政策](https://img.shields.io/badge/%E5%AE%89%E5%85%A8%E6%94%BF%E7%AD%96-SECURITY.md-2ea44f)](SECURITY.md)
+
 </div>
 
 ---
@@ -55,6 +60,7 @@
 4. [质量门禁体系](#四质量门禁体系)
 5. [开发者工作流](#五开发者工作流)
 6. [文档体系索引](#六文档体系索引)
+7. [社区与贡献](#七社区与贡献)
 
 ---
 
@@ -281,9 +287,34 @@ docs/YYC3-组件拆分-指导文档/
 | ---- | ---- |
 | 项目从哪来（四项目同源审计） | 主文档 §0-2 |
 | 架构与包拓扑怎么定型的 | 主文档 Phase 2-5 + 各 phase ledger |
+| 架构全景（交互式可视化） | [YYC3-开发者-架构总纲](docs/YYC3-团队资产-标准规范/YYC3-开发者-架构总纲.md) · [YYC3-可视化架构文档.html](docs/YYC3-代码组件-复用规划/YYC3-可视化架构文档.html) |
+| 徽章体系怎么维护 | [YYC3-徽章体系-简要说明](docs/YYC3-徽章体系-简要说明.md) |
 | 质量门禁怎么用 | 本文 §四 + `scripts/verify-gates.sh` 头注释 |
 | 视觉基线怎么比对 | `phase6-ledger/03/04` 台账 |
 | 每一步的坑与教训 | 各 Phase 执行日志「关键实证」+ 偏差编号 |
+
+---
+
+## 七、社区与贡献
+
+YYC³ 遵循开源社区标准治理三件套，欢迎任何形式的贡献：
+
+| 文档 | 用途 |
+| ---- | ---- |
+| [行为准则](CODE_OF_CONDUCT.md) | Contributor Covenant v2.1 × YYC³ 五维驱动协作理念——社区行为底线与处置阶梯 |
+| [贡献指南](CONTRIBUTING.md) | 环境准备 → 开发工作流 → 门禁自检 → 提交/PR 规范全流程 |
+| [安全政策](SECURITY.md) | 受支持版本、漏洞私密报告渠道（GitHub Private Vulnerability Reporting / 邮件）、响应时限承诺 |
+
+```text
+我想…                     → 入口
+├─ 报一个 Bug             → Issues（附最小复现 + 环境信息）
+├─ 提一个新特性           → Issue 对齐方案 → CONTRIBUTING 全流程
+├─ 直接改代码             → Fork → feat/* 分支 → pnpm gates:quick → PR
+├─ 改文档/翻译            → docs/ 对应主题目录（YAML front matter 规范）
+└─ 报告安全漏洞           → SECURITY.md（私密渠道，勿开公开 Issue）
+```
+
+> 安全漏洞**不走公开 Issue**，见 [SECURITY.md](SECURITY.md)。CI 红灯的 PR 不予评审。
 
 ---
 

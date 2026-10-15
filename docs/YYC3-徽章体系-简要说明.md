@@ -22,8 +22,9 @@ category: guide
 | ② 质量门禁基线 | 5 | 本地 gates 实证快照 | 手动维护 |
 | ③ 技术栈 | 6 | package.json 依赖声明 | 依赖大版本变更时手动同步 |
 | ④ 工程与安全 | 7 | CI 配置 + 仓库元数据 | 稀疏手动维护 |
+| ⑤ 社区治理 | 3 | 开源社区标准文件（CoC/Contributing/Security） | 文件重命名/迁移时同步链接 |
 
-合计 **20 枚**，全部使用 shields.io 静态徽章或 GitHub Actions 原生徽章，零第三方统计服务、零追踪脚本。
+合计 **23 枚**，全部使用 shields.io 静态徽章或 GitHub Actions 原生徽章，零第三方统计服务、零追踪脚本。
 
 ## 二、分组明细
 
@@ -66,6 +67,16 @@ React 19 · TypeScript strict · Vite 8 · Electron 41 · Tailwind CSS · shadcn
 | License MIT | [LICENSE](../LICENSE) |
 | PRs welcome | 贡献入口 |
 
+### ⑤ 社区治理（开源标准三件套）
+
+| 徽章 | 跳转 | 说明 |
+| ---- | ---- | ---- |
+| Contributor Covenant v2.1 | [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) | 行为准则（Contributor Covenant 标准绿 `4c1` 配色） |
+| 贡献指南 CONTRIBUTING | [CONTRIBUTING.md](../CONTRIBUTING.md) | 开发工作流 + 门禁自检 + 提交/PR 规范 |
+| 安全政策 SECURITY.md | [SECURITY.md](../SECURITY.md) | 漏洞私密报告渠道 + 响应时限承诺 |
+
+**刷新机制**：静态徽章，链接指向仓库根目录三件套（GitHub 社区标准识别位）。文件重命名或迁移时同步徽章 URL 与 README §七 索引。
+
 ## 三、维护规范
 
 ### 3.1 何时更新哪组
@@ -76,6 +87,7 @@ React 19 · TypeScript strict · Vite 8 · Electron 41 · Tailwind CSS · shadcn
 | 依赖大版本升级（React/Vite/Electron/Tailwind） | 同步 ③ 组版本号 |
 | workflow 文件改名/增删 | 同步 ① 组 badge.svg 路径 |
 | pnpm / Node 版本要求调整 | 同步 ④ 组徽章 |
+| 社区三件套文件改名/迁移 | 同步 ⑤ 组链接 + README §七 |
 
 ### 3.2 编辑注意
 

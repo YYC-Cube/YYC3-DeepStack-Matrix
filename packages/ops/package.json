@@ -29,6 +29,7 @@
     "./report-exporter": "./src/ReportExporter.tsx",
     "./service-connection-test": "./src/ServiceConnectionTest.tsx",
     "./service-loop-panel": "./src/ServiceLoopPanel.tsx",
+    "./inline-editable-table": "./src/InlineEditableTable.tsx",
     "./hooks/use-operation-center": "./src/hooks/useOperationCenter.ts",
     "./hooks/use-service-loop": "./src/hooks/useServiceLoop.ts",
     "./hooks/use-report-exporter": "./src/hooks/useReportExporter.ts",
@@ -43,7 +44,6 @@
     "sonner": "^2.0.7"
   },
   "dependencies": {
-    "@yyc3/admin": "workspace:*",
     "@yyc3/core": "workspace:*",
     "@yyc3/ide": "workspace:*",
     "@yyc3/store": "workspace:*",

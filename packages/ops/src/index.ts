@@ -32,6 +32,7 @@ export { ReportExporter } from "./ReportExporter";
 export { ReportGenerator } from "./ReportGenerator";
 export { ServiceConnectionTest } from "./ServiceConnectionTest";
 export { ServiceLoopPanel } from "./ServiceLoopPanel";
+export { InlineEditableTable } from "./InlineEditableTable";
 
 // lib
 export { exportFullBackup, importFullBackup } from "./full-backup";

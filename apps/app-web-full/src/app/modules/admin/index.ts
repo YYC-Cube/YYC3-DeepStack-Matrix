@@ -16,7 +16,8 @@ export { UserManagement } from '@yyc3/admin';
 export { SecurityMonitor } from '@yyc3/admin';
 export { PWAStatusPanel } from '@yyc3/admin';
 export { PWAInstallPrompt } from '@yyc3/admin';
-export { InlineEditableTable } from '@yyc3/admin';
+// InlineEditableTable 已迁至 @yyc3/ops（断 admin↔ops 循环依赖），本桥保持出口不变
+export { InlineEditableTable } from '@yyc3/ops';
 export { PerformanceMonitor } from '@yyc3/admin';
 export { EnvConfigEditor } from '@yyc3/admin';
 export { VariableCenter } from '@yyc3/admin';

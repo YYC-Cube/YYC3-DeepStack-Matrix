@@ -20,7 +20,7 @@ import {
   buildRollbackSQL,
   buildDeleteSQL,
   buildInsertSQL,
-} from "@yyc3/admin/inline-editable-table";
+} from "@yyc3/ops/inline-editable-table";
 
 const { mockToast } = vi.hoisted(() => ({
   mockToast: {

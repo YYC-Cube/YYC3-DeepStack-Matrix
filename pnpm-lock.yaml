@@ -1889,9 +1889,6 @@ importers:
 
   packages/ops:
     dependencies:
-      '@yyc3/admin':
-        specifier: workspace:*
-        version: link:../admin
       '@yyc3/core':
         specifier: workspace:*
         version: link:../core

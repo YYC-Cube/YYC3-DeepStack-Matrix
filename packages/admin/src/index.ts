@@ -12,7 +12,7 @@
 export { ModelTable, NodeTable, AgentTable } from "./DataEditorTables";
 export { DataEditorPanel } from "./DataEditorPanel";
 export { EnvConfigEditor } from "./EnvConfigEditor";
-export { InlineEditableTable } from "./InlineEditableTable";
+// InlineEditableTable 已迁出至 @yyc3/ops（断 admin↔ops 循环依赖，见 M4 期包化台账）
 export { NetworkConfig } from "./NetworkConfig";
 export { OperationAudit } from "./OperationAudit";
 export { PerformanceMonitor } from "./PerformanceMonitor";

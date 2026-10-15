@@ -2,7 +2,7 @@
   "name": "@yyc3/admin",
   "version": "0.1.0",
   "private": true,
-  "description": "YYC³ admin 域组件包 — 配置管理/安全监控/PWA/用户管理（M4-4 首批 10 组件 + 4 hooks）",
+  "description": "YYC³ admin 域组件包 — 配置管理/安全监控/PWA/用户管理（M4-4 首批 9 组件 + 4 hooks；InlineEditableTable 迁出至 ops）",
   "exports": {
     ".": "./src/index.ts",
     "./data-editor-panel": "./src/DataEditorPanel.tsx",
@@ -12,7 +12,6 @@
     "./storage-sync-status": "./src/StorageSyncStatus.tsx",
     "./storage-config-panel": "./src/StorageConfigPanel.tsx",
     "./env-config-editor": "./src/EnvConfigEditor.tsx",
-    "./inline-editable-table": "./src/InlineEditableTable.tsx",
     "./operation-audit": "./src/OperationAudit.tsx",
     "./performance-monitor": "./src/PerformanceMonitor.tsx",
     "./pwa-install-prompt": "./src/PWAInstallPrompt.tsx",

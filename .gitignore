@@ -6,6 +6,8 @@ dist-electron/
 release/
 build/
 *.tsbuildinfo
+# 本地 pnpm store（沙箱环境写 ~/.pnpm-store 受限时的项目内替代）
+.pnpm-store-local/
 
 # 环境与密钥（红线：敏感信息不入库）
 .env

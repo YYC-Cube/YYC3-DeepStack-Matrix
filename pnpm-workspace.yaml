@@ -5,17 +5,17 @@ packages:
   - packages/*
   - tools/*
 
+# pnpm v12 设置新家：构建脚本批准表（v11 的 onlyBuiltDependencies 继任键，
+# 键名变更曾致 electron/esbuild postinstall 被静默跳过）
 allowBuilds:
-  electron: set this to true or false
-  electron-winstaller: set this to true or false
-  esbuild: set this to true or false
+  electron: true
+  electron-winstaller: true
+  esbuild: true
 
-# pnpm v10+ 设置新家（package.json 的 pnpm 字段自 pnpm v10 起不再读取）
-# 构建脚本白名单（pnpm v10+ 默认忽略依赖构建脚本，需显式批准）
-onlyBuiltDependencies:
-  - electron
-  - electron-winstaller
-  - esbuild
+# pnpm 12 默认拦截 git 直连的子依赖（exotic subdeps）；@electron/rebuild 官方
+# 声明 @electron/node-gyp 为 github: 直连（electron 工具链 fork），属可信上游，
+# 显式放行
+blockExoticSubdeps: false
 
 overrides:
   lodash: ^4.18.0
@@ -23,7 +23,42 @@ overrides:
   tmp: ^0.2.4
   "@tootallnate/once": ^3.0.1
   tar: ^7.5.11
-  brace-expansion@1: 1.1.12
+  # 1.x 分线安全修法：1.1.12（旧 CVE-2025-5889）→ ^1.1.21（覆盖 6 条 DoS 公告，
+  # 最新 GHSA-q2hr-2g5m-vwhr 要求 >=1.1.21，均为 1.x 线内补丁零兼容风险）
+  brace-expansion@1: ^1.1.21
+  # 2.x 分线同步加固（原三端 package.json 旧式 overrides 迁入；pnpm 12 不再读
+  # package.json 的 pnpm 字段，统一收编至根 workspace）
+  brace-expansion@2: ^2.0.2
+  # GHSA-c475-qrg2-pj4r：Client.list() RE_LINE 回溯 DoS，6.x 线内补丁
+  basic-ftp: ^6.2.1
+  # ── 以下安全 range 修复自三端嵌套 pnpm-workspace.yaml 迁入（pnpm 12 只读根
+  #    workspace 配置；嵌套文件已删除。tar/tmp/@tootallnate/once/lodash 与根
+  #    全量固定 override 重叠，以根为准不重复迁入）──
+  # brace-expansion 4.x 线 DoS 补丁线内修复
+  "brace-expansion@>=4.0.0 <5.0.5": ">=5.0.5"
+  # flatted 序列化原型污染修复
+  "flatted@<3.4.0": ">=3.4.0"
+  "flatted@<=3.4.1": ">=3.4.2"
+  # picomatch ReDoS 修复
+  "picomatch@>=4.0.0 <4.0.4": ">=4.0.4"
+  # undici 7.x 线内补丁（两条 range 修复重叠，合并为一条）
+  "undici@>=7.0.0 <7.24.0": ">=7.24.0"
+  # yaml 1.x 线内补丁
+  "yaml@>=1.0.0 <1.10.3": ">=1.10.3"
+
+# pnpm audit 豁免登记（均为 @lhci/cli dev-only 构建链传递依赖，运行时不触达；
+# 上游发布补丁后应移除豁免并复扫）
+auditConfig:
+  ignoreGhsas:
+    # extract-zip <=2.0.1 symlink 路径穿越（官方无补丁版本；3.x ESM-only 无法被
+    # CJS 的 @puppeteer/browsers require；zip 源为官方 Chromium CDN，链路可信）
+    - GHSA-jmr9-qjv8-65gv
+    - GHSA-7pqw-9j4j-h8q3
+    # sprintf-js <=1.1.3 无界精度符 DoS（官方无补丁版本；@lhci/utils>js-yaml 传递）
+    - GHSA-hp3w-g68c-fv3c
+    # uuid 8.3.2 v3/v5/v6 buf 边界检查（补丁在 11 大版本线，跨线有兼容风险；
+    # LHCI 仅用 v4 随机 UUID，不触达漏洞场景）
+    - GHSA-w5hq-g745-h8pq
 
 packageExtensions:
   lucide-react@0.469.0:

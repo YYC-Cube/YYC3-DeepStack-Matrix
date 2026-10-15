@@ -9,16 +9,18 @@
  * @tags: [hook]
  */
 
-import { useState, useCallback, useEffect, useRef } from "react";
 import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ============================================================
 // Types — centralized in types/index.ts
 // ============================================================
 
 import type {
+  AlertEvent,
+  AlertRule,
+  AlertRulesOptions,
   AlertSeverity,
-  AlertRule, AlertEvent, AlertRulesOptions,
 } from "@yyc3/core/types";
 
 // RF-011: Re-export 已移除
@@ -238,7 +240,7 @@ export function useAlertRules(opts: AlertRulesOptions = {}) {
 
   const {
     items: events,
-    setItems: setEvents,
+    // setItems 已不再使用（2026-10-16 C20：live 事件统一走 upsert 持久化）
     upsert: upsertEvent,
     loaded: _eventsLoaded,
   } = usePersistedList<AlertEvent>("alertEvents", MOCK_EVENTS);
@@ -250,81 +252,90 @@ export function useAlertRules(opts: AlertRulesOptions = {}) {
   const lastPushRef = useRef<number>(0);
   const rulesRef = useRef(rules);
 
+  // 修复（2026-10-16 C20）：live 评估需读取最新事件做去重；与下方 effect 配合维护
+  const eventsRef = useRef(events);
+
   // ── WebSocket live alert evaluation ──
   useEffect(() => {
     rulesRef.current = rules;
   }, [rules]);
 
   useEffect(() => {
-    if (!opts.liveNodes || opts.liveNodes.length === 0) {return;}
+    eventsRef.current = events;
+  }, [events]);
+
+  useEffect(() => {
+    if (!opts.liveNodes || opts.liveNodes.length === 0) { return; }
     const now = Date.now();
-    if (now - lastPushRef.current < 10000) {return;}
+    if (now - lastPushRef.current < 10000) { return; }
     lastPushRef.current = now;
 
     const enabledRules = rulesRef.current.filter((r) => r.enabled);
+    const prevEvents = eventsRef.current;
+    const newEvts: AlertEvent[] = [];
 
-    setEvents((prevEvents) => {
-      const newEvts: AlertEvent[] = [];
+    for (const rule of enabledRules) {
+      for (const th of rule.thresholds) {
+        for (const node of opts.liveNodes!) {
+          if (!rule.targets.includes(node.id)) { continue; }
 
-      for (const rule of enabledRules) {
-        for (const th of rule.thresholds) {
-          for (const node of opts.liveNodes!) {
-            if (!rule.targets.includes(node.id)) {continue;}
+          let value: number | null = null;
+          if (th.metric === "gpu") { value = node.gpu; }
+          else if (th.metric === "memory") { value = node.mem; }
+          else if (th.metric === "latency" && opts.liveLatency !== null && opts.liveLatency !== undefined) { value = opts.liveLatency; }
 
-            let value: number | null = null;
-            if (th.metric === "gpu") {value = node.gpu;}
-            else if (th.metric === "memory") {value = node.mem;}
-            else if (th.metric === "latency" && opts.liveLatency !== null && opts.liveLatency !== undefined) {value = opts.liveLatency;}
+          if (value === null) { continue; }
 
-            if (value === null) {continue;}
+          const triggered =
+            (th.condition === "gt" && value > th.value) ||
+            (th.condition === "gte" && value >= th.value) ||
+            (th.condition === "lt" && value < th.value) ||
+            (th.condition === "lte" && value <= th.value) ||
+            (th.condition === "eq" && value === th.value) ||
+            (th.condition === "neq" && value !== th.value);
 
-            const triggered =
-              (th.condition === "gt" && value > th.value) ||
-              (th.condition === "gte" && value >= th.value) ||
-              (th.condition === "lt" && value < th.value) ||
-              (th.condition === "lte" && value <= th.value) ||
-              (th.condition === "eq" && value === th.value) ||
-              (th.condition === "neq" && value !== th.value);
+          if (!triggered) { continue; }
 
-            if (!triggered) {continue;}
+          // Deduplication check
+          const cooldownMs = rule.deduplication.enabled
+            ? rule.deduplication.cooldownMinutes * 60000
+            : 0;
+          const hasDuplicate = prevEvents.some(
+            (e) =>
+              e.ruleId === rule.id &&
+              e.nodeId === node.id &&
+              e.metric === th.metric &&
+              !e.resolved &&
+              now - e.timestamp < cooldownMs
+          );
+          if (hasDuplicate) { continue; }
 
-            // Deduplication check
-            const cooldownMs = rule.deduplication.enabled
-              ? rule.deduplication.cooldownMinutes * 60000
-              : 0;
-            const hasDuplicate = prevEvents.some(
-              (e) =>
-                e.ruleId === rule.id &&
-                e.nodeId === node.id &&
-                e.metric === th.metric &&
-                !e.resolved &&
-                now - e.timestamp < cooldownMs
-            );
-            if (hasDuplicate) {continue;}
-
-            newEvts.push({
-              id: `evt-ws-${now}-${node.id}-${th.metric}`,
-              ruleId: rule.id,
-              ruleName: rule.name,
-              severity: rule.severity,
-              message: `[WS] ${node.id} ${th.metric} = ${value.toFixed(1)} (阈值 ${th.condition} ${th.value}${th.unit})`,
-              metric: th.metric,
-              currentValue: value,
-              threshold: th.value,
-              nodeId: node.id,
-              timestamp: now,
-              acknowledged: false,
-              resolved: false,
-              escalationLevel: 1,
-            });
-          }
+          newEvts.push({
+            id: `evt-ws-${now}-${node.id}-${th.metric}`,
+            ruleId: rule.id,
+            ruleName: rule.name,
+            severity: rule.severity,
+            message: `[WS] ${node.id} ${th.metric} = ${value.toFixed(1)} (阈值 ${th.condition} ${th.value}${th.unit})`,
+            metric: th.metric,
+            currentValue: value,
+            threshold: th.value,
+            nodeId: node.id,
+            timestamp: now,
+            acknowledged: false,
+            resolved: false,
+            escalationLevel: 1,
+          });
         }
       }
+    }
 
-      if (newEvts.length === 0) {return prevEvents;}
-      return [...newEvts, ...prevEvents].slice(0, 50);
-    });
-  }, [opts.liveNodes, opts.liveLatency, setEvents]);
+    // 修复（2026-10-16 C20）：原走裸 setEvents 仅更新内存态，刷新后 live 告警丢失
+    //（与手工事件持久化行为不一致）；统一改走 upsertEvent（内存 + IndexedDB 双写，
+    // 并受 usePersistedList maxItems 上限淘汰保护）
+    for (const evt of newEvts) {
+      void upsertEvent(evt);
+    }
+  }, [opts.liveNodes, opts.liveLatency, upsertEvent]);
 
   const toggleRule = useCallback((ruleId: string) => {
     const rule = rules.find((r) => r.id === ruleId);
@@ -335,7 +346,7 @@ export function useAlertRules(opts: AlertRulesOptions = {}) {
 
   const deleteRule = useCallback((ruleId: string) => {
     removeRule(ruleId);
-    if (selectedRule?.id === ruleId) {setSelectedRule(null);}
+    if (selectedRule?.id === ruleId) { setSelectedRule(null); }
   }, [selectedRule, removeRule]);
 
   const acknowledgeEvent = useCallback((eventId: string) => {

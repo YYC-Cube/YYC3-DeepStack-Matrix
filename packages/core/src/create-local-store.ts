@@ -89,7 +89,7 @@ export function createLocalStore<T extends { id: string }>(
   const {
     validator,
     debounceMs = 0,
-    // eslint-disable-next-line unused-imports/no-unused-vars
+    // 修复（2026-10-16 C25）：原为死参数（eslint-disable 掩盖未使用）；现落地为缓存上限
     maxCacheSize = 1000,
   } = options || {};
 
@@ -135,8 +135,14 @@ export function createLocalStore<T extends { id: string }>(
     } catch { /* ignore */ }
 
     // 首次加载：写入默认值
+    // 修复（2026-10-16 C25）：仅当存储为空（无 raw）才落盘默认值；
+    // 解析失败（数据损坏）时仅内存回退默认值，不回写覆盖可抢救的原始数据
     _cache = defaults.map((d) => ({ ...d }));
-    saveImmediate();
+    if (localStorage.getItem(storageKey) === null) {
+      saveImmediate();
+    } else {
+      stats.size = _cache.length;
+    }
     return _cache;
   }
 
@@ -144,7 +150,7 @@ export function createLocalStore<T extends { id: string }>(
    * 立即保存到 localStorage
    */
   function saveImmediate(): void {
-    if (!_cache) {return;}
+    if (!_cache) { return; }
     try {
       localStorage.setItem(storageKey, JSON.stringify(_cache));
       stats.writes++;
@@ -181,7 +187,7 @@ export function createLocalStore<T extends { id: string }>(
 
     return {
       add(item) {
-        if (committed) {throw new Error("Transaction already committed");}
+        if (committed) { throw new Error("Transaction already committed"); }
         const data = snapshot;
         const newItem = {
           ...item,
@@ -193,7 +199,7 @@ export function createLocalStore<T extends { id: string }>(
       },
 
       update(id, updates) {
-        if (committed) {throw new Error("Transaction already committed");}
+        if (committed) { throw new Error("Transaction already committed"); }
         const data = snapshot;
         const idx = data.findIndex((item) => item.id === id);
         if (idx >= 0) {
@@ -204,7 +210,7 @@ export function createLocalStore<T extends { id: string }>(
       },
 
       remove(id) {
-        if (committed) {throw new Error("Transaction already committed");}
+        if (committed) { throw new Error("Transaction already committed"); }
         const data = snapshot;
         const idx = data.findIndex((item) => item.id === id);
         if (idx >= 0) {
@@ -215,7 +221,7 @@ export function createLocalStore<T extends { id: string }>(
       },
 
       removeBatch(ids) {
-        if (committed) {throw new Error("Transaction already committed");}
+        if (committed) { throw new Error("Transaction already committed"); }
         const data = snapshot;
         const _idSet = new Set(ids);
         ids.forEach((id) => {
@@ -229,7 +235,7 @@ export function createLocalStore<T extends { id: string }>(
       },
 
       commit() {
-        if (committed) {return false;}
+        if (committed) { return false; }
         committed = true;
         _cache = snapshot;
         saveDebounced();
@@ -237,7 +243,7 @@ export function createLocalStore<T extends { id: string }>(
       },
 
       rollback() {
-        if (committed) {throw new Error("Cannot rollback committed transaction");}
+        if (committed) { throw new Error("Cannot rollback committed transaction"); }
         // 直接丢弃快照，不影响实际数据
       },
 
@@ -273,7 +279,8 @@ export function createLocalStore<T extends { id: string }>(
         id: item.id || `${idPrefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       } as T;
       data.push(newItem);
-      _cache = data;
+      // 修复（2026-10-16 C25）：maxCacheSize 落地——超限淘汰最旧条目（FIFO）
+      _cache = data.length > maxCacheSize ? data.slice(data.length - maxCacheSize) : data;
       saveDebounced();
       return newItem;
     },
@@ -281,7 +288,7 @@ export function createLocalStore<T extends { id: string }>(
     update: (id, updates) => {
       const data = load();
       const idx = data.findIndex((item) => item.id === id);
-      if (idx < 0) {return null;}
+      if (idx < 0) { return null; }
 
       // 验证更新数据（如果提供了验证器）
       if (validator) {
@@ -302,7 +309,7 @@ export function createLocalStore<T extends { id: string }>(
     remove: (id) => {
       const data = load();
       const idx = data.findIndex((item) => item.id === id);
-      if (idx < 0) {return false;}
+      if (idx < 0) { return false; }
       data.splice(idx, 1);
       _cache = data;
       saveDebounced();
@@ -335,7 +342,23 @@ export function createLocalStore<T extends { id: string }>(
       try {
         const parsed = JSON.parse(json);
         const items = Array.isArray(parsed) ? parsed : parsed.data;
-        if (!Array.isArray(items)) {return false;}
+        if (!Array.isArray(items)) { return false; }
+
+        // 修复（2026-10-16 C25）：结构校验——每项须含非空 id 且唯一，
+        // 防止任意 JSON 数组直接覆盖 _cache 破坏数据完整性
+        const seenIds = new Set<string>();
+        for (const item of items) {
+          const id = (item as { id?: unknown } | null)?.id;
+          if (typeof id !== "string" || id.length === 0) {
+            console.warn(`[Store:${storageKey}] Import rejected: item missing string id`);
+            return false;
+          }
+          if (seenIds.has(id)) {
+            console.warn(`[Store:${storageKey}] Import rejected: duplicate id "${id}"`);
+            return false;
+          }
+          seenIds.add(id);
+        }
 
         // 验证导入的数据（如果提供了验证器）
         if (validator) {
@@ -348,7 +371,7 @@ export function createLocalStore<T extends { id: string }>(
           }
         }
 
-        _cache = items;
+        _cache = items.length > maxCacheSize ? items.slice(items.length - maxCacheSize) : items;
         saveImmediate();
         return true;
       } catch {

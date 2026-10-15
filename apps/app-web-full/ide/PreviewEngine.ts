@@ -1,4 +1,3 @@
-import { logger } from "./services/Logger";
 /**
  * @file: PreviewEngine.ts
  * @description: 实时预览核心引擎，支持 HTML/CSS/JS/JSX/TSX/Markdown/SVG/JSON 等
@@ -70,12 +69,37 @@ export function detectLanguage(filePath: string): PreviewLanguage {
 
 // ── Markdown → HTML ──
 
+/**
+ * 预览 URL 安全校验：仅放行 http(s)/mailto/tel 与相对地址，
+ * 拒绝 javascript:/vbscript:/data: 等危险协议（data:image/ 白名单除外）。
+ */
+function isSafePreviewUrl(url: string): boolean {
+  const u = url.trim().toLowerCase();
+  if (u.startsWith("javascript:") || u.startsWith("vbscript:")) return false;
+  if (u.startsWith("data:") && !/^data:image\/(png|jpe?g|gif|webp|bmp);/.test(u))
+    return false;
+  return true;
+}
+
 function markdownToHtml(md: string): string {
-  let html = md
-    // Code blocks (triple backtick)
-    .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) => {
-      return `<pre><code class="language-${lang || "text"}">${escapeHtml(code.trim())}</code></pre>`;
-    })
+  // 1) 抽离代码块为占位符，防止其内容参与转义/语法转换被二次处理
+  const codeBlocks: string[] = [];
+  const withPlaceholders = md.replace(
+    /```(\w*)\n([\s\S]*?)```/g,
+    (_m, lang: string, code: string) => {
+      const idx =
+        codeBlocks.push(
+          `<pre><code class="language-${escapeHtml(lang || "text")}">${escapeHtml(code.trim())}</code></pre>`,
+        ) - 1;
+      return `\u0000CB${idx}\u0000`;
+    },
+  );
+
+  // 2) 整体 HTML 转义：原始 <script>/<img onerror> 等一律失去活性（XSS 修复）
+  let html = escapeHtml(withPlaceholders);
+
+  // 3) Markdown 语法映射（注意：转义后 ">" 已变为 "&gt;"）
+  html = html
     // Inline code
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     // Headers
@@ -93,15 +117,17 @@ function markdownToHtml(md: string): string {
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     // Strikethrough
     .replace(/~~(.+?)~~/g, "<del>$1</del>")
-    // Links
-    .replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener">$1</a>',
+    // Images（先于链接处理，避免 ![alt](url) 被 [text](url) 规则截断）
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, url: string) =>
+      isSafePreviewUrl(url)
+        ? `<img src="${url}" alt="${alt}" style="max-width:100%"/>`
+        : alt,
     )
-    // Images
-    .replace(
-      /!\[([^\]]*)\]\(([^)]+)\)/g,
-      '<img src="$2" alt="$1" style="max-width:100%"/>',
+    // Links — URL 必须通过协议白名单
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, text: string, url: string) =>
+      isSafePreviewUrl(url)
+        ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`
+        : text,
     )
     // Horizontal rules
     .replace(/^---$/gm, "<hr/>")
@@ -109,16 +135,22 @@ function markdownToHtml(md: string): string {
     .replace(/^[-*]\s+(.+)$/gm, "<li>$1</li>")
     // Ordered lists
     .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
-    // Blockquotes
-    .replace(/^>\s+(.+)$/gm, "<blockquote>$1</blockquote>")
+    // Blockquotes（转义后为 &gt;）
+    .replace(/^&gt;\s+(.+)$/gm, "<blockquote>$1</blockquote>")
     // Line breaks → paragraphs
     .replace(/\n\n/g, "</p><p>")
     .replace(/\n/g, "<br/>");
 
   // Wrap consecutive <li> in <ul>
   html = html.replace(/(<li>.*?<\/li>(?:<br\/>)?)+/g, (match) => {
-    return `<ul>${  match.replace(/<br\/>/g, "")  }</ul>`;
+    return `<ul>${match.replace(/<br\/>/g, "")}</ul>`;
   });
+
+  // 4) 回填已转义的代码块
+  html = html.replace(
+    /\u0000CB(\d+)\u0000/g,
+    (_m, i: string) => codeBlocks[Number(i)] ?? "",
+  );
 
   return `<p>${html}</p>`;
 }
@@ -421,13 +453,16 @@ function buildHtmlPreview(code: string, gridOverlay: string): string {
     const injection = CONSOLE_CAPTURE_SCRIPT + TIMEOUT_SCRIPT + gridOverlay;
     const sanitizedFullDoc = sanitizer.sanitize(code, {
       ALLOWED_TAGS: [
-        'html', 'head', 'body', 'meta', 'title', 'link', 'style', 'script',
+        'html', 'head', 'body', 'meta', 'title', 'link', 'style',
         'div', 'span', 'p', 'br', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
         'form', 'input', 'button', 'select', 'option', 'textarea', 'label',
         'section', 'article', 'nav', 'header', 'footer', 'main', 'aside',
         'pre', 'code', 'blockquote', 'figure', 'figcaption', 'details', 'summary',
-        'audio', 'video', 'source', 'canvas', 'svg', 'iframe',
+        'audio', 'video', 'source', 'canvas', 'svg',
+        // 安全说明：script/iframe 已从白名单移除（2026-10-16 漏洞扫描修复）。
+        // 沙箱 iframe 现运行于 opaque origin（无 allow-same-origin），用户脚本的
+        // 预览诉求由 .js/.jsx/.tsx 通道（buildJsPreview）与注入的 CONSOLE_CAPTURE_SCRIPT 承接。
       ],
       ALLOWED_ATTR: [
         'href', 'target', 'rel', 'src', 'alt', 'width', 'height',
@@ -438,7 +473,7 @@ function buildHtmlPreview(code: string, gridOverlay: string): string {
       ],
     });
     if (/<\/head>/i.test(sanitizedFullDoc)) {
-      return sanitizedFullDoc.replace(/<\/head>/i, `${injection  }</head>`);
+      return sanitizedFullDoc.replace(/<\/head>/i, `${injection}</head>`);
     }
     return injection + sanitizedFullDoc;
   }
@@ -584,9 +619,11 @@ function buildReactPreview(code: string, gridOverlay: string): string {
   ${gridOverlay}
   ${CONSOLE_CAPTURE_SCRIPT}
   ${TIMEOUT_SCRIPT}
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- 安全修复（2026-10-16）：CDN 依赖锁定确切版本并附加 SRI 完整性校验，
+       防 CDN 投毒/域名劫持将任意脚本注入预览沙箱 -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.28.4/babel.min.js" integrity="sha384-tL0JdJBWAk5nHKZhc/dtWf7bZRpYP13x4HjH85NrwCr/JkBnrZ7RNBOAdDzJlpof" crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="root"></div>
@@ -673,7 +710,7 @@ function buildSvgPreview(code: string, gridOverlay: string): string {
   ${CONSOLE_CAPTURE_SCRIPT}
 </head>
 <body>
-  ${code}
+  ${sanitizer.sanitizeSvg(code)}
 </body>
 </html>`;
 }

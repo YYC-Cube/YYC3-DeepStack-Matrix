@@ -67,6 +67,23 @@ class SanitizerService {
     }
   }
 
+  /**
+   * SVG 专用净化：使用 DOMPurify svg profile，
+   * 剥离 <script>/事件处理器/外部引用，防止 SVG 内嵌脚本执行。
+   */
+  sanitizeSvg(dirty: string): string {
+    if (!dirty) return ''
+
+    try {
+      return DOMPurify.sanitize(dirty, {
+        USE_PROFILES: { svg: true, svgFilters: true },
+      })
+    } catch (error) {
+      logger.warn('DOMPurify sanitizeSvg failed:', error, 'Sanitizer')
+      return this.escapeHtml(dirty)
+    }
+  }
+
   escapeHtml(text: string): string {
     const map: Record<string, string> = {
       '&': '&amp;',

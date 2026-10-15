@@ -235,6 +235,8 @@ describe("UserManagement", () => {
   // ═══ 删除用户 ═══
   describe("删除用户", () => {
     it("deletes a non-admin user", () => {
+      // 2026-10-16 修复配套：组件删除前新增 window.confirm 确认，stub 放行
+      vi.spyOn(window, "confirm").mockReturnValue(true);
       render(React.createElement(UserManagement));
       const deleteBtns = screen.getAllByTitle("删除");
       fireEvent.click(deleteBtns[0]);
@@ -242,6 +244,18 @@ describe("UserManagement", () => {
       const users = useUserMgmtSlice.getState().users;
       expect(users.length).toBe(1);
       expect(toast.success).toHaveBeenCalled();
+      vi.mocked(window.confirm).mockRestore();
+    });
+
+    it("blocks deletion when confirm is dismissed", () => {
+      // 确认弹窗取消时不删除（新增防护行为）
+      vi.spyOn(window, "confirm").mockReturnValue(false);
+      render(React.createElement(UserManagement));
+      const deleteBtns = screen.getAllByTitle("删除");
+      fireEvent.click(deleteBtns[0]);
+
+      expect(useUserMgmtSlice.getState().users.length).toBe(2);
+      vi.mocked(window.confirm).mockRestore();
     });
 
     it("prevents deleting admin user", () => {

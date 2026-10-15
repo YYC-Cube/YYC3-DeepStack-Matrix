@@ -36,7 +36,7 @@ review_status: approved
 ### 1.1 五高架构映射
 
 | 五高维度 | 架构落地 | 实现方式 |
-|----------|----------|----------|
+| ---------- | ---------- | ---------- |
 | **高可用** | ErrorBoundary 全覆盖 + 插件隔离 | Shell 层错误边界捕获，单插件崩溃不影响全局 |
 | **高性能** | 懒加载路由 + 纯函数引擎 | 引擎层（target/cost/marketing）零 UI 依赖，测试 < 5ms |
 | **高安全** | 命名空间隔离 + 类型安全 | localStorage 按插件 ID 分区 + TypeScript strict |
@@ -46,7 +46,7 @@ review_status: approved
 ### 1.2 五维评估体系
 
 | 维度 | 评估对象 | 度量指标 |
-|------|----------|----------|
+| ------ | ---------- | ---------- |
 | 时间维 | 构建速度、测试耗时 | `tsc --noEmit` < 5s, 760+ tests < 1s |
 | 空间维 | 包体积、代码组织 | 每插件包独立，引擎/界面分离 |
 | 属性维 | 类型安全、测试覆盖 | TS 零错误 + 760+ tests 全绿 |
@@ -131,7 +131,7 @@ export type { SystemRegistration, MenuItem, HubCommand } from "./types";
 ### 3.3 禁止修改项
 
 | 文件 | 原因 |
-|------|------|
+| ------ | ------ |
 | `shell/src/types.ts` | 接口定义是全系统契约 |
 | `shell/src/event-bus.ts` | 事件总线是核心基础设施 |
 | `shell/src/index.ts` | 导出接口被所有插件包依赖 |
@@ -161,7 +161,7 @@ interface SystemRegistration {
 ### 4.2 现有注册清单
 
 | id | name | color | order | 包路径 |
-|----|------|-------|-------|--------|
+| ---- | ------ | ------- | ------- | -------- |
 | `ai-family` | AI Family | `#00FF88` | 5 | plugin-ai-family |
 | `target` | 目标量化 | `#00FF88` | 10 | plugin-target |
 | `cost` | 成本盈亏 | `#FF6600` | 20 | plugin-cost |
@@ -298,7 +298,7 @@ const theme = getTheme();
 ### 8.2 八位家人 ID
 
 | 家人名 | ID | 角色 | 主题色 |
-|--------|-----|------|--------|
+| -------- | ----- | ------ | -------- |
 | 千航·引路人 | `qianhang` | 自然语言导航 | `#8b5cf6` |
 | 思辨·智库 | `thinker` | 数据洞察分析 | `#06b6d4` |
 | 预见·先知 | `prophet` | 趋势预测 | `#10b981` |
@@ -356,9 +356,71 @@ const mySkill = defineSkill(
 
 ---
 
+## 十、安全加固架构（2026-10-16 全流程质量与安全管控落地）
+
+> 本章为三级问题 100% 闭环后固化的安全体系。新增代码必须遵循；图标可视化见
+> `docs/YYC3-代码组件-复用规划/YYC3-可视化架构文档.html` 安全加固层。
+
+### 10.1 渲染层安全（预览沙箱）
+
+| 层 | 机制 | 位置 |
+| ---- | ------ | ------ |
+| 沙箱隔离 | 预览 iframe 一律 `allow-scripts allow-popups allow-forms allow-modals`，**永不组合 allow-same-origin**（组合即沙箱失效：可窃 localStorage 凭据 + 同源调用后端） | `ide/RealtimePreviewPanel.tsx` |
+| 内容净化 | Markdown：代码块占位符抽离 → 整体 escapeHtml → 语法映射 → 回填；SVG：DOMPurify svg profile；HTML：白名单不含 script/iframe；链接/图片 URL 过协议白名单（http/https/mailto + data:image 白名单） | `ide/PreviewEngine.ts`、`ide/services/Sanitizer.ts` |
+| CDN 供应链 | 外链脚本锁定确切版本 + `integrity`（SRI sha384）+ `crossorigin="anonymous"` | `ide/PreviewEngine.ts` |
+| 凭据存储 | LLM API Key 主通道密文化：AES-GCM 密文（`yyc3_llm_keyenc_*`）+ 内存缓存 + 模块加载预热 + 请求入口 await 兜底 + 旧明文键自动迁移 | `ide/LLMService.ts` |
+
+### 10.2 桌面层安全（Electron IPC）
+
+**安全根模型**（替代从未接线的 sessionId 会话设计）：
+
+```
+授权根 = app.getPath("userData")          ← 始终允许
+       ∪ DIALOG_OPEN 用户显式选择的路径    ← 选择即授权
+
+FILE_READ/WRITE/DELETE/COPY/MOVE/MKDIR、DB_BACKUP/RESTORE
+  → 一律 isPathWithinSafeRoots() 前缀校验（resolve 消解 .. 绕过）
+SHELL_OPEN   → URL 解析 + http/https/mailto 协议白名单
+SHELL_EXECUTE → 白名单不含 open/xdg-open/start（可 -a 拉起任意应用）
+FILE_WRITE   → 100MB 上限
+```
+
+三端（web-full/desktop/classic）electron 层字节级同步，修改必须三端同步落地。
+
+### 10.3 部署层安全（server.mjs / nginx）
+
+| 项 | 默认值 | 放开方式 |
+| ---- | -------- | ---------- |
+| 监听地址 | `127.0.0.1`（原 0.0.0.0） | 显式 `HOST=0.0.0.0`（自担风险） |
+| CORS | 白名单制，默认同源零 CORS（原 `*`） | `CORS_ALLOW_ORIGINS=https://a,https://b` |
+| Ollama 代理方法 | 仅 GET/POST（原含 DELETE） | — |
+| 管理端点 delete/pull/push/copy | 403 封禁 | `OLLAMA_PROXY_ALLOW_ADMIN=1` |
+
+### 10.4 权限模型（路由守卫）
+
+```
+AppUser.role (admin/developer) → AuthContext 下发
+  → RequireRole 守卫（@yyc3/shell/require-role）
+     收敛路由: users/audit/settings/security/data-editor/
+              env-config/storage/config-center/variables/unified-settings
+Ghost 模式: 本地调试全权限通道（登录页显式开启，保留）
+操作日志: getCurrentOperator() 记录真实身份（ghost/邮箱/unknown）
+超管保护: 最后一名超管不可降级/删除/锁定；破坏性操作强制 confirm
+```
+
+### 10.5 数据边界规范
+
+- 持久化列表（巡查/闭环/操作日志/告警事件）：`usePersistedList` 统一 `maxItems=200` 上限淘汰
+- 同步队列：`MAX_SYNC_QUEUE_SIZE=500` FIFO
+- 敏感导出：默认脱敏；含密钥导出需显式确认且文件名标注 `-SENSITIVE`
+- 内网端点：单一 `AGENT_NETWORK_BASE` 常量 + `VITE_AGENT_NETWORK_BASE` 构建期外置，禁止散落硬编码
+
+---
+
 ## 变更历史
 
 | 版本 | 日期 | 变更内容 | 作者 |
-|------|------|----------|------|
+| ------ | ------ | ---------- | ------ |
 | v1.0.0 | 2026-07-16 | 初始版本，整合 ARCHITECTURE.md 核心内容 | YanYuCloudCube Team |
 | v1.1.0 | 2026-07-24 | 新增 AI Family 智能体层（§八），更新插件清单至 15 个，更新测试数至 760+ | YanYuCloudCube Team |
+| v1.2.0 | 2026-10-16 | 新增第十章「安全加固架构」：预览沙箱/Electron 安全根/部署收敛/路由守卫/数据边界五大体系固化 | GLM（全流程安全管控专项） |

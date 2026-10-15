@@ -110,6 +110,14 @@ function FieldRow({ field, value, onSave }: {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const startEdit = () => {
+    // 修复（2026-10-16 质量审核 #13）：irreversible 字段（API 基址/存储前缀等）
+    // 变更即数据丢失风险，必须强确认后才允许进入编辑
+    if (field.irreversible) {
+      const ok = window.confirm(
+        `「${field.label}」（${field.key}）为不可逆高风险配置项，修改可能导致既有数据无法访问。\n\n确定要继续编辑吗？`,
+      );
+      if (!ok) {return;}
+    }
     setDraft(String(value));
     setEditing(true);
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -122,8 +130,14 @@ function FieldRow({ field, value, onSave }: {
     if (typeof value === "boolean") {
       newVal = draft === "true" || draft === "1";
     } else if (typeof value === "number") {
-      newVal = draft.includes(".") ? parseFloat(draft) : parseInt(draft, 10);
-      if (isNaN(newVal as number)) { toast.error("无效数值"); return; }
+      // 修复（2026-10-16 质量审核 #13）：严格数值校验，
+      // 原 parseInt("1e3")=1 / parseInt("12abc")=12 静默截断
+      const trimmed = draft.trim();
+      if (!/^-?\d+(\.\d+)?$/.test(trimmed)) {
+        toast.error("无效数值：请输入合法整数或小数");
+        return;
+      }
+      newVal = Number(trimmed);
     } else {
       newVal = draft;
     }

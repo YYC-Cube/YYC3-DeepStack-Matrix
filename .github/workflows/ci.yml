@@ -28,10 +28,16 @@ jobs:
           cache: pnpm
       - name: 安装依赖（含安全审查）
         run: pnpm install --frozen-lockfile && pnpm audit --audit-level high || true
+      - name: 三端同源一致性校验（测试/electron/deploy，2026-10-16 新增）
+        run: node scripts/check-test-sync.mjs
       - name: 质量门禁（tsc × 十二包/四端 + build + vi.mock + i18n + 复用率）
         run: bash scripts/verify-gates.sh
-      - name: 测试（vitest 分片）
-        run: pnpm --filter @yyc3/app-web-full test -- --run && pnpm --filter @yyc3/app-sandbox-lite test -- --run
+      - name: 测试（四端全量 vitest，串行防 worker OOM）
+        run: |
+          pnpm --filter @yyc3/app-web-full test -- --run && \
+          pnpm --filter @yyc3/app-sandbox-lite test -- --run && \
+          pnpm --filter @yyc3/app-web-classic test -- --run && \
+          pnpm --filter @yyc3/app-desktop test -- --run
         env:
           # web-full 套件体量大（289 文件），防 vitest worker fork 触发 V8 默认堆上限 OOM
           NODE_OPTIONS: --max-old-space-size=4096

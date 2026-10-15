@@ -12,6 +12,7 @@
 import { ErrorBoundary } from "@yyc3/shell/error-boundary";
 import { Layout } from "@yyc3/shell/layout";
 import { NotFound } from "@yyc3/shell/not-found";
+import { RequireRole } from "@yyc3/shell/require-role";
 import { lazy, Suspense, type ComponentType } from "react";
 import { createHashRouter } from "react-router";
 
@@ -184,6 +185,22 @@ const ConfigExportCenter = lazy(() =>
 );
 
 // ============================================================
+//  管理路由守卫（质量审核 #3 修复）：用户/审计/设置/安全/数据编辑/
+//  环境变量/存储/配置中心/变量中心/统一设置收敛为 admin 专属
+// ============================================================
+
+const OperationAuditGuarded = withSuspense(OperationAudit);
+const UserManagementGuarded = withSuspense(UserManagement);
+const SystemSettingsGuarded = withSuspense(SystemSettings);
+const SecurityMonitorGuarded = withSuspense(SecurityMonitor);
+const DataEditorPanelGuarded = withSuspense(DataEditorPanel);
+const EnvConfigEditorGuarded = withSuspense(EnvConfigEditor);
+const StorageManagerGuarded = withSuspense(StorageManager);
+const ConfigCenterGuarded = withSuspense(ConfigCenter);
+const VariableCenterGuarded = withSuspense(VariableCenter);
+const UnifiedSettingsPanelGuarded = withSuspense(UnifiedSettingsPanel);
+
+// ============================================================
 //  路由表
 // ============================================================
 
@@ -209,29 +226,29 @@ export const router = createHashRouter([
       { path: "theme", Component: withSuspense(ThemeCustomizer) },
       { path: "terminal", Component: withSuspense(CLITerminal) },
       { path: "ide", Component: withSuspense(IDEPanel) },
-      { path: "audit", Component: withSuspense(OperationAudit) },
-      { path: "users", Component: withSuspense(UserManagement) },
-      { path: "settings", Component: withSuspense(SystemSettings) },
-      { path: "security", Component: withSuspense(SecurityMonitor) },
+      { path: "audit", element: <RequireRole><OperationAuditGuarded /></RequireRole> },
+      { path: "users", element: <RequireRole><UserManagementGuarded /></RequireRole> },
+      { path: "settings", element: <RequireRole><SystemSettingsGuarded /></RequireRole> },
+      { path: "security", element: <RequireRole><SecurityMonitorGuarded /></RequireRole> },
       { path: "alerts", Component: withSuspense(AlertRulesPanel) },
       { path: "reports", Component: withSuspense(ReportExporter) },
       { path: "ai-diagnosis", Component: withSuspense(AIDiagnostics) },
       { path: "host-files", Component: withSuspense(HostFileManager) },
       { path: "database", Component: withSuspense(DatabaseManager) },
       { path: "refactoring", Component: withSuspense(RefactoringReport) },
-      { path: "data-editor", Component: withSuspense(DataEditorPanel) },
+      { path: "data-editor", element: <RequireRole><DataEditorPanelGuarded /></RequireRole> },
       { path: "performance", Component: withSuspense(PerformanceMonitor) },
-      { path: "env-config", Component: withSuspense(EnvConfigEditor) },
+      { path: "env-config", element: <RequireRole><EnvConfigEditorGuarded /></RequireRole> },
       { path: "db-connections", Component: withSuspense(DatabaseConnectionPanel) },
       { path: "connection-monitor", Component: withSuspense(ConnectionMonitorPanel) },
       { path: "architecture", Component: withSuspense(ArchitectureAudit) },
       { path: "ai-family", Component: withSuspense(AIFamilyPage) },
       { path: "ai-family/:subpage", Component: withSuspense(AIFamilyRouter) },
       { path: "connection-test", Component: withSuspense(ServiceConnectionTest) },
-      { path: "storage", Component: withSuspense(StorageManager) },
-      { path: "config-center", Component: withSuspense(ConfigCenter) },
-      { path: "variables", Component: withSuspense(VariableCenter) },
-      { path: "unified-settings", Component: withSuspense(UnifiedSettingsPanel) },
+      { path: "storage", element: <RequireRole><StorageManagerGuarded /></RequireRole> },
+      { path: "config-center", element: <RequireRole><ConfigCenterGuarded /></RequireRole> },
+      { path: "variables", element: <RequireRole><VariableCenterGuarded /></RequireRole> },
+      { path: "unified-settings", element: <RequireRole><UnifiedSettingsPanelGuarded /></RequireRole> },
       { path: "hotel-dashboard", Component: withSuspense(HotelDashboard) },
       { path: "hotel", Component: withSuspense(HotelDashboard) },
       { path: "comm-station", Component: withSuspense(CommStationPanel) },

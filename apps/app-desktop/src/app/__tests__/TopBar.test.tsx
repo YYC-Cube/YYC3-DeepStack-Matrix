@@ -180,14 +180,14 @@ describe("TopBar Component", () => {
     expect(screen.queryByText("nav.operations")).not.toBeInTheDocument();
   });
 
-  it("should render navigation items when monitor category is expanded", () => {
+  it("should render navigation items when ai-family category is expanded", () => {
     renderWithRouter(
       <TopBar {...mobileProps} mobileMenuOpen={true} />
     );
 
-    // "monitor" category starts expanded because "/" is the active route
-    expect(screen.getByText("nav.dataMonitor")).toBeInTheDocument();
-    expect(screen.getByText("nav.followUp")).toBeInTheDocument();
+    // "ai-family" category starts expanded because "/" (AI Family clock home) is the active route
+    expect(screen.getByText("nav.catAIFamily")).toBeInTheDocument();
+    expect(screen.getByText("nav.aiFamilyHome")).toBeInTheDocument();
   });
 
   it("should navigate when navigation item is clicked", () => {
@@ -196,9 +196,9 @@ describe("TopBar Component", () => {
       <TopBar {...mobileProps} mobileMenuOpen={true} onToggleMobileMenu={onToggle} />
     );
 
-    // "monitor" category is expanded by default
-    const dataMonitorLinks = screen.getAllByText("nav.dataMonitor");
-    fireEvent.click(dataMonitorLinks[0]);
+    // "ai-family" category is expanded by default (home = AI Family clock page)
+    const aiFamilyLinks = screen.getAllByText("nav.aiFamily");
+    fireEvent.click(aiFamilyLinks[0]);
 
     // Should call onToggleMobileMenu to close drawer after navigation
     expect(onToggle).toHaveBeenCalled();
@@ -263,7 +263,8 @@ describe("TopBar Component", () => {
       <TopBar {...mobileProps} mobileMenuOpen={true} />
     );
 
-    // "monitor" category is expanded by default since "/" is the active route
+    // Click to expand the "monitor" category (default expanded is now "ai-family")
+    fireEvent.click(screen.getByText("nav.catMonitor"));
     expect(screen.getByText("nav.dataMonitor")).toBeInTheDocument();
     expect(screen.getByText("nav.followUp")).toBeInTheDocument();
     expect(screen.getByText("nav.patrol")).toBeInTheDocument();

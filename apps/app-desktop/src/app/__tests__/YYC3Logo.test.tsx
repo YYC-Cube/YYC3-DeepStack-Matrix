@@ -21,39 +21,12 @@
  * - 无障碍: axe-core 自动检测
  */
 
-import React from "react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-// Mock figma:asset imports — 返回占位 URL
-vi.mock("@yyc3/ui", () => {
-  const React = require("react");
-  return {
-    YYC3LogoSvg: ({ size = 40, className = "", style }: any) =>
-      React.createElement("img", {
-        src: "/mock-logo.png",
-        alt: "YYC³ Logo",
-        width: size,
-        height: size,
-        className: `object-contain ${className}`,
-        style,
-        draggable: false,
-        "data-testid": "yyc3-logo-img",
-      }),
-    default: ({ size = 40, className = "", style }: any) =>
-      React.createElement("img", {
-        src: "/mock-logo.png",
-        alt: "YYC³ Logo",
-        width: size,
-        height: size,
-        className: `object-contain ${className}`,
-        style,
-        draggable: false,
-        "data-testid": "yyc3-logo-img",
-      }),
-  };
-});
+// 无需 mock：真实 YYC3LogoSvg 在测试环境走 IS_TEST 占位图分支，
+// 且 img 带 data-testid="yyc3-logo-img"，直接测真实组件链
 
 import { YYC3Logo } from "@yyc3/ui";
 
@@ -167,7 +140,7 @@ describe("YYC3Logo", () => {
     });
 
     it("有 onClick 时应有 cursor-pointer", () => {
-      const { container } = render(<YYC3Logo onClick={() => {}} />);
+      const { container } = render(<YYC3Logo onClick={() => { }} />);
       const wrapper = container.firstElementChild as HTMLElement;
       expect(wrapper.className).toContain("cursor-pointer");
     });

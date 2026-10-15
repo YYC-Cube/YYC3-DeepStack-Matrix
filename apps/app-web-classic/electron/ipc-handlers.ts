@@ -10,12 +10,20 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { IPCChannel, type IPCResponse } from "../src/shared/ipc-types";
-import { permissionManager } from "./permission-manager";
+import { grantPathRoot, isPathWithinSafeRoots } from "./permission-manager";
 
+// 安全修复（2026-10-16）：移除 open/xdg-open/start —— 它们可带 -a/<app> 参数
+// 启动任意本地应用（等效任意代码执行面），白名单形同虚设。
+// 打开外部资源的需求统一走已限协议的 SHELL_OPEN（openExternal）。
 const ALLOWED_SHELL_COMMANDS = new Set([
-  'open', 'xdg-open', 'start',
   'ping', 'echo', 'which', 'where',
 ]);
+
+// SHELL_OPEN 允许的外链协议白名单（与 main.ts setWindowOpenHandler 策略一致）
+const ALLOWED_URL_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
+
+// FILE_WRITE 大小上限（原会话模型 maxFileSize 常量收编）
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB
 
 const DANGEROUS_ARG_PATTERN = /[|;&`$>\n\r]/;
 
@@ -46,12 +54,11 @@ function createErrorResponse(error: string): IPCResponse {
  */
 export function registerFileSystemHandlers(): void {
   // 读取文件
-  ipcMain.handle(IPCChannel.FILE_READ, async (event, filePath: string, options?: any) => {
+  ipcMain.handle(IPCChannel.FILE_READ, async (_, filePath: string, options?: any) => {
     try {
-      // 权限检查
-      const sessionId = (event as any).sessionId;
-      if (!permissionManager.hasPathPermission(sessionId, filePath)) {
-        return createErrorResponse("Permission denied: cannot access this file");
+      // 权限检查：安全根目录前缀约束（原 sessionId 会话模型从未接线，恒为拒绝态死路径）
+      if (!isPathWithinSafeRoots(filePath)) {
+        return createErrorResponse("Permission denied: path outside allowed roots");
       }
 
       const content = await fs.promises.readFile(filePath, options);
@@ -62,17 +69,16 @@ export function registerFileSystemHandlers(): void {
   });
 
   // 写入文件
-  ipcMain.handle(IPCChannel.FILE_WRITE, async (event, filePath: string, data: string | Buffer, options?: any) => {
+  ipcMain.handle(IPCChannel.FILE_WRITE, async (_, filePath: string, data: string | Buffer, options?: any) => {
     try {
-      // 权限检查
-      const sessionId = (event as any).sessionId;
-      if (!permissionManager.hasPathPermission(sessionId, filePath)) {
-        return createErrorResponse("Permission denied: cannot write to this file");
+      // 权限检查：安全根目录前缀约束
+      if (!isPathWithinSafeRoots(filePath)) {
+        return createErrorResponse("Permission denied: path outside allowed roots");
       }
 
       // 文件大小检查
       const fileSize = Buffer.byteLength(data);
-      if (!permissionManager.isFileSizeAllowed(sessionId, fileSize)) {
+      if (fileSize > MAX_FILE_SIZE_BYTES) {
         return createErrorResponse("File size exceeds limit");
       }
 
@@ -86,6 +92,10 @@ export function registerFileSystemHandlers(): void {
   // 删除文件
   ipcMain.handle(IPCChannel.FILE_DELETE, async (_, filePath: string) => {
     try {
+      // 安全修复（2026-10-16）：删除属破坏性操作，必须限定在安全根内
+      if (!isPathWithinSafeRoots(filePath)) {
+        return createErrorResponse("Permission denied: destructive operations are limited to allowed roots");
+      }
       await fs.promises.unlink(filePath);
       return createSuccessResponse(undefined);
     } catch (error) {
@@ -145,6 +155,10 @@ export function registerFileSystemHandlers(): void {
   // 创建目录
   ipcMain.handle(IPCChannel.FILE_MKDIR, async (_, dirPath: string) => {
     try {
+      // 安全修复（2026-10-16）：目录创建限定在安全根内
+      if (!isPathWithinSafeRoots(dirPath)) {
+        return createErrorResponse("Permission denied: path outside allowed roots");
+      }
       await fs.promises.mkdir(dirPath, { recursive: true });
       return createSuccessResponse(undefined);
     } catch (error) {
@@ -155,6 +169,10 @@ export function registerFileSystemHandlers(): void {
   // 复制文件
   ipcMain.handle(IPCChannel.FILE_COPY, async (_, source: string, destination: string) => {
     try {
+      // 安全修复（2026-10-16）：源与目标均须位于安全根内（copyFile 默认覆盖目标）
+      if (!isPathWithinSafeRoots(source) || !isPathWithinSafeRoots(destination)) {
+        return createErrorResponse("Permission denied: path outside allowed roots");
+      }
       await fs.promises.copyFile(source, destination);
       return createSuccessResponse(undefined);
     } catch (error) {
@@ -165,6 +183,10 @@ export function registerFileSystemHandlers(): void {
   // 移动文件
   ipcMain.handle(IPCChannel.FILE_MOVE, async (_, source: string, destination: string) => {
     try {
+      // 安全修复（2026-10-16）：源与目标均须位于安全根内
+      if (!isPathWithinSafeRoots(source) || !isPathWithinSafeRoots(destination)) {
+        return createErrorResponse("Permission denied: path outside allowed roots");
+      }
       await fs.promises.rename(source, destination);
       return createSuccessResponse(undefined);
     } catch (error) {
@@ -338,6 +360,11 @@ export function registerDialogHandlers(): void {
   ipcMain.handle(IPCChannel.DIALOG_OPEN, async (_, options: any) => {
     try {
       const result = await dialog.showOpenDialog(options);
+      // 安全修复（2026-10-16）：用户显式选择的路径即视为授权根，
+      // 后续文件类 IPC 仅对 userData 与这些已授权根开放
+      for (const p of result.filePaths) {
+        grantPathRoot(p);
+      }
       return createSuccessResponse(result.filePaths);
     } catch (error) {
       return createErrorResponse(error instanceof Error ? error.message : String(error));
@@ -372,7 +399,18 @@ export function registerShellHandlers(): void {
   // 打开外部链接
   ipcMain.handle(IPCChannel.SHELL_OPEN, async (_, url: string) => {
     try {
-      await shell.openExternal(url);
+      // 安全修复（2026-10-16）：协议白名单过滤，阻断 file:/smb:/自定义协议
+      // 处理器被滥用拉起（与 setWindowOpenHandler 的 http/https 策略对齐）
+      let parsed: URL;
+      try {
+        parsed = new URL(url);
+      } catch {
+        return createErrorResponse("Invalid URL");
+      }
+      if (!ALLOWED_URL_PROTOCOLS.has(parsed.protocol)) {
+        return createErrorResponse(`Protocol not allowed: ${parsed.protocol}`);
+      }
+      await shell.openExternal(parsed.toString());
       return createSuccessResponse(undefined);
     } catch (error) {
       return createErrorResponse(error instanceof Error ? error.message : String(error));

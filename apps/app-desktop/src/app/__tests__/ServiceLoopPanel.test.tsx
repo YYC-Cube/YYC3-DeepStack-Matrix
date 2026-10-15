@@ -10,11 +10,11 @@
  */
 
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import * as React from "react";
+import { render, screen } from "@testing-library/react";
 import { ServiceLoopPanel } from "@yyc3/ops/service-loop-panel";
+import * as React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@yyc3/ops/hooks/use-service-loop", () => ({
   useServiceLoop: vi.fn(() => ({
@@ -54,21 +54,32 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
-  ViewContext: React.createContext({
-    isMobile: false,
-    isTablet: false,
-    isDesktop: true,
-  }),
-}));
+// async factory：避免 hoisting 后 factory 先于 React 模块初始化执行
+// （vi.mock factory 内引用顶层 import 的 React 会触发 "Cannot access before initialization"）
+vi.mock("@yyc3/core/view-context", async () => {
+  const { createContext } = await import("react");
+  return {
+    ViewContext: createContext({
+      isMobile: false,
+      isTablet: false,
+      isDesktop: true,
+    }),
+  };
+});
 
-vi.mock("@yyc3/ops/loop-stage-card", () => ({
-  LoopStageCard: ({ meta }: any) => React.createElement("div", { "data-testid": `stage-${meta.key}` }, meta.labelKey),
-}));
+vi.mock("@yyc3/ops/loop-stage-card", async () => {
+  const React = await import("react");
+  return {
+    LoopStageCard: ({ meta }: any) => React.createElement("div", { "data-testid": `stage-${meta.key}` }, meta.labelKey),
+  };
+});
 
-vi.mock("@yyc3/ops/data-flow-diagram", () => ({
-  DataFlowDiagram: () => React.createElement("div", { "data-testid": "data-flow-diagram" }),
-}));
+vi.mock("@yyc3/ops/data-flow-diagram", async () => {
+  const React = await import("react");
+  return {
+    DataFlowDiagram: () => React.createElement("div", { "data-testid": "data-flow-diagram" }),
+  };
+});
 
 describe("ServiceLoopPanel", () => {
   beforeEach(() => {

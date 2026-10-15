@@ -173,12 +173,17 @@ export function VariableCenter() {
   };
 
   const handleExport = () => {
-    const data = exportVariables(true);
+    // 修复（2026-10-16 质量审核 #6）：原实现 exportVariables(true) 无警告导出全部
+    // 敏感变量（API Key/Token 等）；改为默认脱敏导出，含敏感项需显式确认
+    const includeSensitive = window.confirm(
+      "导出内容是否包含敏感变量（API Key、Token 等）？\n\n「确定」= 包含敏感项（请注意导出文件保管）\n「取消」= 脱敏导出（推荐）"
+    );
+    const data = exportVariables(includeSensitive);
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `yyc3-variables-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `yyc3-variables-${new Date().toISOString().split("T")[0]}${includeSensitive ? "-SENSITIVE" : ""}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

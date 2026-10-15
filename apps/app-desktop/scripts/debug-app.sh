@@ -51,15 +51,15 @@ echo "" >> "$REPORT_FILE"
 echo "## 3. main.js 路径配置检查" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 
-if [ -f "electron/main.js" ]; then
-    echo "✅ electron/main.js 存在" >> "$REPORT_FILE"
+if [ -f "dist-electron/main.js" ]; then
+    echo "✅ dist-electron/main.js 存在" >> "$REPORT_FILE"
     echo "" >> "$REPORT_FILE"
     echo "加载路径配置:" >> "$REPORT_FILE"
     echo '```javascript' >> "$REPORT_FILE"
-    grep -A 1 "loadFile" "electron/main.js" >> "$REPORT_FILE"
+    grep -A 1 "loadFile" "dist-electron/main.js" >> "$REPORT_FILE"
     echo '```' >> "$REPORT_FILE"
 else
-    echo "❌ electron/main.js 不存在" >> "$REPORT_FILE"
+    echo "❌ dist-electron/main.js 不存在" >> "$REPORT_FILE"
 fi
 
 echo "" >> "$REPORT_FILE"
@@ -107,7 +107,7 @@ echo "" >> "$REPORT_FILE"
 
 echo "### 方案 3: 开启开发者工具" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
-echo "在 electron/main.js 中开启开发者工具：" >> "$REPORT_FILE"
+echo "在 dist-electron/main.js 中开启开发者工具：" >> "$REPORT_FILE"
 echo '```javascript' >> "$REPORT_FILE"
 echo "mainWindow.webContents.openDevTools();" >> "$REPORT_FILE"
 echo '```' >> "$REPORT_FILE"

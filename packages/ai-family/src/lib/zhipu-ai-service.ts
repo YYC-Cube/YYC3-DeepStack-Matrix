@@ -137,6 +137,7 @@ interface CacheEntry {
 export class ZhipuAIService {
   private config: ZhipuAIServiceConfig;
   private cache: Map<string, CacheEntry> = new Map();
+  private cacheCleanupTimer: ReturnType<typeof setInterval> | null = null;
   private stats: {
     totalRequests: number;
     successfulRequests: number;
@@ -147,8 +148,14 @@ export class ZhipuAIService {
   };
 
   constructor(config: Partial<ZhipuAIServiceConfig> = {}) {
+    // 修复（2026-10-16）：浏览器/Vite 环境无全局 process，直接读取抛 ReferenceError；
+    // 改为安全探测（Node 环境可用，浏览器回退空串由后续配置流注入）
+    const envApiKey =
+      typeof process !== "undefined" && process.env
+        ? process.env.ZHIPU_AI_API_KEY
+        : undefined;
     this.config = {
-      apiKey: config.apiKey || process.env.ZHIPU_AI_API_KEY || "",
+      apiKey: config.apiKey || envApiKey || "",
       baseUrl: config.baseUrl || "https://open.bigmodel.cn/api/paas/v4",
       defaultTimeoutMs: config.defaultTimeoutMs || 30000,
       maxRetries: config.maxRetries || 3,
@@ -167,8 +174,18 @@ export class ZhipuAIService {
     };
 
     // 启动缓存清理定时器
+    // 修复（2026-10-16）：保存 interval 句柄并提供 dispose()，防止实例被弃用后
+    // 定时器持续运行（HMR/测试反复重建时线性累积）
     if (this.config.enableCache) {
-      setInterval(() => this.cleanupCache(), 60 * 1000);
+      this.cacheCleanupTimer = setInterval(() => this.cleanupCache(), 60 * 1000);
+    }
+  }
+
+  /** 释放资源：停止缓存清理定时器（实例弃用时调用） */
+  dispose(): void {
+    if (this.cacheCleanupTimer !== null) {
+      clearInterval(this.cacheCleanupTimer);
+      this.cacheCleanupTimer = null;
     }
   }
 
@@ -328,7 +345,7 @@ ${this.getRoleDescription(staff.role)}
 
 ## 你的性格特点
 - 友好度: ${personality.friendliness}/10
-- 专业性: ${personality.professionalism}/10  
+- 专业性: ${personality.professionalism}/10
 - 耐心程度: ${personality.patience}/10
 - 创造力: ${personality.creativity}/10
 - 效率: ${personality.efficiency}/10
@@ -386,8 +403,8 @@ ${context.previousContext.join("\n")}`;
     for (const msg of recentHistory) {
       if (msg.content.text) {
         messages.push({
-          role: msg.senderRole === "manager" || msg.senderRole === "front-desk" 
-            ? "assistant" 
+          role: msg.senderRole === "manager" || msg.senderRole === "front-desk"
+            ? "assistant"
             : "user",
           content: `[${msg.senderName}]: ${msg.content.text}`
         });
@@ -429,13 +446,18 @@ ${context.previousContext.join("\n")}`;
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), this.config.defaultTimeoutMs);
+      // 修复（2026-10-16）：用户主动取消时立即终止，不再进入退避重试
+      if (signal?.aborted) {
+        throw new Error("请求已取消");
+      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.config.defaultTimeoutMs);
+      // 修复（2026-10-16）：once + finally 移除，防止重试循环在外部 signal 上累积监听器
+      const onExternalAbort = () => controller.abort();
 
-        // 合并signal
+      try {
         if (signal) {
-          signal.addEventListener("abort", () => controller.abort());
+          signal.addEventListener("abort", onExternalAbort, { once: true });
         }
 
         const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
@@ -448,11 +470,12 @@ ${context.previousContext.join("\n")}`;
           signal: controller.signal,
         });
 
-        clearTimeout(timeoutId);
-
         if (!response.ok) {
           const errorBody = await response.text().catch(() => "");
-          throw new Error(`智谱API错误 [${response.status}]: ${errorBody}`);
+          const err = new Error(`智谱API错误 [${response.status}]: ${errorBody}`);
+          // 修复（2026-10-16）：4xx 客户端错误（无效 Key/参数错误）重试无意义
+          (err as Error & { statusCode?: number }).statusCode = response.status;
+          throw err;
         }
 
         const data = await response.json() as ZhipuAIChatResponse;
@@ -460,10 +483,22 @@ ${context.previousContext.join("\n")}`;
       } catch (error) {
         lastError = error as Error;
 
+        const statusCode = (lastError as Error & { statusCode?: number }).statusCode;
+        const isClientError = typeof statusCode === "number" && statusCode >= 400 && statusCode < 500;
+        // 用户取消与 4xx 均不重试
+        if (signal?.aborted || isClientError) {
+          throw lastError;
+        }
+
         if (attempt < this.config.maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
           console.warn(`[ZhipuAI] 请求失败，${delay}ms后重试 (${attempt + 1}/${this.config.maxRetries}):`, error);
           await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        if (signal) {
+          signal.removeEventListener("abort", onExternalAbort);
         }
       }
     }
@@ -479,12 +514,17 @@ ${context.previousContext.join("\n")}`;
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), this.config.defaultTimeoutMs * 2); // 流式请求超时时间加倍
+      // 修复（2026-10-16）：用户主动取消时立即终止
+      if (signal?.aborted) {
+        throw new Error("流式请求已取消");
+      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.config.defaultTimeoutMs * 2); // 流式请求超时时间加倍
+      const onExternalAbort = () => controller.abort();
 
+      try {
         if (signal) {
-          signal.addEventListener("abort", () => controller.abort());
+          signal.addEventListener("abort", onExternalAbort, { once: true });
         }
 
         const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
@@ -497,11 +537,11 @@ ${context.previousContext.join("\n")}`;
           signal: controller.signal,
         });
 
-        clearTimeout(timeoutId);
-
         if (!response.ok) {
           const errorBody = await response.text().catch(() => "");
-          throw new Error(`智谱API错误 [${response.status}]: ${errorBody}`);
+          const err = new Error(`智谱API错误 [${response.status}]: ${errorBody}`);
+          (err as Error & { statusCode?: number }).statusCode = response.status;
+          throw err;
         }
 
         if (!response.body) {
@@ -514,7 +554,7 @@ ${context.previousContext.join("\n")}`;
 
         while (true) {
           const { done, value } = await reader.read();
-          if (done) {break;}
+          if (done) { break; }
 
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
@@ -522,7 +562,7 @@ ${context.previousContext.join("\n")}`;
 
           for (const line of lines) {
             const trimmed = line.trim();
-            if (!trimmed || trimmed === "data: [DONE]") {continue;}
+            if (!trimmed || trimmed === "data: [DONE]") { continue; }
 
             if (trimmed.startsWith("data: ")) {
               try {
@@ -539,10 +579,22 @@ ${context.previousContext.join("\n")}`;
       } catch (error) {
         lastError = error as Error;
 
+        const statusCode = (lastError as Error & { statusCode?: number }).statusCode;
+        const isClientError = typeof statusCode === "number" && statusCode >= 400 && statusCode < 500;
+        // 用户取消与 4xx 均不重试
+        if (signal?.aborted || isClientError) {
+          throw lastError;
+        }
+
         if (attempt < this.config.maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
           console.warn(`[ZhipuAI] 流式请求失败，重试中...`);
           await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        if (signal) {
+          signal.removeEventListener("abort", onExternalAbort);
         }
       }
     }
@@ -563,13 +615,25 @@ ${context.previousContext.join("\n")}`;
   }
 
   private generateCacheKey(modelId: string, messages: ZhipuAIMessage[]): string {
+    // 修复（2026-10-16 质量审核）：原 btoa 在中文消息下抛 InvalidCharacterError，
+    // 且 64 字符截断存在碰撞；改为 Unicode 安全的 FNV-1a 双通道哈希
     const content = messages.map(m => `${m.role}:${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`).join("|");
-    return btoa(`${modelId}:${content}`).slice(0, 64);
+    let h1 = 0x811c9dc5;
+    let h2 = 0x9dc5811c;
+    for (let i = 0; i < content.length; i++) {
+      const c = content.charCodeAt(i);
+      h1 ^= c + i;
+      h1 = Math.imul(h1, 0x01000193) >>> 0;
+      h2 ^= c;
+      h2 = Math.imul(h2, 0x85ebca6b) >>> 0;
+    }
+    const hash = modelId + ':' + h1.toString(16).padStart(8, "0") + h2.toString(16).padStart(8, "0");
+    return hash;
   }
 
   private getFromCache(key: string): ZhipuAIChatResponse | null {
     const entry = this.cache.get(key);
-    if (!entry) {return null;}
+    if (!entry) { return null; }
 
     if (Date.now() > entry.expiresAt) {
       this.cache.delete(key);

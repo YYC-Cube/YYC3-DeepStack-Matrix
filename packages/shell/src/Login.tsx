@@ -292,7 +292,8 @@ export function Login({ onLoginSuccess, onGhostLogin }: LoginProps) {
             </div>
             <div className="mt-2 px-3 py-2 rounded-lg bg-[rgba(0,40,80,0.15)] border border-[rgba(0,180,255,0.06)]">
               <p className="text-[rgba(0,212,255,0.3)]" style={{ fontSize: "0.62rem" }}>
-                Demo 账号: admin@cloudpivot.local / admin123
+                {/* 安全修复（2026-10-16）：移除页面明文演示凭据展示 */}
+                账号密码由环境变量配置，未经配置的账号无法登录
               </p>
             </div>
           </div>

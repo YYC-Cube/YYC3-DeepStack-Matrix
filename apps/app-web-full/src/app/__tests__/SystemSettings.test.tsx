@@ -30,6 +30,9 @@ vi.mock("@yyc3/core/api-config", () => ({
   resetAPIConfig: vi.fn(() => ({})),
   onAPIConfigChange: vi.fn(() => () => {}),
   ENDPOINT_META: [],
+  // 2026-10-16：env-config（经 provider-slice 等链路进入模块图）在模块加载期
+  // 读取 DEFAULT_WS_ENDPOINT，mock 需补全该导出，否则套件收集失败
+  DEFAULT_WS_ENDPOINT: "ws://localhost:3113/ws",
 }));
 
 vi.mock("@yyc3/store/use-model-provider", () => ({

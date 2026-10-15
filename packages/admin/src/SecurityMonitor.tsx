@@ -568,8 +568,11 @@ function DataManagementTabContent({ state, t }: { state: ReturnType<typeof useSe
               <Download className="w-3.5 h-3.5" />
               {t("security.dataSyncExport")}
             </button>
+            {/* 修复（2026-10-16 C10）：导入按钮原为无 onClick 的死按钮，改为显式禁用并说明 */}
             <button
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-[rgba(0,180,255,0.2)] bg-[rgba(0,180,255,0.05)] text-[#00d4ff] hover:bg-[rgba(0,180,255,0.1)] transition-all"
+              disabled
+              title="数据导入功能尚未开放"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-[rgba(0,180,255,0.2)] bg-[rgba(0,180,255,0.05)] text-[#00d4ff]/40 cursor-not-allowed transition-all"
               style={{ fontSize: "0.72rem" }}
             >
               <Upload className="w-3.5 h-3.5" />

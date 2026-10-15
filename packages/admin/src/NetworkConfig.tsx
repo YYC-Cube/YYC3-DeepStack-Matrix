@@ -9,32 +9,30 @@
  * @tags: [component]
  */
 
-import * as React from "react";
-import { useState } from "react";
+import type { TestStatus, WifiAutoReconnectSettings } from "@yyc3/core/types";
+import { useNetworkConfig } from "@yyc3/core/useNetworkConfig";
+import { useNetworkSlice } from "@yyc3/store/network-slice";
+import { GlassCard } from "@yyc3/ui";
 import {
-  X,
-  Wifi,
-  WifiOff,
-  Globe,
-  RefreshCw,
-  Check,
   AlertTriangle,
+  Check,
+  Clock,
+  Globe,
+  HardDrive,
+  History,
   Loader2,
   Monitor,
-  Settings,
   Radio,
-  Server,
-  HardDrive,
-  Clock,
-  History,
+  RefreshCw,
   RotateCcw,
+  Server,
+  Settings,
+  Wifi,
+  WifiOff,
+  X,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import { useNetworkConfig } from "@yyc3/core/useNetworkConfig";
-import type { TestStatus } from "@yyc3/core/types";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { WifiAutoReconnectSettings } from "@yyc3/core/types";
-import { useNetworkSlice } from "@yyc3/store/network-slice";
 
 interface NetworkConfigProps {
   open: boolean;
@@ -61,7 +59,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]["id"];
 
 function StatusBadge({ status }: { status: TestStatus }) {
-  if (status === "idle") {return null;}
+  if (status === "idle") { return null; }
   const map = {
     testing: {
       bg: "bg-[rgba(0,212,255,0.15)]",
@@ -116,6 +114,33 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
   const [editingWifi, setEditingWifi] = useState<string | null>(null);
   const [wifiPassword, setWifiPassword] = useState("");
 
+  // 修复（2026-10-16 C12）：navigator.onLine 渲染期直读不订阅，网络切换后不重渲染；
+  // 改为事件驱动的响应式状态（渲染处统一引用 isOnline）
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const on = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
+
+  // 修复（2026-10-16 C12）：SSID 文本输入原每键触发 updateArSetting + toast；
+  // 改为本地草稿，失焦时值有变化才提交保存
+  const [ssidDraft, setSsidDraft] = useState(arConfig.preferredSsid);
+  const commitSsidDraft = () => {
+    const trimmed = ssidDraft.trim();
+    if (trimmed !== arConfig.preferredSsid) {
+      updateAutoReconnect({ preferredSsid: trimmed });
+      toast.success("自动重连设置已保存", {
+        style: { background: "rgba(8,25,55,0.95)", border: "1px solid rgba(0,255,136,0.3)", color: "#e0f0ff" },
+      });
+    }
+  };
+
   const updateArSetting = <K extends keyof WifiAutoReconnectSettings>(
     key: K,
     value: unknown
@@ -143,7 +168,7 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
     const existingMap = new Map(existing.map((n: WifiNetworkEntry) => [n.ssid, n]));
 
     // Clear old and rebuild
-    for (const old of existing) {removeNetwork(old.id);}
+    for (const old of existing) { removeNetwork(old.id); }
     for (const s of scannedList) {
       const prev = existingMap.get(s.ssid);
       addNetwork({
@@ -192,7 +217,7 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
     }
   };
 
-  if (!open) {return null;}
+  if (!open) { return null; }
 
   const handleSave = () => {
     save();
@@ -265,11 +290,10 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                 setActiveTab(tab.id);
                 updateConfig({ mode: tab.id === "wifi" ? "wifi" : tab.id === "manual" ? "manual" : "auto" });
               }}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${
-                activeTab === tab.id
-                  ? "bg-[rgba(0,212,255,0.15)] text-[#00d4ff] border border-[rgba(0,212,255,0.3)]"
-                  : "text-[rgba(0,212,255,0.5)] hover:text-[#00d4ff] hover:bg-[rgba(0,212,255,0.05)] border border-transparent"
-              }`}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${activeTab === tab.id
+                ? "bg-[rgba(0,212,255,0.15)] text-[#00d4ff] border border-[rgba(0,212,255,0.3)]"
+                : "text-[rgba(0,212,255,0.5)] hover:text-[#00d4ff] hover:bg-[rgba(0,212,255,0.05)] border border-transparent"
+                }`}
               style={{ fontSize: "0.8rem" }}
             >
               <tab.icon className="w-4 h-4" />
@@ -339,11 +363,10 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                           {iface.ip}
                         </span>
                         <div
-                          className={`w-2 h-2 rounded-full ${
-                            iface.status === "active"
-                              ? "bg-[#00ff88]"
-                              : "bg-[#ff3366]"
-                          }`}
+                          className={`w-2 h-2 rounded-full ${iface.status === "active"
+                            ? "bg-[#00ff88]"
+                            : "bg-[#ff3366]"
+                            }`}
                         />
                       </div>
                     </div>
@@ -353,16 +376,16 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
 
               <div className="p-3 rounded-xl bg-[rgba(0,40,80,0.2)] border border-[rgba(0,180,255,0.1)]">
                 <div className="flex items-center gap-2 mb-2">
-                  {navigator.onLine ? (
+                  {isOnline ? (
                     <Wifi className="w-4 h-4 text-[#00ff88]" />
                   ) : (
                     <WifiOff className="w-4 h-4 text-[#ff3366]" />
                   )}
                   <span
-                    className={navigator.onLine ? "text-[#00ff88]" : "text-[#ff3366]"}
+                    className={isOnline ? "text-[#00ff88]" : "text-[#ff3366]"}
                     style={{ fontSize: "0.78rem" }}
                   >
-                    {navigator.onLine ? "网络已连接" : "网络未连接"}
+                    {isOnline ? "网络已连接" : "网络未连接"}
                   </span>
                 </div>
                 <span
@@ -390,7 +413,7 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                 </div>
                 <div className="space-y-2">
                   {[
-                    { label: "网络状态", value: navigator.onLine ? "已连接" : "未连接" },
+                    { label: "网络状态", value: isOnline ? "已连接" : "未连接" },
                     { label: "连接类型", value: (navigator as Navigator & { connection?: { effectiveType?: string } }).connection?.effectiveType || "4g" },
                     { label: "下行带宽", value: `${(navigator as Navigator & { connection?: { downlink?: number } }).connection?.downlink || "~10"} Mbps` },
                     { label: "RTT", value: `${(navigator as Navigator & { connection?: { rtt?: number } }).connection?.rtt || "~50"} ms` },
@@ -628,18 +651,16 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                       </div>
                       <button
                         onClick={() => updateArSetting("enabled", !arConfig.enabled)}
-                        className={`relative w-9 h-5 rounded-full transition-all ${
-                          arConfig.enabled
-                            ? "bg-[rgba(0,255,136,0.3)] border border-[rgba(0,255,136,0.4)]"
-                            : "bg-[rgba(0,212,255,0.1)] border border-[rgba(0,212,255,0.15)]"
-                        }`}
+                        className={`relative w-9 h-5 rounded-full transition-all ${arConfig.enabled
+                          ? "bg-[rgba(0,255,136,0.3)] border border-[rgba(0,255,136,0.4)]"
+                          : "bg-[rgba(0,212,255,0.1)] border border-[rgba(0,212,255,0.15)]"
+                          }`}
                         title={arConfig.enabled ? "已启用 - 点击关闭" : "已关闭 - 点击启用"}
                       >
-                        <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full transition-all ${
-                          arConfig.enabled
-                            ? "left-[18px] bg-[#00ff88] shadow-[0_0_6px_rgba(0,255,136,0.5)]"
-                            : "left-0.5 bg-[rgba(0,212,255,0.3)]"
-                        }`} />
+                        <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full transition-all ${arConfig.enabled
+                          ? "left-[18px] bg-[#00ff88] shadow-[0_0_6px_rgba(0,255,136,0.5)]"
+                          : "left-0.5 bg-[rgba(0,212,255,0.3)]"
+                          }`} />
                       </button>
                     </div>
                     {/* 优先信号最强网络 */}
@@ -652,18 +673,16 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                       </div>
                       <button
                         onClick={() => updateArSetting("preferStrongestSignal", !arConfig.preferStrongestSignal)}
-                        className={`relative w-9 h-5 rounded-full transition-all ${
-                          arConfig.preferStrongestSignal
-                            ? "bg-[rgba(0,255,136,0.3)] border border-[rgba(0,255,136,0.4)]"
-                            : "bg-[rgba(0,212,255,0.1)] border border-[rgba(0,212,255,0.15)]"
-                        }`}
+                        className={`relative w-9 h-5 rounded-full transition-all ${arConfig.preferStrongestSignal
+                          ? "bg-[rgba(0,255,136,0.3)] border border-[rgba(0,255,136,0.4)]"
+                          : "bg-[rgba(0,212,255,0.1)] border border-[rgba(0,212,255,0.15)]"
+                          }`}
                         title={arConfig.preferStrongestSignal ? "已启用" : "已关闭"}
                       >
-                        <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full transition-all ${
-                          arConfig.preferStrongestSignal
-                            ? "left-[18px] bg-[#00ff88] shadow-[0_0_6px_rgba(0,255,136,0.5)]"
-                            : "left-0.5 bg-[rgba(0,212,255,0.3)]"
-                        }`} />
+                        <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full transition-all ${arConfig.preferStrongestSignal
+                          ? "left-[18px] bg-[#00ff88] shadow-[0_0_6px_rgba(0,255,136,0.5)]"
+                          : "left-0.5 bg-[rgba(0,212,255,0.3)]"
+                          }`} />
                       </button>
                     </div>
                     {/* 优先网络显示 */}
@@ -676,8 +695,10 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                       </div>
                       <input
                         type="text"
-                        value={arConfig.preferredSsid}
-                        onChange={(e) => updateArSetting("preferredSsid", e.target.value)}
+                        value={ssidDraft}
+                        onChange={(e) => setSsidDraft(e.target.value)}
+                        onBlur={commitSsidDraft}
+                        onKeyDown={(e) => { if (e.key === "Enter") { (e.target as HTMLInputElement).blur(); } }}
                         placeholder={connectedNetwork?.ssid || historyNetworks[0]?.ssid || "自动"}
                         className="w-28 px-2 py-1 rounded-lg bg-[rgba(0,40,80,0.4)] border border-[rgba(0,212,255,0.2)] text-[#00d4ff] font-mono text-right focus:outline-none focus:border-[rgba(0,212,255,0.5)]"
                         style={{ fontSize: "0.72rem" }}
@@ -798,11 +819,10 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
                             connectWifi(network.ssid);
                           }}
                           disabled={network.connected}
-                          className={`shrink-0 ml-2 px-2.5 py-1 rounded-lg transition-all ${
-                            network.connected
-                              ? "bg-[rgba(0,255,136,0.05)] border border-[rgba(0,255,136,0.15)] text-[#00ff88] cursor-default"
-                              : "bg-[rgba(0,212,255,0.06)] border border-[rgba(0,212,255,0.15)] text-[#00d4ff] hover:bg-[rgba(0,212,255,0.12)]"
-                          }`}
+                          className={`shrink-0 ml-2 px-2.5 py-1 rounded-lg transition-all ${network.connected
+                            ? "bg-[rgba(0,255,136,0.05)] border border-[rgba(0,255,136,0.15)] text-[#00ff88] cursor-default"
+                            : "bg-[rgba(0,212,255,0.06)] border border-[rgba(0,212,255,0.15)] text-[#00d4ff] hover:bg-[rgba(0,212,255,0.12)]"
+                            }`}
                           style={{ fontSize: "0.65rem" }}
                         >
                           {network.connected ? "已连接" : "重连"}
@@ -818,13 +838,12 @@ export function NetworkConfig({ open, onClose }: NetworkConfigProps) {
           {/* Test Result */}
           {testStatus !== "idle" && (
             <div
-              className={`p-3 rounded-xl border ${
-                testStatus === "success"
-                  ? "bg-[rgba(0,255,136,0.05)] border-[rgba(0,255,136,0.2)]"
-                  : testStatus === "failed"
+              className={`p-3 rounded-xl border ${testStatus === "success"
+                ? "bg-[rgba(0,255,136,0.05)] border-[rgba(0,255,136,0.2)]"
+                : testStatus === "failed"
                   ? "bg-[rgba(255,51,102,0.05)] border-[rgba(255,51,102,0.2)]"
                   : "bg-[rgba(0,212,255,0.05)] border-[rgba(0,212,255,0.2)]"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <StatusBadge status={testStatus} />

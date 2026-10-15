@@ -35,6 +35,7 @@ vi.mock("react-router", () => ({
 
 const mockT = (key: string) => {
   const translations: Record<string, string> = {
+    "nav.aiFamily": "AI Family",
     "bottomNav.monitor": "监控",
     "bottomNav.followUp": "跟进",
     "bottomNav.operations": "操作",
@@ -62,7 +63,8 @@ describe("BottomNav", () => {
   describe("基础渲染", () => {
     it("应渲染 4 个导航项", () => {
       render(<BottomNav />);
-      expect(screen.getByText("监控")).toBeInTheDocument();
+      // 首页 = AI Family 时钟环页，首 tab 为 AI Family
+      expect(screen.getByText("AI Family")).toBeInTheDocument();
       expect(screen.getByText("跟进")).toBeInTheDocument();
       expect(screen.getByText("巡查")).toBeInTheDocument();
       expect(screen.getByText("操作")).toBeInTheDocument();
@@ -93,19 +95,19 @@ describe("BottomNav", () => {
       expect(mockNavigate).toHaveBeenCalledWith("/operations");
     });
 
-    it("点击监控应导航到 /", () => {
+    it("点击 AI Family 应导航到首页 /", () => {
       mockPathname = "/settings";
       render(<BottomNav />);
-      fireEvent.click(screen.getByText("监控"));
+      fireEvent.click(screen.getByText("AI Family"));
       expect(mockNavigate).toHaveBeenCalledWith("/");
     });
   });
 
   describe("路由高亮", () => {
-    it("首页时监控按钮应有激活样式", () => {
+    it("首页时 AI Family 按钮应有激活样式", () => {
       mockPathname = "/";
       render(<BottomNav />);
-      const btn = screen.getByText("监控").closest("button")!;
+      const btn = screen.getByText("AI Family").closest("button")!;
       expect(btn.innerHTML).toContain("text-[#00d4ff]");
     });
 

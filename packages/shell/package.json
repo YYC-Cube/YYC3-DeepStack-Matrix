@@ -19,6 +19,7 @@
     "./login": "./src/Login.tsx",
     "./not-found": "./src/NotFound.tsx",
     "./offline-indicator": "./src/OfflineIndicator.tsx",
+    "./require-role": "./src/RequireRole.tsx",
     "./sidebar": "./src/Sidebar.tsx",
     "./top-bar": "./src/TopBar.tsx"
   },

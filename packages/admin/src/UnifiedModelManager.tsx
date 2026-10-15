@@ -9,6 +9,13 @@
  * @tags: [component],[model],[unified]
  */
 
+import { useI18n } from "@yyc3/core/i18n";
+import type { ConfiguredModel } from "@yyc3/core/types";
+// 深路径导入（不走 @yyc3/store barrel）：barrel 会将全部 slice 拉入模块图，
+// 破坏消费方测试对个别 store 的 vi.mock 边界（SystemSettings 测试收集错误根因）
+import { useProviderSlice } from "@yyc3/store/provider-slice";
+import { useModelProvider } from "@yyc3/store/use-model-provider";
+import { GlassCard } from "@yyc3/ui";
 import {
   CheckCircle,
   Cpu,
@@ -27,10 +34,6 @@ import {
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useI18n } from "@yyc3/core/i18n";
-import { useModelProvider } from "@yyc3/store/use-model-provider";
-import type { ConfiguredModel } from "@yyc3/core/types";
-import { GlassCard } from "@yyc3/ui";
 
 const STATUS_CONFIG = {
   active: { color: "#00ff88", bg: "rgba(0,255,136,0.1)", icon: CheckCircle, label: "已激活" },
@@ -152,8 +155,12 @@ export function UnifiedModelManager({ compact = false, showHeader = true }: Unif
     }
     toast.info(`正在测试 ${configuredModels.length} 个模型...`, { style: { background: "rgba(8,25,55,0.95)", border: "1px solid rgba(0,212,255,0.3)", color: "#e0f0ff" } });
     await testAllConnections();
+    // 修复（2026-10-16 质量审核）：原实现统计的是调用前闭包捕获的旧
+    // configuredModels（恒为测试前快照，通过数几乎恒为 0）；
+    // 改为从 store 读取测试后的最新状态
+    const latest = useProviderSlice.getState().configuredModels;
     const updatedStats = { active: 0, error: 0 };
-    configuredModels.forEach(m => { if (m.status === "active") { updatedStats.active++; } if (m.status === "error") { updatedStats.error++; } });
+    latest.forEach(m => { if (m.status === "active") { updatedStats.active++; } if (m.status === "error") { updatedStats.error++; } });
     toast.success(`测试完成: ${updatedStats.active} 通过, ${updatedStats.error} 失败`, { style: { background: "rgba(8,25,55,0.95)", border: "1px solid rgba(0,255,136,0.3)", color: "#e0f0ff" } });
   }, [configuredModels, testAllConnections]);
 

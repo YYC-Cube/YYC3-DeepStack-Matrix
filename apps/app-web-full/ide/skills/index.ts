@@ -46,6 +46,17 @@ export interface SkillMeta {
 
 // ── 8 个 AI Family Skills 注册表 ──
 
+// 修复（2026-10-16 B8）：原 8 处完整内网 IP+端口硬编码，Vite 构建后向公网
+// 用户暴露内网拓扑与服务指纹。收敛为单一 host 常量，支持构建期 env 覆盖：
+//   .env 中设置 VITE_AGENT_NETWORK_BASE=<your-host> 即可整体外置
+// @ts-ignore - Vite env
+const AGENT_NETWORK_BASE = import.meta.env?.VITE_AGENT_NETWORK_BASE || "192.168.3.101";
+
+/** 按端口生成 Agent 端点 */
+function agentEndpoint(port: number): string {
+  return `http://${AGENT_NETWORK_BASE}:${port}`;
+}
+
 export const AI_FAMILY_SKILLS: SkillMeta[] = [
   // ═══════════════════════════════════════════
   // 元启·天枢 — 总指挥决策
@@ -58,7 +69,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     phone: "0379-0206",
     model: "Qwen3.6-27B",
     lora: "yyc3-mgmt-v2",
-    endpoint: "http://192.168.3.101:6000",
+    endpoint: agentEndpoint(6000),
     architectureLayer: 4,
     primaryDimension: "经·管·运·维·营",
     allowedTools: ["bash", "file-read", "file-write", "mcp"],
@@ -75,7 +86,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     familyMember: "言启·千行",
     phone: "0379-0106",
     model: "Qwen3.6-35B-A3B",
-    endpoint: "http://192.168.3.101:6001",
+    endpoint: agentEndpoint(6001),
     architectureLayer: 4,
     primaryDimension: "标·规·数·智·协",
     allowedTools: ["bash", "file-read", "mcp"],
@@ -93,7 +104,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     phone: "0379-0107",
     model: "Qwen3.6-27B",
     lora: "yyc3-mgmt-v2",
-    endpoint: "http://192.168.3.101:6002",
+    endpoint: agentEndpoint(6002),
     architectureLayer: 4,
     primaryDimension: "经·管·运·维·营",
     allowedTools: ["bash", "file-read", "file-write", "mcp"],
@@ -110,7 +121,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     familyMember: "预见·先知",
     phone: "0379-0108",
     model: "Qwen3.6-27B",
-    endpoint: "http://192.168.3.101:6003",
+    endpoint: agentEndpoint(6003),
     architectureLayer: 4,
     primaryDimension: "市·创·薪·高·度",
     allowedTools: ["bash", "file-read", "mcp"],
@@ -127,7 +138,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     familyMember: "知遇·伯乐",
     phone: "0379-0109",
     model: "Qwen3-Embedding-8B + Qwen3-Reranker-8B",
-    endpoint: "http://192.168.3.101:6004",
+    endpoint: agentEndpoint(6004),
     architectureLayer: 4,
     primaryDimension: "人·资·进·销·存",
     allowedTools: ["bash", "file-read", "mcp"],
@@ -145,7 +156,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     phone: "0379-0207",
     model: "Qwen3.6-27B",
     lora: "yyc3-security-v1",
-    endpoint: "http://192.168.3.101:6005",
+    endpoint: agentEndpoint(6005),
     architectureLayer: 4,
     primaryDimension: "自·知·学·治·愈",
     allowedTools: ["bash", "file-read", "mcp"],
@@ -163,7 +174,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     phone: "0379-0208",
     model: "Qwen3.6-27B",
     lora: "yyc3-code-v2",
-    endpoint: "http://192.168.3.101:6006",
+    endpoint: agentEndpoint(6006),
     architectureLayer: 4,
     primaryDimension: "标·规·数·智·协",
     allowedTools: ["bash", "file-read", "file-write", "mcp"],
@@ -180,7 +191,7 @@ export const AI_FAMILY_SKILLS: SkillMeta[] = [
     familyMember: "创想·灵韵",
     phone: "0379-0209",
     model: "Qwen3-Coder-30B-A3B",
-    endpoint: "http://192.168.3.101:6007",
+    endpoint: agentEndpoint(6007),
     architectureLayer: 4,
     primaryDimension: "市·创·薪·高·度",
     allowedTools: ["bash", "file-read", "file-write", "mcp"],

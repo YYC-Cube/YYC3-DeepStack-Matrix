@@ -109,9 +109,10 @@ describe("CommandPalette", () => {
 
   it("should call navigate when item is clicked", () => {
     render(React.createElement(CommandPalette, { isOpen: true, onClose: vi.fn() }));
+    // 数据监控已迁至 /data-monitoring（首页 = AI Family 时钟环页）
     const item = screen.getByText("nav.dataMonitor");
     fireEvent.click(item);
-    expect(mockNavigate).toHaveBeenCalledWith("/");
+    expect(mockNavigate).toHaveBeenCalledWith("/data-monitoring");
   });
 
   it("should not render when closed", () => {

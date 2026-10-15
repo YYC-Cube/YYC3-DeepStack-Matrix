@@ -10,11 +10,11 @@
  */
 
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import * as React from "react";
+import { render, screen } from "@testing-library/react";
 import { OperationAudit } from "@yyc3/admin/operation-audit";
+import * as React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("recharts", () => ({
   ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
@@ -24,9 +24,22 @@ vi.mock("recharts", () => ({
   YAxis: () => <div />,
   CartesianGrid: () => <div />,
   Tooltip: () => <div />,
+  Legend: () => <div />,
   BarChart: ({ children }: any) => <div>{children}</div>,
   Bar: () => <div />,
   Cell: () => <div />,
+  LineChart: ({ children }: any) => <div>{children}</div>,
+  Line: () => <div />,
+  PieChart: ({ children }: any) => <div>{children}</div>,
+  Pie: () => <div />,
+  RadarChart: ({ children }: any) => <div>{children}</div>,
+  Radar: () => <div />,
+  PolarGrid: () => <div />,
+  PolarAngleAxis: () => <div />,
+  PolarRadiusAxis: () => <div />,
+  RadialBarChart: ({ children }: any) => <div>{children}</div>,
+  RadialBar: () => <div />,
+  ComposedChart: ({ children }: any) => <div>{children}</div>,
 }));
 
 vi.mock("sonner", () => ({

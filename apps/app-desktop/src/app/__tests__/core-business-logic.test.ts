@@ -65,6 +65,8 @@ describe("Core Business Logic - createLocalStore", () => {
     });
 
     it("should persist data to localStorage on initialization", () => {
+      // createLocalStore 采用惰性加载：首次访问时才将默认值写入 localStorage
+      testStore.getAll();
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
 

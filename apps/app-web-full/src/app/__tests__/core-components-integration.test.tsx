@@ -67,6 +67,9 @@ vi.mock("@yyc3/core/api-config", () => ({
     aiBase: "https://api.openai.com/v1",
     clusterBase: "/api/cluster",
   }),
+  // 2026-10-16：env-config（经 provider-slice 等链路进入模块图）模块加载期读取
+  // DEFAULT_WS_ENDPOINT，mock 需补全该导出，否则套件收集失败
+  DEFAULT_WS_ENDPOINT: "ws://localhost:3113/ws",
   setAPIConfig: vi.fn((patch: any) => ({ ...patch })),
   resetAPIConfig: vi.fn(() => ({})),
   onAPIConfigChange: vi.fn(() => () => { }),
@@ -394,9 +397,20 @@ describe("UserManagement 集成测试", () => {
     });
 
     it("点击重置应恢复默认用户列表", () => {
+      // 2026-10-16 C10 修复配套：重置现为真实现，前置 confirm 确认
+      vi.spyOn(window, "confirm").mockReturnValue(true);
       render(<UserManagement />);
       fireEvent.click(screen.getAllByText("重置")[0]);
       expect(toast.info).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+      vi.mocked(window.confirm).mockRestore();
+    });
+
+    it("确认弹窗取消时不应重置", () => {
+      vi.spyOn(window, "confirm").mockReturnValue(false);
+      render(<UserManagement />);
+      fireEvent.click(screen.getAllByText("重置")[0]);
+      expect(toast.info).not.toHaveBeenCalled();
+      vi.mocked(window.confirm).mockRestore();
     });
   });
 

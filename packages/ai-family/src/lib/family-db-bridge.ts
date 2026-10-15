@@ -59,9 +59,15 @@ export interface DbDashboardStats {
 
 const DB_BASE = "/api/v1/db";
 
+/** 请求超时（修复 2026-10-16 C24：裸 fetch 后端挂起时调用方永久 pending；
+ *  对照同包 family-ai-service 的 AbortSignal.timeout(15000) 范式） */
+const DB_REQUEST_TIMEOUT_MS = 15000;
+
 async function dbGet<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${DB_BASE}${path}`);
+    const res = await fetch(`${DB_BASE}${path}`, {
+      signal: AbortSignal.timeout(DB_REQUEST_TIMEOUT_MS),
+    });
     if (!res.ok) { return null; }
     return await res.json() as T;
   } catch {

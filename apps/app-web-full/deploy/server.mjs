@@ -2,35 +2,37 @@
 /**
  * YYC³ CloudPivot Intelli-Matrix — 本地部署服务器
  * ================================================
- * 
+ *
  * 功能:
  *   1. 静态文件托管 (Vite build 产物 dist/)
  *   2. Ollama API 反向代理 (/api/v1/llm/ollama/* → localhost:11434/api/*)
  *   3. SPA 路由回退 (所有非 API/非文件路由 → index.html)
- *   4. CORS 全放行 (内网部署)
+ *   4. CORS 白名单制（默认同源，不放行跨域）
  *   5. Gzip 压缩 (可选)
  *
  * 零依赖 — 仅使用 Node.js 内置模块 (http, fs, path, url)
  *
  * 用法:
- *   node deploy/server.mjs                    # 默认 0.0.0.0:3118
+ *   node deploy/server.mjs                    # 默认 127.0.0.1:3118（仅本机）
+ *   HOST=0.0.0.0 node deploy/server.mjs      # 显式开放局域网（自担风险）
  *   PORT=8080 node deploy/server.mjs          # 自定义端口
- *   OLLAMA_HOST=192.168.3.10 node deploy/mjs  # 自定义 Ollama 地址
+ *   OLLAMA_HOST=192.168.3.10 node deploy/server.mjs  # 自定义 Ollama 地址
  *
  * 环境变量:
  *   PORT          — 监听端口 (默认 3118)
- *   HOST          — 监听地址 (默认 0.0.0.0, 局域网可访问)
+ *   HOST          — 监听地址 (默认 127.0.0.1；设 0.0.0.0 开放局域网)
  *   OLLAMA_HOST   — Ollama 主机 (默认 127.0.0.1)
  *   OLLAMA_PORT   — Ollama 端口 (默认 11434)
  *   DIST_DIR      — 静态文件目录 (默认 ../dist, 相对于此脚本)
+ *   CORS_ALLOW_ORIGINS — 跨域来源白名单，逗号分隔（默认空 = 仅同源）
+ *   OLLAMA_PROXY_ALLOW_ADMIN=1 — 放行 delete/pull/push/copy 等管理端点（默认封禁）
  */
 
+import fs, { createReadStream } from "node:fs";
 import http from "node:http";
-import fs from "node:fs";
-import path from "node:path";
 import os from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createReadStream } from "node:fs";
 
 // ============================================================
 // 配置
@@ -39,7 +41,9 @@ import { createReadStream } from "node:fs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = parseInt(process.env.PORT || "3118", 10);
-const HOST = process.env.HOST || "0.0.0.0";
+// 安全修复（2026-10-16）：默认监听收敛为 127.0.0.1（原 0.0.0.0 会将无鉴权的
+// Ollama 代理暴露给整个局域网）。需要局域网访问时显式设置 HOST=0.0.0.0。
+const HOST = process.env.HOST || "127.0.0.1";
 const OLLAMA_HOST = process.env.OLLAMA_HOST || "127.0.0.1";
 const OLLAMA_PORT = parseInt(process.env.OLLAMA_PORT || "11434", 10);
 const DIST_DIR = path.resolve(__dirname, process.env.DIST_DIR || "../dist");
@@ -47,39 +51,60 @@ const DIST_DIR = path.resolve(__dirname, process.env.DIST_DIR || "../dist");
 /** Ollama 代理前缀 */
 const OLLAMA_PROXY_PREFIX = "/api/v1/llm/ollama";
 
+// 安全修复（2026-10-16）：CORS 改为显式白名单（默认空 = 仅同源，不输出 CORS 头）。
+// 原 "Access-Control-Allow-Origin: *" 允许任意恶意网页跨域调用本地 Ollama 代理。
+const CORS_ALLOW_ORIGINS = (process.env.CORS_ALLOW_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// 安全修复（2026-10-16）：代理方法收敛为 GET/POST；
+// delete/pull/push/copy 等管理/破坏性端点默认封禁（显式 OLLAMA_PROXY_ALLOW_ADMIN=1 放行）。
+const PROXY_ALLOWED_METHODS = new Set(["GET", "POST"]);
+const PROXY_ADMIN_SUBPATHS = /^(delete|pull|push|copy)\b/i;
+const PROXY_ALLOW_ADMIN = process.env.OLLAMA_PROXY_ALLOW_ADMIN === "1";
+
 /** MIME 类型映射 */
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
-  ".js":   "application/javascript; charset=utf-8",
-  ".mjs":  "application/javascript; charset=utf-8",
-  ".css":  "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  ".png":  "image/png",
-  ".jpg":  "image/jpeg",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
-  ".gif":  "image/gif",
-  ".svg":  "image/svg+xml",
-  ".ico":  "image/x-icon",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
   ".webp": "image/webp",
   ".woff": "font/woff",
   ".woff2": "font/woff2",
-  ".ttf":  "font/ttf",
-  ".otf":  "font/otf",
-  ".map":  "application/json",
+  ".ttf": "font/ttf",
+  ".otf": "font/otf",
+  ".map": "application/json",
   ".webmanifest": "application/manifest+json",
-  ".txt":  "text/plain; charset=utf-8",
-  ".xml":  "text/xml; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".xml": "text/xml; charset=utf-8",
 };
 
 // ============================================================
-// CORS 头 (内网全放行)
+// CORS 头（白名单制，2026-10-16 安全修复：默认同源零 CORS）
 // ============================================================
 
-function setCorsHeaders(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, Api-Key");
-  res.setHeader("Access-Control-Max-Age", "86400");
+function setCorsHeaders(req, res) {
+  if (CORS_ALLOW_ORIGINS.length === 0) {
+    // 同源部署：前端由本服务托管，相对路径请求无需 CORS 头
+    return;
+  }
+  const origin = req.headers.origin;
+  if (origin && CORS_ALLOW_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Api-Key");
+    res.setHeader("Access-Control-Max-Age", "86400");
+  }
 }
 
 // ============================================================
@@ -109,14 +134,14 @@ function proxyToOllama(req, res, subPath) {
   delete proxyOptions.headers["referer"];
 
   const proxyReq = http.request(proxyOptions, (proxyRes) => {
-    setCorsHeaders(res);
+    setCorsHeaders(req, res);
     res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
     proxyRes.pipe(res, { end: true });
   });
 
   proxyReq.on("error", (err) => {
     console.error(`[PROXY ERROR] ${req.method} ${ollamaUrl} → ${err.message}`);
-    setCorsHeaders(res);
+    setCorsHeaders(req, res);
     res.writeHead(502, { "Content-Type": "application/json" });
     res.end(JSON.stringify({
       error: "Ollama proxy error",
@@ -136,7 +161,7 @@ function proxyToOllama(req, res, subPath) {
 
 function serveStatic(req, res) {
   const urlPath = new URL(req.url || "/", `http://${HOST}`).pathname;
-  
+
   // 安全: 防止路径遍历
   const safePath = path.normalize(urlPath).replace(/^(\.\.(\/|\\|$))+/, "");
   let filePath = path.join(DIST_DIR, safePath);
@@ -191,7 +216,7 @@ const server = http.createServer((req, res) => {
 
   // ── CORS 预检 ──
   if (method === "OPTIONS") {
-    setCorsHeaders(res);
+    setCorsHeaders(req, res);
     res.writeHead(204);
     res.end();
     return;
@@ -199,8 +224,25 @@ const server = http.createServer((req, res) => {
 
   // ── Ollama 代理 ──
   if (urlPath.startsWith(OLLAMA_PROXY_PREFIX)) {
+    // 安全修复（2026-10-16）：仅放行 GET/POST，封禁管理/破坏性端点
+    if (!PROXY_ALLOWED_METHODS.has(method)) {
+      res.writeHead(405, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        error: "Method not allowed",
+        message: `Ollama 代理仅支持 GET/POST（收到 ${method}）`,
+      }));
+      return;
+    }
     const subPath = urlPath.slice(OLLAMA_PROXY_PREFIX.length).replace(/^\//, "");
-    setCorsHeaders(res);
+    if (!PROXY_ALLOW_ADMIN && PROXY_ADMIN_SUBPATHS.test(subPath)) {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        error: "Forbidden",
+        message: `管理端点 /api/${subPath} 默认封禁；如需开放请设置 OLLAMA_PROXY_ALLOW_ADMIN=1`,
+      }));
+      return;
+    }
+    setCorsHeaders(req, res);
     proxyToOllama(req, res, subPath);
     const ts = new Date().toISOString().slice(11, 19);
     console.log(`[${ts}] PROXY ${method} ${urlPath} → ollama:${OLLAMA_PORT}/api/${subPath}`);
@@ -222,7 +264,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   const interfaces = getNetworkInterfaces();
-  
+
   console.log("");
   console.log("  ╔══════════════════════════════════════════════════════════╗");
   console.log("  ║  YYC³ CloudPivot Intelli-Matrix · Local Deploy Server   ║");

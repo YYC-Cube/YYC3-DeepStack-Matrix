@@ -336,6 +336,20 @@ export function useLocalFileSystem() {
       item.extension = newName.split(".").pop() || "";
     }
 
+    // 修复（2026-10-16 质量审核 #16）：重命名目录时递归更新子孙 path，
+    // 否则旧前缀残留导致 findDir/addFile 导航失效
+    if (item.type === "directory" && item.children && item.children.length > 0) {
+      const updateDescendants = (children: FileItem[]) => {
+        for (const child of children) {
+          if (child.path.startsWith(oldPath)) {
+            child.path = item.path + child.path.slice(oldPath.length);
+          }
+          if (child.children) {updateDescendants(child.children);}
+        }
+      };
+      updateDescendants(item.children);
+    }
+
     persistTree(tree);
     toast.success(`已重命名为: ${newName}`);
     return true;
@@ -490,16 +504,16 @@ export function useLocalFileSystem() {
     return `${(bytes / 1048576).toFixed(1)}MB`;
   }, []);
 
-  const downloadLogs = useCallback(() => toast.success("日志已导出到 ~/.yyc3-cloudpivot/logs/export/"), []);
+  // 修复（2026-10-16 C10）：以下三个操作为演示占位（依赖真实后端/Electron 通道），
+  // toast 文案显式标注「演示」，避免用户误以为操作已实际生效
+  const downloadLogs = useCallback(() => toast.info("[演示] 日志导出占位：接入 Electron IPC 后生效"), []);
   const executeBackup = useCallback(async () => {
-    toast.info("正在执行备份...");
-    await new Promise((r) => setTimeout(r, 2000));
-    toast.success("备份完成: configs/ → backups/config/");
+    toast.info("[演示] 备份占位：接入 Electron IPC 后生效");
+    await new Promise((r) => setTimeout(r, 800));
   }, []);
   const clearCache = useCallback(async () => {
-    toast.info("正在清理缓存...");
-    await new Promise((r) => setTimeout(r, 1000));
-    toast.success("缓存已清理 (释放 20.5KB)");
+    toast.info("[演示] 缓存清理占位：接入 Electron IPC 后生效");
+    await new Promise((r) => setTimeout(r, 800));
   }, []);
 
   // ═══ 文件内容编辑 ═══

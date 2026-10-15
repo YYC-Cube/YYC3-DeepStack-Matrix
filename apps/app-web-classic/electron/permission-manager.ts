@@ -5,8 +5,9 @@
  * 控制 IPC 操作的访问权限
  */
 
-import { app } from "electron";
 import * as crypto from "crypto";
+import { app } from "electron";
+import * as path from "path";
 
 /**
  * 权限级别
@@ -54,7 +55,7 @@ export class PermissionManager {
     maxFileSize: 100 * 1024 * 1024, // 100MB
   };
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): PermissionManager {
     if (!PermissionManager.instance) {
@@ -228,3 +229,61 @@ export class PermissionManager {
  * 导出单例实例
  */
 export const permissionManager = PermissionManager.getInstance();
+
+// ════════════════════════════════════════════════════════════════
+// 安全根目录模型（2026-10-16 全局漏洞扫描修复）
+//
+// 原设计依赖"会话 + event.sessionId"做路径鉴权，但 createSession 从未被
+// 调用、Electron 事件亦无 sessionId 属性，导致：
+//   - FILE_READ/FILE_WRITE 因 session 恒为 undefined 而恒被拒（死路径）
+//   - FILE_DELETE/COPY/MOVE/MKDIR、DB_BACKUP/RESTORE 则完全无校验，
+//     渲染层可对任意路径执行删除/覆盖（如 ~/.zshrc、LaunchAgents）。
+//
+// 修复：文件类 IPC 统一收敛到「安全根」前缀约束 ——
+//   1. app.getPath("userData")：应用数据目录（始终允许）
+//   2. 用户通过 DIALOG_OPEN 显式选择的路径（选择即授权）
+// ════════════════════════════════════════════════════════════════
+
+const grantedPathRoots = new Set<string>();
+
+/**
+ * 授予一个路径根（用户经对话框显式选择时调用）
+ */
+export function grantPathRoot(root: string): void {
+  if (typeof root === "string" && root.length > 0) {
+    grantedPathRoots.add(path.resolve(root));
+  }
+}
+
+/**
+ * 获取当前全部安全根目录
+ */
+export function getSafePathRoots(): string[] {
+  const roots: string[] = [];
+  try {
+    roots.push(path.resolve(app.getPath("userData")));
+  } catch {
+    // app 未就绪时忽略
+  }
+  roots.push(...grantedPathRoots);
+  return roots;
+}
+
+/**
+ * 判断目标路径是否位于任一安全根之下（含根本身）。
+ * 使用 resolve 消解 ..、符号拼接等绕过尝试后再做前缀匹配。
+ */
+export function isPathWithinSafeRoots(target: string): boolean {
+  if (typeof target !== "string" || target.length === 0) {
+    return false;
+  }
+  let resolved: string;
+  try {
+    resolved = path.resolve(target);
+  } catch {
+    return false;
+  }
+  return getSafePathRoots().some(
+    (root) => resolved === root || resolved.startsWith(root + path.sep),
+  );
+}

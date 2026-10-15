@@ -529,7 +529,11 @@ function RealtimePreviewPanelInner({ nodeId }: RealtimePreviewPanelProps) {
                     border: "none",
                     display: "block",
                   }}
-                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                  // 安全修复（2026-10-16）：移除 allow-same-origin——该标志与 allow-scripts
+                  // 组合会使沙箱完全失效（预览内脚本可读取父页 localStorage 中的
+                  // LLM API Key 并以同源身份调用后端端点）。opaque origin 下
+                  // console 捕获（postMessage '*'）与脚本预览功能不受影响。
+                  sandbox="allow-scripts allow-popups allow-forms allow-modals"
                   title="Preview"
                 />
               </div>

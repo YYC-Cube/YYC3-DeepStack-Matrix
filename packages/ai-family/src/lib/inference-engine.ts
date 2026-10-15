@@ -18,18 +18,18 @@
  * - 单例模式: getInferenceEngine() / resetInferenceEngine()
  */
 
+import { getEnvConfig } from "@yyc3/core/env-config";
+import { getOllamaChatUrl } from "@yyc3/core/ollama-url";
 import type {
+  ChatRole,
+  GPUDeviceInfo,
+  InferenceBackendStatus,
   InferenceBackendType,
   InferenceConfig,
-  InferenceBackendStatus,
   ModelLoadProgress,
-  GPUDeviceInfo,
-  WebGPUPreset,
-  ChatRole,
   SDKChatResponse,
+  WebGPUPreset,
 } from "@yyc3/core/types";
-import { getOllamaChatUrl } from "@yyc3/core/ollama-url";
-import { getEnvConfig } from "@yyc3/core/env-config";
 
 // ============================================================
 // 预置 WebGPU 模型
@@ -90,7 +90,7 @@ export const WEBGPU_PRESETS: WebGPUPreset[] = [
 let _cachedGPUInfo: GPUDeviceInfo | null = null;
 
 export async function detectGPU(): Promise<GPUDeviceInfo> {
-  if (_cachedGPUInfo) {return _cachedGPUInfo;}
+  if (_cachedGPUInfo) { return _cachedGPUInfo; }
 
   const info: GPUDeviceInfo = {
     available: false,
@@ -135,9 +135,11 @@ export class OllamaBackend {
   readonly type = "ollama" as const;
   private _status: InferenceBackendStatus = "idle";
   private _abortController: AbortController | null = null;
+  // 修复（2026-10-16）：并发请求的 abort 登记表（_abortController 保留用于兼容外部读取）
+  private _abortControllers: Set<AbortController> = new Set();
 
-  get status(): InferenceBackendStatus {return this._status;}
-  get isReady(): boolean {return this._status === "ready" || this._status === "idle";}
+  get status(): InferenceBackendStatus { return this._status; }
+  get isReady(): boolean { return this._status === "ready" || this._status === "idle"; }
 
   async load(_modelId: string, _onProgress?: (p: ModelLoadProgress) => void): Promise<void> {
     this._status = "ready";
@@ -150,8 +152,12 @@ export class OllamaBackend {
   ): Promise<SDKChatResponse> {
     this._status = "inferencing";
     const startTime = Date.now();
-    this._abortController = new AbortController();
-    const signal = config.signal || this._abortController.signal;
+    // 修复（2026-10-16）：abort controller 按请求实例化（局部管理），
+    // 并登记到实例集合，避免并发 generate 时相互覆写导致旧请求无法 abort
+    const controller = new AbortController();
+    const active = this._abortControllers;
+    active.add(controller);
+    const signal = config.signal || controller.signal;
 
     try {
       const url = getOllamaChatUrl();
@@ -174,17 +180,22 @@ export class OllamaBackend {
 
       if (config.onChunk && response.body) {
         // 流式读取
+        // 修复（2026-10-16）：增加跨 chunk 行缓冲——TCP 分块截断 JSON 行时，
+        // 原实现直接丢弃该行导致流式输出丢内容（参照 zhipu-ai-service 范式）
         let fullContent = "";
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        let buffer = "";
 
         try {
           while (true) {
             const { done, value } = await reader.read();
-            if (done) {break;}
-            const chunk = decoder.decode(value, { stream: true });
-            for (const line of chunk.split("\n")) {
-              if (!line.trim()) {continue;}
+            if (done) { break; }
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || ""; // 末行可能不完整，留待下一块
+            for (const line of lines) {
+              if (!line.trim()) { continue; }
               try {
                 const data = JSON.parse(line);
                 const text = data?.message?.content || "";
@@ -193,8 +204,22 @@ export class OllamaBackend {
                   config.onChunk!(text);
                 }
               } catch {
-                // 跳过不完整的 JSON
+                // 跳过无法解析的行（极少数损坏行，完整行已由缓冲保证）
               }
+            }
+          }
+          // 冲刷残余缓冲（无尾换行的最后一行）
+          const tail = buffer.trim();
+          if (tail) {
+            try {
+              const data = JSON.parse(tail);
+              const text = data?.message?.content || "";
+              if (text) {
+                fullContent += text;
+                config.onChunk!(text);
+              }
+            } catch {
+              // 忽略
             }
           }
         } finally {
@@ -233,13 +258,20 @@ export class OllamaBackend {
         throw err;
       }
       throw new Error(`[OllamaBackend] ${(err as Error).message}`);
+    } finally {
+      active.delete(controller);
     }
   }
 
   abort(): void {
+    // 修复（2026-10-16）：中止全部在途请求（并发 generate 不再互相遮蔽）
+    for (const controller of this._abortControllers) {
+      controller.abort();
+    }
+    this._abortControllers.clear();
     this._abortController?.abort();
     this._abortController = null;
-    if (this._status === "inferencing") {this._status = "ready";}
+    if (this._status === "inferencing") { this._status = "ready"; }
   }
 
   async unload(): Promise<void> {
@@ -258,9 +290,9 @@ export class WebGPUBackend {
   private _engine: unknown = null; // MLCEngine, lazy loaded
   private _currentModelId: string | null = null;
 
-  get status(): InferenceBackendStatus {return this._status;}
-  get isReady(): boolean {return this._status === "ready";}
-  get loadedModel(): string | null {return this._currentModelId;}
+  get status(): InferenceBackendStatus { return this._status; }
+  get isReady(): boolean { return this._status === "ready"; }
+  get loadedModel(): string | null { return this._currentModelId; }
 
   async load(modelId: string, onProgress?: (p: ModelLoadProgress) => void): Promise<void> {
     if (this._currentModelId === modelId && this._status === "ready") {
@@ -375,7 +407,7 @@ export class WebGPUBackend {
 
   abort(): void {
     // WebLLM 没有原生 abort，标记状态
-    if (this._status === "inferencing") {this._status = "ready";}
+    if (this._status === "inferencing") { this._status = "ready"; }
   }
 
   async unload(): Promise<void> {
@@ -408,7 +440,7 @@ export class InferenceEngine {
   }
 
   /** 获取当前活跃后端 */
-  get activeBackend(): InferenceBackendType {return this._activeBackend;}
+  get activeBackend(): InferenceBackendType { return this._activeBackend; }
 
   /** 获取后端状态 */
   getBackendStatus(type: InferenceBackendType): InferenceBackendStatus {
@@ -416,7 +448,7 @@ export class InferenceEngine {
   }
 
   /** 获取 WebGPU 后端已加载的模型 */
-  get webgpuModel(): string | null {return this.webgpu.loadedModel;}
+  get webgpuModel(): string | null { return this.webgpu.loadedModel; }
 
   /** 切换后端 */
   async switchBackend(type: InferenceBackendType): Promise<void> {
@@ -474,7 +506,7 @@ export class InferenceEngine {
   /** 获取推荐的 WebGPU 模型 (基于 GPU 显存) */
   async getRecommendedModel(): Promise<WebGPUPreset | null> {
     const gpu = await detectGPU();
-    if (!gpu.available) {return null;}
+    if (!gpu.available) { return null; }
 
     // 按显存从小到大排序，选择能运行的最大模型
     const sorted = [...WEBGPU_PRESETS].sort((a, b) => a.minMemoryMB - b.minMemoryMB);

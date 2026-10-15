@@ -9,6 +9,10 @@
  * @tags: [tag1],[tag2],[tag3]
  */
 
+import { useI18n } from "@yyc3/core/i18n";
+import type { StoredLogEntry } from "@yyc3/core/types";
+import { useLogSlice } from "@yyc3/store/log-slice";
+import { GlassCard } from "@yyc3/ui";
 import {
   Activity,
   AlertTriangle,
@@ -38,14 +42,12 @@ import {
   XAxis, YAxis
 } from "recharts";
 import { toast } from "sonner";
-import { useI18n } from "@yyc3/core/i18n";
-import { useLogSlice } from "@yyc3/store/log-slice";
-import type { StoredLogEntry } from "@yyc3/core/types";
-import { GlassCard } from "@yyc3/ui";
 
 interface AuditLog {
   id: string;
   time: string;
+  /** 完整 ISO 时间戳（修复 2026-10-16：导出/详情使用真实值，不再伪造日期） */
+  timestamp: string;
   user: string;
   role: string;
   action: string;
@@ -63,6 +65,7 @@ function mapLogToAudit(entry: StoredLogEntry): AuditLog {
   return {
     id: entry.id,
     time: new Date(entry.timestamp).toLocaleTimeString("zh-CN", { hour12: false }),
+    timestamp: new Date(entry.timestamp).toISOString(),
     user: entry.source || "system",
     role: entry.source === "system" ? "系统" : "服务",
     action: entry.level === "error" ? "异常事件" : entry.level === "warn" ? "告警事件" : "操作日志",
@@ -175,7 +178,9 @@ export function OperationAudit() {
     const report = {
       ...log,
       exportedAt: new Date().toISOString(),
-      fullTimestamp: `2026-02-22 ${log.time}`,
+      // 修复（2026-10-16 质量审核 #11）：导出报告使用真实 timestamp 原值，
+      // 不再用硬编码日期伪造
+      fullTimestamp: log.timestamp,
     };
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -435,7 +440,7 @@ export function OperationAudit() {
             <div className="space-y-3">
               {[
                 { k: t("audit.fieldAuditId"), v: detailLog.id },
-                { k: t("audit.fieldTime"), v: `2026-02-22 ${detailLog.time}` },
+                { k: t("audit.fieldTime"), v: detailLog.timestamp },
                 { k: t("audit.fieldUser"), v: detailLog.user },
                 { k: t("audit.fieldRole"), v: detailLog.role },
                 { k: t("audit.fieldAction"), v: detailLog.action },

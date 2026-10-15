@@ -48,7 +48,7 @@ vi.mock("@yyc3/store/provider-slice", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ai-family/store/../", () => {
+vi.mock("@yyc3/ai-family/store", () => {
   const state = {
     modelAssignments: [],
     voiceProfiles: [],
@@ -57,17 +57,16 @@ vi.mock("@yyc3/ai-family/store/../", () => {
   };
   const mockFn = (selector?: Function) => selector ? selector(state) : state;
   mockFn.getState = () => state;
-  return { useFamilySettingsSlice: mockFn };
+  return {
+    useFamilySettingsSlice: mockFn,
+    useFamilyMemberSlice: () => ({
+      members: [
+        { id: "navigator", name: "千行", shortName: "千行", enTitle: "Navigator", icon: "Compass", color: "#00d4ff", quote: "导航", status: "online", role: "导航员" },
+        { id: "thinker", name: "万物", shortName: "万物", enTitle: "Thinker", icon: "Brain", color: "#a855f7", quote: "思考", status: "online", role: "思考者" },
+      ],
+    }),
+  };
 });
-
-vi.mock("../store", () => ({
-  useFamilyMemberSlice: () => ({
-    members: [
-      { id: "navigator", name: "千行", shortName: "千行", enTitle: "Navigator", icon: "Compass", color: "#00d4ff", quote: "导航", status: "online", role: "导航员" },
-      { id: "thinker", name: "万物", shortName: "万物", enTitle: "Thinker", icon: "Brain", color: "#a855f7", quote: "思考", status: "online", role: "思考者" },
-    ],
-  }),
-}));
 
 const STORAGE_KEY = "yyc3-family-model-assignments";
 const API_KEYS_KEY = "yyc3-family-api-keys";

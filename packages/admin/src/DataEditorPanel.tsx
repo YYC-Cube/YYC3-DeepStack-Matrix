@@ -384,6 +384,10 @@ export function DataEditorPanel() {
 
   // ═══ 重置 ═══
   const handleResetAll = useCallback(() => {
+    // 修复（2026-10-16 质量审核 #21）：重置为破坏性批量操作，增加确认
+    if (!window.confirm(`确定要将当前「${activeTab}」数据全部重置为默认值吗？此操作不可撤销。`)) {
+      return;
+    }
     if (activeTab === "models") { resetDbModels(); }
     else if (activeTab === "nodes") { resetDbNodes(); }
     else if (activeTab === "agents") { resetDbAgents(); }
@@ -395,6 +399,10 @@ export function DataEditorPanel() {
   const handleBatchDelete = useCallback(() => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) {return;}
+    // 修复（2026-10-16 质量审核 #21）：批量删除增加确认
+    if (!window.confirm(`确定要删除选中的 ${ids.length} 项吗？此操作不可撤销。`)) {
+      return;
+    }
     if (activeTab === "models") {ids.forEach((id) => deleteDbModel(id));}
     else if (activeTab === "nodes") {ids.forEach((id) => deleteDbNode(id));}
     else if (activeTab === "agents") {ids.forEach((id) => deleteDbAgent(id));}

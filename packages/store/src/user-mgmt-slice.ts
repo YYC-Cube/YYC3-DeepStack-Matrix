@@ -27,6 +27,8 @@ export interface UserMgmtSlice {
   updateUser: (id: string, updates: Partial<UserRecord>) => void;
   removeUser: (id: string) => void;
   toggleLock: (id: string) => void;
+  /** 重置用户列表为默认值（修复 2026-10-16 C10：原 UI 重置按钮为假操作） */
+  resetUsers: () => void;
 }
 
 export const useUserMgmtSlice = create<UserMgmtSlice>()(
@@ -37,6 +39,7 @@ export const useUserMgmtSlice = create<UserMgmtSlice>()(
       updateUser: (id, updates) => set((s) => ({ users: s.users.map((u) => u.id === id ? { ...u, ...updates } : u) })),
       removeUser: (id) => set((s) => ({ users: s.users.filter((u) => u.id !== id) })),
       toggleLock: (id) => set((s) => ({ users: s.users.map((u) => u.id === id ? { ...u, locked: !u.locked } : u) })),
+      resetUsers: () => set({ users: DEFAULT_USERS.map((u) => ({ ...u })) }),
     }),
     {
       name: 'yyc3-user-mgmt-slice',

@@ -9,17 +9,32 @@
  * @tags: [tag1],[tag2],[tag3]
  */
 
-import React, { useState, useCallback, useMemo } from "react";
-import {
-  Users, UserPlus, Search, Shield, ShieldCheck, ShieldAlert, Crown,
-  Edit2, Trash2, Lock, Unlock, Activity,
-  Eye, XCircle, Save, X, Plus, Check, RotateCcw
-} from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
 import { useI18n } from "@yyc3/core/i18n";
-import { toast } from "sonner";
 import type { UserRecord } from "@yyc3/core/types";
 import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
+import { GlassCard } from "@yyc3/ui";
+import {
+  Activity,
+  Check,
+  Crown,
+  Edit2,
+  Eye,
+  Lock,
+  Plus,
+  RotateCcw,
+  Save,
+  Search, Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  Unlock,
+  UserPlus,
+  Users,
+  X,
+  XCircle
+} from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
 
 const ROLE_LIST = ["超级管理员", "运维工程师", "开发者", "数据分析师", "测试工程师", "AI 研究员", "系统服务", "自动化运维"];
@@ -47,8 +62,8 @@ type ModalMode = "view" | "edit" | "add" | null;
 
 export function UserManagement() {
   const { t } = useI18n();
-  const { users, addUser, updateUser, removeUser, toggleLock } = useUserMgmtSlice(
-    useShallow((s) => ({ users: s.users, addUser: s.addUser, updateUser: s.updateUser, removeUser: s.removeUser, toggleLock: s.toggleLock }))
+  const { users, addUser, updateUser, removeUser, toggleLock, resetUsers } = useUserMgmtSlice(
+    useShallow((s) => ({ users: s.users, addUser: s.addUser, updateUser: s.updateUser, removeUser: s.removeUser, toggleLock: s.toggleLock, resetUsers: s.resetUsers }))
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null);
@@ -107,6 +122,14 @@ export function UserManagement() {
       toast.error("请填写完整信息", { style: toastErrorStyle });
       return;
     }
+    // 修复（2026-10-16 质量审核 #21）：防止把最后一名超级管理员降级（锁死系统）
+    if (modalMode === "edit" && selectedUser && selectedUser.role === "超级管理员" && formRole !== "超级管理员") {
+      const superAdmins = users.filter((u) => u.role === "超级管理员");
+      if (superAdmins.length <= 1) {
+        toast.error("系统至少需要保留一名超级管理员，无法降级", { style: toastErrorStyle });
+        return;
+      }
+    }
     if (modalMode === "add") {
       addUser({
         name: formName.trim(),
@@ -130,11 +153,15 @@ export function UserManagement() {
       toast.success(`用户 ${formName} 信息已更新`, { style: toastStyle });
     }
     closeModal();
-  }, [modalMode, formName, formUsername, formEmail, formRole, selectedUser, addUser, updateUser]);
+  }, [modalMode, formName, formUsername, formEmail, formRole, selectedUser, users, addUser, updateUser]);
 
   const handleDeleteUser = useCallback((user: UserRecord) => {
     if (user.role === "超级管理员") {
       toast.error("无法删除超级管理员", { style: toastErrorStyle });
+      return;
+    }
+    // 修复（2026-10-16 质量审核 #21）：删除操作增加确认，防止误删
+    if (!window.confirm(`确定要删除用户「${user.name}」吗？此操作不可撤销。`)) {
       return;
     }
     removeUser(user.id);
@@ -143,13 +170,24 @@ export function UserManagement() {
   }, [removeUser]);
 
   const handleToggleLock = useCallback((user: UserRecord) => {
+    // 修复（2026-10-16 质量审核 #21）：禁止锁定超级管理员（避免锁死系统）
+    if (user.role === "超级管理员" && !user.locked) {
+      toast.error("无法锁定超级管理员", { style: toastErrorStyle });
+      return;
+    }
     toggleLock(user.id);
     toast.success(user.locked ? `${user.name} 已解锁` : `${user.name} 已锁定`, { style: toastStyle });
   }, [toggleLock]);
 
   const handleResetUsers = useCallback(() => {
+    // 修复（2026-10-16 质量审核 C10）：原为假操作（仅 toast 无 store 变更）；
+    // 现接入 slice 的 resetUsers 真实重置，并加确认防误触
+    if (!window.confirm("确定要将用户列表重置为默认值吗？当前的用户变更将丢失。")) {
+      return;
+    }
+    resetUsers();
     toast.info("用户列表已重置为默认值", { style: toastStyle });
-  }, []);
+  }, [resetUsers]);
 
   return (
     <div className="space-y-3 md:space-y-4">
@@ -226,10 +264,9 @@ export function UserManagement() {
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="border-t border-[rgba(0,180,255,0.05)] hover:bg-[rgba(0,180,255,0.03)] transition-colors">
                     <td className="px-3 py-2.5">
-                      <div className={`w-2.5 h-2.5 rounded-full ${
-                        user.locked ? "bg-[#ff3366] shadow-[0_0_6px_rgba(255,51,102,0.5)]" :
+                      <div className={`w-2.5 h-2.5 rounded-full ${user.locked ? "bg-[#ff3366] shadow-[0_0_6px_rgba(255,51,102,0.5)]" :
                         user.status === "online" ? "bg-[#00ff88] shadow-[0_0_6px_rgba(0,255,136,0.5)]" : "bg-[rgba(0,212,255,0.2)]"
-                      }`} />
+                        }`} />
                     </td>
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
@@ -246,13 +283,12 @@ export function UserManagement() {
                       </div>
                     </td>
                     <td className="px-3 py-2.5">
-                      <span className={`px-2 py-0.5 rounded ${
-                        user.role === "超级管理员" ? "bg-[rgba(255,51,102,0.1)] text-[#ff3366]" :
+                      <span className={`px-2 py-0.5 rounded ${user.role === "超级管理员" ? "bg-[rgba(255,51,102,0.1)] text-[#ff3366]" :
                         user.role === "运维工程师" || user.role === "自动化运维" ? "bg-[rgba(255,102,0,0.1)] text-[#ff6600]" :
-                        user.role === "开发者" || user.role === "AI 研究员" || user.role === "测试工程师" ? "bg-[rgba(0,212,255,0.1)] text-[#00d4ff]" :
-                        user.role === "系统服务" ? "bg-[rgba(170,85,255,0.1)] text-[#aa55ff]" :
-                        "bg-[rgba(0,255,136,0.1)] text-[#00ff88]"
-                      }`} style={{ fontSize: "0.65rem" }}>
+                          user.role === "开发者" || user.role === "AI 研究员" || user.role === "测试工程师" ? "bg-[rgba(0,212,255,0.1)] text-[#00d4ff]" :
+                            user.role === "系统服务" ? "bg-[rgba(170,85,255,0.1)] text-[#aa55ff]" :
+                              "bg-[rgba(0,255,136,0.1)] text-[#00ff88]"
+                        }`} style={{ fontSize: "0.65rem" }}>
                         {user.role}
                       </span>
                     </td>
@@ -326,11 +362,10 @@ export function UserManagement() {
             </button>
             <button
               onClick={() => setShowPermMatrix(!showPermMatrix)}
-              className={`w-full py-2.5 rounded-xl border transition-all ${
-                showPermMatrix
-                  ? "bg-[rgba(0,212,255,0.1)] border-[rgba(0,212,255,0.25)] text-[#00d4ff]"
-                  : "bg-[rgba(0,40,80,0.2)] border-[rgba(0,180,255,0.08)] text-[rgba(0,212,255,0.5)] hover:text-[#00d4ff]"
-              }`}
+              className={`w-full py-2.5 rounded-xl border transition-all ${showPermMatrix
+                ? "bg-[rgba(0,212,255,0.1)] border-[rgba(0,212,255,0.25)] text-[#00d4ff]"
+                : "bg-[rgba(0,40,80,0.2)] border-[rgba(0,180,255,0.08)] text-[rgba(0,212,255,0.5)] hover:text-[#00d4ff]"
+                }`}
               style={{ fontSize: "0.78rem" }}
             >
               {t("userMgmt.permMatrix")}

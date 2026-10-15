@@ -9,7 +9,7 @@
  * @tags: [lib]
  */
 
-import type { ConfiguredModel, SDKChatResponse, ChatRole } from "@yyc3/core/types";
+import type { ChatRole, ConfiguredModel, SDKChatResponse } from "@yyc3/core/types";
 
 // ============================================================
 // Types
@@ -99,9 +99,28 @@ function genId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/**
+ * Unicode 安全哈希（FNV-1a 双通道拼接 64bit hex）。
+ * 修复（2026-10-16 质量审核）：原 btoa(content) 遇中文等非 Latin1 字符必抛
+ * InvalidCharacterError（本仓提示词全中文，缓存开启即崩溃），且 .slice(0,32)
+ * 截断会造成不同对话共享缓存键（命中他人回答）。
+ */
+function hashString(input: string): string {
+  let h1 = 0x811c9dc5;
+  let h2 = 0x9dc5811c;
+  for (let i = 0; i < input.length; i++) {
+    const c = input.charCodeAt(i);
+    h1 ^= c + i;
+    h1 = Math.imul(h1, 0x01000193) >>> 0;
+    h2 ^= c;
+    h2 = Math.imul(h2, 0x85ebca6b) >>> 0;
+  }
+  return h1.toString(16).padStart(8, "0") + h2.toString(16).padStart(8, "0");
+}
+
 function generateCacheKey(model: ConfiguredModel, messages: Array<{ role: ChatRole; content: string }>): string {
   const content = messages.map((m) => `${m.role}:${m.content}`).join("|");
-  const hash = btoa(content).slice(0, 32);
+  const hash = hashString(content);
   return `${model.providerId}:${model.model}:${hash}`;
 }
 
@@ -127,6 +146,7 @@ export class AIServiceManager {
   private latencies: number[] = [];
   private stats: AIServiceStats;
   private processing: boolean = false;
+  private cacheCleanupTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(config: Partial<AIServiceConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -242,12 +262,12 @@ export class AIServiceManager {
   }
 
   private async processQueue(): Promise<void> {
-    if (this.processing) {return;}
+    if (this.processing) { return; }
     this.processing = true;
 
     while (this.queue.length > 0 && this.activeRequests.size < this.config.maxConcurrent) {
       const request = this.queue.shift();
-      if (!request) {break;}
+      if (!request) { break; }
 
       if (request.signal?.aborted) {
         request.reject(new Error("Request aborted"));
@@ -374,15 +394,15 @@ export class AIServiceManager {
 
     const usage = model.providerId === "ollama"
       ? {
-          promptTokens: data.prompt_eval_count ?? 0,
-          completionTokens: data.eval_count ?? 0,
-          totalTokens: (data.prompt_eval_count ?? 0) + (data.eval_count ?? 0),
-        }
+        promptTokens: data.prompt_eval_count ?? 0,
+        completionTokens: data.eval_count ?? 0,
+        totalTokens: (data.prompt_eval_count ?? 0) + (data.eval_count ?? 0),
+      }
       : {
-          promptTokens: data.usage?.prompt_tokens ?? 0,
-          completionTokens: data.usage?.completion_tokens ?? 0,
-          totalTokens: data.usage?.total_tokens ?? 0,
-        };
+        promptTokens: data.usage?.prompt_tokens ?? 0,
+        completionTokens: data.usage?.completion_tokens ?? 0,
+        totalTokens: data.usage?.total_tokens ?? 0,
+      };
 
     return {
       id: data.id ?? genId(),
@@ -411,7 +431,7 @@ export class AIServiceManager {
 
     while (true) {
       const { done, value } = await reader.read();
-      if (done) {break;}
+      if (done) { break; }
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
@@ -420,7 +440,7 @@ export class AIServiceManager {
       for (const line of lines) {
         if (line.startsWith("data: ")) {
           const data = line.slice(6).trim();
-          if (data === "[DONE]") {continue;}
+          if (data === "[DONE]") { continue; }
           try {
             const chunk = JSON.parse(data);
             const delta = model.providerId === "ollama"
@@ -519,7 +539,7 @@ export class AIServiceManager {
 
   private getFromCache(key: string): SDKChatResponse | null {
     const entry = this.cache.get(key);
-    if (!entry) {return null;}
+    if (!entry) { return null; }
 
     if (Date.now() > entry.expiresAt) {
       this.cache.delete(key);
@@ -546,7 +566,8 @@ export class AIServiceManager {
   }
 
   private startCacheCleanup(): void {
-    setInterval(() => {
+    // 修复（2026-10-16）：保存句柄并在 dispose 时清理，防止 reset 后旧定时器残留
+    this.cacheCleanupTimer = setInterval(() => {
       const now = Date.now();
       for (const [key, entry] of this.cache.entries()) {
         if (now > entry.expiresAt) {
@@ -555,6 +576,14 @@ export class AIServiceManager {
       }
       this.saveCache();
     }, 60000);
+  }
+
+  /** 释放资源：停止缓存清理定时器（实例弃用/reset 前调用） */
+  dispose(): void {
+    if (this.cacheCleanupTimer !== null) {
+      clearInterval(this.cacheCleanupTimer);
+      this.cacheCleanupTimer = null;
+    }
   }
 
   // ========== Stats Management ==========
@@ -573,12 +602,12 @@ export class AIServiceManager {
   }
 
   private calculateAverage(values: number[]): number {
-    if (values.length === 0) {return 0;}
+    if (values.length === 0) { return 0; }
     return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
   }
 
   private calculatePercentile(values: number[], percentile: number): number {
-    if (values.length === 0) {return 0;}
+    if (values.length === 0) { return 0; }
     const sorted = [...values].sort((a, b) => a - b);
     const index = Math.ceil((percentile / 100) * sorted.length) - 1;
     return sorted[Math.max(0, index)];

@@ -36,7 +36,9 @@ describe("RF-011: 404 通配路由", () => {
     const routesMod = await import("../routes");
     const router = routesMod.router;
     expect(router).toBeDefined();
-  });
+    // 首次动态 import 会加载 routes 完整静态模块图（Layout/Suspense 等），
+    // 并行高负载冷启动可能 >10s 默认阈值；给予独立超时，避免负载型 flaky
+  }, 20000);
 
   it("routes.ts 包含 * 通配路由", async () => {
     // 验证路由配置中包含 path: "*"
@@ -263,7 +265,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
   it("useAlertRules 不再直接导入底层 idbGetAll/idbPut", async () => {
     try {
       // @ts-expect-error -- Vite ?raw import
-      const source = await import("../hooks/useAlertRules?raw") as any;
+      const source = await import("@yyc3/monitor/hooks/use-alert-rules?raw") as any;
       if (typeof source.default === "string") {
         // 验证不包含直接的 idbGetAll/idbPut 导入
         expect(source.default).not.toContain("from \"../lib/yyc3-storage\"");

@@ -13,16 +13,16 @@
  * @tags: settings,bridge,sync,keybindings,mcp,rules,integration
  */
 
-import { useSettingsStore } from "./stores/useSettingsStore";
-import { setApiKey, type ProviderId, getProviderConfigs } from "./LLMService";
+import { getApiKey, getProviderConfigs, setApiKey, type ProviderId } from "./LLMService";
 import {
   saveJSON,
   SK_MCP_SERVERS,
   SK_PROVIDER_API_KEYS,
+  SK_THEME,
 } from "./constants/storage-keys";
 import { useI18nStore } from "./i18n";
-import { SK_THEME } from "./constants/storage-keys";
 import { logger } from "./services/Logger";
+import { useSettingsStore } from "./stores/useSettingsStore";
 
 // ================================================================
 // 1. 模型配置同步 — Settings Store ↔ ModelRegistry / LLMService
@@ -65,16 +65,12 @@ export function syncLLMServiceToSettings(): void {
   const existingModels = store.settings.models;
 
   // 扫描所有已知 Provider 的 API Key
+  // （B7 修复配套 2026-10-16：主通道已改密文存储，经 getApiKey 读取——
+  //   内存缓存预热完成的场景即时可用；未完成时返回空串跳过本次同步）
   for (const providerCfg of getProviderConfigs()) {
     if (providerCfg.authType === "none") continue;
 
-    let storedKey = "";
-    try {
-      storedKey = localStorage.getItem(`yyc3_llm_key_${providerCfg.id}`) || "";
-    } catch {
-      /* ignore */
-    }
-
+    const storedKey = getApiKey(providerCfg.id);
     if (!storedKey) continue;
 
     // 检查 Settings 中是否已有该 Provider 的模型配置

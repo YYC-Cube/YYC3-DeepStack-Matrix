@@ -89,6 +89,10 @@ export function ModelProviderPanel() {
 
   // Handle export
   const handleExport = () => {
+    // 修复（2026-10-16 质量审核 #6）：导出内容含各模型的 apiKey 明文，必须显式确认
+    if (!window.confirm("导出的配置文件将包含 API Key 等敏感凭据明文。\n\n确定继续导出吗？（请注意文件保管）")) {
+      return;
+    }
     const json = exportConfig();
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);

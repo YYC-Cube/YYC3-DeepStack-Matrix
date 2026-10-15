@@ -279,6 +279,10 @@ export function IntegratedTerminal({ open, onClose }: IntegratedTerminalProps) {
   }, [open, tabs.length]);
 
   /* ── 拖拽调高 ─────────────────────────── */
+  // 修复（2026-10-16 C18）：document 监听器生命周期绑定 useEffect ——
+  // 拖拽中途卸载组件时自动清理，不再残留 document 级 mousemove/touchmove
+  const [isDragging, setIsDragging] = useState(false);
+
   const onDragStart = useCallback(
     (e: React.MouseEvent | React.TouchEvent) => {
       e.preventDefault();
@@ -288,38 +292,46 @@ export function IntegratedTerminal({ open, onClose }: IntegratedTerminalProps) {
         startH: panelHeight,
         dragging: true,
       };
-
-      const onMove = (ev: MouseEvent | TouchEvent) => {
-        if (!dragRef.current?.dragging) {return;}
-        const y =
-          "touches" in ev
-            ? (ev as TouchEvent).touches[0].clientY
-            : (ev as MouseEvent).clientY;
-        const delta = dragRef.current.startY - y;
-        const maxH = window.innerHeight * MAX_HEIGHT_RATIO;
-        const newH = Math.min(
-          maxH,
-          Math.max(MIN_HEIGHT, dragRef.current.startH + delta)
-        );
-        setTerminalHeight(newH);
-        setMaximized(false);
-      };
-
-      const onEnd = () => {
-        if (dragRef.current) {dragRef.current.dragging = false;}
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onEnd);
-        document.removeEventListener("touchmove", onMove);
-        document.removeEventListener("touchend", onEnd);
-      };
-
-      document.addEventListener("mousemove", onMove);
-      document.addEventListener("mouseup", onEnd);
-      document.addEventListener("touchmove", onMove);
-      document.addEventListener("touchend", onEnd);
+      setIsDragging(true);
     },
-    [panelHeight, setTerminalHeight]
+    [panelHeight]
   );
+
+  useEffect(() => {
+    if (!isDragging) {return;}
+
+    const onMove = (ev: MouseEvent | TouchEvent) => {
+      if (!dragRef.current?.dragging) {return;}
+      const y =
+        "touches" in ev
+          ? (ev as TouchEvent).touches[0].clientY
+          : (ev as MouseEvent).clientY;
+      const delta = dragRef.current.startY - y;
+      const maxH = window.innerHeight * MAX_HEIGHT_RATIO;
+      const newH = Math.min(
+        maxH,
+        Math.max(MIN_HEIGHT, dragRef.current.startH + delta)
+      );
+      setTerminalHeight(newH);
+      setMaximized(false);
+    };
+
+    const onEnd = () => {
+      if (dragRef.current) {dragRef.current.dragging = false;}
+      setIsDragging(false);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onEnd);
+    document.addEventListener("touchmove", onMove);
+    document.addEventListener("touchend", onEnd);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onEnd);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onEnd);
+    };
+  }, [isDragging, setTerminalHeight]);
 
   const toggleMaximize = useCallback(() => {
     setMaximized((prev) => !prev);

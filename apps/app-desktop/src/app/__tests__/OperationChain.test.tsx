@@ -72,7 +72,7 @@ describe("OperationChain", () => {
 
     it("应渲染正确数量的事件", () => {
       const { container } = render(<OperationChain events={mockEvents} />);
-      const timestamps = container.querySelectorAll("[style*=\"font-family\"]");
+      const timestamps = container.querySelectorAll("[class*=\"font-\\[Rajdhani\"]");
       expect(timestamps.length).toBeGreaterThanOrEqual(4);
     });
   });

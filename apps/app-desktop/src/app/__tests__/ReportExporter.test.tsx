@@ -24,8 +24,14 @@ vi.mock("recharts", () => ({
   YAxis: () => <div />,
   CartesianGrid: () => <div />,
   Tooltip: () => <div />,
+  Legend: () => <div />,
   AreaChart: ({ children }: any) => <div>{children}</div>,
   Area: () => <div />,
+  BarChart: ({ children }: any) => <div>{children}</div>,
+  Bar: () => <div />,
+  Cell: () => <div />,
+  PieChart: ({ children }: any) => <div>{children}</div>,
+  Pie: () => <div />,
 }));
 
 vi.mock("@yyc3/ops/hooks/use-report-exporter", () => ({

@@ -40,7 +40,7 @@ describe("env-config", () => {
 
     it("should return default system version", () => {
       const version = env("SYSTEM_VERSION");
-      expect(version).toBe("3.3.0");
+      expect(version).toBe("3.4.1");
     });
 
     it("should return default API base URL", () => {

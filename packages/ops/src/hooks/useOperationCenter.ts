@@ -21,29 +21,51 @@
  * @notes: 使用 usePersistedList 持久化操作日志
  */
 
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
 import type {
-  OperationCategoryType,
+  LogFilterType,
   OperationCategoryMeta,
+  OperationCategoryType,
   OperationItem,
-  OperationTemplateItem,
   OperationLogEntry,
   OperationStatus,
-  LogFilterType,
+  OperationTemplateItem,
 } from "@yyc3/core/types";
+import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 // ============================================================
 // Category Meta
 // ============================================================
 
+/**
+ * 读取当前登录操作者身份（与 core 的 mock 会话存储对齐）。
+ * 修复（2026-10-16 质量审核 #3）：操作日志不再硬编码 "admin"。
+ */
+function getCurrentOperator(): string {
+  try {
+    if (localStorage.getItem("yyc3_ghost") === "1") {
+      return "ghost@yyc3.local";
+    }
+    const raw = localStorage.getItem("yyc3_session");
+    if (raw) {
+      const session = JSON.parse(raw) as { user?: { email?: string } };
+      if (session.user?.email) {
+        return session.user.email;
+      }
+    }
+  } catch {
+    // 会话解析失败时回退
+  }
+  return "unknown";
+}
+
 export const CATEGORY_META: OperationCategoryMeta[] = [
-  { key: "node",   label: "节点操作", icon: "Server",   color: "#00d4ff" },
-  { key: "model",  label: "模型操作", icon: "Brain",    color: "#aa55ff" },
-  { key: "task",   label: "任务操作", icon: "ListTodo", color: "#00ff88" },
+  { key: "node", label: "节点操作", icon: "Server", color: "#00d4ff" },
+  { key: "model", label: "模型操作", icon: "Brain", color: "#aa55ff" },
+  { key: "task", label: "任务操作", icon: "ListTodo", color: "#00ff88" },
   { key: "system", label: "系统操作", icon: "Settings", color: "#ffaa00" },
-  { key: "custom", label: "自定义",   icon: "Puzzle",   color: "#ff6699" },
+  { key: "custom", label: "自定义", icon: "Puzzle", color: "#ff6699" },
 ];
 
 // ============================================================
@@ -51,18 +73,18 @@ export const CATEGORY_META: OperationCategoryMeta[] = [
 // ============================================================
 
 const QUICK_ACTIONS: OperationItem[] = [
-  { id: "qa1", category: "node",   label: "重启节点",  description: "重启指定 GPU 计算节点",        icon: "RotateCw",    status: "pending" },
-  { id: "qa2", category: "model",  label: "部署模型",  description: "部署新模型到指定节点",          icon: "Upload",      status: "pending" },
-  { id: "qa3", category: "system", label: "清理缓存",  description: "清理推理缓存和临时文件",        icon: "Trash2",      status: "pending" },
-  { id: "qa4", category: "system", label: "导出日志",  description: "导出系统日志到本地文件",        icon: "Download",    status: "pending" },
-  { id: "qa5", category: "system", label: "生成报告",  description: "生成系统性能报告 (JSON/PDF)",   icon: "FileText",    status: "pending" },
-  { id: "qa6", category: "node",   label: "批量重启",  description: "批量重启所有异常节点",          icon: "RefreshCw",   status: "pending", dangerous: true },
-  { id: "qa7", category: "model",  label: "模型迁移",  description: "将模型迁移到负载更低的节点",     icon: "ArrowRightLeft", status: "pending" },
-  { id: "qa8", category: "task",   label: "暂停队列",  description: "暂停推理任务队列",              icon: "Pause",       status: "pending" },
-  { id: "qa9", category: "task",   label: "恢复队列",  description: "恢复推理任务队列",              icon: "Play",        status: "pending" },
-  { id: "qa10", category: "node",  label: "健康检查",  description: "对所有节点执行健康检查",        icon: "HeartPulse",  status: "pending" },
-  { id: "qa11", category: "system",label: "备份配置",  description: "备份当前系统配置到本地",        icon: "HardDrive",   status: "pending" },
-  { id: "qa12", category: "custom",label: "自定义脚本",description: "执行自定义运维脚本",           icon: "Terminal",    status: "pending" },
+  { id: "qa1", category: "node", label: "重启节点", description: "重启指定 GPU 计算节点", icon: "RotateCw", status: "pending" },
+  { id: "qa2", category: "model", label: "部署模型", description: "部署新模型到指定节点", icon: "Upload", status: "pending" },
+  { id: "qa3", category: "system", label: "清理缓存", description: "清理推理缓存和临时文件", icon: "Trash2", status: "pending" },
+  { id: "qa4", category: "system", label: "导出日志", description: "导出系统日志到本地文件", icon: "Download", status: "pending" },
+  { id: "qa5", category: "system", label: "生成报告", description: "生成系统性能报告 (JSON/PDF)", icon: "FileText", status: "pending" },
+  { id: "qa6", category: "node", label: "批量重启", description: "批量重启所有异常节点", icon: "RefreshCw", status: "pending", dangerous: true },
+  { id: "qa7", category: "model", label: "模型迁移", description: "将模型迁移到负载更低的节点", icon: "ArrowRightLeft", status: "pending" },
+  { id: "qa8", category: "task", label: "暂停队列", description: "暂停推理任务队列", icon: "Pause", status: "pending" },
+  { id: "qa9", category: "task", label: "恢复队列", description: "恢复推理任务队列", icon: "Play", status: "pending" },
+  { id: "qa10", category: "node", label: "健康检查", description: "对所有节点执行健康检查", icon: "HeartPulse", status: "pending" },
+  { id: "qa11", category: "system", label: "备份配置", description: "备份当前系统配置到本地", icon: "HardDrive", status: "pending" },
+  { id: "qa12", category: "custom", label: "自定义脚本", description: "执行自定义运维脚本", icon: "Terminal", status: "pending" },
 ];
 
 // ============================================================
@@ -105,18 +127,18 @@ const INITIAL_TEMPLATES: OperationTemplateItem[] = [
 
 function generateMockLogs(): OperationLogEntry[] {
   const actions = [
-    { category: "node" as const,   action: "重启节点 GPU-A100-03",     user: "admin" },
-    { category: "model" as const,  action: "部署 LLaMA-70B 到 GPU-H100-01", user: "dev_yang" },
-    { category: "system" as const, action: "清理推理缓存",             user: "admin" },
-    { category: "task" as const,   action: "暂停推理队列 #847",        user: "admin" },
-    { category: "model" as const,  action: "更新 DeepSeek-V3 参数",   user: "dev_li" },
-    { category: "node" as const,   action: "健康检查 全节点",          user: "system" },
-    { category: "system" as const, action: "导出日志 2025-02-24",      user: "admin" },
-    { category: "system" as const, action: "备份 PostgreSQL",          user: "system" },
-    { category: "task" as const,   action: "恢复推理队列",             user: "admin" },
-    { category: "custom" as const, action: "执行自定义脚本 cleanup.sh",user: "dev_yang" },
-    { category: "node" as const,   action: "GPU-A100-01 温度告警检查", user: "system" },
-    { category: "model" as const,  action: "模型冒烟测试 Qwen-72B",   user: "dev_li" },
+    { category: "node" as const, action: "重启节点 GPU-A100-03", user: "admin" },
+    { category: "model" as const, action: "部署 LLaMA-70B 到 GPU-H100-01", user: "dev_yang" },
+    { category: "system" as const, action: "清理推理缓存", user: "admin" },
+    { category: "task" as const, action: "暂停推理队列 #847", user: "admin" },
+    { category: "model" as const, action: "更新 DeepSeek-V3 参数", user: "dev_li" },
+    { category: "node" as const, action: "健康检查 全节点", user: "system" },
+    { category: "system" as const, action: "导出日志 2025-02-24", user: "admin" },
+    { category: "system" as const, action: "备份 PostgreSQL", user: "system" },
+    { category: "task" as const, action: "恢复推理队列", user: "admin" },
+    { category: "custom" as const, action: "执行自定义脚本 cleanup.sh", user: "dev_yang" },
+    { category: "node" as const, action: "GPU-A100-01 温度告警检查", user: "system" },
+    { category: "model" as const, action: "模型冒烟测试 Qwen-72B", user: "dev_li" },
   ];
 
   const statuses: OperationStatus[] = ["success", "success", "success", "success", "failed", "running"];
@@ -177,7 +199,7 @@ export function useOperationCenter() {
   // Execute an action
   const executeAction = useCallback(async (actionId: string) => {
     const action = actions.find((a) => a.id === actionId);
-    if (!action) {return;}
+    if (!action) { return; }
 
     setIsExecuting(actionId);
     setActions((prev) =>
@@ -200,7 +222,9 @@ export function useOperationCenter() {
       timestamp: Date.now(),
       category: action.category,
       action: action.label,
-      user: "admin",
+      // 修复（2026-10-16 质量审核 #3）：原硬编码 "admin"，任何角色操作均伪装成
+      // admin 且事后无法追责；改为读取当前登录会话的真实身份
+      user: getCurrentOperator(),
       status: finalStatus,
       duration: 1500 + Math.floor(Math.random() * 2000),
     };
@@ -224,7 +248,7 @@ export function useOperationCenter() {
   // Run template
   const runTemplate = useCallback(async (templateId: string) => {
     const tpl = templates.find((t) => t.id === templateId);
-    if (!tpl) {return;}
+    if (!tpl) { return; }
 
     await upsertTemplate({ ...tpl, lastUsed: Date.now() });
 

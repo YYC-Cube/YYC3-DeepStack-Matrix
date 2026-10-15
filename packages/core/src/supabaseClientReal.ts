@@ -117,8 +117,16 @@ class MockSupabaseClient {
   auth = {
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
       const entry = MOCK_USERS[email];
-      if (!entry || entry.password !== password) {
-        return { data: null, error: { message: "邮箱或密码不正确" } };
+      // 安全修复（2026-10-16）：密码未配置（空串）时拒绝登录，杜绝空密码免鉴权进入
+      if (!entry || !entry.password || !password || entry.password !== password) {
+        return {
+          data: null,
+          error: {
+            message: !entry || (entry.password && entry.password !== password)
+              ? "邮箱或密码不正确"
+              : "该账号密码未配置：请设置 VITE_MOCK_ADMIN_PASSWORD / VITE_MOCK_DEV_PASSWORD 环境变量后再登录",
+          },
+        };
       }
       const session: AppSession = {
         user: entry.user,

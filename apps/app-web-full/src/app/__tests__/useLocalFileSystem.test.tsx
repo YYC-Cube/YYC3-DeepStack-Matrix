@@ -438,7 +438,8 @@ describe("useLocalFileSystem", () => {
         result.current.downloadLogs();
       });
 
-      expect(toast.success).toHaveBeenCalled();
+      // 2026-10-16 C10 修复配套：演示占位操作改为 toast.info + [演示] 标注
+      expect(toast.info).toHaveBeenCalledWith(expect.stringContaining("[演示]"));
     });
   });
 });

@@ -13,9 +13,10 @@
  * @tags: llm,api,streaming,sse,providers,zhipu,ollama
  */
 
-import { logger } from "./services/Logger";
 import { BUILTIN_PROVIDERS, type ProviderDef } from "./constants/providers";
+import { decrypt, encrypt, generateSecureToken, isCryptoAvailable } from "./CryptoService";
 import { getAIDegradationService, type DegradationLevel } from "./services/AIDegradationService";
+import { logger } from "./services/Logger";
 
 export type ProviderId = "vllm-n1-27b" | "vllm-n1-35b" | "tei-n1-embed" | "tei-n1-rerank" | "ollama-n1-coder" | "zai-plan" | "ollama";
 
@@ -96,26 +97,113 @@ export function getProviderConfig(providerId: ProviderId): ProviderConfig | unde
   return def ? convertToProviderConfig(def) : undefined;
 }
 
-// ── API Key 存储 (localStorage) ──
+// ── API Key 存储 ──
+// 修复（2026-10-16 B7）：原为 localStorage 明文存储（yyc3_llm_key_*），任意 XSS
+// 一行遍历即可窃取全部 Provider 凭据。现改为「AES-GCM 密文 + 内存缓存」：
+//   - 密文键：yyc3_llm_keyenc_{providerId}（Web Crypto，密钥由设备级随机 KEK 派生）
+//   - 同步 API（getApiKey/hasApiKey）保持兼容：读模块级内存缓存
+//   - 异步预热 ensureApiKeysLoaded()：模块加载即触发；全部请求入口 await 兜底
+// 边界说明（诚实标注）：设备 KEK 与密文同源存储，可防「存储导出/devtools 肉眼
+// 读取明文」与备份泄露；对具备完整 JS 执行能力的同源 XSS 仅提高门槛（其仍可
+// 调用本模块解密函数）。彻底根治需服务端代管密钥（登记后续迭代）。
+// 遗留明文通道（本轮未治理，已登记）：settings store persist 的 models.apiKey
+// 与旧版兼容键 yyc3-provider-api-keys（SettingsBridge/ModelSettings 消费）。
 
 const KEY_PREFIX = "yyc3_llm_key_";
+const ENC_KEY_PREFIX = "yyc3_llm_keyenc_";
+const KEK_STORAGE_KEY = "yyc3_llm_kek";
 
-/** 获取指定供应商的 API Key，未设置时返回空字符串 */
-export function getApiKey(providerId: ProviderId): string {
+/** 内存缓存：明文 key 仅存在于运行时内存 */
+const apiKeyCache = new Map<ProviderId, string>();
+
+/** 设备级密钥材料（首次访问生成；32 字节 hex） */
+function getDeviceKek(): string {
   try {
-    return localStorage.getItem(`${KEY_PREFIX}${providerId}`) || "";
+    let kek = localStorage.getItem(KEK_STORAGE_KEY);
+    if (!kek) {
+      kek = generateSecureToken(32);
+      localStorage.setItem(KEK_STORAGE_KEY, kek);
+    }
+    return kek;
   } catch {
     return "";
   }
+}
+
+/** 加密写入（异步，失败降级明文并记录） */
+async function encryptAndStore(providerId: ProviderId, key: string): Promise<void> {
+  if (!key || !isCryptoAvailable()) { return; }
+  try {
+    const enc = await encrypt(key, getDeviceKek());
+    localStorage.setItem(`${ENC_KEY_PREFIX}${providerId}`, JSON.stringify(enc));
+    // 密文落盘成功后清除旧明文键
+    localStorage.removeItem(`${KEY_PREFIX}${providerId}`);
+  } catch (e) {
+    logger.warn(`[LLMService] Failed to encrypt API key for ${providerId}`, e);
+  }
+}
+
+/** 预热：解密全部密文 key 到内存缓存（幂等，模块加载即触发） */
+let warmupPromise: Promise<void> | null = null;
+export function ensureApiKeysLoaded(): Promise<void> {
+  if (!warmupPromise) {
+    warmupPromise = (async () => {
+      if (!isCryptoAvailable()) { return; }
+      const kek = getDeviceKek();
+      if (!kek) { return; }
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k?.startsWith(ENC_KEY_PREFIX)) { continue; }
+          const raw = localStorage.getItem(k);
+          if (!raw) { continue; }
+          const providerId = k.slice(ENC_KEY_PREFIX.length) as ProviderId;
+          const plain = await decrypt(JSON.parse(raw), kek);
+          if (plain) {
+            apiKeyCache.set(providerId, plain);
+          }
+        }
+      } catch (e) {
+        logger.warn("[LLMService] API key warmup failed", e);
+      }
+    })();
+  }
+  return warmupPromise;
+}
+// 模块加载即预热（App 启动到用户实际发起 LLM 请求之间通常有充足时间窗）
+void ensureApiKeysLoaded();
+
+/** 旧明文键迁移：读到明文即写入缓存并异步转为密文 */
+function migrateLegacyPlainKey(providerId: ProviderId): string {
+  try {
+    const plain = localStorage.getItem(`${KEY_PREFIX}${providerId}`);
+    if (plain) {
+      apiKeyCache.set(providerId, plain);
+      void encryptAndStore(providerId, plain);
+      return plain;
+    }
+  } catch { /* ignore */ }
+  return "";
+}
+
+/** 获取指定供应商的 API Key，未设置时返回空字符串 */
+export function getApiKey(providerId: ProviderId): string {
+  const cached = apiKeyCache.get(providerId);
+  if (cached !== undefined) { return cached; }
+  // 兼容迁移：存量明文键（迁移后不再产生）
+  return migrateLegacyPlainKey(providerId);
 }
 
 /** 设置指定供应商的 API Key，key 为空时移除 */
 export function setApiKey(providerId: ProviderId, key: string): void {
   try {
     if (key) {
-      localStorage.setItem(`${KEY_PREFIX}${providerId}`, key);
+      apiKeyCache.set(providerId, key);
+      void encryptAndStore(providerId, key);
     } else {
+      apiKeyCache.delete(providerId);
       localStorage.removeItem(`${KEY_PREFIX}${providerId}`);
+      localStorage.removeItem(`${ENC_KEY_PREFIX}${providerId}`);
     }
   } catch { /* empty */ }
 }
@@ -219,6 +307,8 @@ export async function testModelConnectivity(
   modelId: string,
   options?: { timeoutMs?: number },
 ): Promise<ConnectivityTestResult> {
+  // B7 配套：确保加密存储的 key 已解密进内存缓存（幂等，预热完成后即时返回）
+  await ensureApiKeysLoaded();
   const timeoutMs = options?.timeoutMs ?? 15000;
   const start = Date.now();
   const base: Omit<ConnectivityTestResult, "success" | "latencyMs"> = {
@@ -386,6 +476,8 @@ export async function chatCompletion(
   messages: ChatMessage[],
   options?: { temperature?: number; maxTokens?: number },
 ): Promise<string> {
+  // B7 配套：请求入口确保 key 已从密文解密进内存缓存
+  await ensureApiKeysLoaded();
   const endpoint = getChatEndpoint(provider);
   const headers = buildHeaders(provider);
 
@@ -436,6 +528,8 @@ export async function chatCompletionStream(
   callbacks: StreamCallbacks,
   options?: { temperature?: number; maxTokens?: number; signal?: AbortSignal },
 ): Promise<void> {
+  // B7 配套：请求入口确保 key 已从密文解密进内存缓存
+  await ensureApiKeysLoaded();
   const endpoint = getChatEndpoint(provider);
   const headers = buildHeaders(provider);
 
@@ -678,6 +772,8 @@ export async function analyzeIntentAI(
 ): Promise<AIIntentResult | null> {
   const timeoutMs = options?.timeoutMs ?? 8000;
 
+  // B7 配套：请求入口确保 key 已从密文解密进内存缓存
+  await ensureApiKeysLoaded();
   // Find a usable provider + model from localStorage config
   const provider = findAvailableProvider();
   if (!provider) return null;

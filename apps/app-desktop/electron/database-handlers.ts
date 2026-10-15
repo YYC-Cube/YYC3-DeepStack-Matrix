@@ -5,10 +5,11 @@
  * 支持 SQLite、MySQL、PostgreSQL 等多种数据库
  */
 
-import { ipcMain, app } from "electron";
-import { IPCChannel, type IPCResponse, type DatabaseQueryResult, type DatabaseExecuteResult } from "../src/shared/ipc-types";
+import { ipcMain } from "electron";
 import * as fs from "fs";
 import * as path from "path";
+import { IPCChannel, type DatabaseExecuteResult, type DatabaseQueryResult, type IPCResponse } from "../src/shared/ipc-types";
+import { isPathWithinSafeRoots } from "./permission-manager";
 
 /**
  * 数据库连接配置
@@ -75,7 +76,7 @@ async function executeQuery(sql: string, params?: any[]): Promise<any[]> {
   // 模拟查询结果
   // 在实际应用中，这里应该使用真实的数据库驱动执行查询
   console.info(`[Database] Executing query: ${sql}`);
-  
+
   return [];
 }
 
@@ -90,7 +91,7 @@ async function executeStatement(sql: string, params?: any[]): Promise<{ affected
   // 模拟执行结果
   // 在实际应用中，这里应该使用真实的数据库驱动执行语句
   console.info(`[Database] Executing statement: ${sql}`);
-  
+
   return {
     affectedRows: 0,
     insertId: undefined,
@@ -146,6 +147,12 @@ export function registerDatabaseHandlers(): void {
         return createErrorResponse("Database not initialized");
       }
 
+      // 安全修复（2026-10-16）：备份写出的目标路径必须位于安全根内，
+      // 防止渲染层借备份通道覆盖任意系统文件（copyFileSync 默认覆盖）
+      if (!isPathWithinSafeRoots(backupPath)) {
+        return createErrorResponse("Permission denied: backup path outside allowed roots");
+      }
+
       const backupDir = path.dirname(backupPath);
       if (!fs.existsSync(backupDir)) {
         fs.mkdirSync(backupDir, { recursive: true });
@@ -173,6 +180,12 @@ export function registerDatabaseHandlers(): void {
     try {
       if (!currentConnection) {
         return createErrorResponse("Database not initialized");
+      }
+
+      // 安全修复（2026-10-16）：恢复源路径必须位于安全根内，
+      // 防止渲染层诱导主进程从任意路径读取并覆盖数据库文件
+      if (!isPathWithinSafeRoots(restorePath)) {
+        return createErrorResponse("Permission denied: restore path outside allowed roots");
       }
 
       if (!fs.existsSync(restorePath)) {

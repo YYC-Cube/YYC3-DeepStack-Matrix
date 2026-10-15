@@ -9,17 +9,17 @@
  * @tags: [component]
  */
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
-import { Button } from "@yyc3/ui/button";
-import { Badge } from "@yyc3/ui/badge";
-import { Progress } from "@yyc3/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@yyc3/ui/alert";
-import { Clock, RefreshCw, CheckCircle2, XCircle, Database, HardDrive, Wifi, WifiOff } from "lucide-react";
 import { useI18n } from "@yyc3/core/i18n";
 import { storageManager } from "@yyc3/core/storageManager";
-import type { StorageStatus, StorageEvent } from "@yyc3/core/types";
+import type { StorageEvent, StorageStatus } from "@yyc3/core/types";
+import { Alert, AlertDescription, AlertTitle } from "@yyc3/ui/alert";
+import { Badge } from "@yyc3/ui/badge";
+import { Button } from "@yyc3/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
+import { Progress } from "@yyc3/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
+import { CheckCircle2, Clock, Database, HardDrive, RefreshCw, Wifi, WifiOff, XCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface StorageSyncStatusProps {
   showDetails?: boolean;
@@ -32,6 +32,14 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
   const [syncProgress, setSyncProgress] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [offlineQueueProcessing, setOfflineQueueProcessing] = useState(false);
+
+  // 修复（2026-10-16 C17）：下列值原在 effect 依赖数组中，进度条每 200ms +5 触发
+  // 整个 effect 重挂（storageManager 监听器/interval 反复拆除重建）；
+  // 改为 ref 读取，effect 依赖收敛为 [t]
+  const statusRef = useRef(status);
+  statusRef.current = status;
+  const syncProgressRef = useRef(syncProgress);
+  syncProgressRef.current = syncProgress;
 
   useEffect(() => {
     const updateStatus = () => {
@@ -55,10 +63,10 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
         case "syncError":
           setSyncProgress(0);
           setSyncHistory(prev => [
-            { 
-              time: Date.now(), 
-              status: "error", 
-              message: event.error || t("storage.sync.failed") 
+            {
+              time: Date.now(),
+              status: "error",
+              message: event.error || t("storage.sync.failed")
             },
             ...prev.slice(0, 9)
           ]);
@@ -93,9 +101,9 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
       }
     };
 
-    // 模拟同步进度
+    // 模拟同步进度（修复 C17：条件经 ref 读取最新值，不再依赖闭包快照）
     const progressInterval = setInterval(() => {
-      if (status.syncing && syncProgress < 100) {
+      if (statusRef.current.syncing && syncProgressRef.current < 100) {
         setSyncProgress(prev => Math.min(prev + 5, 100));
       }
     }, 200);
@@ -103,7 +111,7 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
     // 监听网络状态
     const handleOnline = () => {
       setIsOnline(true);
-      if (storageManager.getConfig().offlineMode && status.pendingChanges > 0) {
+      if (storageManager.getConfig().offlineMode && statusRef.current.pendingChanges > 0) {
         setOfflineQueueProcessing(true);
       }
     };
@@ -124,7 +132,7 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [status.syncing, syncProgress, status.pendingChanges, t]);
+  }, [t]);
 
   const handleSync = async () => {
     await storageManager.triggerSync();
@@ -210,8 +218,8 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
                   </>
                 )}
               </div>
-              <Button 
-                onClick={handleSync} 
+              <Button
+                onClick={handleSync}
                 disabled={status.syncing || !isOnline}
                 className="bg-cyan-600 hover:bg-cyan-700 text-white"
               >
@@ -297,8 +305,8 @@ export function StorageSyncStatus({ showDetails = true }: StorageSyncStatusProps
                   <div className="flex justify-between">
                     <span className="text-sm">{t("storage.sync.storageType")}</span>
                     <span className="text-sm font-medium">
-                      {storageManager.getConfig().type === "database" 
-                        ? t("storage.config.database") 
+                      {storageManager.getConfig().type === "database"
+                        ? t("storage.config.database")
                         : t("storage.config.localStorage")}
                     </span>
                   </div>

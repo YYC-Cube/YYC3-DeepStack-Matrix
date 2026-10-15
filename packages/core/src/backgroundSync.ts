@@ -9,11 +9,14 @@
  * @tags: [lib]
  */
 
-import type { SyncItem, SyncQueueStats, SyncProcessResult } from "./types";
+import type { SyncItem, SyncProcessResult, SyncQueueStats } from "./types";
 
 // RF-011: Re-export 已移除
 
 const SYNC_QUEUE_KEY = "yyc3_sync_queue";
+
+/** 队列上限（修复 2026-10-16 C19：原无上限写入 localStorage，离线期间可无限膨胀） */
+const MAX_SYNC_QUEUE_SIZE = 500;
 
 /** 注册后台同步（需 Service Worker 支持） */
 export async function registerBackgroundSync(tag = "sync-data") {
@@ -47,7 +50,9 @@ export function addToSyncQueue(item: Omit<SyncItem, "id" | "timestamp" | "retrie
     retries: 0,
   };
   queue.push(syncItem);
-  saveSyncQueue(queue);
+  // 修复（2026-10-16 C19）：超过上限时淘汰最旧条目（FIFO），防止 localStorage 无限增长
+  const trimmed = queue.length > MAX_SYNC_QUEUE_SIZE ? queue.slice(queue.length - MAX_SYNC_QUEUE_SIZE) : queue;
+  saveSyncQueue(trimmed);
 
   // 尝试注册后台同步
   registerBackgroundSync();
@@ -72,7 +77,7 @@ function saveSyncQueue(queue: SyncItem[]) {
 /** 处理同步队列（恢复在线时调用） */
 export async function processSyncQueue(): Promise<SyncProcessResult> {
   const queue = getSyncQueue();
-  if (queue.length === 0) {return { success: 0, failed: 0 };}
+  if (queue.length === 0) { return { success: 0, failed: 0 }; }
 
   let success = 0;
   let failed = 0;

@@ -41,6 +41,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 
 vi.mock("@yyc3/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
+  YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
 
 vi.mock("sonner", () => ({
@@ -49,10 +50,6 @@ vi.mock("sonner", () => ({
     error: vi.fn(),
     info: vi.fn(),
   },
-}));
-
-vi.mock("@yyc3/ui", () => ({
-  YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
 
 vi.mock("@yyc3/admin/network-config", () => ({

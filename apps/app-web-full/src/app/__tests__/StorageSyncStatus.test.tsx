@@ -12,10 +12,10 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import * as React from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StorageSyncStatus } from "@yyc3/admin/storage-sync-status";
 import { storageManager } from "@yyc3/core/storageManager";
+import * as React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const statusState = {
   connected: true,
@@ -32,16 +32,19 @@ const configState = {
   conflictResolution: "local" as const,
 };
 
-vi.mock("@yyc3/core/i18n", () => ({
-  useI18n: vi.fn(() => ({
-    t: (key: string, params?: Record<string, string>) => {
-      if (params) {
-        return key.replace(/\{(\w+)\}/g, (_, k) => params[k] || "");
-      }
-      return key;
-    },
-  })),
-}));
+vi.mock("@yyc3/core/i18n", () => {
+  // t 必须是稳定引用：组件 useEffect 依赖数组包含 t，
+  // 若每次渲染返回新函数会触发 effect→setState→render 无限风暴（worker OOM）
+  const t = (key: string, params?: Record<string, string>) => {
+    if (params) {
+      return key.replace(/\{(\w+)\}/g, (_, k) => params[k] || "");
+    }
+    return key;
+  };
+  return {
+    useI18n: vi.fn(() => ({ t, locale: "zh-CN" })),
+  };
+});
 
 vi.mock("@yyc3/core/storageManager", () => ({
   storageManager: {
@@ -125,6 +128,9 @@ describe("StorageSyncStatus", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    // 恢复环境副作用：offline 场景测试会将 navigator.onLine 篡改为 false，
+    // 若不恢复，后续依赖 isOnline 的用例（如 sync 按钮可点击）会被 disabled 短路
+    Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
   });
 
   it("renders status overview", () => {

@@ -24,10 +24,10 @@
  * - 统计数据显示
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import React from "react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { AISuggestionPanel } from "@yyc3/monitor/ai-suggestion-panel";
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("lucide-react", async (importOriginal) => {
   const actual = await importOriginal() as Record<string, unknown>;
@@ -96,77 +96,78 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
+vi.mock("@yyc3/monitor/hooks/use-ai-suggestion", () => ({
+  useAISuggestion: () => ({
+    patterns: [
+      {
+        id: "pat-1",
+        type: "latency_spike",
+        severity: "critical",
+        description: "延迟突增至 2500ms",
+        firstSeen: Date.now() - 3600000,
+        occurrences: 5,
+      },
+      {
+        id: "pat-2",
+        type: "memory_leak",
+        severity: "warning",
+        description: "内存使用持续增长",
+        firstSeen: Date.now() - 7200000,
+        occurrences: 3,
+      },
+    ],
+    recommendations: [
+      {
+        id: "rec-1",
+        patternId: "pat-1",
+        action: "迁移模型到 GPU-A100-07",
+        description: "负载 15%，延迟预计降至 800ms",
+        impact: "high",
+        confidence: 92,
+        autoExecutable: true,
+      },
+      {
+        id: "rec-2",
+        patternId: "pat-1",
+        action: "重启推理服务",
+        description: "清理内存碎片",
+        impact: "medium",
+        confidence: 78,
+        autoExecutable: true,
+      },
+    ],
+    overallHealth: 75,
+    isAnalyzing: false,
+    lastAnalyzedAt: Date.now() - 1800000,
+    enabledAutoSuggestion: true,
+    setEnabledAutoSuggestion: vi.fn(),
+    stats: {
+      totalPatterns: 12,
+      criticalCount: 3,
+      totalRecommendations: 8,
+      appliedCount: 5,
+    },
+    runAnalysis: vi.fn(),
+    applyRecommendation: vi.fn(),
+    dismissRecommendation: vi.fn(),
+    dismissPattern: vi.fn(),
+    getRecommendationsForPattern: vi.fn(() => [
+      {
+        id: "rec-1",
+        patternId: "pat-1",
+        action: "迁移模型到 GPU-A100-07",
+        description: "负载 15%，延迟预计降至 800ms",
+        impact: "high",
+        confidence: 92,
+        autoExecutable: true,
+      },
+    ]),
+  }),
+}));
+
 describe("AISuggestionPanel", () => {
   beforeEach(() => {
     cleanup();
-    vi.mock("@yyc3/monitor/hooks/use-ai-suggestion", () => ({
-      useAISuggestion: () => ({
-        patterns: [
-          {
-            id: "pat-1",
-            type: "latency_spike",
-            severity: "critical",
-            description: "延迟突增至 2500ms",
-            firstSeen: Date.now() - 3600000,
-            occurrences: 5,
-          },
-          {
-            id: "pat-2",
-            type: "memory_leak",
-            severity: "warning",
-            description: "内存使用持续增长",
-            firstSeen: Date.now() - 7200000,
-            occurrences: 3,
-          },
-        ],
-        recommendations: [
-          {
-            id: "rec-1",
-            patternId: "pat-1",
-            action: "迁移模型到 GPU-A100-07",
-            description: "负载 15%，延迟预计降至 800ms",
-            impact: "high",
-            confidence: 92,
-            autoExecutable: true,
-          },
-          {
-            id: "rec-2",
-            patternId: "pat-1",
-            action: "重启推理服务",
-            description: "清理内存碎片",
-            impact: "medium",
-            confidence: 78,
-            autoExecutable: true,
-          },
-        ],
-        overallHealth: 75,
-        isAnalyzing: false,
-        lastAnalyzedAt: Date.now() - 1800000,
-        enabledAutoSuggestion: true,
-        setEnabledAutoSuggestion: vi.fn(),
-        stats: {
-          totalPatterns: 12,
-          criticalCount: 3,
-          totalRecommendations: 8,
-          appliedCount: 5,
-        },
-        runAnalysis: vi.fn(),
-        applyRecommendation: vi.fn(),
-        dismissRecommendation: vi.fn(),
-        dismissPattern: vi.fn(),
-        getRecommendationsForPattern: vi.fn(() => [
-          {
-            id: "rec-1",
-            patternId: "pat-1",
-            action: "迁移模型到 GPU-A100-07",
-            description: "负载 15%，延迟预计降至 800ms",
-            impact: "high",
-            confidence: 92,
-            autoExecutable: true,
-          },
-        ]),
-      }),
-    }));
   });
 
   afterEach(() => {

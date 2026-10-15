@@ -32,6 +32,9 @@ jobs:
         run: bash scripts/verify-gates.sh
       - name: 测试（vitest 分片）
         run: pnpm --filter @yyc3/app-web-full test -- --run && pnpm --filter @yyc3/app-sandbox-lite test -- --run
+        env:
+          # web-full 套件体量大（289 文件），防 vitest worker fork 触发 V8 默认堆上限 OOM
+          NODE_OPTIONS: --max-old-space-size=4096
 
   # ── SAST（静态应用安全测试）────────────────────────────
   sast:

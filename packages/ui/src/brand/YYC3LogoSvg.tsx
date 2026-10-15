@@ -55,6 +55,7 @@ export function YYC3LogoSvg({
       <img
         src={pickLogo(size)}
         alt="YYC³ Logo"
+        data-testid="yyc3-logo-img"
         width={size}
         height={size}
         className="object-contain"

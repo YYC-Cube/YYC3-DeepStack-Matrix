@@ -33,9 +33,10 @@ import {
 } from "@yyc3/core/error-handler";
 
 vi.mock("@yyc3/core/yyc3-storage", () => ({
-  idbPut: vi.fn(),
+  // 需返回 Promise：error-handler 会对 idbPut/idbClear 的返回值调用 .catch()
+  idbPut: vi.fn(() => Promise.resolve()),
   idbGetAll: vi.fn(() => Promise.resolve([])),
-  idbClear: vi.fn(),
+  idbClear: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("@yyc3/core/figma-error-filter", () => ({

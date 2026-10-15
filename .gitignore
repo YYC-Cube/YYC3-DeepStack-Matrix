@@ -18,3 +18,13 @@ build/
 # 例外：Phase 0/1 证据日志（留档 DoD）
 !docs/YYC3-组件拆分-指导文档/phase0-ledger/attachments/*.log
 !docs/YYC3-组件拆分-指导文档/phase1-ledger/attachments/*.log
+
+# 不提交文件夹
+docs/AI-Family-Agent-模块复用指导.md
+docs/yyc3-login-page/
+docs/yyc3-management/
+docs/yyc3-mono/
+docs/yyc3-packages/
+docs/yyc3-ui-mono/
+docs/yyc3-ui-organized/
+docs/ai-assistant-dev/

@@ -2,12 +2,13 @@
   "name": "@yyc3/monorepo",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@12.11.2",
   "description": "YYC³ CloudPivot Matrix 统一 Monorepo 底座（M1）— 四端应用 + 共享包",
   "author": "YanYuCloudCube Team <admin@0379.email>",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=22",
-    "pnpm": ">=9"
+    "pnpm": ">=10"
   },
   "scripts": {
     "build": "pnpm -r build",

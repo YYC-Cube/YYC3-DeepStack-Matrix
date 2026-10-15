@@ -2,7 +2,7 @@ name: 发布管线
 # YYC³ Monorepo Phase 6 持续发布（Electron 三平台 + Docker GHCR；触发：tag v* 或手动）
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -14,9 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # 版本读取根 package.json 的 packageManager（pnpm@12），与本地生成环境一致
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -41,12 +40,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # CI 无签名证书：禁用自动发现，出未签名产物（正式发布另配 CSC_LINK/APPLE_ID secrets）
-      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22

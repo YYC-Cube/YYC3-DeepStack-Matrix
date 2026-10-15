@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# 同分支新推送自动取消旧跑批，节约 CI 时长
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -14,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # 版本读取根 package.json 的 packageManager（pnpm@12），与 lockfile 生成环境严格一致
+      # （v9 会忽略 pnpm-workspace.yaml 的 overrides/packageExtensions → frozen-lockfile 必败）
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -42,7 +47,7 @@ jobs:
           config-file: apps/app-desktop/.github/codeql/codeql-config.yml
       - uses: github/codeql-action/analyze@v3
         with:
-          category: '/language:javascript-typescript'
+          category: "/language:javascript-typescript"
 
   # ── Lighthouse（performance ≥0.9 断言，lighthouserc.js）──
   lighthouse:
@@ -50,8 +55,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22

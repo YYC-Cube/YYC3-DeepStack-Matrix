@@ -15,12 +15,11 @@
  */
 
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach , afterEach} from "vitest";
-import React from "react";
-import { render, screen, fireEvent , cleanup } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockNavigate = vi.fn();
-const mockLocation = { pathname: "/" };
+const mockLocation = { pathname: "/", hash: "" };
 
 vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
@@ -36,11 +35,11 @@ vi.mock("../hooks/useI18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("../components/YYC3Logo", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 
-import { Sidebar, navItems, SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "../components/Sidebar";
+import { navItems, Sidebar, SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "../components/Sidebar";
 
 describe("Sidebar", () => {
   beforeEach(() => {

@@ -39,7 +39,7 @@ vi.mock("../components/NetworkConfig", () => ({
   default: () => <div data-testid="network-config" />,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("../components/YYC3Logo", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 

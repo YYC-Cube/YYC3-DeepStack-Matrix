@@ -27,7 +27,7 @@ vi.mock("@yyc3/ui", () => ({
   default: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("../components/YYC3Logo", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }))
 

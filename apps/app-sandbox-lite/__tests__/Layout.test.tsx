@@ -27,7 +27,7 @@ const mockPathname = "/";
 
 vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
-  useLocation: () => ({ pathname: mockPathname }),
+  useLocation: () => ({ pathname: mockPathname, hash: "" }),
   Outlet: () => <div data-testid="outlet">Page Content</div>,
   createBrowserRouter: vi.fn(),
   RouterProvider: () => <div data-testid="router-provider" />,

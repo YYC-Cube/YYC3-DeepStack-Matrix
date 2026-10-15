@@ -29,11 +29,12 @@ describe("RF-011: 404 通配路由", () => {
     expect(typeof mod.NotFound).toBe("function");
   });
 
+  // routes.ts 静态导入全部 25 个路由组件，全量并行高负载下首次求值可能超默认 5s
   it("routes.ts 导出 router 对象", async () => {
     const routesMod = await import("../routes");
     const router = routesMod.router;
     expect(router).toBeDefined();
-  });
+  }, 12000);
 
   it("routes.ts 包含 * 通配路由", async () => {
     // 验证路由配置中包含 path: "*"

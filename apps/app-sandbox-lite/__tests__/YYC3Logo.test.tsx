@@ -10,12 +10,12 @@
  * - 无障碍: axe-core 自动检测
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
 // Mock figma:asset imports — 返回占位 URL
-vi.mock("@yyc3/ui", () => {
+vi.mock("../components/YYC3LogoSvg", () => {
   const React = require("react");
   return {
     YYC3LogoSvg: ({ size = 40, className = "", style }: any) =>
@@ -155,7 +155,7 @@ describe("YYC3Logo", () => {
     });
 
     it("有 onClick 时应有 cursor-pointer", () => {
-      const { container } = render(<YYC3Logo onClick={() => {}} />);
+      const { container } = render(<YYC3Logo onClick={() => { }} />);
       const wrapper = container.firstElementChild as HTMLElement;
       expect(wrapper.className).toContain("cursor-pointer");
     });

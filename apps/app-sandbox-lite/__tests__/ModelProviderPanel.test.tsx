@@ -32,6 +32,17 @@ vi.mock("@yyc3/core/ollama-url", () => ({
   }),
 }));
 
+// Stub 全局 fetch：挂载时 useModelProvider 会真实 fetch localhost:11434，
+// 若异步回调晚于 jsdom 环境销毁才 settle 会产生 unhandled rejection（React 19 时序），
+// 立即 resolve 使其在测试生命周期内确定性完成
+vi.stubGlobal("fetch", vi.fn(() =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: async () => ({ models: [] }),
+  })
+));
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};

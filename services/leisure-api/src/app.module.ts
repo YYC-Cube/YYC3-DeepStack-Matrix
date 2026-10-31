@@ -14,6 +14,8 @@ import { JwtGuard } from './common/guards/jwt.guard.js'
 import { AuthModule } from './modules/auth/auth.module.js'
 import { ArtistModule } from './modules/artist/artist.module.js'
 import { AttendanceModule } from './modules/attendance/attendance.module.js'
+import { StoreAdminModule } from './modules/store/store.module.js'
+import { StoreConfigModule } from './modules/store-config/store-config.module.js'
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { AttendanceModule } from './modules/attendance/attendance.module.js'
     AuthModule,
     ArtistModule,
     AttendanceModule,
+    StoreAdminModule,
+    StoreConfigModule,
   ],
   providers: [
     PrismaService,

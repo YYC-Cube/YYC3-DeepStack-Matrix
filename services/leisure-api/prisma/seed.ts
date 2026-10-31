@@ -74,10 +74,91 @@ async function main() {
     })
   }
 
+  // 包厢房号样例(需求全集 §5;全合成,禁真实信息)——每房型 2 间,房号店内唯一
+  const roomSamples: Array<{ prefix: string; count: number; typeName: string }> = [
+    { prefix: 'A', count: 3, typeName: '小包' },
+    { prefix: 'B', count: 3, typeName: '中包' },
+    { prefix: 'C', count: 2, typeName: '大包' },
+    { prefix: 'V', count: 2, typeName: 'VIP包' },
+    { prefix: 'X', count: 1, typeName: '西亳厅' },
+    { prefix: 'W', count: 2, typeName: '外卖房' },
+  ]
+  for (const sample of roomSamples) {
+    const rt = roomTypes.find((r) => r.name === sample.typeName)
+    if (rt === undefined) continue
+    for (let i = 1; i <= sample.count; i += 1) {
+      const roomNo = sample.prefix + String(i).padStart(2, '0')
+      const exists = await prisma.room.findFirst({
+        where: { storeId: store.id, roomNo },
+      })
+      if (exists === null) {
+        await prisma.room.create({
+          data: {
+            storeId: store.id,
+            roomNo,
+            roomName: sample.typeName + ' ' + roomNo,
+            roomTypeId: rt.id,
+            capacity: 4 + i,
+            status: 'FREE',
+          },
+        })
+      }
+    }
+  }
+
+  // 艺人设置 8 项默认值(需求全集 §7;门店级可改;env 默认在 store-config 服务合并)
+  const configDefaults: Array<{ key: string; value: object | string[] | number | boolean | string }> = [
+    { key: 'required_profile_fields', value: ['realName', 'phone'] },
+    { key: 'report_settings', value: { requireReview: false } },
+    { key: 'checkout_min_minutes', value: 60 },
+    { key: 'self_scan_finish', value: true },
+    { key: 'stage_without_checkin', value: false },
+    { key: 'ticket_purchase', value: { enabled: true } },
+    { key: 'room_billing', value: { feeMode: 'HOURLY', roundingEnabled: true, roundingThresholdMinutes: 15, crossDayAccumulate: true } },
+    { key: 'stage_assign_mode', value: 'MIXED' },
+  ]
+  for (const cfg of configDefaults) {
+    await prisma.storeConfig.upsert({
+      where: { storeId_configKey: { storeId: store.id, configKey: cfg.key } },
+      update: {},
+      create: { storeId: store.id, configKey: cfg.key, configValue: cfg.value as object },
+    })
+  }
+
+  // 合成艺人样例(禁真实个人信息;姓名/手机号均为虚构)——覆盖审核三态
+  const artistSamples = [
+    { realName: '测试档案-晨曦', stageName: '晨曦', badgeNo: 'A1001', phone: '13900000001', hourlyRate: 100, auditStatus: 'APPROVED' },
+    { realName: '测试档案-雨露', stageName: '雨露', badgeNo: 'A1002', phone: '13900000002', hourlyRate: 120, auditStatus: 'APPROVED' },
+    { realName: '测试档案-星辰', stageName: '星辰', badgeNo: 'A1003', phone: '13900000003', hourlyRate: 0, auditStatus: 'PENDING' },
+  ] as const
+  for (const a of artistSamples) {
+    const exists = await prisma.artist.findFirst({
+      where: { storeId: store.id, badgeNo: a.badgeNo, deletedAt: null },
+    })
+    if (exists === null) {
+      await prisma.artist.create({
+        data: {
+          storeId: store.id,
+          groupId: group.id,
+          supervisorName: group.supervisorName,
+          levelId: level.id,
+          realName: a.realName,
+          stageName: a.stageName,
+          gender: 1,
+          phone: a.phone,
+          badgeNo: a.badgeNo,
+          hourlyRate: a.hourlyRate,
+          auditStatus: a.auditStatus,
+        },
+      })
+    }
+  }
+
   // 角色 + 管理员(默认密码,首次登录后必须修改)
   const permCodes = [
     'artist:view', 'artist:edit', 'artist:delete', 'artist:transfer', 'artist:batch',
     'level:manage', 'group:manage', 'feerule:manage', 'ticketrule:manage',
+    'room:manage',
     'fee:recharge', 'fee:manual', 'fee:ledger:view', 'fee:ledger:export',
     'ticket:buy', 'ticket:use', 'ticket:ledger:view',
     'attend:qrcode', 'attend:manual', 'attend:ledger:view', 'attend:summary:view',
@@ -92,6 +173,14 @@ async function main() {
     role = await prisma.role.create({
       data: { storeId: store.id, name: '管理员', permCodes },
     })
+  } else {
+    // 幂等升级:功能码并集(seed 新增功能码时补齐既有角色,不撤销人工配置)
+    const owned = Array.isArray(role.permCodes) ? (role.permCodes as string[]) : []
+    const merged = Array.from(new Set([...owned, ...permCodes]))
+    if (merged.length !== owned.length) {
+      role = await prisma.role.update({ where: { id: role.id }, data: { permCodes: merged } })
+      console.log('[seed] 角色功能码并集升级: +' + String(merged.length - owned.length))
+    }
   }
   const adminPhone = '13103790379'
   const adminExists = await prisma.adminUser.findUnique({ where: { phone: adminPhone } })
@@ -108,7 +197,7 @@ async function main() {
     console.log('[seed] 管理员已创建: ' + adminPhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
   }
 
-  console.log('[seed] 完成: store=' + store.name + ' roomTypes=' + roomTypes.length + ' level=技师 group=江海龙')
+  console.log('[seed] 完成: store=' + store.name + ' roomTypes=' + roomTypes.length + ' rooms=' + String(roomSamples.reduce((n, s) => n + s.count, 0)) + ' level=技师 group=江海龙 artists=3 storeConfig=8项')
 }
 
 main()

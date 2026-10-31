@@ -24,6 +24,7 @@ model Store {
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
   roomTypes     RoomType[]
+  rooms         Room[]
   artists       Artist[]
   artistGroups  ArtistGroup[]
   artistLevels  ArtistLevel[]
@@ -41,10 +42,33 @@ model RoomType {
   sort       Int     @default(0)
   status     Int     @default(1)
 
-  store Store @relation(fields: [storeId], references: [id])
+  store Store  @relation(fields: [storeId], references: [id])
+  rooms Room[]
 
   @@unique([storeId, name])
   @@map("room_type")
+}
+
+// ─────────────── 包厢房号(需求全集 §5) ───────────────
+
+model Room {
+  id         Int      @id @default(autoincrement())
+  storeId    Int      @map("store_id")
+  roomNo     String   @map("room_no") @db.VarChar(32) // 房号,店内唯一(如 A01、VIP03)
+  roomName   String?  @map("room_name") @db.VarChar(64)
+  roomTypeId Int      @map("room_type_id")
+  capacity   Int? // 容纳人数
+  status     String   @default("FREE") @db.VarChar(16) // FREE/OCCUPIED/MAINTENANCE/DISABLED
+  remark     String?  @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  store    Store    @relation(fields: [storeId], references: [id])
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+
+  @@unique([storeId, roomNo])
+  @@index([storeId, status])
+  @@map("room")
 }
 
 // ─────────────── 档案三元组 ───────────────
@@ -104,6 +128,7 @@ model Artist {
   hourlyRate          Decimal   @default(0) @map("hourly_rate") @db.Decimal(10, 2)
   wechatOpenid        String?   @map("wechat_openid") @db.VarChar(64) @unique
   status              Int       @default(1) // 1在职 0停用 2已转移
+  auditStatus         String    @default("PENDING") @map("audit_status") @db.VarChar(16) // PENDING/REJECTED/APPROVED(需求全集 §3)
   deletedAt           DateTime? @map("deleted_at")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
@@ -122,6 +147,7 @@ model Artist {
   @@unique([storeId, badgeNo])
   @@index([storeId, stageName])
   @@index([storeId, groupId])
+  @@index([storeId, auditStatus])
   @@map("artist")
 }
 
@@ -208,6 +234,10 @@ model ShowSession {
   isCross         Boolean   @default(false) @map("is_cross")
   feeAmount       Decimal?  @map("fee_amount") @db.Decimal(10, 2)
   feeRuleId       Int?      @map("fee_rule_id")
+  // 计费快照(需求全集 §6.4/§6.5:上钟时落单价与进位阈值,下钟按快照核算;门店改阈值不影响进行中场次)
+  unitPrice       Decimal?  @map("unit_price") @db.Decimal(10, 2)
+  billHours       Int?      @map("bill_hours")
+  roundingMinutes Int?      @map("rounding_minutes")
   billNo          String?   @map("bill_no") @db.VarChar(64)
   operatorId      Int?      @map("operator_id")
 
@@ -484,7 +514,22 @@ model IdempotencyKey {
   @@map("idempotency_keys")
 }
 
-model IntegrationEvent {
+// ─────────────── 门店参数(需求全集 §7 艺人设置 8 项;门店级 > env 默认) ───────────────
+
+model StoreConfig {
+  id          Int      @id @default(autoincrement())
+  storeId     Int      @map("store_id")
+  configKey   String   @map("config_key") @db.VarChar(64) // 8 项见 seed 默认
+  configValue Json     @map("config_value")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([storeId, configKey])
+  @@map("store_config")
+}
+
+// ─────────────── 开放API/渠道事件队列(v1.1 裁决:原主系统集成事件废止,更名预留) ───────────────
+
+model OpenapiEvent {
   id         Int       @id @default(autoincrement())
   storeId    Int?      @map("store_id")
   eventType  String    @map("event_type") @db.VarChar(32)
@@ -496,7 +541,7 @@ model IntegrationEvent {
   sentAt     DateTime? @map("sent_at")
 
   @@index([status, createdAt])
-  @@map("integration_event")
+  @@map("openapi_event")
 }
 
 model DailySummary {

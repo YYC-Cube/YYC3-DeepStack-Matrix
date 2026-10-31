@@ -51,6 +51,8 @@ interface ArtistCreateBody {
   sameRoomMinMinutes?: number
   tipFixed?: number
   hourlyRate?: number
+  /** 审核状态(需求全集 §3;缺省 PENDING 等待审核) */
+  auditStatus?: 'PENDING' | 'REJECTED' | 'APPROVED'
 }
 
 /**
@@ -118,6 +120,9 @@ class ArtistCreateDto {
   @IsNumber()
   @Min(0)
   hourlyRate?: number
+  @IsOptional()
+  @IsIn(['PENDING', 'REJECTED', 'APPROVED'])
+  auditStatus?: 'PENDING' | 'REJECTED' | 'APPROVED'
 }
 
 /** 批量设置入参 DTO(同上,拒绝未知字段与非法 id 形状) */
@@ -137,6 +142,12 @@ class ArtistBatchUpdateDto {
   status?: number
 }
 
+/** 档案审核入参 DTO(需求全集 §3) */
+class ArtistAuditDto {
+  @IsIn(['APPROVED', 'REJECTED'])
+  auditStatus!: 'APPROVED' | 'REJECTED'
+}
+
 @Injectable()
 export class ArtistService {
   constructor(private readonly prisma: PrismaService) {}
@@ -146,6 +157,7 @@ export class ArtistService {
     groupId?: number
     levelId?: number
     status?: string
+    auditStatus?: string
     keyword?: string
     page?: number
     pageSize?: number
@@ -157,6 +169,7 @@ export class ArtistService {
       deletedAt: null,
       groupId: q.groupId,
       levelId: q.levelId,
+      auditStatus: q.auditStatus,
       OR:
         q.keyword !== undefined && q.keyword !== ''
           ? [
@@ -189,8 +202,10 @@ export class ArtistService {
       throw new BadRequestException('realName 必填')
     }
     if (body.badgeNo !== undefined && body.badgeNo !== '') {
+      // 腰牌号店内唯一含软删档案(uk_badge 唯一索引不滤 deleted_at):
+      // 查重若滤软删,删除后同号重建会直撞 DB 唯一键(500);此处统一 40901
       const dup = await this.prisma.artist.findFirst({
-        where: { storeId, badgeNo: body.badgeNo, deletedAt: null },
+        where: { storeId, badgeNo: body.badgeNo },
       })
       if (dup !== null) {
         // 40901 腰牌号重复(对齐 04-API 错误码)
@@ -215,6 +230,7 @@ export class ArtistService {
         sameRoomMinMinutes: body.sameRoomMinMinutes ?? 0,
         tipFixed: body.tipFixed ?? 0,
         hourlyRate: body.hourlyRate ?? 0,
+        auditStatus: body.auditStatus ?? 'PENDING',
       },
     })
     await this.audit(operatorId, 'ARTIST_CREATE', 'artist', String(created.id), null, created)
@@ -263,6 +279,24 @@ export class ArtistService {
     return { updated }
   }
 
+  /** 档案审核流转(需求全集 §3:等待审核/审核未通过/审核通过;通过才对外展示) */
+  async auditArtist(
+    id: number,
+    auditStatus: 'APPROVED' | 'REJECTED',
+    operatorId: number,
+  ): Promise<void> {
+    const before = await this.prisma.artist.findFirst({
+      where: { id, deletedAt: null },
+    })
+    if (before === null) {
+      throw new BadRequestException('艺人不存在或已删除')
+    }
+    await this.prisma.artist.update({ where: { id }, data: { auditStatus } })
+    await this.audit(operatorId, 'ARTIST_AUDIT', 'artist', String(id), before, {
+      auditStatus,
+    })
+  }
+
   private async audit(
     operatorId: number,
     action: string,
@@ -294,6 +328,7 @@ export class ArtistController {
     @Req() req: Request,
     @Query('groupId') groupId?: string,
     @Query('levelId') levelId?: string,
+    @Query('auditStatus') auditStatus?: string,
     @Query('keyword') keyword?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
@@ -303,6 +338,7 @@ export class ArtistController {
       storeId: user?.storeId ?? 1,
       groupId: groupId !== undefined ? Number(groupId) : undefined,
       levelId: levelId !== undefined ? Number(levelId) : undefined,
+      auditStatus,
       keyword,
       page: page !== undefined ? Number(page) : undefined,
       pageSize: pageSize !== undefined ? Number(pageSize) : undefined,
@@ -325,6 +361,19 @@ export class ArtistController {
     const user = (req as ReqWithUser).user
     await this.svc.softDelete(id, user?.sub ?? 0)
     return { deleted: true }
+  }
+
+  /** 档案审核流转(需求全集 §3;A1 列表筛选 + A2 表单依据) */
+  @RequirePerm('artist:edit')
+  @Post(':id/audit')
+  async audit(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: ArtistAuditDto,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    await this.svc.auditArtist(id, body.auditStatus, user?.sub ?? 0)
+    return { auditStatus: body.auditStatus }
   }
 
   @RequirePerm('artist:batch')

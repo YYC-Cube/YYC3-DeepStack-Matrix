@@ -1,6 +1,6 @@
 # YYC³ LeisureAPI · 开发速查(README-DEV)
 
-> 阶段1 骨架:auth + artist + attendance 三模块已实现;session/stage-fee/approval/report 为阶段2+。
+> 阶段1-B 完成:auth + artist(含审核状态)/ attendance / store(房型+包厢房号)/ store-config(艺人设置8项)已实现;session/stage-fee/approval/report 为阶段2+。
 
 ## 快速启动
 
@@ -54,22 +54,31 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 | GET | /api/v1/attendance/summary | 汇总矩阵(10 列) |
 | POST | /api/v1/attendance/manual | 补打卡(原因必填) |
 | GET | /api/v1/attendance/realtime | 实时看板(阶段1 仅考勤态) |
+| GET/POST/PUT/DELETE | /api/v1/store/room-types[/:id] | 包厢类型 CRUD(有房号禁删;`room:manage`) |
+| GET/POST/PUT/DELETE | /api/v1/store/rooms[/:id] | 包厢房号 CRUD(房号店内唯一 40907;有场次禁删;`room:manage`) |
+| PUT | /api/v1/store/rooms/:id/status | 房态流转 FREE/MAINTENANCE/DISABLED(OCCUPIED 由上下钟驱动,手工置 400) |
+| POST | /api/v1/artists/:id/audit | 档案审核流转 APPROVED/REJECTED(§3;默认建档 PENDING;`artist:edit`) |
+| GET | /api/v1/artists?auditStatus= | 档案列表按审核态筛选(PENDING/REJECTED/APPROVED) |
+| GET/PUT | /api/v1/store-config/artist-settings | 艺人设置 8 项读写(门店级 > env 默认;`setting:manage`) |
 
 统一响应:`{ code: 0, msg: "ok", data: … }`(全局 TransformInterceptor 包裹,幂等回放体同样单层信封);错误码对齐 04 文档。公开路由(免 token)仅 `auth/admin/login`、`auth/wx/login`,以 `@Public()` 标注,其余全部过 JwtGuard。
 
 ## 已知边界(阶段2+ 解决)
 
 - session/stage-fee/approval/ticket/report 模块未实现(见 10 号文档 §二)
-- 实时看板"上钟/串台/被选中"待 session 模块接通
+- 实时看板"上钟/串台/被选中"待 session 模块接通(房号→房型→单价联动的占用流转同批落地)
 - Idempotency 拦截器的并发首写竞争由唯一索引兜底(冲突方静默)
 - wx code2session 需配置 WX_APPID/WX_SECRET;未配置时 dev 模式 code 即 openid
 - 密码哈希暂用 bcryptjs;切换 Argon2id 见 10 号文档依赖建议
+- 腰牌号店内唯一**含软删档案**(uk_badge 不滤 deleted_at):删除后同号重建一律 40901,防止流水归属混淆
 
 ## 验证命令
 
 ```bash
 pnpm type-check          # tsc --noEmit
-pnpm test                # vitest(骨架期以 e2e 为主,随写随留)
+# e2e(服务已启动后;凭据经环境变量,不嵌入源码):
+LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026' \
+  ./node_modules/.bin/vitest run test/api.e2e.test.ts
 # 冒烟(服务启动后)
 curl -s http://localhost:3001/api/v1/auth/admin/login -H 'Content-Type: application/json' \
   -d '{"phone":"13103790379","password":"ChangeMe@2026"}'

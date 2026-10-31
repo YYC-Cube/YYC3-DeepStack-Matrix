@@ -18,7 +18,10 @@ const EnvSchema = z.object({
   ALLOW_NEGATIVE_BALANCE: z.enum(['true', 'false']).default('true'),
   ALLOW_STAGE_WITHOUT_CHECKIN: z.enum(['true', 'false']).default('false'),
   CHECKOUT_MIN_MINUTES: z.coerce.number().default(60),
-  INTEGRATION_ENABLED: z.enum(['true', 'false']).default('false'),
+  // 计费进位阈值(分钟,默认15;门店级「艺人设置-包厢计费规则」可覆盖,见 store-config 模块)
+  BILL_ROUNDING_MINUTES: z.coerce.number().int().min(0).max(59).default(15),
+  // 开放 API 生态预留开关(2026-11-01 v1.1 裁决:原 INTEGRATION_ENABLED 主系统联动废止)
+  OPENAPI_ENABLED: z.enum(['true', 'false']).default('false'),
   WX_APPID: z.string().optional(),
   WX_SECRET: z.string().optional(),
 })

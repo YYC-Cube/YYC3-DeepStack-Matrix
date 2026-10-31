@@ -24,6 +24,21 @@ import type {
 
 /* ───────────────────────── 传输层抽象 ───────────────────────── */
 
+/** 审批单行(列表用;bizPayload 为申请时快照) */
+export interface ApprovalRow {
+  id: number
+  storeId: number
+  bizType: string
+  bizPayload: unknown
+  amount?: number
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+  applicantId: number
+  approverId?: number
+  decidedAt?: string
+  remark?: string
+  createdAt: string
+}
+
 export interface TransportRequest {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
   path: string // 以 / 开头,不含 baseUrl
@@ -152,6 +167,9 @@ export class LeisureApiClient {
       this.post<{ feeAmount: number; durationMinutes: number }>('/sessions/' + String(p.sessionId) + '/finish', {}),
     cross: (p: { sessionId: number; toRoomId: number }) =>
       this.post<{ sessionId: number }>('/sessions/' + String(p.sessionId) + '/cross', p),
+    /** 转包厢(需求全集 §6.6):终止当前计时并按快照结算,同事务新开一条上钟记录 */
+    transfer: (p: { sessionId: number; toRoomId: number }) =>
+      this.post<{ finishedSessionId: number; newSessionId: number }>('/sessions/' + String(p.sessionId) + '/transfer', p),
     list: (q: {
       businessDateFrom: string
       businessDateTo: string
@@ -190,6 +208,17 @@ export class LeisureApiClient {
     ),
     balance: (artistId: number) =>
       this.get<{ balance: number }>('/stage-fee/balance/' + String(artistId)),
+    /** 冲正(铁律:更正=REVERSE 反向流水+关联原单;原单只增不改) */
+    reverse: (p: { txnId: number; remark: string }, idemKey?: string) =>
+      this.post<{ txnId: number; balance: number }>('/stage-fee/txns/' + String(p.txnId) + '/reverse', { remark: p.remark }, idemKey),
+  }
+
+  /* ── 审批(手动扣费高额;审批人与申请人不得同一人) ── */
+  approvals = {
+    list: (q: { status?: 'PENDING' | 'APPROVED' | 'REJECTED'; page?: number; pageSize?: number }) =>
+      this.get<{ rows: ApprovalRow[]; total: number }>('/approvals', q),
+    decide: (p: { id: number; decision: 'APPROVED' | 'REJECTED' }, idemKey?: string) =>
+      this.post<{ id: number; status: 'APPROVED' | 'REJECTED'; txnId?: number }>('/approvals/' + String(p.id) + '/decide', { decision: p.decision }, idemKey),
   }
 
   /* ── 台票 ── */

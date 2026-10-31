@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, Public, type JwtPayload } from '../../common/guards/jwt.guard.js'
+// Public 注:wx/bind 在艺人尚未持 token 阶段调用,鉴权凭 bindToken 本身(15min 签名),路由须公开
 import { LeisureError, ERR } from '@yyc3/leisure-core'
 
 /* ── Service ── */
@@ -235,6 +236,7 @@ export class AuthController {
     return this.auth.wxLogin(body.code)
   }
 
+  @Public()
   @Post('wx/bind')
   async wxBind(
     @Body()

@@ -9,7 +9,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common'
 import type { Request } from 'express'
-import { defer, of, switchMap, tap, type Observable } from 'rxjs'
+import { defer, of, switchMap, type Observable } from 'rxjs'
 import { PrismaService } from '../../prisma/prisma.service.js'
 
 interface ReqWithUser extends Request {
@@ -42,15 +42,20 @@ export class IdempotencyInterceptor implements NestInterceptor {
     ).pipe(
       switchMap((snapshot) => {
         if (snapshot !== null) return of(snapshot)
-        // 放行并在成功后落快照(此时流经过内层 TransformInterceptor,快照即最终信封体)
+        // 放行执行,快照落库后再放行响应(此时流经过内层 TransformInterceptor,快照即最终信封体)。
+        // 竞态修复:此前 tap+void create 与响应并发,紧随其后的同键请求会在快照提交前查空而重复执行。
+        // create 失败(含并发唯一冲突)不阻塞响应:首次响应已产生,冲突方业务侧仍有幂等表兜底
         return next.handle().pipe(
-          tap((body) => {
-            void this.prisma.idempotencyKey
-              .create({
-                data: { storeId, idemKey: key, path, responseSnapshot: body as object },
-              })
-              .catch(() => undefined) // 唯一冲突=并发重复,首次响应已回放
-          }),
+          switchMap((body) =>
+            defer(() =>
+              this.prisma.idempotencyKey
+                .create({
+                  data: { storeId, idemKey: key, path, responseSnapshot: body as object },
+                })
+                .then(() => body)
+                .catch(() => body),
+            ),
+          ),
         )
       }),
     )

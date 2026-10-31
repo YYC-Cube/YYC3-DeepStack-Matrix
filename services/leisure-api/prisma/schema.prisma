@@ -238,6 +238,8 @@ model ShowSession {
   unitPrice       Decimal?  @map("unit_price") @db.Decimal(10, 2)
   billHours       Int?      @map("bill_hours")
   roundingMinutes Int?      @map("rounding_minutes")
+  roundingEnabled Boolean?  @map("rounding_enabled") // 进位开关快照(NULL=旧数据,按当前配置兜底)
+  feeMode         String?   @map("fee_mode") @db.VarChar(8) // HOURLY/FLAT 快照
   billNo          String?   @map("bill_no") @db.VarChar(64)
   operatorId      Int?      @map("operator_id")
 

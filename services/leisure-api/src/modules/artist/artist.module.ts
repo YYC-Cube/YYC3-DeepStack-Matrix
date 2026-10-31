@@ -32,6 +32,7 @@ import {
   Min,
 } from 'class-validator'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { ERR, LeisureError } from '@yyc3/leisure-core'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 interface ArtistCreateBody {
@@ -245,7 +246,8 @@ export class ArtistService {
       this.prisma.showSession.count({ where: { artistId: id } }),
     ])
     if (fee + ticket + session > 0) {
-      throw new ConflictException('该艺人存在业务流水,请使用停用')
+      // 40906(04-API §10):有流水禁删,引导停用——业务码入响应体供四端判断
+      throw new LeisureError(ERR.ARTIST_HAS_TXN_NO_DELETE, '该艺人存在业务流水,请使用停用')
     }
     const before = await this.prisma.artist.findUnique({ where: { id } })
     await this.prisma.artist.update({ where: { id }, data: { deletedAt: new Date() } })

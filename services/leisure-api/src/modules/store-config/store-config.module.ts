@@ -77,12 +77,32 @@ class ArtistSettingsDto {
 
 /* ── Service ── */
 
+/** 艺人设置合并视图(门店行 > env/内置默认;形态对齐 leisure-core StoreArtistSettings) */
+export interface ArtistSettingsView {
+  requiredProfileFields: string[]
+  reportRequireReview: boolean
+  reportOpenFrom?: string
+  reportOpenTo?: string
+  checkoutMinMinutes: number
+  allowSelfScanFinish: boolean
+  allowStageWithoutCheckin: boolean
+  ticketPurchaseEnabled: boolean
+  ticketPurchaseMaxPerDay?: number
+  roomBilling: {
+    feeMode: 'HOURLY' | 'FLAT'
+    roundingEnabled: boolean
+    roundingThresholdMinutes: number
+    crossDayAccumulate: boolean
+  }
+  stageAssignMode: 'ROTATION' | 'SELF_PICK' | 'MIXED'
+}
+
 @Injectable()
 export class StoreConfigService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** 读 8 项合并结果(门店行 > env/内置默认);返回形态对齐 leisure-core StoreArtistSettings */
-  async getArtistSettings(storeId: number): Promise<unknown> {
+  /** 读 8 项合并结果(门店行 > env/内置默认) */
+  async getArtistSettings(storeId: number): Promise<ArtistSettingsView> {
     const rows = await this.prisma.storeConfig.findMany({ where: { storeId } })
     const byKey = new Map(rows.map((r) => [r.configKey, r.configValue]))
 
@@ -97,7 +117,7 @@ export class StoreConfigService {
       | undefined
 
     const e = env()
-    return {
+    const view: ArtistSettingsView = {
       // ① 资料必填项(内置默认:姓名/手机)
       requiredProfileFields:
         (byKey.get(CONFIG_KEYS.requiredProfileFields) as string[] | undefined) ??
@@ -121,15 +141,16 @@ export class StoreConfigService {
       ticketPurchaseMaxPerDay: ticketRow?.maxPerDay,
       // ⑦ 包厢计费规则(env 阈值默认 → 门店覆盖)
       roomBilling: {
-        feeMode: roomBillingRow?.feeMode ?? 'HOURLY',
+        feeMode: (roomBillingRow?.feeMode as ArtistSettingsView['roomBilling']['feeMode'] | undefined) ?? 'HOURLY',
         roundingEnabled: roomBillingRow?.roundingEnabled ?? true,
         roundingThresholdMinutes:
           roomBillingRow?.roundingThresholdMinutes ?? e.BILL_ROUNDING_MINUTES,
         crossDayAccumulate: roomBillingRow?.crossDayAccumulate ?? true,
       },
       // ⑧ 上钟模式
-      stageAssignMode: (byKey.get(CONFIG_KEYS.stageAssignMode) as string | undefined) ?? 'MIXED',
+      stageAssignMode: (byKey.get(CONFIG_KEYS.stageAssignMode) as ArtistSettingsView['stageAssignMode'] | undefined) ?? 'MIXED',
     }
+    return view
   }
 
   /** 写:仅落显式提供的键;服务内显式字段收敛(第二层防线),未知键丢弃 */

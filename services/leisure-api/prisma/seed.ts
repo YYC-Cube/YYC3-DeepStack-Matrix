@@ -197,6 +197,41 @@ async function main() {
     console.log('[seed] 管理员已创建: ' + adminPhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
   }
 
+  // 财务角色+账号(双人防线第二人:手动扣费审批人≠申请人,C-08)
+  const financePerms = [
+    'fee:recharge', 'fee:manual', 'fee:ledger:view', 'fee:ledger:export',
+    'ticket:ledger:view', 'approval:decide', 'report:export',
+    'session:view', 'artist:view', 'attend:ledger:view',
+  ]
+  let financeRole = await prisma.role.findFirst({
+    where: { storeId: store.id, name: '财务' },
+  })
+  if (financeRole === null) {
+    financeRole = await prisma.role.create({
+      data: { storeId: store.id, name: '财务', permCodes: financePerms },
+    })
+  } else {
+    const owned = Array.isArray(financeRole.permCodes) ? (financeRole.permCodes as string[]) : []
+    const merged = Array.from(new Set([...owned, ...financePerms]))
+    if (merged.length !== owned.length) {
+      financeRole = await prisma.role.update({ where: { id: financeRole.id }, data: { permCodes: merged } })
+    }
+  }
+  const financePhone = '13103790380'
+  const financeExists = await prisma.adminUser.findUnique({ where: { phone: financePhone } })
+  if (financeExists === null) {
+    await prisma.adminUser.create({
+      data: {
+        storeId: store.id,
+        name: '测试财务',
+        phone: financePhone,
+        passwordHash: await bcrypt.hash('ChangeMe@2026', 10),
+        roleId: financeRole.id,
+      },
+    })
+    console.log('[seed] 财务已创建: ' + financePhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
+  }
+
   console.log('[seed] 完成: store=' + store.name + ' roomTypes=' + roomTypes.length + ' rooms=' + String(roomSamples.reduce((n, s) => n + s.count, 0)) + ' level=技师 group=江海龙 artists=3 storeConfig=8项')
 }
 

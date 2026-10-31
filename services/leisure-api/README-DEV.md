@@ -1,6 +1,6 @@
 # YYC³ LeisureAPI · 开发速查(README-DEV)
 
-> 阶段1-B 完成:auth + artist(含审核状态)/ attendance / store(房型+包厢房号)/ store-config(艺人设置8项)已实现;session/stage-fee/approval/report 为阶段2+。
+> 阶段2 完成:auth / artist(审核状态)/ attendance / store(房型+房号)/ store-config(艺人设置8项)/ **session(上下钟·串台·转包厢)/ stage-fee(规则·充值·扣费·冲正·余额)/ approval(双人审批)/ 日切汇总 job** 已实现;report/ticket/payment 为阶段6+/II 期。
 
 ## 快速启动
 
@@ -17,10 +17,13 @@ pnpm --filter @yyc3/leisure-core build
 docker compose -f docker-compose.dev.yml up -d
 
 # 4) 环境与数据库
-cp .env.example .env          # DATABASE_URL 密码改为 leisure-dev-only(与 compose 一致)
+cp .env.example .env          # .env 默认用受限运行时账号 leisure_app(流水/审计表只增)
 pnpm prisma:generate
-pnpm prisma:migrate --name init   # 需影子库权限:全新数据卷由 docker/mysql-init 自动
-                                 # 授权;老卷手动执行 GRANT ALL ON *.* TO 'leisure'@'%'
+# 迁移需 DDL,临时切换 migrate 账号(leisure):
+DATABASE_URL=mysql://leisure:leisure-dev-only@127.0.0.1:3307/leisure \
+  pnpm prisma:migrate --name xxx
+# 应用账号授权:全新数据卷由 docker/mysql-init/02-accounts.sql 自动;既有卷执行:
+#   docker exec -i leisure-mysql mysql -uroot -p < scripts/apply-prod-grants.sql
 pnpm db:seed
 
 # 5) 起服务
@@ -36,6 +39,7 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 | 账号 | 密码 | 角色 |
 |---|---|---|
 | 13103790379 | ChangeMe@2026 | 管理员(全功能码)——**首登必改** |
+| 13103790380 | ChangeMe@2026 | 财务(手动扣费审批第二人,C-08 双人防线)——**首登必改** |
 
 ## 接口速览(阶段1 已实现)
 
@@ -60,6 +64,33 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 | POST | /api/v1/artists/:id/audit | 档案审核流转 APPROVED/REJECTED(§3;默认建档 PENDING;`artist:edit`) |
 | GET | /api/v1/artists?auditStatus= | 档案列表按审核态筛选(PENDING/REJECTED/APPROVED) |
 | GET/PUT | /api/v1/store-config/artist-settings | 艺人设置 8 项读写(门店级 > env 默认;`setting:manage`) |
+| POST | /api/v1/sessions/start | 上钟:{artistId, roomId 必选};前置校验(40904/400)+ 单价/阈值/模式快照;房态→OCCUPIED(`session:view`) |
+| POST | /api/v1/sessions/:id/finish | 下钟:按快照计费(HOURLY 先保底再进位 / FLAT 一口价);落 SESSION_DEDUCT;末场离房→FREE(`session:finish`) |
+| POST | /api/v1/sessions/:id/cross | 串台:并行新开一场独立核算(§6.6;maxCrossRooms 拦 40904) |
+| POST | /api/v1/sessions/:id/transfer | 转包厢:终止当前(同规结算)+ 同事务新开(§6.6) |
+| GET | /api/v1/sessions | 检索:营业日区间/组别/房号/状态(全部 onstage cross)/关键词(A20) |
+| GET/POST/PUT/DELETE | /api/v1/stage-fee-rules[/:id] | 台费规则 CRUD;该房型当日已有上钟禁改 40903(`feerule:manage`) |
+| GET | /api/v1/stage-fee/resolve-rule?levelId=&roomTypeId= | 单价预览(等级×房型解析) |
+| POST | /api/v1/stage-fee/recharge | 充值:MVP 仅 CASH(幂等键);返回 {txnId, balance}(`fee:recharge`) |
+| POST | /api/v1/stage-fee/manual-deduct | 手动扣费:备注必填;≥500 → 202+41201 审批单;否则直扣(`fee:manual`) |
+| GET | /api/v1/stage-fee/txns | 流水三查:营业日区间/类型/组别/腰牌艺名;含 totalAmount(`fee:ledger:view`) |
+| GET | /api/v1/stage-fee/balance/:artistId | 余额 = Σ流水(挂起审批不计入) |
+| POST | /api/v1/stage-fee/txns/:id/reverse | 冲正:REVERSE 反向流水+关联原单;冲正单不可再冲(`fee:manual`) |
+| GET | /api/v1/approvals?status= | 审批列表(`fee:ledger:view`) |
+| POST | /api/v1/approvals/:id/decide | 审批决定:审批人≠申请人;通过才落 MANUAL_DEDUCT(`approval:decide`) |
+
+### 核心链路演示(阶段2 交付)
+
+```bash
+bash scripts/demo-core-chain.sh
+# 建艺人→审核→签到→上钟→串台→下钟→充值→手动扣费(直扣+审批)→冲正→余额对账,12 步全链路
+```
+
+### 资金红线落点(铁律 2)
+
+- DB 层:`stage_fee_txn / ticket_txn / audit_log / wechat_bind_log` 对运行时账号 `leisure_app` **只授 SELECT+INSERT**(02-accounts.sql / apply-prod-grants.sql);验证:`docker exec leisure-mysql mysql -uleisure_app -p … -e "UPDATE stage_fee_txn SET amount=0 WHERE id=1"` → ERROR 1142
+- 应用层:流水只 create 不 update/delete;更正走 REVERSE;金额精度 2 位;资金写接口幂等键 24h 回放(快照落库后才返回响应)
+- 日切 job:进程内 60s 轮询物化上一营业日 daily_summary(幂等可重跑,BullMQ 就绪后平移);痕迹在 job_run_log
 
 统一响应:`{ code: 0, msg: "ok", data: … }`(全局 TransformInterceptor 包裹,幂等回放体同样单层信封);错误码对齐 04 文档。公开路由(免 token)仅 `auth/admin/login`、`auth/wx/login`,以 `@Public()` 标注,其余全部过 JwtGuard。
 
@@ -78,7 +109,10 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 pnpm type-check          # tsc --noEmit
 # e2e(服务已启动后;凭据经环境变量,不嵌入源码):
 LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026' \
-  ./node_modules/.bin/vitest run test/api.e2e.test.ts
+  ./node_modules/.bin/vitest run test/api.e2e.test.ts            # 阶段1-B(7 用例)
+LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026' \
+LEISURE_E2E_FINANCE_PHONE=13103790380 \
+  ./node_modules/.bin/vitest run test/session-fee.e2e.test.ts    # 阶段2(7 用例)
 # 冒烟(服务启动后)
 curl -s http://localhost:3001/api/v1/auth/admin/login -H 'Content-Type: application/json' \
   -d '{"phone":"13103790379","password":"ChangeMe@2026"}'

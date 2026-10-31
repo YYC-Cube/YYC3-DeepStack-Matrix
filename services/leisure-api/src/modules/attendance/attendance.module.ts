@@ -36,6 +36,21 @@ function isReportType(v: string): v is ReportType {
 export class AttendanceService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** 营业日切口径:门店级 business_day_cut_time 优先(铁律 3),env 为兜底 */
+  private async storeCut(storeId: number): Promise<string> {
+    const store = await this.prisma.store.findUnique({ where: { id: storeId } })
+    return store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT
+  }
+
+  /** 签退时限:门店级 store_config(checkout_min_minutes)> env 默认(需求全集 §7 ③) */
+  private async checkoutMinMinutes(storeId: number): Promise<number> {
+    const row = await this.prisma.storeConfig.findUnique({
+      where: { storeId_configKey: { storeId, configKey: 'checkout_min_minutes' } },
+    })
+    const v = row?.configValue
+    return typeof v === 'number' ? v : env().CHECKOUT_MIN_MINUTES
+  }
+
   /** 扫码签到:geo 可空(失败标记 checkinGeoOk=false) */
   async checkin(
     p: { reportType: string; lat?: number; lng?: number },
@@ -45,7 +60,7 @@ export class AttendanceService {
       throw new ConflictException('无效的报备类型')
     }
     const now = new Date()
-    const businessDate = resolveBusinessDate(now, { cutTime: env().BUSINESS_DAY_CUT })
+    const businessDate = resolveBusinessDate(now, { cutTime: await this.storeCut(ctx.storeId) })
     const bdDate = new Date(businessDate)
     const dup = await this.prisma.attendanceReport.findFirst({
       where: {
@@ -88,7 +103,7 @@ export class AttendanceService {
     ctx: { artistId: number; storeId: number },
   ): Promise<{ reportId: number; durationMinutes: number }> {
     const now = new Date()
-    const businessDate = resolveBusinessDate(now, { cutTime: env().BUSINESS_DAY_CUT })
+    const businessDate = resolveBusinessDate(now, { cutTime: await this.storeCut(ctx.storeId) })
     const report = await this.prisma.attendanceReport.findFirst({
       where: {
         storeId: ctx.storeId,
@@ -102,14 +117,15 @@ export class AttendanceService {
       throw new ConflictException('今日尚未签到')
     }
     // 时限:距「营业日开始」或「签到时刻」取大者后的 N 分钟窗口由配置语义决定;
-    // 实测口径:签到后 N 分钟方可签退
+    // 实测口径:签到后 N 分钟方可签退(N=门店级配置>env 默认)
     const sinceCheckin = now.getTime() - new Date(report.reportTime).getTime()
     const sinceDayStart = millisSinceBusinessDayStart(now, {
-      cutTime: env().BUSINESS_DAY_CUT,
+      cutTime: await this.storeCut(ctx.storeId),
     })
-    const minMs = env().CHECKOUT_MIN_MINUTES * 60_000
+    const minMinutes = await this.checkoutMinMinutes(ctx.storeId)
+    const minMs = minMinutes * 60_000
     if (sinceCheckin < minMs && sinceDayStart >= minMs) {
-      throw new ConflictException('签到未满 ' + String(env().CHECKOUT_MIN_MINUTES) + ' 分钟,禁止签退')
+      throw new ConflictException('签到未满 ' + String(minMinutes) + ' 分钟,禁止签退')
     }
     const updated = await this.prisma.attendanceReport.update({
       where: { id: report.id },
@@ -280,11 +296,22 @@ export class AttendanceService {
     return { reportId: created.id }
   }
 
-  /** 实时看板(阶段1:仅考勤态;阶段2接 session 上钟/串台) */
+  /** 实时看板(阶段2:考勤态 + session 上钟/串台;DB 推导,Redis 承载为 II 期) */
   async realtime(
     q: { storeId: number; groupId?: number; keyword?: string },
   ): Promise<{ counts: Record<string, number>; artists: unknown[] }> {
-    const today = new Date(resolveBusinessDate(new Date(), { cutTime: env().BUSINESS_DAY_CUT }))
+    const today = new Date(resolveBusinessDate(new Date(), { cutTime: await this.storeCut(q.storeId) }))
+    // 进行中场次 → 上钟(1场)/串台(≥2场);包厢名带出(A19 卡片墙展示)
+    const activeSessions = await this.prisma.showSession.findMany({
+      where: { storeId: q.storeId, endAt: null },
+      select: { artistId: true, roomName: true },
+    })
+    const activeRooms = new Map<number, string[]>()
+    for (const s of activeSessions) {
+      const list = activeRooms.get(s.artistId) ?? []
+      if (s.roomName !== null) list.push(s.roomName)
+      activeRooms.set(s.artistId, list)
+    }
     const artists = await this.prisma.artist.findMany({
       where: {
         storeId: q.storeId,
@@ -318,9 +345,19 @@ export class AttendanceService {
       SELECTED: 0,
     }
     const list = artists.map((a) => {
+      const active = activeRooms.get(a.id) ?? []
       const hasCheckin = a.reports.some((r) => r.type === 'CHECKIN')
       const hasCheckout = a.reports.some((r) => r.checkoutTime !== null)
-      const status = hasCheckout ? 'IDLE' : hasCheckin ? 'CHECKED_IN' : 'IDLE'
+      const status =
+        active.length >= 2
+          ? 'CROSS'
+          : active.length === 1
+            ? 'ON_STAGE'
+            : hasCheckout
+              ? 'IDLE'
+              : hasCheckin
+                ? 'CHECKED_IN'
+                : 'IDLE'
       counts[status] = (counts[status] ?? 0) + 1
       return {
         artistId: a.id,
@@ -328,6 +365,7 @@ export class AttendanceService {
         badgeNo: a.badgeNo,
         groupId: a.groupId,
         status,
+        roomName: active[0],
       }
     })
     return { counts, artists: list }

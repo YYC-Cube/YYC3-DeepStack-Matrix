@@ -35,7 +35,7 @@ import { PrismaService } from '../../prisma/prisma.service.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 interface ArtistCreateBody {
-  storeId: number
+  // storeId 不在契约内:svc.create 以独立入参接收(控制器做 body→用户默认店兜底)
   groupId?: number
   supervisorName?: string
   levelId?: number
@@ -180,13 +180,17 @@ export class ArtistService {
     return { rows, total }
   }
 
-  async create(body: ArtistCreateBody, operatorId: number): Promise<{ id: number }> {
+  async create(
+    body: ArtistCreateBody,
+    operatorId: number,
+    storeId: number,
+  ): Promise<{ id: number }> {
     if (body.realName === undefined || body.realName === '') {
       throw new BadRequestException('realName 必填')
     }
     if (body.badgeNo !== undefined && body.badgeNo !== '') {
       const dup = await this.prisma.artist.findFirst({
-        where: { storeId: body.storeId, badgeNo: body.badgeNo, deletedAt: null },
+        where: { storeId, badgeNo: body.badgeNo, deletedAt: null },
       })
       if (dup !== null) {
         // 40901 腰牌号重复(对齐 04-API 错误码)
@@ -195,7 +199,7 @@ export class ArtistService {
     }
     const created = await this.prisma.artist.create({
       data: {
-        storeId: body.storeId,
+        storeId,
         groupId: body.groupId,
         supervisorName: body.supervisorName,
         levelId: body.levelId,
@@ -310,7 +314,9 @@ export class ArtistController {
   async create(@Req() req: Request, @Body() body: ArtistCreateDto): Promise<unknown> {
     const user = (req as ReqWithUser).user
     const storeId = body.storeId ?? user?.storeId ?? 1
-    return this.svc.create({ ...body, storeId }, user?.sub ?? 0)
+    // DTO 实例整体直传(svc 内显式字段映射为唯一写入源),不做 spread:
+    // 入口层 DTO 校验(拒未知字段)+ svc 层显式映射,双层防线且无整包透传形态
+    return this.svc.create(body, user?.sub ?? 0, storeId)
   }
 
   @RequirePerm('artist:delete')

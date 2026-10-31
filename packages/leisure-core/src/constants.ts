@@ -8,6 +8,8 @@ export {
   REALTIME_STATUS_LABEL,
   REPORT_TYPES,
   REPORT_SUMMARY_KEYS,
+  ROOM_STATUSES,
+  ARTIST_AUDIT_STATUSES,
 } from './types.js'
 
 export type {
@@ -16,4 +18,10 @@ export type {
   ReportSummaryRow,
   FeeTxnType,
   PayChannel,
+  RoomStatus,
+  Room,
+  ArtistAuditStatus,
+  StageAssignMode,
+  RoomBillingConfig,
+  StoreArtistSettings,
 } from './types.js'

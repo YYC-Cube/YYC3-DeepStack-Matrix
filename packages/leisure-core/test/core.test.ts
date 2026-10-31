@@ -4,7 +4,13 @@ import {
   resolveBusinessDate,
   shiftBusinessDate,
 } from '../src/business-day.js'
-import { calcSessionFee, resolveStageFeeRule, assertCanTakeSession } from '../src/stage-fee.js'
+import {
+  calcSessionFee,
+  resolveStageFeeRule,
+  assertCanTakeSession,
+  calcBillHours,
+  DEFAULT_ROUNDING_THRESHOLD_MINUTES,
+} from '../src/stage-fee.js'
 import { canUseTicket, calcPurchaseAmount, ticketBalance } from '../src/ticket.js'
 import { RealtimeStatus, REPORT_TYPES } from '../src/types.js'
 
@@ -66,7 +72,7 @@ describe('stage-fee', () => {
     })
     expect(out.minDurationApplied).toBe(true)
   })
-  it('HOURLY:按分钟向上取整', () => {
+  it('HOURLY:进位阈值计费(83 分钟,默认 N=15 → 2 小时)', () => {
     const out = calcSessionFee({
       rule: undefined,
       startAt: '2026-10-31T08:00:00',
@@ -75,7 +81,54 @@ describe('stage-fee', () => {
       hourlyRate: 120,
     })
     expect(out.durationMinutes).toBe(83)
-    expect(out.amount).toBe((84 / 60) * 120)
+    expect(out.billHours).toBe(2)
+    expect(out.amount).toBe(240)
+  })
+  it('HOURLY:保底后进位(83 分钟 < 保底 120 → 计费 2 小时)', () => {
+    const out = calcSessionFee({
+      rule: undefined,
+      startAt: '2026-10-31T08:00:00',
+      endAt: '2026-10-31T09:23:00',
+      mode: 'HOURLY',
+      hourlyRate: 100,
+      minDurationMinutes: 120,
+    })
+    expect(out.minDurationApplied).toBe(true)
+    expect(out.billHours).toBe(2)
+    expect(out.amount).toBe(200)
+  })
+})
+
+/* ── 进位阈值(需求全集 §6.3 伪代码口径,2026-11-01 裁决) ── */
+
+describe('calcBillHours', () => {
+  it('默认阈值 15:N=15 边界(15 不进位 / 16 进位)', () => {
+    expect(DEFAULT_ROUNDING_THRESHOLD_MINUTES).toBe(15)
+    expect(calcBillHours(15)).toBe(0)
+    expect(calcBillHours(16)).toBe(1)
+  })
+  it('整段对照(默认 N=15,伪代码口径):75→1h · 76→2h · 135→2h · 136→3h · 195→3h', () => {
+    expect(calcBillHours(60)).toBe(1)
+    expect(calcBillHours(75)).toBe(1)
+    expect(calcBillHours(76)).toBe(2)
+    expect(calcBillHours(120)).toBe(2)
+    expect(calcBillHours(135)).toBe(2)
+    expect(calcBillHours(136)).toBe(3)
+    expect(calcBillHours(180)).toBe(3)
+    expect(calcBillHours(195)).toBe(3)
+    expect(calcBillHours(196)).toBe(4)
+  })
+  it('门店自定义 N=10:70 分钟不进位 / 71 分钟进位', () => {
+    expect(calcBillHours(70, { thresholdMinutes: 10 })).toBe(1)
+    expect(calcBillHours(71, { thresholdMinutes: 10 })).toBe(2)
+  })
+  it('关闭进位规则 = 向下取整(90 分钟 → 1h)', () => {
+    expect(calcBillHours(90, { enabled: false })).toBe(1)
+    expect(calcBillHours(179, { enabled: false })).toBe(2)
+  })
+  it('非正时长 → 0 小时', () => {
+    expect(calcBillHours(0)).toBe(0)
+    expect(calcBillHours(-5)).toBe(0)
   })
 })
 

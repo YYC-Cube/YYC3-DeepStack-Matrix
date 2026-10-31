@@ -86,6 +86,14 @@ export interface AttendanceReport {
 
 /* ───────────────────────── 艺人档案(实测 94 项表单子集) ───────────────────────── */
 
+/** 档案审核状态(需求全集 §3):审核通过才对外展示 */
+export const ARTIST_AUDIT_STATUSES = [
+  { code: 'PENDING', label: '等待审核' },
+  { code: 'REJECTED', label: '审核未通过' },
+  { code: 'APPROVED', label: '审核通过' },
+] as const
+export type ArtistAuditStatus = (typeof ARTIST_AUDIT_STATUSES)[number]['code']
+
 export interface Artist {
   id: number
   storeId: number
@@ -112,7 +120,34 @@ export interface Artist {
   tipFixed: number
   hourlyRate: number
   wechatOpenid?: string
+  /** 在职状态(与审核状态两个维度:审核管对外展示,在职管业务可用) */
   status: 'ACTIVE' | 'SUSPENDED' | 'TRANSFERRED'
+  /** 档案审核状态(需求全集 §3;新建默认 PENDING) */
+  auditStatus: ArtistAuditStatus
+}
+
+/* ───────────────────────── 包厢房号(需求全集 §5) ───────────────────────── */
+
+/** 包厢状态:占用/空闲随上下钟自动流转;维修/停用在上钟选择框不可选 */
+export const ROOM_STATUSES = [
+  { code: 'FREE', label: '空闲' },
+  { code: 'OCCUPIED', label: '占用' },
+  { code: 'MAINTENANCE', label: '维修' },
+  { code: 'DISABLED', label: '停用' },
+] as const
+export type RoomStatus = (typeof ROOM_STATUSES)[number]['code']
+
+/** 包厢房号:房号店内唯一;上钟必选房号 → 带出房型匹配单价 */
+export interface Room {
+  id: number
+  storeId: number
+  /** 房号,店内唯一(如 A01、VIP03) */
+  roomNo: string
+  roomName?: string
+  roomTypeId: number
+  capacity?: number
+  status: RoomStatus
+  remark?: string
 }
 
 /* ───────────────────────── 台费(等级 × 房型 → 金额,实测矩阵) ───────────────────────── */
@@ -143,6 +178,54 @@ export interface ShowSession {
   isCross: boolean
   feeAmount?: number
   billNo?: string
+  /** 计费单价快照(上钟时由「等级×房型」规则带出,元/小时) */
+  unitPrice?: number
+  /** 计费小时数(下钟时按上钟时快照阈值核算,需求全集 §6.5) */
+  billHours?: number
+  /** 进位阈值快照(分钟;门店改阈值不影响进行中场次) */
+  roundingMinutes?: number
+}
+
+/* ───────────────────────── 门店艺人设置(需求全集 §7,8 项) ───────────────────────── */
+
+/** 上钟模式:轮台 / 自选 / 混合 */
+export type StageAssignMode = 'ROTATION' | 'SELF_PICK' | 'MIXED'
+
+/** 包厢计费规则设置(需求全集 §6.4) */
+export interface RoomBillingConfig {
+  /** 计费模式:HOURLY 小时计费(当前启用)/ FLAT 一口价(预留) */
+  feeMode: StageFeeMode
+  /** 是否启用进位规则;关闭 = 按实际时长向下取整到小时 */
+  roundingEnabled: boolean
+  /** 进位阈值 N(分钟),默认 15;剩余分钟 > N 进位 1 小时 */
+  roundingThresholdMinutes: number
+  /** 跨天处理:连续累计(班次周期 08:00~次日 08:00,跨天上钟时长不截断) */
+  crossDayAccumulate: boolean
+}
+
+/** 艺人设置 8 项(门店级隔离:A 店配置不影响 B 店;配置优先级:门店级 > 全局 env 默认) */
+export interface StoreArtistSettings {
+  /** ① 艺人资料必填项(字段名数组;管控自助绑定与后台新增校验) */
+  requiredProfileFields: string[]
+  /** ② 艺人报备设置:是否需主管审核 */
+  reportRequireReview: boolean
+  /** ② 艺人报备设置:开放时段(HH:mm;缺省全天) */
+  reportOpenFrom?: string
+  reportOpenTo?: string
+  /** ③ 艺人签到后多久可签退(分钟;防刷考勤) */
+  checkoutMinMinutes: number
+  /** ④ 艺人是否支持手动扫码下钟(关闭=仅前台/后台下钟) */
+  allowSelfScanFinish: boolean
+  /** ⑤ 未签到是否支持上钟打卡(宽松=可 / 严格=必须先签到报备) */
+  allowStageWithoutCheckin: boolean
+  /** ⑥ 台票购买设置 */
+  ticketPurchaseEnabled: boolean
+  /** ⑥ 台票购买设置:单人单日购买上限(缺省不限) */
+  ticketPurchaseMaxPerDay?: number
+  /** ⑦ 包厢计费规则设置(§6) */
+  roomBilling: RoomBillingConfig
+  /** ⑧ 艺人上钟模式(轮台/自选/混合) */
+  stageAssignMode: StageAssignMode
 }
 
 /* ───────────────────────── 资金流水(只增不改) ───────────────────────── */

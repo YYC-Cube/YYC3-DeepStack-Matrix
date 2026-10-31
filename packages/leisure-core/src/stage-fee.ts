@@ -1,8 +1,8 @@
 /**
- * YYC³ LeisureManage · 台费计算引擎(单源)
+ * YYC3-LeisureManage · 台费计算引擎(单源)
  * 实测依据:台费规则 = 艺人等级 × 包厢类型 → 金额(技师 × 小包/中包/大包/VIP包/西亳厅/外卖房)
- * 计费模式:FLAT=按场次一口价(实测主模式) · HOURLY=按小时价折算(向上取整到分钟)
- * 红线:计费所用的规则在「上钟起表时」快照,后续规则变更不影响进行中场次
+ * 计费模式:FLAT=按场次一口价(预留) · HOURLY=小时计费+进位阈值(需求全集 §6,当前启用)
+ * 红线:计费所用的规则与进位阈值在「上钟起表时」快照,后续变更不影响进行中场次
  */
 
 import { ERR, LeisureError } from './errors.js'
@@ -28,6 +28,36 @@ export function resolveStageFeeRule(
   )
 }
 
+/* ───────────────────────── 进位阈值计费(需求全集 §6) ───────────────────────── */
+
+/** 默认进位阈值(分钟)——门店未自定义时的回落值(对齐 10 号文档 BILL_ROUNDING_MINUTES) */
+export const DEFAULT_ROUNDING_THRESHOLD_MINUTES = 15
+
+/** 进位规则配置(门店级可自定义编辑;上钟时快照到场次) */
+export interface BillRoundingConfig {
+  /** 进位阈值 N(分钟):剩余分钟 > N 即进位 1 小时。缺省 15 */
+  thresholdMinutes?: number
+  /** 是否启用进位规则;false = 按实际时长向下取整到小时(§6.4「关闭」语义) */
+  enabled?: boolean
+}
+
+/**
+ * 计费小时数(纯函数)。
+ * 口径(2026-11-01 裁决,以需求全集 §6.3 伪代码为准):
+ *   base = floor(minutes / 60);remain = minutes % 60
+ *   进位启用且 remain > N → base + 1;否则 base
+ * 例(N=15):15min→0h · 16~75min→1h · 76~120min→2h · 136~180min→3h
+ */
+export function calcBillHours(actualMinutes: number, cfg?: BillRoundingConfig): number {
+  if (actualMinutes <= 0) return 0
+  const base = Math.floor(actualMinutes / 60)
+  const enabled = cfg?.enabled ?? true
+  if (!enabled) return base
+  const n = cfg?.thresholdMinutes ?? DEFAULT_ROUNDING_THRESHOLD_MINUTES
+  const remain = actualMinutes % 60
+  return remain > n ? base + 1 : base
+}
+
 /* ───────────────────────── 时长与计费 ───────────────────────── */
 
 export function diffMinutes(startAt: Date | string, endAt: Date | string): number {
@@ -42,17 +72,21 @@ export interface SessionFeeInput {
   rule: StageFeeRule | undefined
   startAt: Date | string
   endAt: Date | string
-  /** 计费模式;缺省 FLAT(实测主模式) */
+  /** 计费模式;缺省 FLAT(一口价预留;当前主模式为 HOURLY,见需求全集 §6.4) */
   mode?: StageFeeMode
   /** HOURLY 模式的时薪;FLAT 忽略。缺省回退艺人档案 hourlyRate */
   hourlyRate?: number
   /** 上钟最低时长(同包厢,分钟);不足时按此时长计(保底) */
   minDurationMinutes?: number
+  /** 进位规则(门店级参数,上钟时快照;缺省=启用 + 15 分钟阈值) */
+  rounding?: BillRoundingConfig
 }
 
 export interface SessionFeeResult {
   amount: number
   durationMinutes: number
+  /** 计费小时数(HOURLY 模式;按上钟时快照阈值核算;FLAT 不适用) */
+  billHours?: number
   /** 计费所用规则 id(FLAT 模式);HOURLY 为 undefined */
   ruleId?: number
   mode: StageFeeMode
@@ -63,7 +97,7 @@ export interface SessionFeeResult {
 /**
  * 场次台费计算(纯函数,四端同源)。
  * - FLAT:命中规则取 amount;未命中规则返回 amount=0 并置 ruleId=undefined(由调用方决定兜底)
- * - HOURLY:按分钟向上取整 × 时薪
+ * - HOURLY:先保底(minDurationMinutes)→ 再按进位阈值折算计费小时 × 时薪(§6.3)
  * - 最低时长保底:不足按 minDurationMinutes 计
  */
 export function calcSessionFee(input: SessionFeeInput): SessionFeeResult {
@@ -72,10 +106,6 @@ export function calcSessionFee(input: SessionFeeInput): SessionFeeResult {
 
   let billed = durationMinutes
   let minDurationApplied = false
-  if (mode === 'HOURLY') {
-    // 按分钟向上取整:触及的分钟段即计一整分钟(实测:08:00→09:23 计 84 分钟)
-    billed = durationMinutes + 1
-  }
   if (
     input.minDurationMinutes !== undefined &&
     input.minDurationMinutes > 0 &&
@@ -87,9 +117,11 @@ export function calcSessionFee(input: SessionFeeInput): SessionFeeResult {
   }
 
   if (mode === 'HOURLY') {
+    // 小时计费 + 进位阈值(需求全集 §6):保底后按快照阈值折算计费小时
     const rate = input.hourlyRate ?? 0
-    const amount = round2((billed / 60) * rate)
-    return { amount, durationMinutes, mode, minDurationApplied }
+    const billHours = calcBillHours(billed, input.rounding)
+    const amount = round2(billHours * rate)
+    return { amount, durationMinutes, billHours, mode, minDurationApplied }
   }
 
   // FLAT

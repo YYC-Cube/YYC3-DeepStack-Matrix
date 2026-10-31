@@ -1,0 +1,45 @@
+# YYC³ LeisureAPI · 本地开发环境(MySQL + Redis)
+# 启动:docker compose -f docker-compose.dev.yml up -d
+# 说明:密码仅为本地开发;生产凭据走密钥管理
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: leisure-mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root-dev-only
+      MYSQL_DATABASE: leisure
+      MYSQL_USER: leisure
+      MYSQL_PASSWORD: leisure-dev-only
+    ports:
+      # 3307 而非 3306:本机常有 Homebrew MariaDB/MySQL 占用 127.0.0.1:3306(IPv4),
+      # Docker 端口发布只抢到 IPv6,Prisma 连 127.0.0.1 会命中本机实例而非容器
+      - "3307:3306"
+    volumes:
+      - leisure-mysql-data:/var/lib/mysql
+      # 仅数据卷首次初始化时执行:给 leisure 用户影子库权限(prisma migrate dev)
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uleisure", "-pleisure-dev-only"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: leisure-redis
+    ports:
+      # 6380 而非 6379:本机常有 redis-server 占用 IPv4 6379(同上)
+      - "6380:6379"
+    volumes:
+      - leisure-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  leisure-mysql-data:
+  leisure-redis-data:

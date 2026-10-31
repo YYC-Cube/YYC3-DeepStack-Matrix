@@ -1,0 +1,50 @@
+/* 霓虹聊天页面布局 */
+.cyberpunk-chat-page {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: 1fr 80px;
+  height: 100%;
+  gap: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+/* 会话列表 */
+.cyberpunk-chat-sessions {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  overflow-y: auto;
+  box-shadow:
+    0 0 10px rgba(0, 240, 255, 0.2),
+    inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+/* 聊天主区域 */
+.cyberpunk-chat-main {
+  grid-column: 2;
+  grid-row: 1;
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow:
+    0 0 10px rgba(0, 240, 255, 0.2),
+    inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+/* 输入区域 */
+.cyberpunk-chat-input {
+  grid-column: 2;
+  grid-row: 2;
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow:
+    0 0 10px rgba(0, 240, 255, 0.2),
+    inset 0 0 10px rgba(0, 240, 255, 0.05);
+}

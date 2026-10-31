@@ -1,0 +1,10 @@
+.flex-module {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 24px;
+}
+
+.flex-module > * {
+  flex: 1 1 300px;
+}

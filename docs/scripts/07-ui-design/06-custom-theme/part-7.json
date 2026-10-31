@@ -1,0 +1,12 @@
+{
+  "name": "柔和流行",
+  "type": "light",
+  "colors": {
+    "primary": "oklch(0.70 0.18 320)",
+    "secondary": "oklch(0.75 0.15 180)",
+    "accent": "oklch(0.72 0.20 40)",
+    "background": "oklch(0.97 0.01 320)",
+    "card": "oklch(1.00 0.00 0)",
+    "border": "oklch(0.88 0.01 320)"
+  }
+}

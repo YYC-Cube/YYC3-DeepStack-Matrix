@@ -1,0 +1,141 @@
+/* 霓虹毛玻璃浮窗插件基础样式 */
+.cyberpunk-widget-plugin {
+  position: fixed;
+  background: rgba(10, 10, 10, 0.75);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 240, 255, 0.4),
+    0 0 40px rgba(0, 240, 255, 0.2),
+    inset 0 0 30px rgba(0, 240, 255, 0.05);
+  overflow: hidden;
+  z-index: 10000;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid rgba(0, 240, 255, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* 多层玻璃叠加效果 */
+.cyberpunk-widget-plugin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 边框高光效果 */
+.cyberpunk-widget-plugin::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(0, 240, 255, 0.5) 50%,
+    transparent 70%
+  );
+  border-radius: 22px;
+  pointer-events: none;
+  z-index: 1;
+  animation: shimmer-rotate 3s linear infinite;
+}
+
+/* 电路网格背景 */
+.cyberpunk-widget-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 扫描线效果 */
+.cyberpunk-widget-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 3;
+  animation: scanline-move 10s linear infinite;
+}
+
+/* 光泽扫过效果 */
+.cyberpunk-widget-plugin .shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 4;
+  animation: shimmer-move 3s ease-in-out infinite;
+}
+
+/* 发光效果 - 青色主题 */
+.cyberpunk-widget-plugin.glow {
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(0, 240, 255, 0.5),
+    0 0 60px rgba(0, 240, 255, 0.3),
+    0 0 90px rgba(0, 240, 255, 0.1),
+    inset 0 0 30px rgba(0, 240, 255, 0.08);
+}
+
+/* 弹簧进入动画 */
+.cyberpunk-widget-plugin.spring-enter {
+  animation: spring-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes spring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shimmer-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes shimmer-move {
+  0% { left: -100%; }
+  50%, 100% { left: 200%; }
+}

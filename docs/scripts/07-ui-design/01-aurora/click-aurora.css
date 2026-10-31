@@ -1,0 +1,7 @@
+.click-aurora {
+  transition: all 0.15s ease;
+}
+
+.click-aurora:active {
+  transform: scale(0.98);
+}

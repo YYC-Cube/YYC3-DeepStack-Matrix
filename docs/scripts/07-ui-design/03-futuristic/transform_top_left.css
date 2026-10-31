@@ -1,0 +1,9 @@
+/* 使用transform代替top/left */
+.card-minimal {
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.card-minimal:hover {
+  transform: translateY(-2px);
+}

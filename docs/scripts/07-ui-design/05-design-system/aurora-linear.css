@@ -1,0 +1,12 @@
+/* 线性极光渐变 */
+.aurora-linear {
+  background: linear-gradient(135deg, #00ff87 0%, #60efff 50%, #ff6b6b 100%);
+  background-size: 200% 200%;
+  animation: aurora-flow 15s ease infinite;
+}
+
+@keyframes aurora-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

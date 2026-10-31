@@ -1,0 +1,39 @@
+:root {
+  /* 颜色变量 */
+  --color-primary: oklch(0.65 0.22 160);
+  --color-primary-foreground: oklch(0.98 0.01 160);
+  --color-secondary: oklch(0.70 0.18 180);
+  --color-secondary-foreground: oklch(0.98 0.01 180);
+  --color-accent: oklch(0.72 0.25 30);
+  --color-background: oklch(0.15 0.02 160);
+  --color-card: oklch(0.20 0.02 160);
+  --color-border: oklch(0.85 0.02 160);
+  
+  /* 字体变量 */
+  --font-sans-primary: 'Inter', -apple-system, BlinkMacSystemFont;
+  --font-sans-secondary: 'Segoe UI', Roboto;
+  --font-mono-primary: 'Fira Code', 'Courier New', monospace;
+  
+  /* 间距变量 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  
+  /* 圆角变量 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  
+  /* 阴影变量 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.10);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.10);
+  
+  /* 效果变量 */
+  --glass-blur: 20px;
+  --glass-saturation: 180%;
+  --glow-color: rgba(0, 255, 135, 0.3);
+  --glow-spread: 20px;
+}

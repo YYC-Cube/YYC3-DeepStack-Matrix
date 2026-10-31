@@ -1,0 +1,23 @@
+/* src/components/homepage/TypewriterEffect.css */
+.typewriter-effect {
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.typewriter-effect__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background: var(--color-primary);
+  margin-left: 2px;
+  animation: blink 1s infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}

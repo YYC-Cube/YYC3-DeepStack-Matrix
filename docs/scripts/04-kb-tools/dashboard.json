@@ -1,0 +1,13 @@
+{
+  "name": "dashboard",
+  "title": "Dashboard 仪表盘",
+  "version": "1.0.0",
+  "framework": "next-app",
+  "port": 3201,
+  "dependencies": {
+    "recharts": "^2.12.0",
+    "@tanstack/react-table": "^8.0.0"
+  },
+  "components": ["sidebar", "data-table", "chart-card", "header"],
+  "presets": ["yyc3-dark", "yyc3-light", "yyc3-brand", "nova"]
+}

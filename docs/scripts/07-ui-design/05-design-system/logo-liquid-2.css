@@ -1,0 +1,36 @@
+.logo-liquid {
+  /* 毛玻璃效果 */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  /* 边框 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  
+  /* 阴影 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  /* 浮动动画 */
+  animation: logoFloat 6s ease-in-out infinite;
+  
+  /* 过渡 */
+  transition: all 0.3s ease;
+}
+
+.logo-liquid:hover {
+  /* 悬停发光效果 */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(0, 255, 135, 0.3);
+  transform: translateY(-2px);
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}

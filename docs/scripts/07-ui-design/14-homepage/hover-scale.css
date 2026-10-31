@@ -1,0 +1,28 @@
+/* 悬停放大效果 */
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* 悬停发光效果 */
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+}
+
+/* 悬停渐变效果 */
+.hover-gradient {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background-size: 200% 200%;
+  transition: background-position 0.3s ease;
+}
+
+.hover-gradient:hover {
+  background-position: 100% 100%;
+}

@@ -1,0 +1,18 @@
+:root {
+  --breakpoint-mobile: 640px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+}
+
+@media (max-width: var(--breakpoint-mobile)) {
+  /* Mobile styles */
+}
+
+@media (min-width: var(--breakpoint-tablet)) and (max-width: var(--breakpoint-desktop)) {
+  /* Tablet styles */
+}
+
+@media (min-width: var(--breakpoint-desktop)) {
+  /* Desktop styles */
+}

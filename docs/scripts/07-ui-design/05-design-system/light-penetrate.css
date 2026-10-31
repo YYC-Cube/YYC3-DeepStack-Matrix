@@ -1,0 +1,27 @@
+/* 光影穿透效果 */
+.light-penetrate {
+  position: relative;
+  overflow: hidden;
+}
+
+.light-penetrate::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 135, 0.1) 0%,
+    rgba(96, 239, 255, 0.1) 50%,
+    rgba(255, 107, 107, 0.1) 100%
+  );
+  pointer-events: none;
+  animation: lightShift 8s ease-in-out infinite;
+}
+
+@keyframes lightShift {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}

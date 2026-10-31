@@ -1,0 +1,10 @@
+@media (min-width: 1024px) {
+  .card-neon {
+    padding: 24px;
+    border-width: 2px;
+  }
+  
+  .neon-text {
+    font-size: 16px;
+  }
+}

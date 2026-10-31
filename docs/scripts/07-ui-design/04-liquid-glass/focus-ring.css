@@ -1,0 +1,8 @@
+.focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.3);
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.5);
+}

@@ -1,0 +1,9 @@
+/* 使用 contain 限制重绘区域 */
+.contain-paint {
+  contain: paint;
+}
+
+/* 使用 composite 限制合成层 */
+.contain-composite {
+  contain: layout style paint;
+}

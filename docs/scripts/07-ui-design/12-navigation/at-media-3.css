@@ -1,0 +1,19 @@
+@media (min-width: 1025px) {
+  .horizontal-main-nav {
+    padding: 8px 16px;
+  }
+  
+  .horizontal-main-nav-item {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  
+  .vertical-sub-nav {
+    width: 260px;
+  }
+  
+  .tab-page-item {
+    min-width: 120px;
+    max-width: 200px;
+  }
+}

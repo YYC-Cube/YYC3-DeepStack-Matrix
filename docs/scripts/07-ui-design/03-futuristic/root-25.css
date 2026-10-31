@@ -1,0 +1,9 @@
+:root {
+  --yyc3-radius-none: 0px;
+  --yyc3-radius-sm: 4px;
+  --yyc3-radius-md: 8px;
+  --yyc3-radius-lg: 12px;
+  --yyc3-radius-xl: 16px;
+  --yyc3-radius-2xl: 20px;
+  --yyc3-radius-full: 9999px;
+}

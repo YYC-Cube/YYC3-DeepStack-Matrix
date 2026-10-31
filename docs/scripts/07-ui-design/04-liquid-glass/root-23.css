@@ -1,0 +1,39 @@
+:root {
+  /* 主色：青色渐变系列 */
+  --color-primary: linear-gradient(135deg, #00ff87 0%, #00d4ff 100%);
+  --color-primary-solid: #00ff87;
+  --color-primary-light: #00ff87;
+  
+  /* 次色 */
+  --color-secondary: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+  --color-secondary-solid: #00d4ff;
+  
+  /* 强调色 */
+  --color-accent: linear-gradient(135deg, #00ff87 0%, #00ffaa 100%);
+  --color-accent-solid: #00ffaa;
+  
+  /* 背景色 */
+  --color-background: #0a0f0a;
+  --color-background-alt: #0f1a0f;
+  
+  /* 卡片色 */
+  --color-card: rgba(0, 255, 135, 0.08);
+  --color-card-hover: rgba(0, 255, 135, 0.12);
+  
+  /* 边框色 */
+  --color-border: rgba(0, 255, 135, 0.15);
+  --color-border-light: rgba(0, 255, 135, 0.1);
+  
+  /* 文本色 */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-muted: rgba(255, 255, 255, 0.5);
+  
+  /* 6种不同的绿色渐变卡片 */
+  --card-green-1: linear-gradient(135deg, rgba(0, 255, 135, 0.15) 0%, rgba(0, 212, 255, 0.1) 100%);
+  --card-green-2: linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 153, 255, 0.08) 100%);
+  --card-green-3: linear-gradient(135deg, rgba(0, 153, 255, 0.1) 0%, rgba(0, 255, 170, 0.08) 100%);
+  --card-green-4: linear-gradient(135deg, rgba(0, 255, 170, 0.08) 0%, rgba(0, 255, 135, 0.06) 100%);
+  --card-green-5: linear-gradient(135deg, rgba(0, 255, 135, 0.06) 0%, rgba(34, 211, 238, 0.08) 100%);
+  --card-green-6: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(0, 255, 135, 0.1) 100%);
+}

@@ -1,0 +1,14 @@
+@keyframes ai-thinking {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.ai-thinking-indicator {
+  animation: ai-thinking 1.5s ease-in-out infinite;
+}

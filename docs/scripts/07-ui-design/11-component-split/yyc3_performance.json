@@ -1,0 +1,11 @@
+{
+  "name": "@yyc3/performance",
+  "version": "1.0.0",
+  "dependencies": {},
+  "peerDependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "vitest": "^1.0.0"
+  }
+}

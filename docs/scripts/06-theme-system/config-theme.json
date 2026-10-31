@@ -1,0 +1,1 @@
+{ "theme": "cyberpunk", "scenes": ["crm"], "customEnv": { "CRM_API_URL": "/api/custom" } }

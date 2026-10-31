@@ -1,0 +1,9 @@
+/* 使用transform代替top/left */
+.glass-card {
+  transform: translateY(0);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.glass-card:hover {
+  transform: translateY(-12px) scale(1.02);
+}

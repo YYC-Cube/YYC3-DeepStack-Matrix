@@ -1,0 +1,10 @@
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  .liquid-background {
+    animation-duration: 30s;
+  }
+}

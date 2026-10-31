@@ -1,0 +1,10 @@
+@media (max-width: 768px) {
+  .card-translucent {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .gradient-flow {
+    animation-duration: 30s;
+  }
+}

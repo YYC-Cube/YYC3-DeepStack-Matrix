@@ -1,0 +1,11 @@
+/* 径向极光渐变 */
+.aurora-radial {
+  background: radial-gradient(circle at center, #00ff87 0%, #60efff 50%, #ff6b6b 100%);
+  background-size: 200% 200%;
+  animation: aurora-pulse 10s ease-in-out infinite;
+}
+
+@keyframes aurora-pulse {
+  0%, 100% { background-size: 200% 200%; }
+  50% { background-size: 250% 250%; }
+}

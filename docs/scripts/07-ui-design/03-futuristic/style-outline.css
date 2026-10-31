@@ -1,0 +1,21 @@
+.input-glow:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow:
+    0 0 0 3px rgba(102, 126, 234, 0.2),
+    0 0 20px rgba(102, 126, 234, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(102, 126, 234, 0.2),
+      0 0 20px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(102, 126, 234, 0.4),
+      0 0 30px rgba(102, 126, 234, 0.5);
+  }
+}

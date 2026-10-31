@@ -1,0 +1,50 @@
+/* 独立应用全屏布局 */
+.standalone-app {
+  display: grid;
+  grid-template-rows: 64px 1fr 40px;  /* 顶部导航 | 主内容 | 底部状态 */
+  grid-template-columns: 280px 1fr;    /* 侧边栏 | 主内容 */
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 顶部导航栏 */
+.standalone-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 侧边栏 */
+.standalone-sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  background: #f8f9fa;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  overflow-y: auto;
+}
+
+/* 主内容区域 */
+.standalone-main {
+  grid-column: 2;
+  grid-row: 2;
+  background: white;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* 底部状态栏 */
+.standalone-footer {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background: #f8f9fa;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

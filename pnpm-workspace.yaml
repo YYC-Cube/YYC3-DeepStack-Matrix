@@ -4,13 +4,20 @@ packages:
   - apps/*
   - packages/*
   - tools/*
+  - services/*
 
 # pnpm v12 设置新家：构建脚本批准表（v11 的 onlyBuiltDependencies 继任键，
 # 键名变更曾致 electron/esbuild postinstall 被静默跳过）
 allowBuilds:
+  # @nestjs/core postinstall = 装包版本一致性检查（混版预警），放行有益无害
+  '@nestjs/core': true
+  # Prisma 三件套 postinstall = 引擎下载 + client 生成，必须放行否则 generate/migrate 全挂
+  '@prisma/client': true
+  '@prisma/engines': true
   electron: true
   electron-winstaller: true
   esbuild: true
+  prisma: true
 
 # pnpm 12 默认拦截 git 直连的子依赖（exotic subdeps）；@electron/rebuild 官方
 # 声明 @electron/node-gyp 为 github: 直连（electron 工具链 fork），属可信上游，

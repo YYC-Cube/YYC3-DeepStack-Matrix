@@ -1,0 +1,27 @@
+.hologram-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.hologram-scan::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 240, 255, 0.1) 2px,
+    rgba(0, 240, 255, 0.1) 4px
+  );
+  pointer-events: none;
+  animation: hologram-scan 2s linear infinite;
+}
+
+@keyframes hologram-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}

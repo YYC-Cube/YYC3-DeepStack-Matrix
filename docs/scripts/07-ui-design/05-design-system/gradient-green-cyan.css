@@ -1,0 +1,19 @@
+/* 绿青渐变 */
+.gradient-green-cyan {
+  background: linear-gradient(135deg, #00ff87 0%, #60efff 100%);
+}
+
+/* 红紫渐变 */
+.gradient-red-purple {
+  background: linear-gradient(135deg, #ff6b6b 0%, #a855f7 100%);
+}
+
+/* 粉黄渐变 */
+.gradient-pink-yellow {
+  background: linear-gradient(135deg, #ec4899 0%, #fbbf24 100%);
+}
+
+/* 多色渐变 */
+.gradient-multi {
+  background: linear-gradient(135deg, #00ff87 0%, #60efff 25%, #ff6b6b 50%, #a855f7 75%, #ec4899 100%);
+}

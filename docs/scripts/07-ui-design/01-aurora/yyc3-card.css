@@ -1,0 +1,8 @@
+/* 提示浏览器优化 */
+.yyc3-card {
+  will-change: transform, opacity;
+}
+
+.yyc3-aurora-flow {
+  will-change: background-position;
+}

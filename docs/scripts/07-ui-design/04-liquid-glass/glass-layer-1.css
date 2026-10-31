@@ -1,0 +1,17 @@
+.glass-layer-1 {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-layer-2 {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.glass-layer-3 {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(60px) saturate(220%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}

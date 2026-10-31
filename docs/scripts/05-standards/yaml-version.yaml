@@ -1,0 +1,8 @@
+# template_config.yaml 结构
+
+version: "3.0.0"
+global_variables:    # 全局变量
+validation_rules:    # 验证规则
+templates:           # 模版定义
+traceability:        # 追溯配置
+iteration:           # 迭代配置

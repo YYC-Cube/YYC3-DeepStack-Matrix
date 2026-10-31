@@ -1,0 +1,24 @@
+/* styles/variables.css */
+:root {
+  /* 科幻感风格变量 */
+  --color-primary: #6366f1;
+  --color-secondary: #a855f7;
+  --color-accent: #06b6d4;
+  --color-bg-primary: #0f172a;
+  --color-text-primary: #f8fafc;
+  
+  /* 赛博朋克风格变量（可切换） */
+  /* --color-primary: #ff006e; */
+  /* --color-secondary: #b700ff; */
+  /* --color-accent: #00f3ff; */
+  /* --color-bg-primary: #0a0a0a; */
+  /* --color-text-primary: #ffffff; */
+  
+  /* 通用变量 */
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+}

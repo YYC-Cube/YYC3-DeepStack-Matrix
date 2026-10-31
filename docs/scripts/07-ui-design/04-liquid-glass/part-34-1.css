@@ -1,0 +1,8 @@
+/* 提示浏览器优化 */
+.glass-card {
+  will-change: transform, opacity;
+}
+
+.liquid-background {
+  will-change: background-position;
+}

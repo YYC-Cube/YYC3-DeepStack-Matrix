@@ -1,0 +1,9 @@
+/* 使用transform代替top/left */
+.card-translucent {
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.card-translucent:hover {
+  transform: translateY(-4px);
+}

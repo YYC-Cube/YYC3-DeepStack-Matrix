@@ -1,0 +1,9 @@
+/* 使用transform代替top/left */
+.yyc3-card {
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.yyc3-card:hover {
+  transform: translateY(-4px);
+}

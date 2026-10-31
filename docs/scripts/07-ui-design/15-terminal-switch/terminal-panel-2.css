@@ -1,0 +1,9 @@
+/* 终端面板滑出动画 */
+.terminal-panel {
+  transform: translateY(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.terminal-panel.inactive {
+  transform: translateY(100%);
+}

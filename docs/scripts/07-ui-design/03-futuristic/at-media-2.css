@@ -1,0 +1,11 @@
+@media (min-width: 1024px) {
+  .card-minimal {
+    padding: 24px;
+    border-radius: 12px;
+  }
+  
+  .button-primary {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+}

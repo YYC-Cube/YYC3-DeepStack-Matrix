@@ -1,0 +1,34 @@
+.sub-nav-container {
+  width: 260px;
+  height: calc(100vh - 64px);
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 64px;
+  z-index: 900;
+  backdrop-filter: blur(10px);
+}
+
+.sub-nav-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sub-nav-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.sub-nav-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}

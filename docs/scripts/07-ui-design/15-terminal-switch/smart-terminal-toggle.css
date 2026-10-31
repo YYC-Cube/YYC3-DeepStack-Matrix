@@ -1,0 +1,28 @@
+/* 智能终端切换按钮 */
+.smart-terminal-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #94A3B8;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.smart-terminal-toggle:hover {
+  color: #60A5FA;
+  transform: scale(1.1);
+}
+
+.smart-terminal-toggle.active {
+  color: #3B82F6;
+  background-color: #1E3A8A;
+}
+
+.terminal-icon {
+  font-size: 20px;
+}

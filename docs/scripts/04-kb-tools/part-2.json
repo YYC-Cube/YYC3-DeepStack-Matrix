@@ -1,0 +1,9 @@
+{
+  "name": "经济管理数字分析",
+  "scene": "analytics-dashboard",
+  "theme": "yyc3-dark",
+  "defaultRoute": "/dashboard",
+  "features": ["ai-assistant", "data-export"],
+  "apiBase": "/api/v1",
+  "customPages": ["reports", "forecast"]
+}

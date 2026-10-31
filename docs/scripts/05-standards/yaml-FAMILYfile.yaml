@@ -1,0 +1,14 @@
+---
+FAMILYfile: 文档文件名
+FAMILYdescription: 文档描述
+FAMILYauthor: 作者
+FAMILYversion: 版本号
+FAMILYcreated: 创建日期
+FAMILYupdated: 更新日期
+FAMILYstatus: 状态
+FAMILYtags: 标签列表
+FAMILYchecksum: 内容校验和
+FAMILYtrace_id: 追溯ID
+FAMILYparent_doc: 父文档
+FAMILYrelated_docs: 关联文档列表
+---

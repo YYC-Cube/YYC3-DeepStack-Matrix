@@ -1,0 +1,42 @@
+:root {
+  /* 绿色环保主题 */
+  --color-primary: oklch(0.65 0.22 160);
+  --color-primary-foreground: oklch(0.98 0.01 160);
+  --color-secondary: oklch(0.70 0.18 180);
+  --color-secondary-foreground: oklch(0.98 0.01 180);
+  --color-accent: oklch(0.72 0.25 30);
+  --color-background: oklch(0.15 0.02 160);
+  --color-card: oklch(0.20 0.02 160);
+  --color-border: oklch(0.85 0.02 160);
+  
+  /* 节能模式 */
+  --reduce-motion: reduce;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* 减少动画 */
+    --reduce-motion: reduce;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 绿色渐变卡片 */
+.eco-card {
+  background: linear-gradient(135deg, rgba(0, 255, 135, 0.15) 0%, rgba(0, 212, 255, 0.1) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 255, 135, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.eco-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 255, 135, 0.15);
+}

@@ -1,0 +1,45 @@
+.tech-gauge {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 180deg,
+    #667eea 0deg,
+    #764ba2 180deg,
+    transparent 180deg
+  );
+  box-shadow:
+    0 0 30px rgba(102, 126, 234, 0.5),
+    inset 0 0 30px rgba(0, 0, 0, 0.2);
+}
+
+.tech-gauge::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%);
+}
+
+.tech-gauge::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 60px;
+  background: linear-gradient(to top, #667eea, #764ba2);
+  transform-origin: bottom center;
+  transform: translate(-50%, -100%);
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.8);
+  animation: gauge-needle 2s ease-in-out infinite;
+}
+
+@keyframes gauge-needle {
+  0%, 100% { transform: translate(-50%, -100%) rotate(-45deg); }
+  50% { transform: translate(-50%, -100%) rotate(45deg); }
+}

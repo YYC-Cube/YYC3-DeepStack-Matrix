@@ -1,0 +1,102 @@
+/* 赛博朋克独立应用全屏布局 */
+.cyberpunk-standalone-app {
+  display: grid;
+  grid-template-rows: 64px 1fr 40px;  /* 顶部导航 | 主内容 | 底部状态 */
+  grid-template-columns: 280px 1fr;    /* 侧边栏 | 主内容 */
+  height: 100vh;
+  overflow: hidden;
+  background: var(--cyber-dark);
+  position: relative;
+}
+
+/* 电路网格背景 */
+.cyberpunk-standalone-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 扫描线效果 */
+.cyberpunk-standalone-app::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: scanline-move 10s linear infinite;
+}
+
+/* 霓虹顶部导航栏 */
+.cyberpunk-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  background: rgba(10, 10, 10, 0.9);
+  border-bottom: 2px solid var(--cyber-cyan);
+  box-shadow:
+    0 0 10px var(--cyber-cyan),
+    0 0 20px rgba(0, 240, 255, 0.3);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 100;
+}
+
+/* 霓虹侧边栏 */
+.cyberpunk-sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  background: rgba(10, 10, 10, 0.8);
+  border-right: 2px solid rgba(0, 240, 255, 0.3);
+  overflow-y: auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* 主内容区域 */
+.cyberpunk-main {
+  grid-column: 2;
+  grid-row: 2;
+  background: rgba(5, 5, 5, 0.9);
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+/* 霓虹底部状态栏 */
+.cyberpunk-footer {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background: rgba(10, 10, 10, 0.9);
+  border-top: 2px solid var(--cyber-cyan);
+  box-shadow:
+    0 0 10px var(--cyber-cyan),
+    0 0 20px rgba(0, 240, 255, 0.3);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 100;
+}

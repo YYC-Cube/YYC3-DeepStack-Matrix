@@ -2279,6 +2279,180 @@
       </div>
     </section>
 
+    <!-- ===== SECTION 12: SECURITY（2026-10-16 全流程安全管控专项新增） ===== -->
+    <section class="section" id="security">
+      <div class="section-header">
+        <span class="section-tag rose">DEFENSE IN DEPTH</span>
+        <h2>安全加固架构体系</h2>
+        <p class="section-desc">
+          2026-10-16 全流程质量与安全管控专项落地 — 高危 5/5 · 中危 13/13 · 低危 14/14 三级问题 100%
+          闭环，四端 16228/16228 测试全绿。五层纵深防御图标化全景：
+        </p>
+      </div>
+
+      <!-- 五层防御纵深图标卡片 -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem">
+        <!-- L1 渲染层 -->
+        <div
+          style="
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 51, 102, 0.25);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            text-align: center;
+          "
+        >
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem">🛡️</div>
+          <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-rose, #ff3366)">L1 · 渲染层防御</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6">
+            预览沙箱 opaque origin<br />
+            🧹 Markdown 整体转义 · SVG 净化<br />
+            🚫 HTML 白名单无 script/iframe<br />
+            🔗 URL 协议白名单 · CDN SRI 锁定
+          </div>
+          <div style="font-size: 0.68rem; color: var(--accent-green); margin-top: 0.4rem">XSS ×3 + 沙箱逃逸 100% 闭环</div>
+        </div>
+
+        <!-- L2 凭据层 -->
+        <div
+          style="
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            text-align: center;
+          "
+        >
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem">🔐</div>
+          <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-green)">L2 · 凭据安全层</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6">
+            🔑 API Key AES-GCM 密文化<br />
+            💾 内存缓存 + 加载期预热<br />
+            🔄 旧明文键自动迁移清除<br />
+            📤 敏感导出显式确认 + 脱敏
+          </div>
+          <div style="font-size: 0.68rem; color: var(--accent-green); margin-top: 0.4rem">真实密钥出库 · 占位符化</div>
+        </div>
+
+        <!-- L3 桌面层 -->
+        <div
+          style="
+            background: var(--bg-card);
+            border: 1px solid rgba(170, 85, 255, 0.25);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            text-align: center;
+          "
+        >
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem">🖥️</div>
+          <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-purple, #aa55ff)">L3 · Electron IPC 层</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6">
+            📁 安全根模型（userData ∪ 授权路径）<br />
+            ✂️ 删除/覆盖/移动全部前缀校验<br />
+            🌐 SHELL_OPEN 协议白名单<br />
+            ⚖️ 三端字节级同步
+          </div>
+          <div style="font-size: 0.68rem; color: var(--accent-green); margin-top: 0.4rem">任意路径读写风险根除</div>
+        </div>
+
+        <!-- L4 部署层 -->
+        <div
+          style="
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            text-align: center;
+          "
+        >
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem">🌐</div>
+          <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-cyan, #00d4ff)">L4 · 部署边界层</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6">
+            🏠 默认监听 127.0.0.1<br />
+            📋 CORS 白名单制（默认零跨域）<br />
+            🚪 Ollama 代理仅 GET/POST<br />
+            ⛔ 管理端点默认 403
+          </div>
+          <div style="font-size: 0.68rem; color: var(--accent-green); margin-top: 0.4rem">内网暴露面收敛</div>
+        </div>
+
+        <!-- L5 权限层 -->
+        <div
+          style="
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 170, 0, 0.25);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            text-align: center;
+          "
+        >
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem">👑</div>
+          <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-amber, #ffaa00)">L5 · 权限模型层</div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6">
+            🔒 RequireRole 路由守卫 ×10<br />
+            🧑‍💼 操作日志真实身份追溯<br />
+            🛡️ 末位超管不可降级/删除/锁定<br />
+            💥 破坏性操作强制 confirm
+          </div>
+          <div style="font-size: 0.68rem; color: var(--accent-green); margin-top: 0.4rem">权限模型真实落地</div>
+        </div>
+      </div>
+
+      <!-- 纵深防御数据流 -->
+      <div
+        style="
+          margin-top: 1.5rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 1.4rem;
+        "
+      >
+        <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.8rem">⚔️ 攻击链阻断示意（纵深防御数据流）</div>
+        <div
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+          "
+        >
+          <span style="background: rgba(255,51,102,0.12); border: 1px solid rgba(255,51,102,0.3); border-radius: 6px; padding: 0.35rem 0.7rem">⚠️ 恶意内容注入</span>
+          <span style="color: var(--text-muted)">→</span>
+          <span style="background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.2); border-radius: 6px; padding: 0.35rem 0.7rem">🛡️ L1 沙箱+净化拦截</span>
+          <span style="color: var(--text-muted)">→</span>
+          <span style="background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); border-radius: 6px; padding: 0.35rem 0.7rem">🔐 L2 密文不可读</span>
+          <span style="color: var(--text-muted)">→</span>
+          <span style="background: rgba(170,85,255,0.08); border: 1px solid rgba(170,85,255,0.2); border-radius: 6px; padding: 0.35rem 0.7rem">🖥️ L3 路径越界拒绝</span>
+          <span style="color: var(--text-muted)">→</span>
+          <span style="background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 6px; padding: 0.35rem 0.7rem">🌐 L4 跨域/管理端点封禁</span>
+          <span style="color: var(--text-muted)">→</span>
+          <span style="background: rgba(255,170,0,0.08); border: 1px solid rgba(255,170,0,0.2); border-radius: 6px; padding: 0.35rem 0.7rem">👑 L5 越权访问拦截</span>
+          <span style="color: var(--text-muted)">→</span>
+          <span style="background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); border-radius: 6px; padding: 0.35rem 0.7rem; color: var(--accent-green)">✅ 攻击链全路阻断</span>
+        </div>
+      </div>
+
+      <!-- 质量验收徽章 -->
+      <div
+        style="
+          margin-top: 1.2rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.6rem;
+          justify-content: center;
+        "
+      >
+        <span style="background: rgba(255,51,102,0.12); border: 1px solid rgba(255,51,102,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.7rem; color: #ff6688">🔴 高危闭环 5/5 · 100%</span>
+        <span style="background: rgba(255,170,0,0.12); border: 1px solid rgba(255,170,0,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.7rem; color: #ffaa00">🟠 中危闭环 13/13 · 100%</span>
+        <span style="background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.7rem; color: #00d4ff">🟡 低危处置 14/14 · 100%</span>
+        <span style="background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.7rem; color: #00ff88">✅ 测试 937 文件 · 16228 用例全绿</span>
+        <span style="background: rgba(170,85,255,0.12); border: 1px solid rgba(170,85,255,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.7rem; color: #aa55ff">🤖 CI 门禁 · CodeQL · 测试同步校验</span>
+      </div>
+    </section>
+
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
       <div class="footer-motto">人从众曌众从人 — YYC³ AI Family 永远等你回家</div>

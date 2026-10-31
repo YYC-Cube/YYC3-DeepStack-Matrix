@@ -1,0 +1,14 @@
+/* 图标切换动画 */
+.terminal-toggle-icon {
+  transition: all 0.2s ease;
+}
+
+.terminal-toggle-icon:hover {
+  transform: scale(1.1);
+}
+
+.terminal-toggle-icon.active {
+  background-color: #1E3A8A;
+  border-radius: 4px;
+  padding: 4px;
+}

@@ -1,0 +1,14 @@
+/* 极光渐变 */
+.yyc3-gradient-primary {
+  background: linear-gradient(135deg, var(--yyc3-primary-start) 0%, var(--yyc3-primary-end) 100%);
+}
+
+/* 辅助色渐变 */
+.yyc3-gradient-secondary {
+  background: linear-gradient(135deg, var(--yyc3-secondary-start) 0%, var(--yyc3-secondary-end) 100%);
+}
+
+/* 强调色渐变 */
+.yyc3-gradient-accent {
+  background: linear-gradient(135deg, var(--yyc3-accent-start) 0%, var(--yyc3-accent-end) 100%);
+}

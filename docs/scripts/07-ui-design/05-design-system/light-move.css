@@ -1,0 +1,21 @@
+/* 光影移动效果 */
+.light-move {
+  position: relative;
+  overflow: hidden;
+}
+
+.light-move::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  animation: lightRotate 10s linear infinite;
+}
+
+@keyframes lightRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

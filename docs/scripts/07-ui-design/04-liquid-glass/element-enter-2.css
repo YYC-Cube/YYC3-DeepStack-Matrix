@@ -1,0 +1,7 @@
+.element-enter {
+  animation: springIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.element-exit {
+  animation: springOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

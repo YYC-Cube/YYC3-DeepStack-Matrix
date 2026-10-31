@@ -1,0 +1,64 @@
+.avatar-liquid {
+  /* 圆形头像 */
+  border-radius: 9999px;
+  
+  /* 毛玻璃边框 */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  /* 边框 */
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  
+  /* 阴影 */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* 过渡 */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* 尺寸 */
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-liquid:hover {
+  /* 悬停放大效果 */
+  transform: scale(1.1);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 20px rgba(0, 255, 135, 0.3);
+  
+  /* 边框发光 */
+  border-color: rgba(0, 255, 135, 0.5);
+}
+
+/* 头像状态指示器 */
+.avatar-status {
+  position: relative;
+}
+
+.avatar-status::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: #00ff87;
+  box-shadow: 0 0 8px rgba(0, 255, 135, 0.5);
+}
+
+.avatar-status.offline::after {
+  background: #6b7280;
+  box-shadow: 0 0 8px rgba(107, 114, 128, 0.5);
+}
+
+.avatar-status.busy::after {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}

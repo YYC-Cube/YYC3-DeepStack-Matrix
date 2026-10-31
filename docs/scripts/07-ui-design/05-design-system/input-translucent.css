@@ -1,0 +1,21 @@
+.input-translucent {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #374151;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.input-translucent:focus {
+  border-color: #00ff87;
+  box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.input-translucent::placeholder {
+  color: #9ca3af;
+}

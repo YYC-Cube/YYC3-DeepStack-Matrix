@@ -1,0 +1,17 @@
+.button-secondary {
+  background: white;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  padding: 10px 22px;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button-secondary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}

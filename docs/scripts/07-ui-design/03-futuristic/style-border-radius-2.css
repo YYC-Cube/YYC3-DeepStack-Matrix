@@ -1,0 +1,51 @@
+/* 最小化状态 */
+.yyc3-widget-plugin.minimized {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.yyc3-widget-plugin.minimized .widget-header {
+  height: 48px;
+  padding: 0;
+}
+
+.yyc3-widget-plugin.minimized .widget-header-title {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yyc3-widget-plugin.minimized .widget-header-actions,
+.yyc3-widget-plugin.minimized .widget-tabs,
+.yyc3-widget-plugin.minimized .widget-content,
+.yyc3-widget-plugin.minimized .widget-input,
+.yyc3-widget-plugin.minimized .widget-actions {
+  display: none;
+}
+
+/* 最大化状态 */
+.yyc3-widget-plugin.maximized {
+  width: 100vw !important;
+  height: 100vh !important;
+  top: 0 !important;
+  left: 0 !important;
+  border-radius: 0;
+}
+
+/* 隐藏状态 */
+.yyc3-widget-plugin.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 显示状态 */
+.yyc3-widget-plugin.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}

@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "name": "自定义主题",
+  "type": "light",
+  "created": "2026-03-02T00:00:00Z",
+  "colors": {
+    "primary": "oklch(0.55 0.22 264)",
+    "secondary": "oklch(0.65 0.15 200)",
+    "accent": "oklch(0.60 0.25 30)",
+    "background": "oklch(0.98 0.01 264)",
+    "card": "oklch(1.00 0.00 0)",
+    "border": "oklch(0.85 0.02 264)"
+  },
+  "fonts": {
+    "sans": {
+      "primary": "Inter",
+      "secondary": "Segoe UI"
+    },
+    "serif": {
+      "primary": "Georgia"
+    },
+    "mono": {
+      "primary": "Fira Code"
+    }
+  },
+  "layout": {
+    "radius": {
+      "sm": "8px",
+      "md": "12px",
+      "lg": "16px"
+    },
+    "shadow": {
+      "sm": "0 1px 3px rgba(0,0,0,0.10)",
+      "md": "0 4px 6px rgba(0,0,0,0.10)",
+      "lg": "0 10px 15px rgba(0,0,0,0.10)"
+    }
+  },
+  "branding": {
+    "logo": {
+      "image": "data:image/png;base64,...",
+      "size": "40px",
+      "radius": "8px"
+    },
+    "slogan": {
+      "primary": "言启象限 | 语枢未来",
+      "secondary": "Words Initiate Quadrants, Language Serves as Core for Future"
+    },
+    "background": {
+      "type": "color",
+      "value": "#F3F4F6"
+    }
+  }
+}

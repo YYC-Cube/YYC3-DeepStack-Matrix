@@ -1,0 +1,93 @@
+/* 智能终端面板 */
+.smart-terminal-panel {
+  position: absolute;
+  bottom: 0;
+  background-color: #1E1E1E;
+  border-top: 1px solid #3E3E42;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 编辑模式：终端在右栏 */
+.layout-container.edit .smart-terminal-panel {
+  left: 70%; /* 25% + 45% */
+}
+
+/* 预览模式：终端在合并区域 */
+.layout-container.preview .smart-terminal-panel {
+  left: 25%; /* 左栏宽度 */
+}
+
+/* 终端标题栏 */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  background-color: #252526;
+  border-bottom: 1px solid #3E3E42;
+  padding: 0 12px;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #E2E8F0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.terminal-close {
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: #94A3B8;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: color 0.2s ease;
+}
+
+.terminal-close:hover {
+  color: #EF4444;
+}
+
+/* 拖拽调整手柄 */
+.terminal-resize-handle {
+  height: 4px;
+  background-color: #3E3E42;
+  cursor: ns-resize;
+  transition: background-color 0.2s ease;
+}
+
+.terminal-resize-handle:hover {
+  background-color: #60A5FA;
+}
+
+/* 终端内容 */
+.terminal-content {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #E2E8F0;
+}
+
+.terminal-prompt {
+  margin-bottom: 4px;
+}
+
+.terminal-prompt:last-child::after {
+  content: '▋';
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}

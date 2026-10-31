@@ -1,0 +1,29 @@
+{
+  "name": "@yyc3/leisure-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ LeisureManage 领域单源包 — 营业日/台费计算/流水类型/API client(Web 与 Taro 小程序共同依赖,框架无关)",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": { "types": "./src/index.ts", "default": "./dist/index.js" },
+    "./types": { "types": "./src/types.ts", "default": "./dist/types.js" },
+    "./constants": { "types": "./src/constants.ts", "default": "./dist/constants.js" },
+    "./errors": { "types": "./src/errors.ts", "default": "./dist/errors.js" },
+    "./business-day": { "types": "./src/business-day.ts", "default": "./dist/business-day.js" },
+    "./stage-fee": { "types": "./src/stage-fee.ts", "default": "./dist/stage-fee.js" },
+    "./ticket": { "types": "./src/ticket.ts", "default": "./dist/ticket.js" },
+    "./api-client": { "types": "./src/api-client.ts", "default": "./dist/api-client.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+.card-status {
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow:
+    0 0 10px #00ff00,
+    0 0 20px rgba(0, 255, 0, 0.3);
+}

@@ -1,0 +1,65 @@
+.slogan-liquid {
+  /* 毛玻璃背景 */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  /* 边框 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  
+  /* 阴影 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  /* 内边距 */
+  padding: 12px 20px;
+  
+  /* 过渡 */
+  transition: all 0.3s ease;
+}
+
+.slogan-liquid:hover {
+  /* 悬停发光效果 */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(0, 255, 135, 0.3);
+  transform: translateY(-2px);
+}
+
+.slogan-primary {
+  /* 主标语样式 */
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4px;
+  
+  /* 打字机效果 */
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid rgba(0, 255, 135, 0.8);
+  animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
+}
+
+.slogan-secondary {
+  /* 副标语样式 */
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}

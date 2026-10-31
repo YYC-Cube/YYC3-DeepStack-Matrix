@@ -1,0 +1,19 @@
+/* 预测用户行为 */
+.predictive-hover {
+  position: relative;
+}
+
+.predictive-hover::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+}
+
+.predictive-hover:hover::after {
+  width: 100%;
+}

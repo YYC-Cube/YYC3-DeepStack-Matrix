@@ -17,6 +17,12 @@ build/
 # 日志与系统文件
 *.log
 .DS_Store
+
+# 本地工具状态（ZCode 插件/安全扫描缓存，不入库）
+.mimosa/
+.v2c/
+.video_agent/
+
 # 例外：Phase 0/1 证据日志（留档 DoD）
 !docs/YYC3-组件拆分-指导文档/phase0-ledger/attachments/*.log
 !docs/YYC3-组件拆分-指导文档/phase1-ledger/attachments/*.log

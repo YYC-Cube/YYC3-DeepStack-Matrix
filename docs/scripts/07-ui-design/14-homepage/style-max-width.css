@@ -1,0 +1,21 @@
+/* 科幻感响应式 */
+@media (max-width: 768px) {
+  .yyc3-homepage {
+    padding: 16px;
+  }
+  
+  .yyc3-homepage__message-content {
+    max-width: 85%;
+  }
+}
+
+/* 赛博朋克响应式 */
+@media (max-width: 768px) {
+  .cyberpunk-homepage {
+    padding: 12px;
+  }
+  
+  .cyberpunk-button {
+    padding: 10px 20px;
+  }
+}

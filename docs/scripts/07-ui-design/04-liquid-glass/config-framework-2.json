@@ -1,0 +1,7 @@
+{
+  "framework": "React 18+",
+  "language": "TypeScript",
+  "styling": "Tailwind CSS + CSS Modules",
+  "state": "Zustand",
+  "router": "React Router v6"
+}

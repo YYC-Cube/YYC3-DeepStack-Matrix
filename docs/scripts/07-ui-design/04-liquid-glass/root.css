@@ -1,0 +1,13 @@
+:root {
+  /* 液态玻璃主色 */
+  --liquid-primary-start: #667eea;
+  --liquid-primary-end: #764ba2;
+  
+  /* 辅助色 */
+  --liquid-secondary-start: #f093fb;
+  --liquid-secondary-end: #f5576c;
+  
+  /* 强调色 */
+  --liquid-accent-start: #4facfe;
+  --liquid-accent-end: #00f2fe;
+}

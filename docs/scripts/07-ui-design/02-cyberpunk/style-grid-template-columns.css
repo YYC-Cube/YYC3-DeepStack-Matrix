@@ -1,0 +1,42 @@
+/* 平板端布局 */
+@media (max-width: 1024px) {
+  .cyberpunk-standalone-app {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .cyberpunk-sidebar {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .cyberpunk-sidebar.collapsed {
+    transform: translateX(-240px);
+  }
+}
+
+/* 移动端布局 */
+@media (max-width: 768px) {
+  .cyberpunk-standalone-app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px 1fr 40px;
+  }
+
+  .cyberpunk-sidebar {
+    position: fixed;
+    left: 0;
+    top: 56px;
+    bottom: 40px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    background: rgba(10, 10, 10, 0.95);
+  }
+
+  .cyberpunk-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .cyberpunk-main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "framework": "React 18+",
+  "language": "TypeScript ^5.0.0",
+  "runtime": "Node.js ^20.0.0",
+  "ui": "Next.js ^14.0.0",
+  "styling": "Tailwind CSS ^3.3.0",
+  "state": "Zustand",
+  "router": "React Router v6"
+}

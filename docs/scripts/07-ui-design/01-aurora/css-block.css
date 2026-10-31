@@ -1,0 +1,4 @@
+/* 断点规范 */
+@media (max-width: 640px) { /* 手机 */ }
+@media (max-width: 1024px) { /* 平板 */ }
+@media (min-width: 1025px) { /* 桌面 */ }

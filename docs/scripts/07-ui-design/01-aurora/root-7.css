@@ -1,0 +1,7 @@
+:root {
+  --aurora-white: rgba(255, 255, 255, 0.9);
+  --aurora-light: rgba(255, 255, 255, 0.7);
+  --aurora-medium: rgba(255, 255, 255, 0.5);
+  --aurora-dark: rgba(0, 0, 0, 0.8);
+  --aurora-darker: rgba(0, 0, 0, 0.9);
+}

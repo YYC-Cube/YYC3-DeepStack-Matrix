@@ -1,0 +1,14 @@
+/* 青紫渐变 */
+.gradient-cyan-magenta {
+  background: linear-gradient(135deg, #00f0ff 0%, #ff00ff 100%);
+}
+
+/* 黄绿渐变 */
+.gradient-yellow-green {
+  background: linear-gradient(135deg, #ffff00 0%, #00ff00 100%);
+}
+
+/* 红蓝渐变 */
+.gradient-red-blue {
+  background: linear-gradient(135deg, #ff0000 0%, #0000ff 100%);
+}

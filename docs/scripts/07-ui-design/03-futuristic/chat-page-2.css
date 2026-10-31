@@ -1,0 +1,36 @@
+/* 聊天页面布局 */
+.chat-page {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: 1fr 80px;
+  height: 100%;
+  gap: 24px;
+}
+
+/* 会话列表 */
+.chat-sessions {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow-y: auto;
+}
+
+/* 聊天主区域 */
+.chat-main {
+  grid-column: 2;
+  grid-row: 1;
+  background: white;
+  border-radius: 12px;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* 输入区域 */
+.chat-input {
+  grid-column: 2;
+  grid-row: 2;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+}

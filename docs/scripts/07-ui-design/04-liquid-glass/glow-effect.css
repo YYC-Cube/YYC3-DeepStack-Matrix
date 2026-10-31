@@ -1,0 +1,13 @@
+.glow-effect {
+  box-shadow:
+    0 0 20px rgba(0, 255, 135, 0.3),
+    0 0 40px rgba(0, 255, 135, 0.2),
+    0 0 60px rgba(0, 255, 135, 0.1);
+}
+
+.glow-hover:hover {
+  box-shadow:
+    0 0 30px rgba(0, 255, 135, 0.5),
+    0 0 60px rgba(0, 255, 135, 0.3),
+    0 0 90px rgba(0, 255, 135, 0.2);
+}

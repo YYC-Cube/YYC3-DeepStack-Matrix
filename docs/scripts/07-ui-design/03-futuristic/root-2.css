@@ -1,0 +1,14 @@
+:root {
+  /* 中性色 */
+  --future-white: #ffffff;
+  --future-gray-50: #f9fafb;
+  --future-gray-100: #f3f4f6;
+  --future-gray-200: #e5e7eb;
+  --future-gray-300: #d1d5db;
+  --future-gray-400: #9ca3af;
+  --future-gray-500: #6b7280;
+  --future-gray-600: #4b5563;
+  --future-gray-700: #374151;
+  --future-gray-800: #1f2937;
+  --future-gray-900: #111827;
+}

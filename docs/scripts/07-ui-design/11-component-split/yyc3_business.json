@@ -1,0 +1,17 @@
+{
+  "name": "@yyc3/business",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@yyc3/ui": "^1.0.0",
+    "recharts": "^2.0.0",
+    "zustand": "^4.0.0",
+    "date-fns": "^3.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "@yyc3/ui": ">=1.0.0"
+  }
+}

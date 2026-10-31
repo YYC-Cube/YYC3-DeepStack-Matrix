@@ -1,0 +1,34 @@
+/* 极光流动动画 */
+.yyc3-aurora-animate {
+  background: linear-gradient(135deg, #00ff87 0%, #60efff 25%, #ff6b6b 50%, #a855f7 75%, #ec4899 100%);
+  background-size: 200% 200%;
+  animation: auroraFlow 15s ease infinite;
+}
+
+@keyframes auroraFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 光影穿透动画 */
+.yyc3-light-penetrate {
+  position: relative;
+  overflow: hidden;
+}
+
+.yyc3-light-penetrate::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  animation: lightRotate 10s linear infinite;
+}
+
+@keyframes lightRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

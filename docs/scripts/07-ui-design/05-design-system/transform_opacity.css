@@ -1,0 +1,12 @@
+/* 使用 transform 和 opacity 进行动画 */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* 使用 3D 变换触发硬件加速 */
+.hardware-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

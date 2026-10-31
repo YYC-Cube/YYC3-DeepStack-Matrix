@@ -1,0 +1,22 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.container-sm {
+  max-width: 800px;
+}
+
+.container-md {
+  max-width: 1000px;
+}
+
+.container-lg {
+  max-width: 1400px;
+}
+
+.container-fluid {
+  max-width: none;
+}

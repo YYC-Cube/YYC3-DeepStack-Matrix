@@ -1,0 +1,22 @@
+.modal-liquid {
+  /* 背景 */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  
+  /* 边框 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  
+  /* 阴影 */
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* 动画 */
+  animation: springIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* 内边距 */
+  padding: 32px;
+  max-width: 600px;
+}

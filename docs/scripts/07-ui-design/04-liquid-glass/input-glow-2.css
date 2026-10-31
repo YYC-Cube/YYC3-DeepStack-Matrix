@@ -1,0 +1,14 @@
+.input-glow {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.input-glow:focus {
+  border-color: rgba(0, 255, 135, 0.5);
+  box-shadow:
+    0 0 0 3px rgba(0, 255, 135, 0.1),
+    0 0 20px rgba(0, 255, 135, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}

@@ -1,0 +1,19 @@
+.card-neon {
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid #00f0ff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow:
+    0 0 10px #00f0ff,
+    0 0 20px rgba(0, 240, 255, 0.3),
+    inset 0 0 10px rgba(0, 240, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-neon:hover {
+  box-shadow:
+    0 0 20px #00f0ff,
+    0 0 40px rgba(0, 240, 255, 0.5),
+    inset 0 0 20px rgba(0, 240, 255, 0.2);
+  transform: translateY(-4px);
+}

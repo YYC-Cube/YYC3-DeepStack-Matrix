@@ -1,0 +1,40 @@
+.neomorphism {
+  /* 柔和背景 */
+  background: rgba(255, 255, 255, 0.08);
+  
+  /* 双重阴影 */
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.05),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.1),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05);
+  
+  /* 圆角 */
+  border-radius: 20px;
+  
+  /* 边框 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* 过渡 */
+  transition: all 0.3s ease;
+}
+
+.neomorphism:hover {
+  /* 悬停增强 */
+  box-shadow:
+    12px 12px 24px rgba(0, 0, 0, 0.15),
+    -12px -12px 24px rgba(255, 255, 255, 0.08),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.15),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.neomorphism:active {
+  /* 按下效果 */
+  box-shadow:
+    4px 4px 8px rgba(0, 0, 0, 0.1),
+    -4px -4px 8px rgba(255, 255, 255, 0.05),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.05);
+  transform: translateY(0);
+}

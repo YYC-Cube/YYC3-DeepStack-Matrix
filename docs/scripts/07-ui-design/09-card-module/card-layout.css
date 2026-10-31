@@ -1,0 +1,22 @@
+.card-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+.card-layout-featured {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto auto;
+}
+
+.card-layout-featured .featured-card {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+@media (max-width: 768px) {
+  .card-layout-featured {
+    grid-template-columns: 1fr;
+  }
+}

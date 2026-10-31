@@ -1,0 +1,14 @@
+.fade-aurora {
+  animation: fadeInAurora 0.4s ease-out;
+}
+
+@keyframes fadeInAurora {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

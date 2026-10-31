@@ -1,0 +1,35 @@
+.avatar-xs {
+  width: 24px;
+  height: 24px;
+  border-width: 1px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-width: 1.5px;
+}
+
+.avatar-md {
+  width: 40px;
+  height: 40px;
+  border-width: 2px;
+}
+
+.avatar-lg {
+  width: 56px;
+  height: 56px;
+  border-width: 2.5px;
+}
+
+.avatar-xl {
+  width: 80px;
+  height: 80px;
+  border-width: 3px;
+}
+
+.avatar-2xl {
+  width: 120px;
+  height: 120px;
+  border-width: 4px;
+}

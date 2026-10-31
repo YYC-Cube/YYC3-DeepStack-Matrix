@@ -1,0 +1,53 @@
+.nav-brand-liquid {
+  /* 毛玻璃效果 */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  /* 边框 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  
+  /* 阴影 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  /* 内边距 */
+  padding: 8px 16px;
+  
+  /* 布局 */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  /* 过渡 */
+  transition: all 0.3s ease;
+}
+
+.nav-brand-liquid:hover {
+  /* 悬停发光效果 */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(0, 255, 135, 0.3);
+}
+
+.nav-brand-logo {
+  /* Logo 样式 */
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  animation: logoFloat 6s ease-in-out infinite;
+}
+
+.nav-brand-text {
+  /* 品牌文字样式 */
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.nav-brand-slogan {
+  /* 标语样式 */
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+}

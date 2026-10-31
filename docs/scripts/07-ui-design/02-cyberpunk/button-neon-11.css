@@ -1,0 +1,10 @@
+.button-neon {
+  transition: all 0.15s ease;
+}
+
+.button-neon:active {
+  transform: scale(0.98);
+  box-shadow:
+    0 0 5px #00f0ff,
+    0 0 10px rgba(0, 240, 255, 0.3);
+}

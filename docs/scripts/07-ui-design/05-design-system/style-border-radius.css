@@ -1,0 +1,28 @@
+/* 移动端 */
+@media (max-width: 640px) {
+  .card-liquid {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  .btn-liquid {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+/* 平板 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .card-liquid {
+    padding: 20px;
+    border-radius: 18px;
+  }
+}
+
+/* 桌面 */
+@media (min-width: 1025px) {
+  .card-liquid {
+    padding: 24px;
+    border-radius: 20px;
+  }
+}

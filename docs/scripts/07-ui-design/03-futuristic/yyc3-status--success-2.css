@@ -1,0 +1,23 @@
+/* 成功状态 */
+.yyc3-status--success {
+  color: var(--yyc3-success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* 警告状态 */
+.yyc3-status--warning {
+  color: var(--yyc3-warning);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* 错误状态 */
+.yyc3-status--error {
+  color: var(--yyc3-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* 信息状态 */
+.yyc3-status--info {
+  color: var(--yyc3-info);
+  background: rgba(59, 130, 246, 0.1);
+}

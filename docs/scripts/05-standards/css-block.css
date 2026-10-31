@@ -1,0 +1,21 @@
+/**
+ * file: index.css
+ * description: 全局样式文件 · 包含基础样式、主题变量和重置样式
+ * author: YanYuCloudCube Team
+ * version: v1.0.0
+ * created: 2026-02-26
+ * updated: 2026-03-05
+ * status: active
+ * tags: [style],[theme],[global]
+ *
+ * brief: 全局样式定义
+ *
+ * details:
+ * - 基础样式重置
+ * - 主题变量定义（深蓝 + 青色赛博朋克主题）
+ * - 全局字体设置
+ * - 工具类定义
+ *
+ * dependencies: TailwindCSS, 自定义主题
+ * notes: 在 main.tsx 中引入
+ */

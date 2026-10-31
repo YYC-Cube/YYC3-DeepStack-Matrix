@@ -1,0 +1,30 @@
+:root {
+  /* 颜色变量 */
+  --color-primary: #00ff87;
+  --color-secondary: #00d4ff;
+  --color-accent: #00ffaa;
+  --color-background: #0a0f0a;
+  --color-card: rgba(0, 255, 135, 0.08);
+  --color-border: rgba(0, 255, 135, 0.15);
+  
+  /* 字体变量 */
+  --font-sans-primary: 'Inter', -apple-system, BlinkMacSystemFont;
+  --font-mono-primary: 'Fira Code', 'Courier New', monospace;
+  
+  /* 间距变量 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  
+  /* 圆角变量 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  
+  /* 阴影变量 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.10);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.10);
+}

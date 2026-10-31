@@ -1,0 +1,8 @@
+/* 提示浏览器优化 */
+.card-neon {
+  will-change: transform, opacity, box-shadow;
+}
+
+.neon-text {
+  will-change: text-shadow, color;
+}

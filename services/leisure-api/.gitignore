@@ -1,0 +1,5 @@
+# 依赖安装豁免(不改动根 pnpm-lock;仅本服务目录)
+node_modules
+dist
+.env
+*.tsbuildinfo

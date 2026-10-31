@@ -1,0 +1,522 @@
+// YYC³ LeisureManage · Prisma Schema(MySQL 8)
+// 依据:《11-数据库完整规划》全量表清单;流水/审计表应用层禁改(见 10 号文档 §REVOKE)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────── 主数据 ───────────────
+
+model Store {
+  id                  Int       @id @default(autoincrement())
+  name                String    @db.VarChar(64)
+  address             String?   @db.VarChar(255)
+  city                String?   @db.VarChar(64)
+  businessDayCutTime  String    @default("08:00") @map("business_day_cut_time") @db.VarChar(5)
+  externalId          String?   @map("external_id") @db.VarChar(64) @unique
+  status              Int       @default(1)
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  roomTypes     RoomType[]
+  artists       Artist[]
+  artistGroups  ArtistGroup[]
+  artistLevels  ArtistLevel[]
+  stageFeeRules StageFeeRule[]
+  ticketRules   TicketRule[]
+
+  @@map("store")
+}
+
+model RoomType {
+  id         Int     @id @default(autoincrement())
+  storeId    Int     @map("store_id")
+  name       String  @db.VarChar(32) // 实测:小包/中包/大包/VIP包/西亳厅/外卖房
+  externalId String? @map("external_id") @db.VarChar(64)
+  sort       Int     @default(0)
+  status     Int     @default(1)
+
+  store Store @relation(fields: [storeId], references: [id])
+
+  @@unique([storeId, name])
+  @@map("room_type")
+}
+
+// ─────────────── 档案三元组 ───────────────
+
+model ArtistGroup {
+  id             Int      @id @default(autoincrement())
+  storeId        Int      @map("store_id")
+  name           String   @db.VarChar(64) // 实测以主管命名:江海龙
+  supervisorName String?  @map("supervisor_name") @db.VarChar(64)
+  deletedAt      DateTime? @map("deleted_at")
+
+  store   Store    @relation(fields: [storeId], references: [id])
+  artists Artist[] @relation("group")
+
+  @@unique([storeId, name, deletedAt])
+  @@map("artist_group")
+}
+
+model ArtistLevel {
+  id        Int       @id @default(autoincrement())
+  storeId   Int       @map("store_id")
+  name      String    @db.VarChar(64) // 实测:技师
+  deletedAt DateTime? @map("deleted_at")
+
+  store   Store    @relation(fields: [storeId], references: [id])
+  artists Artist[] @relation("level")
+
+  @@unique([storeId, name, deletedAt])
+  @@map("artist_level")
+}
+
+model Artist {
+  id                  Int       @id @default(autoincrement())
+  storeId             Int       @map("store_id")
+  groupId             Int?      @map("group_id")
+  supervisorName      String?   @map("supervisor_name") @db.VarChar(64)
+  levelId             Int?      @map("level_id")
+  realName            String    @map("real_name") @db.VarChar(64)
+  stageName           String?   @map("stage_name") @db.VarChar(64)
+  gender              Int       @default(1) // 1 女(实测默认) 2 男
+  phone               String?   @db.VarChar(20)
+  badgeNo             String?   @map("badge_no") @db.VarChar(32)
+  idCardNoEnc         Bytes?    @map("id_card_no_enc")
+  idCardImgKey        String?   @map("id_card_img_key") @db.VarChar(255)
+  avatarKeys          Json?     @map("avatar_keys")
+  tags                Json?
+  performanceTarget   Decimal   @default(0) @map("performance_target") @db.Decimal(12, 2)
+  maxTotalShows       Int       @default(0) @map("max_total_shows") // 0=不限
+  maxCrossRooms       Int       @default(0) @map("max_cross_rooms") // 0=不允许串台
+  firstShowMinMinutes Int       @default(0) @map("first_show_min_minutes")
+  sameRoomMinMinutes  Int       @default(0) @map("same_room_min_minutes")
+  workStartMode       String    @default("FREE") @map("work_start_mode") @db.VarChar(8)
+  workStart           String?   @map("work_start") @db.VarChar(5)
+  workEndMode         String    @default("FREE") @map("work_end_mode") @db.VarChar(8)
+  workEnd             String?   @map("work_end") @db.VarChar(5)
+  tipFixed            Decimal   @default(0) @map("tip_fixed") @db.Decimal(10, 2)
+  hourlyRate          Decimal   @default(0) @map("hourly_rate") @db.Decimal(10, 2)
+  wechatOpenid        String?   @map("wechat_openid") @db.VarChar(64) @unique
+  status              Int       @default(1) // 1在职 0停用 2已转移
+  deletedAt           DateTime? @map("deleted_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  store        Store            @relation(fields: [storeId], references: [id])
+  group        ArtistGroup?     @relation("group", fields: [groupId], references: [id])
+  level        ArtistLevel?     @relation("level", fields: [levelId], references: [id])
+  reports      AttendanceReport[]
+  sessions     ShowSession[]
+  feeTxns      StageFeeTxn[]
+  ticketTxns   TicketTxn[]
+  reviews      ArtistReview[]
+  bookings     ArtistBooking[]
+  showcaseCasts ShowcaseCast[]
+
+  @@unique([storeId, badgeNo])
+  @@index([storeId, stageName])
+  @@index([storeId, groupId])
+  @@map("artist")
+}
+
+// ─────────────── 绑定与转移 ───────────────
+
+model WechatBindLog {
+  id            Int      @id @default(autoincrement())
+  openid        String   @db.VarChar(64)
+  artistId      Int      @map("artist_id")
+  storeId       Int      @map("store_id")
+  action        String   @db.VarChar(16) // BIND/UNBIND/TRANSFER_IN/TRANSFER_OUT/AUTO_DELETE
+  prevStoreId   Int?     @map("prev_store_id")
+  prevArtistId  Int?     @map("prev_artist_id")
+  mode          String   @db.VarChar(8) // MANUAL/AUTO
+  operatorId    Int?     @map("operator_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([openid])
+  @@index([artistId])
+  @@map("wechat_bind_log")
+}
+
+model TransferWorkorder {
+  id            Int       @id @default(autoincrement())
+  openid        String    @db.VarChar(64)
+  fromStoreId   Int       @map("from_store_id")
+  fromArtistId  Int       @map("from_artist_id")
+  toStoreId     Int       @map("to_store_id")
+  toBadgeNo     String?   @map("to_badge_no") @db.VarChar(32)
+  status        String    @default("PENDING") @db.VarChar(16) // PENDING/FROM_OK/TO_OK/DONE/REJECTED/CANCELLED
+  payload       Json?
+  createdBy     Int       @map("created_by")
+  decidedBy     Int?      @map("decided_by")
+  decidedAt     DateTime? @map("decided_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([status])
+  @@index([openid])
+  @@map("transfer_workorder")
+}
+
+// ─────────────── 考勤 ───────────────
+
+model AttendanceReport {
+  id            Int       @id @default(autoincrement())
+  storeId       Int       @map("store_id")
+  businessDate  DateTime  @map("business_date") @db.Date
+  artistId      Int       @map("artist_id")
+  groupId       Int?      @map("group_id")
+  supervisorName String?  @map("supervisor_name") @db.VarChar(64)
+  type          String    @db.VarChar(16) // CHECKIN/PEIBAN/SISHI/ZAOTUI/CHIDAO/LIJIA/QITA/WEIBAO
+  reportTime    DateTime  @map("report_time")
+  checkinLat    Decimal?  @map("checkin_lat") @db.Decimal(10, 6)
+  checkinLng    Decimal?  @map("checkin_lng") @db.Decimal(10, 6)
+  checkinGeoOk  Boolean   @default(true) @map("checkin_geo_ok")
+  checkoutTime  DateTime? @map("checkout_time")
+  checkoutLat   Decimal?  @map("checkout_lat") @db.Decimal(10, 6)
+  checkoutLng   Decimal?  @map("checkout_lng") @db.Decimal(10, 6)
+  source        Int       @default(0) // 0自助 1补打卡
+  operatorId    Int?      @map("operator_id")
+  remark        String?   @db.VarChar(255)
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([storeId, businessDate])
+  @@index([artistId, businessDate])
+  @@index([storeId, groupId, type, businessDate])
+  @@map("attendance_report")
+}
+
+// ─────────────── 场次(上下钟) ───────────────
+
+model ShowSession {
+  id              Int       @id @default(autoincrement())
+  storeId         Int       @map("store_id")
+  businessDate    DateTime  @map("business_date") @db.Date
+  artistId        Int       @map("artist_id")
+  roomId          Int?      @map("room_id")
+  roomTypeId      Int?      @map("room_type_id")
+  roomName        String?   @map("room_name") @db.VarChar(64)
+  startAt         DateTime  @map("start_at")
+  endAt           DateTime? @map("end_at")
+  durationMinutes Int?      @map("duration_minutes")
+  isCross         Boolean   @default(false) @map("is_cross")
+  feeAmount       Decimal?  @map("fee_amount") @db.Decimal(10, 2)
+  feeRuleId       Int?      @map("fee_rule_id")
+  billNo          String?   @map("bill_no") @db.VarChar(64)
+  operatorId      Int?      @map("operator_id")
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([storeId, businessDate])
+  @@index([artistId, startAt])
+  @@index([storeId, roomId, startAt])
+  @@map("show_session")
+}
+
+// ─────────────── 台费 ───────────────
+
+model StageFeeRule {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  levelId      Int       @map("level_id")
+  roomTypeIds  Json      @map("room_type_ids") // 数字数组
+  amount       Decimal   @default(0) @db.Decimal(10, 2)
+  validFrom    DateTime  @default(now()) @map("valid_from") // 规则版本化(快照依据)
+  deletedAt    DateTime? @map("deleted_at")
+
+  store Store @relation(fields: [storeId], references: [id])
+
+  @@index([storeId, levelId])
+  @@map("stage_fee_rule")
+}
+
+model StageFeeTxn {
+  id           Int      @id @default(autoincrement())
+  storeId      Int      @map("store_id")
+  businessDate DateTime @map("business_date") @db.Date
+  artistId     Int      @map("artist_id")
+  stageName    String?  @map("stage_name") @db.VarChar(64) // 冗余,免 join 检索
+  badgeNo      String?  @map("badge_no") @db.VarChar(32)
+  groupId      Int?     @map("group_id")
+  type         String   @db.VarChar(16) // RECHARGE/SESSION_DEDUCT/MANUAL_DEDUCT/REVERSE
+  amount       Decimal  @db.Decimal(10, 2) // 充值+ 扣费− 冲正反号
+  payChannel   String?  @map("pay_channel") @db.VarChar(16)
+  payTxnNo     String?  @map("pay_txn_no") @db.VarChar(64)
+  refType      String?  @map("ref_type") @db.VarChar(16)
+  refId        Int?     @map("ref_id")
+  remark       String?  @db.VarChar(255)
+  approvalId   Int?     @map("approval_id")
+  operatorId   Int?     @map("operator_id")
+  operatorName String?  @map("operator_name") @db.VarChar(64)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([storeId, businessDate])
+  @@index([artistId, businessDate])
+  @@map("stage_fee_txn") // 应用层禁 UPDATE/DELETE(10 号文档 §REVOKE)
+}
+
+model PayOrder {
+  id             Int       @id @default(autoincrement())
+  storeId        Int       @map("store_id")
+  businessDate   DateTime  @map("business_date") @db.Date
+  channel        String    @db.VarChar(16) // DOUYIN/…
+  outTradeNo     String    @map("out_trade_no") @db.VarChar(64) @unique
+  channelTradeNo String?   @map("channel_trade_no") @db.VarChar(64) @unique
+  amount         Decimal   @db.Decimal(10, 2)
+  status         String    @default("CREATED") @db.VarChar(16) // CREATED/PAYED/FAILED/REFUNDED/CLOSED
+  artistId       Int?      @map("artist_id")
+  bizType        String?   @map("biz_type") @db.VarChar(16)
+  bizRefId       Int?      @map("biz_ref_id")
+  rawNotify      Json?     @map("raw_notify")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  paidAt         DateTime? @map("paid_at")
+
+  @@index([storeId, businessDate])
+  @@map("pay_order")
+}
+
+model Approval {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  bizType      String    @map("biz_type") @db.VarChar(16)
+  bizPayload   Json      @map("biz_payload")
+  amount       Decimal?  @db.Decimal(10, 2)
+  status       String    @default("PENDING") @db.VarChar(16) // PENDING/APPROVED/REJECTED
+  applicantId  Int       @map("applicant_id")
+  approverId   Int?      @map("approver_id")
+  decidedAt    DateTime? @map("decided_at")
+  remark       String?   @db.VarChar(255)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([storeId, status])
+  @@map("approval")
+}
+
+// ─────────────── 台票 ───────────────
+
+model TicketRule {
+  id        Int       @id @default(autoincrement())
+  storeId   Int       @map("store_id")
+  name      String    @db.VarChar(64)
+  price     Decimal   @db.Decimal(10, 2)
+  validDays Int       @default(0) @map("valid_days")
+  status    Int       @default(1)
+  deletedAt DateTime? @map("deleted_at")
+
+  store Store @relation(fields: [storeId], references: [id])
+
+  @@map("ticket_rule")
+}
+
+model TicketTxn {
+  id           Int      @id @default(autoincrement())
+  storeId      Int      @map("store_id")
+  businessDate DateTime @map("business_date") @db.Date
+  artistId     Int      @map("artist_id")
+  type         String   @db.VarChar(16) // BUY/USE/EXPIRE
+  ticketRuleId Int      @map("ticket_rule_id")
+  qty          Int      @default(1)
+  amount       Decimal  @default(0) @db.Decimal(10, 2)
+  payChannel   String?  @map("pay_channel") @db.VarChar(16)
+  refSessionId Int?     @map("ref_session_id")
+  operatorId   Int?     @map("operator_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([storeId, businessDate])
+  @@index([artistId, businessDate])
+  @@map("ticket_txn") // 只增不改
+}
+
+// ─────────────── 订单/评价/预约/展示 ───────────────
+
+model ArtistOrder {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  businessDate DateTime  @map("business_date") @db.Date
+  artistId     Int?      @map("artist_id")
+  orderNo      String    @map("order_no") @db.VarChar(64)
+  orderType    String?   @map("order_type") @db.VarChar(32)
+  payStatus    String?   @map("pay_status") @db.VarChar(16)
+  payType      String?   @map("pay_type") @db.VarChar(16)
+  amount       Decimal   @default(0) @db.Decimal(10, 2)
+  paidAt       DateTime? @map("paid_at")
+  roomName     String?   @map("room_name") @db.VarChar(64)
+  externalId   String?   @map("external_id") @db.VarChar(64) @unique
+
+  @@index([storeId, businessDate])
+  @@map("artist_order")
+}
+
+model ArtistReview {
+  id           Int      @id @default(autoincrement())
+  storeId      Int      @map("store_id")
+  businessDate DateTime @map("business_date") @db.Date
+  artistId     Int      @map("artist_id")
+  reviewType   String?  @map("review_type") @db.VarChar(32)
+  score        Int?
+  content      String?  @db.VarChar(500)
+  reviewer     String?  @db.VarChar(64)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([artistId, businessDate])
+  @@map("artist_review")
+}
+
+model ArtistBooking {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  businessDate DateTime  @map("business_date") @db.Date
+  bookingNo    String    @map("booking_no") @db.VarChar(32)
+  bookingTime  DateTime? @map("booking_time")
+  roomId       Int?      @map("room_id")
+  roomName     String?   @map("room_name") @db.VarChar(64)
+  groupId      Int?      @map("group_id")
+  artistId     Int?      @map("artist_id")
+  artistName   String?   @map("artist_name") @db.VarChar(64)
+  status       String    @default("BOOKED") @db.VarChar(16)
+
+  artist Artist? @relation(fields: [artistId], references: [id])
+
+  @@unique([storeId, bookingNo])
+  @@index([storeId, businessDate])
+  @@map("artist_booking")
+}
+
+model ShowcaseCast {
+  id        Int       @id @default(autoincrement())
+  storeId   Int       @map("store_id")
+  roomId    Int?      @map("room_id")
+  groupId   Int?      @map("group_id")
+  artistId  Int       @map("artist_id")
+  castBy    Int       @map("cast_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  endedAt   DateTime? @map("ended_at")
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([storeId, endedAt])
+  @@map("showcase_cast")
+}
+
+// ─────────────── 权限 ───────────────
+
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  storeId      Int?     @map("store_id")
+  name         String   @db.VarChar(64)
+  phone        String   @db.VarChar(20) @unique
+  passwordHash String   @map("password_hash") @db.VarChar(128)
+  roleId       Int?     @map("role_id")
+  status       Int      @default(1)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role Role? @relation(fields: [roleId], references: [id])
+
+  @@map("admin_user")
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  storeId   Int?     @map("store_id")
+  name      String   @db.VarChar(64)
+  permCodes Json     @map("perm_codes") // 功能码数组
+  users     AdminUser[]
+  stores    RoleStore[]
+
+  @@map("role")
+}
+
+model RoleStore {
+  roleId  Int @map("role_id")
+  storeId Int @map("store_id")
+
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([roleId, storeId])
+  @@map("role_store")
+}
+
+// ─────────────── 横切 ───────────────
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  storeId    Int?     @map("store_id")
+  actorId    Int?     @map("actor_id")
+  actorName  String?  @map("actor_name") @db.VarChar(64)
+  action     String   @db.VarChar(64)
+  targetType String?  @map("target_type") @db.VarChar(32)
+  targetId   String?  @map("target_id") @db.VarChar(64)
+  beforeJson Json?    @map("before_json")
+  afterJson  Json?    @map("after_json")
+  ip         String?  @db.VarChar(45)
+  ua         String?  @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([storeId, createdAt])
+  @@map("audit_log") // 只增
+}
+
+model IdempotencyKey {
+  id                Int      @id @default(autoincrement())
+  storeId           Int      @map("store_id")
+  idemKey           String   @map("idem_key") @db.VarChar(80)
+  path              String   @db.VarChar(128)
+  responseSnapshot  Json?    @map("response_snapshot")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@unique([storeId, idemKey, path])
+  @@index([createdAt])
+  @@map("idempotency_keys")
+}
+
+model IntegrationEvent {
+  id         Int       @id @default(autoincrement())
+  storeId    Int?      @map("store_id")
+  eventType  String    @map("event_type") @db.VarChar(32)
+  payload    Json
+  status     String    @default("PENDING") @db.VarChar(16)
+  retryCount Int       @default(0) @map("retry_count")
+  lastError  String?   @map("last_error") @db.VarChar(500)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  sentAt     DateTime? @map("sent_at")
+
+  @@index([status, createdAt])
+  @@map("integration_event")
+}
+
+model DailySummary {
+  id           Int      @id @default(autoincrement())
+  storeId      Int      @map("store_id")
+  businessDate DateTime @map("business_date") @db.Date
+  metrics      Json
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([storeId, businessDate])
+  @@map("daily_summary")
+}
+
+model JobRunLog {
+  id           Int       @id @default(autoincrement())
+  jobName      String    @map("job_name") @db.VarChar(64)
+  businessDate DateTime? @map("business_date") @db.Date
+  status       String    @db.VarChar(16)
+  stats        Json?
+  startedAt    DateTime  @map("started_at")
+  finishedAt   DateTime? @map("finished_at")
+  error        String?   @db.VarChar(1000)
+
+  @@index([jobName, startedAt])
+  @@map("job_run_log")
+}

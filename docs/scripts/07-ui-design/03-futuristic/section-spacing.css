@@ -1,0 +1,12 @@
+/* 通过留白建立层次 */
+.section-spacing {
+  margin-bottom: 48px;
+}
+
+.element-spacing {
+  margin-bottom: 24px;
+}
+
+.micro-spacing {
+  margin-bottom: 12px;
+}

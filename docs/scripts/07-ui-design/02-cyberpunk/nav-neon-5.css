@@ -1,0 +1,39 @@
+.nav-neon {
+  background: rgba(10, 10, 10, 0.9);
+  border-bottom: 2px solid #00f0ff;
+  box-shadow:
+    0 0 10px #00f0ff,
+    0 0 20px rgba(0, 240, 255, 0.3);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-item-neon {
+  background: transparent;
+  border: none;
+  color: rgba(0, 240, 255, 0.7);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-item-neon:hover {
+  color: #00f0ff;
+  text-shadow:
+    0 0 5px #00f0ff,
+    0 0 10px #00f0ff;
+}
+
+.nav-item-neon.active {
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.1);
+  box-shadow:
+    0 0 10px #00f0ff,
+    inset 0 0 10px rgba(0, 240, 255, 0.1);
+}

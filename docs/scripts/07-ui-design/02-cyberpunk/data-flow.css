@@ -1,0 +1,17 @@
+/* 数据流背景 */
+.data-flow {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 240, 255, 0.03) 2px,
+      rgba(0, 240, 255, 0.03) 4px
+    );
+  animation: data-scroll 10s linear infinite;
+}
+
+@keyframes data-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}

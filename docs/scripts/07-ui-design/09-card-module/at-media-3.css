@@ -1,0 +1,17 @@
+@media (min-width: 1025px) {
+  .card {
+    padding: 24px;
+  }
+  
+  .card-header {
+    padding: 20px 24px;
+  }
+  
+  .card-body {
+    padding: 24px;
+  }
+  
+  .card-footer {
+    padding: 16px 24px;
+  }
+}

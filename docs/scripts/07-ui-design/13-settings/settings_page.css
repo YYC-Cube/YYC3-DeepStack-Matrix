@@ -1,0 +1,47 @@
+/* 科幻感风格 */
+.settings__page {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 赛博朋克风格 */
+.settings__page {
+  animation: glitchFadeIn 0.4s steps(5, end);
+}
+
+@keyframes glitchFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  20% {
+    opacity: 0.2;
+    transform: translateX(5px);
+  }
+  40% {
+    opacity: 0.4;
+    transform: translateX(-3px);
+  }
+  60% {
+    opacity: 0.6;
+    transform: translateX(3px);
+  }
+  80% {
+    opacity: 0.8;
+    transform: translateX(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@yyc3/ui",
+  "version": "1.0.0",
+  "description": "YYC³ UI基础组件库 - 基于 Radix UI 和 Tailwind CSS 的高质量React组件库",
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "design-system",
+    "radix-ui",
+    "tailwind-css",
+    "yyc3"
+  ],
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YYC-Cube/yyc3-ui.git"
+  },
+  "homepage": "https://yyc3.0379.email/ui"
+}

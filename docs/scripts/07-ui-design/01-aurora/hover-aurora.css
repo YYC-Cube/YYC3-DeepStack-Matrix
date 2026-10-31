@@ -1,0 +1,8 @@
+.hover-aurora {
+  transition: all 0.4s ease;
+}
+
+.hover-aurora:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+}

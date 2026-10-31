@@ -1,0 +1,32 @@
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  animation: particleFloat 10s ease-in-out infinite;
+}
+
+.particle-sm {
+  width: 2px;
+  height: 2px;
+}
+
+.particle-md {
+  width: 4px;
+  height: 4px;
+}
+
+.particle-lg {
+  width: 6px;
+  height: 6px;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-100px) translateX(50px);
+    opacity: 0.5;
+  }
+}

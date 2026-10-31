@@ -1,0 +1,8 @@
+.button-gradient {
+  transition: all 0.3s ease;
+}
+
+.button-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 255, 135, 0.4);
+}

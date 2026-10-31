@@ -1,0 +1,16 @@
+/* globals.css */
+:root {
+  --primary-color: #0ea5e9;
+  --secondary-color: #64748b;
+  --background-color: #ffffff;
+  --text-color: #0f172a;
+  --border-color: #e2e8f0;
+}
+
+[data-theme='dark'] {
+  --primary-color: #38bdf8;
+  --secondary-color: #94a3b8;
+  --background-color: #0f172a;
+  --text-color: #f1f5f9;
+  --border-color: #334155;
+}

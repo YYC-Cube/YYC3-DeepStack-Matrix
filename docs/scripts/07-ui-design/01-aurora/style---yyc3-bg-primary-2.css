@@ -1,0 +1,9 @@
+[data-theme="dark"] {
+  --yyc3-bg-primary: rgba(26, 26, 42, 0.6);
+  --yyc3-bg-secondary: rgba(37, 37, 48, 0.4);
+  --yyc3-bg-tertiary: rgba(45, 45, 58, 0.3);
+  --yyc3-text-primary: #ffffff;
+  --yyc3-text-secondary: #a0a0a0;
+  --yyc3-text-tertiary: #6b7280;
+  --yyc3-border-color: rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,12 @@
+{
+  "name": "现代极简",
+  "type": "light",
+  "colors": {
+    "primary": "oklch(0.30 0.00 0)",
+    "secondary": "oklch(0.50 0.00 0)",
+    "accent": "oklch(0.40 0.00 0)",
+    "background": "oklch(0.98 0.00 0)",
+    "card": "oklch(1.00 0.00 0)",
+    "border": "oklch(0.90 0.00 0)"
+  }
+}

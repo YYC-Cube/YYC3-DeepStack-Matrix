@@ -1,0 +1,28 @@
+@media (max-width: 768px) {
+  .horizontal-main-nav {
+    display: none;
+  }
+  
+  .mobile-nav-toggle {
+    display: flex;
+  }
+  
+  .vertical-sub-nav {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .vertical-sub-nav.open {
+    transform: translateX(0);
+  }
+  
+  .tab-page-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  
+  .tab-page-item {
+    min-width: 100px;
+    max-width: 150px;
+  }
+}

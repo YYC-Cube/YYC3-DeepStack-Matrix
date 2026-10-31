@@ -1,0 +1,28 @@
+:root {
+  /* 颜色变量 */
+  --color-primary: oklch(0.55 0.22 264);
+  --color-primary-foreground: oklch(0.98 0.01 264);
+  --color-secondary: oklch(0.65 0.15 200);
+  --color-secondary-foreground: oklch(0.98 0.01 200);
+  
+  /* 字体变量 */
+  --font-sans-primary: 'Inter', -apple-system, BlinkMacSystemFont;
+  --font-sans-secondary: 'Segoe UI', Roboto;
+  --font-mono-primary: 'Fira Code', 'Courier New', monospace;
+  
+  /* 间距变量 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  
+  /* 圆角变量 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* 阴影变量 */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.10);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.10);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.10);
+}

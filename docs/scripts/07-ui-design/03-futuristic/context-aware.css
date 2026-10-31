@@ -1,0 +1,16 @@
+/* 根据上下文自动调整 */
+.context-aware {
+  transition: all 0.3s ease;
+}
+
+.context-aware[data-priority="high"] {
+  border-left: 4px solid #ef4444;
+}
+
+.context-aware[data-priority="medium"] {
+  border-left: 4px solid #f59e0b;
+}
+
+.context-aware[data-priority="low"] {
+  border-left: 4px solid #10b981;
+}

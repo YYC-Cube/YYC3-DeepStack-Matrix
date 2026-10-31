@@ -1,0 +1,88 @@
+/* 淡入淡出 */
+.yyc3-fade-enter {
+  animation: yyc3FadeIn 0.3s ease-out;
+}
+
+.yyc3-fade-exit {
+  animation: yyc3FadeOut 0.3s ease-in;
+}
+
+keyframes yyc3FadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+keyframes yyc3FadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 滑动动画 */
+.yyc3-slide-enter {
+  animation: yyc3SlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.yyc3-slide-exit {
+  animation: yyc3SlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+keyframes yyc3SlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+keyframes yyc3SlideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* 缩放动画 */
+.yyc3-scale-enter {
+  animation: yyc3ScaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.yyc3-scale-exit {
+  animation: yyc3ScaleOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+keyframes yyc3ScaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+keyframes yyc3ScaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}

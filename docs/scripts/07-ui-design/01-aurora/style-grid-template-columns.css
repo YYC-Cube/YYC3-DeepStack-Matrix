@@ -1,0 +1,41 @@
+/* 平板端布局 */
+@media (max-width: 1024px) {
+  .standalone-app {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .standalone-sidebar {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .standalone-sidebar.collapsed {
+    transform: translateX(-240px);
+  }
+}
+
+/* 移动端布局 */
+@media (max-width: 768px) {
+  .standalone-app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px 1fr 40px;
+  }
+
+  .standalone-sidebar {
+    position: fixed;
+    left: 0;
+    top: 56px;
+    bottom: 40px;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+
+  .standalone-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .standalone-main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}

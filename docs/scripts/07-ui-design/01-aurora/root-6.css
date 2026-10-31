@@ -1,0 +1,33 @@
+:root {
+  /* 极光主色 */
+  --yyc3-primary-start: #00ff87;
+  --yyc3-primary-end: #60efff;
+  --yyc3-primary: #00ff87;
+  --yyc3-primary-hover: #00e678;
+  --yyc3-primary-active: #00cc6a;
+
+  /* 极光辅助色 */
+  --yyc3-secondary-start: #ff6b6b;
+  --yyc3-secondary-end: #a855f7;
+  --yyc3-accent-start: #ec4899;
+  --yyc3-accent-end: #fbbf24;
+
+  /* 中性色 */
+  --yyc3-white: #ffffff;
+  --yyc3-gray-50: #f9fafb;
+  --yyc3-gray-100: #f3f4f6;
+  --yyc3-gray-200: #e5e7eb;
+  --yyc3-gray-300: #d1d5db;
+  --yyc3-gray-400: #9ca3af;
+  --yyc3-gray-500: #6b7280;
+  --yyc3-gray-600: #4b5563;
+  --yyc3-gray-700: #374151;
+  --yyc3-gray-800: #1f2937;
+  --yyc3-gray-900: #111827;
+
+  /* 功能色 */
+  --yyc3-success: #10b981;
+  --yyc3-warning: #f59e0b;
+  --yyc3-error: #ef4444;
+  --yyc3-info: #3b82f6;
+}

@@ -1,0 +1,15 @@
+/* 渐变流动背景 */
+.gradient-flow {
+  background:
+    linear-gradient(135deg, #00ff87 0%, #60efff 25%, #ff6b6b 50%, #a855f7 75%, #00ff87 100%);
+  background-size: 400% 400%;
+  animation: gradientMove 20s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}

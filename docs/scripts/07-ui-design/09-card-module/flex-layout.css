@@ -1,0 +1,21 @@
+.flex-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.flex-layout > * {
+  flex: 1 1 300px;
+}
+
+.flex-layout > *.flex-full {
+  flex: 1 1 100%;
+}
+
+.flex-layout > *.flex-half {
+  flex: 1 1 calc(50% - 12px);
+}
+
+.flex-layout > *.flex-third {
+  flex: 1 1 calc(33.333% - 16px);
+}

@@ -1,0 +1,22 @@
+.nav-smart {
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-smart-search {
+  flex: 1;
+  max-width: 400px;
+}
+
+.nav-smart-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

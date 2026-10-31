@@ -1,0 +1,61 @@
+/* 超小屏 */
+@media (max-width: 480px) {
+  .settings__sidebar {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    height: auto;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .settings__main {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .settings__item {
+    height: auto;
+    padding: 12px 16px;
+  }
+}
+
+/* 小屏 */
+@media (max-width: 768px) {
+  .settings__container {
+    flex-direction: column;
+  }
+  
+  .settings__sidebar {
+    width: 100%;
+    height: auto;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .settings__main {
+    margin-left: 0;
+  }
+}
+
+/* 中屏 */
+@media (max-width: 1024px) {
+  .settings__sidebar {
+    width: 200px;
+  }
+  
+  .settings__main {
+    max-width: 600px;
+  }
+}
+
+/* 大屏 */
+@media (min-width: 1440px) {
+  .settings__sidebar {
+    width: 280px;
+  }
+  
+  .settings__main {
+    max-width: 900px;
+  }
+}

@@ -1,0 +1,8 @@
+/* 确保所有交互元素可通过键盘访问 */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.5);
+}

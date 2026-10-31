@@ -1,0 +1,6 @@
+{
+  "base": "Radix UI",
+  "animations": "Framer Motion",
+  "icons": "Lucide React",
+  "forms": "React Hook Form"
+}

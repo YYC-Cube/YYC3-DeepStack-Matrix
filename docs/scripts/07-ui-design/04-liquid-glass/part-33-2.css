@@ -1,0 +1,5 @@
+/* 避免过多的模糊层数 */
+.glass-card {
+  backdrop-filter: blur(40px) saturate(180%);
+  /* 不要叠加多个blur */
+}

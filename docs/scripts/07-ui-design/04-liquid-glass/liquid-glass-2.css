@@ -1,0 +1,24 @@
+.liquid-glass {
+  /* 半透明背景 */
+  background: rgba(255, 255, 255, 0.08);
+  
+  /* 高级模糊效果 */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  /* 细腻的边框高光 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  
+  /* 柔和阴影 */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* 圆角更大，更柔和 */
+  border-radius: 20px;
+  
+  /* 饱和度增强，色彩更通透 */
+  filter: saturate(1.2);
+}

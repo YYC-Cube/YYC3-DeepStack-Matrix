@@ -170,7 +170,7 @@ async function getProjectDetails(projectPath, projectName, config) {
                     const hashLimit = config.hashDepth === Infinity ? Infinity : config.hashDepth;
                     if (fileHashes.length < hashLimit) {
                         const content = await fs.readFile(filePath);
-                        const hash = crypto.createHash('md5').update(content).digest('hex');
+                        const hash = crypto.createHash('sha256').update(content).digest('hex');
                         fileHashes.push(hash);
                     }
                 } catch {}
@@ -599,10 +599,11 @@ async function analyzeRootDirectory(rootDir, config) {
     reportFiles.forEach(f => console.log(`   → ${f}`));
 
     if (config.autoOpenReport && reportFiles.length > 0) {
-        const { exec } = require('child_process');
+        // execFile 参数数组直传,不走 shell 拼接(报告名含特殊字符无注入面)
+        const { execFile } = require('child_process');
         const mdFile = reportFiles.find(f => f.endsWith('.md'));
         if (mdFile) {
-            exec(`open "${mdFile}"`, (err) => {
+            execFile('open', [mdFile], (err) => {
                 if (err) console.log('   (无法自动打开报告)');
             });
         }
@@ -984,7 +985,13 @@ async function menuHistory(config) {
 
         if (selected === BACK_VALUE) return;
 
-        const filePath = path.join(reportDir, selected);
+        // 路径包含校验:selected 经 path.join 后必须仍落在 reportDir 内(防 ../ 穿越)
+        const filePath = path.resolve(reportDir, selected);
+        const reportRoot = path.resolve(reportDir);
+        if (filePath !== reportRoot && !filePath.startsWith(reportRoot + path.sep)) {
+            console.log('   ⛔ 非法路径,已拒绝');
+            return;
+        }
         const content = await fs.readFile(filePath, 'utf-8');
         console.log(`\n📄 ${filePath}:\n`);
         if (selected.endsWith('.json')) {

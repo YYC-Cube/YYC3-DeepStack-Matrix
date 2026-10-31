@@ -420,6 +420,9 @@ model AdminUser {
   passwordHash String   @map("password_hash") @db.VarChar(128)
   roleId       Int?     @map("role_id")
   status       Int      @default(1)
+  // 登录防爆破:连错 5 次锁 15 分钟(42901);成功登录即复位
+  failedLoginCount Int       @default(0) @map("failed_login_count")
+  lockedUntil      DateTime? @map("locked_until")
   createdAt    DateTime @default(now()) @map("created_at")
 
   role Role? @relation(fields: [roleId], references: [id])

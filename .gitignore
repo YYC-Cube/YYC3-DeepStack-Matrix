@@ -36,3 +36,7 @@ docs/yyc3-packages/
 docs/yyc3-ui-mono/
 docs/yyc3-ui-organized/
 docs/ai-assistant-dev/
+
+# Python 编译缓存
+__pycache__/
+*.pyc

@@ -19,6 +19,18 @@ import {
   ConflictException,
 } from '@nestjs/common'
 import type { Request } from 'express'
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  MaxLength,
+  Min,
+} from 'class-validator'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
@@ -39,6 +51,90 @@ interface ArtistCreateBody {
   sameRoomMinMinutes?: number
   tipFixed?: number
   hourlyRate?: number
+}
+
+/**
+ * 建档入参 DTO:激活全局 ValidationPipe(whitelist+forbidNonWhitelisted)
+ * 未知字段 400 拒绝;长度对齐 schema VarChar 上限。Mimosa「整块请求对象
+ * 进入资源写入」的边界收口(svc 层显式映射保留为第二层防线)
+ */
+class ArtistCreateDto {
+  @IsOptional()
+  @IsInt()
+  storeId?: number
+  @IsOptional()
+  @IsInt()
+  groupId?: number
+  @IsOptional()
+  @IsInt()
+  levelId?: number
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  supervisorName?: string
+  @IsString()
+  @Length(1, 64)
+  realName!: string
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  stageName?: string
+  @IsOptional()
+  @IsIn([1, 2])
+  gender?: number
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  phone?: string
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  badgeNo?: string
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  performanceTarget?: number
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  maxTotalShows?: number
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  maxCrossRooms?: number
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  firstShowMinMinutes?: number
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  sameRoomMinMinutes?: number
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  tipFixed?: number
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  hourlyRate?: number
+}
+
+/** 批量设置入参 DTO(同上,拒绝未知字段与非法 id 形状) */
+class ArtistBatchUpdateDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  ids!: number[]
+  @IsOptional()
+  @IsInt()
+  levelId?: number
+  @IsOptional()
+  @IsInt()
+  groupId?: number
+  @IsOptional()
+  @IsInt()
+  status?: number
 }
 
 @Injectable()
@@ -211,7 +307,7 @@ export class ArtistController {
 
   @RequirePerm('artist:edit')
   @Post()
-  async create(@Req() req: Request, @Body() body: ArtistCreateBody): Promise<unknown> {
+  async create(@Req() req: Request, @Body() body: ArtistCreateDto): Promise<unknown> {
     const user = (req as ReqWithUser).user
     const storeId = body.storeId ?? user?.storeId ?? 1
     return this.svc.create({ ...body, storeId }, user?.sub ?? 0)
@@ -229,7 +325,7 @@ export class ArtistController {
   @Put('batch')
   async batchUpdate(
     @Req() req: Request,
-    @Body() body: { ids: number[]; levelId?: number; groupId?: number; status?: number },
+    @Body() body: ArtistBatchUpdateDto,
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.batchUpdate(body, user?.sub ?? 0)

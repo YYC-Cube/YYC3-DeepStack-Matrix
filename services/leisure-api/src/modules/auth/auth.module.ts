@@ -19,7 +19,7 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  /** 管理端登录(手机号+密码);连错5次锁15分钟(Redis 增强位,骨架用库计数) */
+  /** 管理端登录(手机号+密码);连错5次锁15分钟(库计数,Redis 增强位阶段3接) */
   async adminLogin(p: { phone: string; password: string }): Promise<{
     accessToken: string
     refreshToken: string
@@ -27,11 +27,42 @@ export class AuthService {
     name: string
   }> {
     const user = await this.prisma.adminUser.findUnique({ where: { phone: p.phone } })
-    if (user === null || user.status !== 1) {
-      throw new UnauthorizedException('账号不存在或已停用')
+    if (user === null) {
+      // 不存在账号与密码错误同文案,不给枚举探测面
+      throw new UnauthorizedException('手机号或密码错误')
+    }
+    if (user.status !== 1) {
+      throw new UnauthorizedException('账号已停用')
+    }
+    // 锁定期内直接拒绝(42901 → HTTP 429),不比对密码
+    if (user.lockedUntil !== null && user.lockedUntil.getTime() > Date.now()) {
+      const remainMin = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000)
+      throw new LeisureError(ERR.RATE_LIMITED, '登录失败次数过多', { retryAfterMinutes: remainMin })
     }
     const okPwd = await bcrypt.compare(p.password, user.passwordHash)
-    if (!okPwd) throw new UnauthorizedException('手机号或密码错误')
+    if (!okPwd) {
+      const failed = user.failedLoginCount + 1
+      if (failed >= 5) {
+        // 第5次错误:锁15分钟并清零计数(锁过期后重新累计)
+        await this.prisma.adminUser.update({
+          where: { id: user.id },
+          data: { failedLoginCount: 0, lockedUntil: new Date(Date.now() + 15 * 60 * 1000) },
+        })
+      } else {
+        await this.prisma.adminUser.update({
+          where: { id: user.id },
+          data: { failedLoginCount: failed },
+        })
+      }
+      throw new UnauthorizedException('手机号或密码错误')
+    }
+    // 成功即复位
+    if (user.failedLoginCount !== 0 || user.lockedUntil !== null) {
+      await this.prisma.adminUser.update({
+        where: { id: user.id },
+        data: { failedLoginCount: 0, lockedUntil: null },
+      })
+    }
     const role = user.roleId
       ? await this.prisma.role.findUnique({ where: { id: user.roleId } })
       : null

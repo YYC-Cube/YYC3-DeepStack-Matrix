@@ -188,6 +188,7 @@ export class ArtistService {
 export class ArtistController {
   constructor(private readonly svc: ArtistService) {}
 
+  @RequirePerm('artist:view')
   @Get()
   async list(
     @Req() req: Request,
@@ -208,6 +209,7 @@ export class ArtistController {
     })
   }
 
+  @RequirePerm('artist:edit')
   @Post()
   async create(@Req() req: Request, @Body() body: ArtistCreateBody): Promise<unknown> {
     const user = (req as ReqWithUser).user
@@ -215,6 +217,7 @@ export class ArtistController {
     return this.svc.create({ ...body, storeId }, user?.sub ?? 0)
   }
 
+  @RequirePerm('artist:delete')
   @Delete(':id')
   async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
     const user = (req as ReqWithUser).user
@@ -222,6 +225,7 @@ export class ArtistController {
     return { deleted: true }
   }
 
+  @RequirePerm('artist:batch')
   @Put('batch')
   async batchUpdate(
     @Req() req: Request,

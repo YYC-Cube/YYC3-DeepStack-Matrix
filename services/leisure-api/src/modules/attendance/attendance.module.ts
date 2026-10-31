@@ -8,6 +8,7 @@ import {
   Get,
   Injectable,
   Module,
+  NotFoundException,
   Post,
   Query,
   Req,
@@ -23,7 +24,7 @@ import {
 } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
-import { JwtGuard, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 const VALID_REPORT_TYPES = REPORT_TYPES.map((t) => t.code) as string[]
 
@@ -58,6 +59,10 @@ export class AttendanceService {
       throw new ConflictException('今日已签到')
     }
     const artist = await this.prisma.artist.findUnique({ where: { id: ctx.artistId } })
+    // 艺人不存在/已软删/已停用:显式 404,不落到 FK 冲突的 500
+    if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
+      throw new NotFoundException('艺人不存在或已停用')
+    }
     const geoOk = p.lat !== undefined && p.lng !== undefined
     const created = await this.prisma.attendanceReport.create({
       data: {
@@ -255,6 +260,9 @@ export class AttendanceService {
       throw new ConflictException('补打卡原因必填')
     }
     const artist = await this.prisma.artist.findUnique({ where: { id: p.artistId } })
+    if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
+      throw new NotFoundException('艺人不存在或已停用')
+    }
     const created = await this.prisma.attendanceReport.create({
       data: {
         storeId: artist?.storeId ?? operator.storeId ?? 1,
@@ -354,6 +362,7 @@ export class AttendanceController {
     return this.svc.checkout(body, { artistId: user.sub, storeId: user.storeId ?? 1 })
   }
 
+  @RequirePerm('attend:ledger:view')
   @Get('reports')
   async reports(
     @Req() req: Request,
@@ -376,6 +385,7 @@ export class AttendanceController {
     })
   }
 
+  @RequirePerm('attend:summary:view')
   @Get('summary')
   async summary(
     @Req() req: Request,
@@ -385,6 +395,7 @@ export class AttendanceController {
     return this.svc.summary({ storeId: user?.storeId ?? 1, businessDate })
   }
 
+  @RequirePerm('attend:manual')
   @Post('manual')
   async manual(
     @Req() req: Request,
@@ -397,6 +408,7 @@ export class AttendanceController {
     )
   }
 
+  @RequirePerm('attend:summary:view')
   @Get('realtime')
   async realtime(
     @Req() req: Request,

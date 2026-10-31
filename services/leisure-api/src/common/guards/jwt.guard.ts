@@ -65,12 +65,17 @@ export class JwtGuard implements CanActivate {
     ;(req as ReqWithUser).user = payload
 
     // 功能码校验(类/方法元数据合并)
+    // 标注了 @RequirePerm 的路由=管理端接口:scope 非 ADMIN 一律拒绝
+    // (否则艺人端 token 可绕过功能码直调管理接口);ADMIN 再比对功能码
     const required =
       this.reflector.getAllAndOverride<string[] | undefined>(PERM_KEY, [
         ctx.getHandler(),
         ctx.getClass(),
       ]) ?? []
-    if (payload.scope === 'ADMIN' && required.length > 0) {
+    if (required.length > 0) {
+      if (payload.scope !== 'ADMIN') {
+        throw new ForbiddenException('admin scope required')
+      }
       const owned = new Set(payload.permCodes)
       const missing = required.filter((p) => !owned.has(p))
       if (missing.length > 0) {

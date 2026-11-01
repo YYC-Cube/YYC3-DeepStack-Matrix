@@ -18,6 +18,16 @@ allowBuilds:
   electron-winstaller: true
   esbuild: true
   prisma: true
+  # ── LeisureManage 四端新增(2026-11-01):包厢/艺人工程依赖的原生与工具链构建 ──
+  # @parcel/watcher = NestJS/文件监听原生绑定;@swc/core = Taro/Nest 工具链编译器原生绑定
+  '@parcel/watcher': true
+  '@swc/core': true
+  # @tarojs/binding + @tarojs/cli = Taro4 小程序工具链(安装脚本初始化编译器)
+  '@tarojs/binding': true
+  '@tarojs/cli': true
+  # core-js(-pure) postinstall 仅打印赞助公告,放行以清零 ERR_PNPM_IGNORED_BUILDS
+  core-js: true
+  core-js-pure: true
 
 # pnpm 12 默认拦截 git 直连的子依赖（exotic subdeps）；@electron/rebuild 官方
 # 声明 @electron/node-gyp 为 github: 直连（electron 工具链 fork），属可信上游，

@@ -141,7 +141,7 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     expect(r.body.data.businessDate).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })
 
-  it('上钟:房号必选→占用流转;串台并行;下钟落流水+房态回空闲(C-01/§5.3/§6.6)', async () => {
+  it('上钟:房号必选→占用流转;串台并行;下钟计入房账+房态回空闲(C-01/§5.3/§6.6)', async () => {
     // 第一场上钟(A01 小包):seed 兜底规则金额 0 → unitPrice 0,流程校验为主
     const start1 = await api<{ sessionId: number; businessDate: string }>(
       'POST',
@@ -174,6 +174,13 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     const me = rt.body.data.artists.find((a) => a.artistId === artistId)
     expect(me?.status).toBe('CROSS')
 
+    // 方案甲基线:下钟前该艺人流水总数(finish 不落流水,应保持不变)
+    const beforeFinish = await api<{ total: number }>(
+      'GET',
+      '/stage-fee/txns?businessDateFrom=2020-01-01&businessDateTo=2030-01-01&keyword=' + String(badge),
+      undefined,
+      adminToken,
+    )
     // 下第一场(A01)→ A01 回空闲,B01 仍占用
     const finish1 = await api<{ feeAmount: number; durationMinutes: number }>(
       'POST',
@@ -182,12 +189,19 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
       adminToken,
     )
     expect(finish1.body.code).toBe(0)
+    const afterFinish = await api<{ total: number }>(
+      'GET',
+      '/stage-fee/txns?businessDateFrom=2020-01-01&businessDateTo=2030-01-01&keyword=' + String(badge),
+      undefined,
+      adminToken,
+    )
+    expect(afterFinish.body.data.total).toBe(beforeFinish.body.data.total) // 方案甲:finish 不落流水
     expect(finish1.body.data.feeAmount).toBe(0) // 时长 0 分钟 → 0 小时(进位口径)
     const roomsMid = await api<{ rows: Array<{ id: number; status: string }> }>('GET', '/store/rooms?pageSize=50', undefined, adminToken)
     expect(roomsMid.body.data.rows.find((r) => r.id === roomA01)?.status).toBe('FREE')
     expect(roomsMid.body.data.rows.find((r) => r.id === roomB01)?.status).toBe('OCCUPIED')
 
-    // 下第二场(B01)→ B01 回空闲;SESSION_DEDUCT 流水已生成
+    // 下第二场(B01)→ B01 回空闲;计费计入房账(方案甲:不落流水)
     const finish2 = await api<{ feeAmount: number }>(
       'POST',
       '/sessions/' + String(cross.body.data.sessionId) + '/finish',
@@ -297,7 +311,7 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
       adminToken,
     )
     expect(txns.body.code).toBe(0)
-    expect(txns.body.data.rows.some((r) => r.type === 'SESSION_DEDUCT')).toBe(true)
+    expect(txns.body.data.rows.some((r) => r.type === 'MANUAL_DEDUCT')).toBe(true)
     expect(txns.body.data.rows.some((r) => r.type === 'REVERSE')).toBe(true)
   })
 

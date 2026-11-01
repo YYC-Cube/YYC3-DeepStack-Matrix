@@ -1,0 +1,57 @@
+# YYC³ LeisureAPI · NAS 生产编排(yyc3-45 · F4-423,V3 Docker 应用层)
+# 遵循《docker项目-容器-镜像说明及命名说明规范》:三名合一 yyc3-leisure-api · compose 标准名 · 镜像固定 tag · 数据收拢 data/
+# 布局:/Volume3/docker/yyc3-leisure-api/
+#   ├─ docker-compose.yml      ← 本文件
+#   ├─ .env.production         ← 真值(从 ~/.yyc3-keybackup/leisure-prod.env scp;600)
+#   ├─ data/redis/             ← Redis 数据(bind)
+#   └─ src/                    ← 代码快照(rsync 排除 node_modules/dist/.git;构建上下文)
+# 数据库不在本编排内:PG15 主库在宿主主机 192.168.3.22:5433(NAS 192.168.3.45 为流复制备库,只读)
+# 启动:/Volume3/@apps/DockerEngine/dockerd/bin/docker compose --env-file .env.production up -d --build
+
+services:
+  api:
+    build:
+      context: ./src
+      dockerfile: services/leisure-api/deploy/nas/Dockerfile.prod
+    image: yyc3-leisure-api:1.0.0-rc.1
+    container_name: yyc3-leisure-api
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: prod
+      REDIS_URL: redis://redis:6379
+    ports:
+      # 绑定 NAS 内网 IP(NAS 在 NAT 后,公网经 39.97.53.176 边缘网关反代);nginx upstream 指向 192.168.3.45:3001
+      - "192.168.3.45:3001:3001"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # 未带 token 的 /auth/me 返回 401 即为服务已起(非 5xx/连接拒绝)
+      test: ["CMD-SHELL", "wget -qO- --server-response http://127.0.0.1:3001/api/v1/auth/me 2>&1 | grep -q ' 401 '"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  redis:
+    image: docker.1ms.run/library/redis:7-alpine
+    container_name: yyc3-leisure-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+# 注:按规范镜像 tar 备份保留在项目目录:
+#   /Volume3/@apps/DockerEngine/dockerd/bin/docker save yyc3-leisure-api:1.0.0-rc.1 -o yyc3-leisure-api-1.0.0-rc.1.tar

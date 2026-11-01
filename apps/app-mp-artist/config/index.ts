@@ -50,7 +50,12 @@ export default defineConfig(async (merge) => {
     sourceRoot: 'src',
     outputRoot: 'dist',
     plugins: [],
-    defineConstants: {},
+    // API 基址(编译期内联,保持"URL 构建期固定"立场):
+    //   dev 缺省 http://127.0.0.1:3001/api/v1
+    //   正式构建:TARO_APP_API_BASE=https://lm.0379.pro/api/v1 pnpm build:h5(或 build:weapp)
+    defineConstants: {
+      API_BASE: JSON.stringify(process.env.TARO_APP_API_BASE ?? 'http://127.0.0.1:3001/api/v1'),
+    },
     framework: 'react',
     compiler: 'webpack5',
     mini: {

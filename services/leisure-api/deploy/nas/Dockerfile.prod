@@ -1,21 +1,27 @@
 # YYC³ LeisureAPI · 生产镜像(自含依赖;多阶段)
 # 构建上下文 = monorepo 根(需要 packages/leisure-core 与 services/leisure-api):
-#   docker build -f services/leisure-api/deploy/nas/Dockerfile.prod -t leisure-api:prod .
-# 说明:为保证 Prisma 生成产物与 workspace 依赖完整,运行阶段整体复制构建阶段的仓库目录
-#      (镜像偏大但零风险;瘦身可后续改 pnpm deploy)。首次在 NAS 构建后以 /api/v1/auth/me 401 作连通性冒烟。
+#   docker build -f services/leisure-api/deploy/nas/Dockerfile.prod -t yyc3-leisure-api:1.0.0-rc.1 .
+# 国内/NAS 构建:基础镜像走 docker.1ms.run(NAS 命名规范 §1.3),npm 走 npmmirror,Prisma 引擎走 npmmirror 二进制镜像——
+#   三者均为 ARG,海外构建可覆盖为官方源:--build-arg BASE_REGISTRY=docker.io/library --build-arg NPM_REGISTRY=https://registry.npmjs.org
+# 说明:为保证 Prisma 生成产物与 workspace 依赖完整,运行阶段整体复制构建阶段的仓库目录(镜像偏大但零风险;瘦身可后续改 pnpm deploy)
 
-FROM node:22-alpine AS builder
+ARG BASE_REGISTRY=docker.1ms.run/library
+
+FROM ${BASE_REGISTRY}/node:22-alpine AS builder
+ARG NPM_REGISTRY=https://registry.npmmirror.com
+ARG PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
+ENV PRISMA_ENGINES_MIRROR=${PRISMA_ENGINES_MIRROR}
 RUN apk add --no-cache openssl
 RUN corepack enable && corepack prepare pnpm@12.11.2 --activate
 WORKDIR /repo
 COPY . .
-# 仅安装 API 及其 workspace 依赖(leisure-core)所需的包
-RUN pnpm install --frozen-lockfile --filter leisure-api... --filter @yyc3/leisure-core...
+RUN pnpm config set registry "${NPM_REGISTRY}" \
+ && pnpm install --frozen-lockfile --filter leisure-api... --filter @yyc3/leisure-core...
 RUN pnpm --filter @yyc3/leisure-core build
 RUN pnpm --filter leisure-api exec prisma generate
 RUN pnpm --filter leisure-api build
 
-FROM node:22-alpine
+FROM ${BASE_REGISTRY}/node:22-alpine
 RUN apk add --no-cache openssl
 ENV NODE_ENV=prod
 ENV TZ=Asia/Shanghai

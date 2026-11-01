@@ -7,7 +7,8 @@ import Taro from '@tarojs/taro'
 import { LeisureError, type ReportType } from '@yyc3/leisure-core'
 
 /** 基础地址(常量):H5 dev 直连后端(CORS 已开);小程序 dev 工具勾选「不校验合法域名」 */
-const API_BASE = 'http://127.0.0.1:3001/api/v1'
+// API 基址:defineConstants 编译期内联(config/index.ts;TARO_APP_API_BASE 可覆盖,缺省本机 dev)
+declare const API_BASE: string
 
 /* ── 登录态(Taro Storage 持久化) ── */
 
@@ -116,7 +117,7 @@ export function getStableCode(): string {
 /** B1:wx 登录(未绑定返回 NEED_BIND + bindToken;dev 模式 code 即 openid) */
 export function wxLogin(code: string): Promise<{ status: 'OK'; token: string; name?: string } | { status: 'NEED_BIND'; bindToken: string }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/auth/wx/login',
+    url: API_BASE + '/auth/wx/login',
     method: 'POST',
     data: { code },
     header: authHeaders(),
@@ -129,7 +130,7 @@ export function wxLogin(code: string): Promise<{ status: 'OK'; token: string; na
 /** B1:绑定(凭 bindToken + 腰牌号/手机号;跨店唯一冲突转转移工单) */
 export function wxBind(p: { bindToken: string; badgeNo?: string; phone?: string; storeId: number }): Promise<{ status: string }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/auth/wx/bind',
+    url: API_BASE + '/auth/wx/bind',
     method: 'POST',
     data: p,
     header: { 'Content-Type': 'application/json' },
@@ -142,7 +143,7 @@ export function wxBind(p: { bindToken: string; badgeNo?: string; phone?: string;
 /** B2:扫码签到(geo 可空;失败标记 checkinGeoOk=false 仍允许) */
 export function checkin(p: { reportType: ReportType; lat?: number; lng?: number }): Promise<{ reportId: number; businessDate: string }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/attendance/checkin',
+    url: API_BASE + '/attendance/checkin',
     method: 'POST',
     data: p,
     header: authHeaders(),
@@ -155,7 +156,7 @@ export function checkin(p: { reportType: ReportType; lat?: number; lng?: number 
 /** B2:签退(后端校验门店级签退时限,40905 拒绝) */
 export function checkout(p: { lat?: number; lng?: number }): Promise<{ reportId: number; durationMinutes: number }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/attendance/checkout',
+    url: API_BASE + '/attendance/checkout',
     method: 'POST',
     data: p,
     header: authHeaders(),
@@ -168,7 +169,7 @@ export function checkout(p: { lat?: number; lng?: number }): Promise<{ reportId:
 /** B2:今日最新报备(状态卡;仅本人) */
 export function myToday(): Promise<{ businessDate: string; report: { type: string; reportTime: string; checkoutTime: string | null } | null }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/attendance/my-today',
+    url: API_BASE + '/attendance/my-today',
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,
@@ -183,7 +184,7 @@ export function myTxns(p: { businessDateFrom: string; businessDateTo: string }):
   rows: Array<{ id: number; type: string; amount: string; remark: string | null; refType: string | null; createdAt: string }>
 }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/stage-fee/my?businessDateFrom=' + encodeURIComponent(p.businessDateFrom) + '&businessDateTo=' + encodeURIComponent(p.businessDateTo),
+    url: API_BASE + '/stage-fee/my?businessDateFrom=' + encodeURIComponent(p.businessDateFrom) + '&businessDateTo=' + encodeURIComponent(p.businessDateTo),
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,
@@ -195,7 +196,7 @@ export function myTxns(p: { businessDateFrom: string; businessDateTo: string }):
 /** B2+:艺人自助下钟(艺人设置④ 开关;关闭时后端 403) */
 export function myFinish(): Promise<{ sessionId: number; feeAmount: number; durationMinutes: number }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/sessions/my/finish',
+    url: API_BASE + '/sessions/my/finish',
     method: 'POST',
     data: {},
     header: authHeaders(),
@@ -214,7 +215,7 @@ export function myTickets(p: { businessDateFrom: string; businessDateTo: string 
   txns: Array<{ id: number; businessDate: string; type: string; ruleName: string; qty: number; amount: number; createdAt: string }>
 }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/tickets/my?businessDateFrom=' + encodeURIComponent(p.businessDateFrom) + '&businessDateTo=' + encodeURIComponent(p.businessDateTo),
+    url: API_BASE + '/tickets/my?businessDateFrom=' + encodeURIComponent(p.businessDateFrom) + '&businessDateTo=' + encodeURIComponent(p.businessDateTo),
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,
@@ -229,7 +230,7 @@ export function myTickets(p: { businessDateFrom: string; businessDateTo: string 
 /** scene 校验(B2 扫码后;HMAC 签名+60s 时间窗 ±2 分钟容差) */
 export function qrcodeVerify(scene: string): Promise<{ valid: boolean; storeId?: number; businessDate?: string; reason?: string }> {
   return Taro.request({
-    url: 'http://127.0.0.1:3001/api/v1/attendance/qrcode/verify?scene=' + encodeURIComponent(scene),
+    url: API_BASE + '/attendance/qrcode/verify?scene=' + encodeURIComponent(scene),
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,

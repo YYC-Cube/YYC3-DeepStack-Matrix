@@ -80,6 +80,10 @@ export interface SessionFeeInput {
   minDurationMinutes?: number
   /** 进位规则(门店级参数,上钟时快照;缺省=启用 + 15 分钟阈值) */
   rounding?: BillRoundingConfig
+  /** 最低消费(元/场;预设 0=不启用;后台可编辑):计费额低于此值时按此值计 */
+  minCharge?: number
+  /** 封顶计费(元/场;预设 0=不封顶;后台可编辑):计费额高于此值时按此值计 */
+  capCharge?: number
 }
 
 export interface SessionFeeResult {
@@ -99,6 +103,7 @@ export interface SessionFeeResult {
  * - FLAT:命中规则取 amount;未命中规则返回 amount=0 并置 ruleId=undefined(由调用方决定兜底)
  * - HOURLY:先保底(minDurationMinutes)→ 再按进位阈值折算计费小时 × 时薪(§6.3)
  * - 最低时长保底:不足按 minDurationMinutes 计
+ * - 最低消费/封顶(后台可编辑,预设 0=不启用):计费额 <minCharge 兜到 min;>capCharge 压到 cap;0 时长空场次不触发保底
  */
 export function calcSessionFee(input: SessionFeeInput): SessionFeeResult {
   const mode: StageFeeMode = input.mode ?? 'FLAT'
@@ -116,11 +121,21 @@ export function calcSessionFee(input: SessionFeeInput): SessionFeeResult {
     minDurationApplied = true
   }
 
+  // 最低消费/封顶钳位(预设 0=不启用;时长为 0 的空场次不触发保底;封顶后置压)
+  const minCharge = input.minCharge ?? 0
+  const capCharge = input.capCharge ?? 0
+  const clamp = (n: number): number => {
+    let v = n
+    if (minCharge > 0 && durationMinutes > 0 && v < minCharge) v = minCharge
+    if (capCharge > 0 && v > capCharge) v = capCharge
+    return round2(v)
+  }
+
   if (mode === 'HOURLY') {
     // 小时计费 + 进位阈值(需求全集 §6):保底后按快照阈值折算计费小时
     const rate = input.hourlyRate ?? 0
     const billHours = calcBillHours(billed, input.rounding)
-    const amount = round2(billHours * rate)
+    const amount = clamp(round2(billHours * rate))
     return { amount, durationMinutes, billHours, mode, minDurationApplied }
   }
 
@@ -128,7 +143,7 @@ export function calcSessionFee(input: SessionFeeInput): SessionFeeResult {
   if (input.rule === undefined) {
     return { amount: 0, durationMinutes, mode, minDurationApplied }
   }
-  const amount = round2(billed > 0 ? input.rule.amount : 0)
+  const amount = clamp(round2(billed > 0 ? input.rule.amount : 0))
   return { amount, durationMinutes, ruleId: input.rule.id, mode, minDurationApplied }
 }
 

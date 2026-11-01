@@ -12,6 +12,9 @@ import type {
   ArtistOrder,
   ArtistReview,
   AttendanceReport,
+  BookingStatus,
+  PayChannelCode,
+  PayChannelItem,
   ReportSummaryRow,
   ReportType,
   ShowSession,
@@ -40,6 +43,87 @@ export interface ApprovalRow {
   decidedAt?: string
   remark?: string
   createdAt: string
+}
+
+/** 台票流水行(列表用;含艺人冗余与规则名) */
+export interface TicketTxnRow extends Omit<TicketTxn, 'payChannel' | 'refSessionId'> {
+  stageName: string | null
+  badgeNo: string | null
+  realName: string
+  ruleName: string
+  payChannel: string | null
+  refSessionId: number | null
+  operatorId: number | null
+}
+
+/** 台票余额行(按规则聚合;expireAt 为首购+validDays,长期票为 null) */
+export interface TicketBalanceRow {
+  ticketRuleId: number
+  name: string
+  validDays: number
+  balance: number
+  expireAt: string | null
+}
+
+/** 展示投放行 */
+export interface ShowcaseCastRow {
+  id: number
+  artistId: number
+  stageName: string | null
+  badgeNo: string | null
+  realName: string
+  roomId: number | null
+  roomNo: string | null
+  groupId: number | null
+  castBy: number
+  createdAt: string
+  endedAt: string | null
+}
+
+/** 门店参数合并视图(GET /store-config/artist-settings;门店行 > env/内置默认) */
+export interface StoreArtistSettingsView {
+  requiredProfileFields: string[]
+  reportRequireReview: boolean
+  reportOpenFrom?: string
+  reportOpenTo?: string
+  checkoutMinMinutes: number
+  allowSelfScanFinish: boolean
+  allowStageWithoutCheckin: boolean
+  ticketPurchaseEnabled: boolean
+  ticketPurchaseMaxPerDay?: number
+  roomBilling: {
+    feeMode: 'HOURLY' | 'FLAT'
+    roundingEnabled: boolean
+    roundingThresholdMinutes: number
+    crossDayAccumulate: boolean
+    minCharge: number
+    capCharge: number
+    channels: PayChannelItem[]
+  }
+  stageAssignMode: 'ROTATION' | 'SELF_PICK' | 'MIXED'
+}
+
+/** 门店参数更新体(PUT;仅落显式提供的键) */
+export interface StoreArtistSettingsUpdate {
+  requiredProfileFields: string[]
+  reportSettings: { requireReview?: boolean; openFrom?: string; openTo?: string }
+  checkoutMinMinutes: number
+  allowSelfScanFinish: boolean
+  allowStageWithoutCheckin: boolean
+  ticketPurchase: { enabled?: boolean; maxPerDay?: number }
+  roomBilling: Partial<StoreArtistSettingsView['roomBilling']>
+  stageAssignMode: 'ROTATION' | 'SELF_PICK' | 'MIXED'
+}
+
+/** 预约行(列表用;artistName 以档案艺名优先) */
+export interface BookingRow extends Omit<ArtistBooking, 'bookingTime' | 'roomId' | 'roomName' | 'groupId' | 'artistId' | 'artistName'> {
+  bookingTime: string | null
+  roomId: number | null
+  roomName: string | null
+  groupId: number | null
+  artistId: number | null
+  artistName: string | null
+  badgeNo: string | null
 }
 
 export interface TransportRequest {
@@ -194,7 +278,8 @@ export class LeisureApiClient {
     recharge: (p: {
       artistId: number
       amount: number
-      payChannel: 'CASH' | 'DOUYIN'
+      /** 收费通道 code(现金/转账/自定义1-3;须在门店通道清单内) */
+      payChannel: PayChannelCode
     }, idemKey?: string) =>
       this.post<{ txnId: number; balance: number }>('/stage-fee/recharge', p, idemKey),
     manualDeduct: (p: { artistId: number; amount: number; remark: string }, idemKey?: string) =>
@@ -224,19 +309,55 @@ export class LeisureApiClient {
       this.post<{ id: number; status: 'APPROVED' | 'REJECTED'; txnId?: number }>('/approvals/' + String(p.id) + '/decide', { decision: p.decision }, idemKey),
   }
 
-  /* ── 台票 ── */
+  /* ── 台票(四页:设置/购买/购买记录/使用记录;流水只增) ── */
   tickets = {
     rules: {
       list: () => this.get<{ rows: TicketRule[] }>('/ticket-rules'),
-      upsert: (p: Omit<TicketRule, 'id'> & { id?: number }) =>
-        this.post<{ id: number }>('/ticket-rules', p),
+      /** 有 id 走 PUT 更新,无 id 走 POST 新建 */
+      upsert: (p: Omit<TicketRule, 'id' | 'storeId'> & { id?: number }) =>
+        p.id !== undefined
+          ? this.put<{ updated: true }>('/ticket-rules/' + String(p.id), p)
+          : this.post<{ id: number }>('/ticket-rules', p),
+      remove: (id: number) => this.del('/ticket-rules/' + String(id)),
     },
-    purchase: (p: { artistId: number; ticketRuleId: number; qty: number; payChannel: 'CASH' | 'DOUYIN' }, idemKey?: string) =>
-      this.post<{ txnId: number; amount: number }>('/tickets/purchase', p, idemKey),
-    use: (p: { artistId: number; ticketRuleId: number; qty: number; refSessionId?: number }, idemKey?: string) =>
-      this.post<{ ok: true }>('/tickets/use', p, idemKey),
-    txns: (q: { businessDateFrom: string; businessDateTo: string; type?: 'BUY' | 'USE'; keyword?: string }) =>
-      this.get<{ rows: TicketTxn[]; total: number; totalAmount: number }>('/tickets/txns', q),
+    purchase: (p: { artistId: number; ticketRuleId: number; qty: number; payChannel: PayChannelCode }, idemKey?: string) =>
+      this.post<{ txnId: number; amount: number; balance: number }>('/tickets/purchase', p, idemKey),
+    use: (p: { artistId: number; ticketRuleId: number; qty?: number; refSessionId?: number }, idemKey?: string) =>
+      this.post<{ txnId: number; balance: number }>('/tickets/use', p, idemKey),
+    txns: (q: {
+      businessDateFrom: string
+      businessDateTo: string
+      type?: 'BUY' | 'USE' | 'EXPIRE'
+      artistId?: number
+      keyword?: string
+      page?: number
+      pageSize?: number
+    }) =>
+      this.get<{ rows: TicketTxnRow[]; total: number; totalAmount: number; page: number; pageSize: number }>('/tickets/txns', q),
+    /** 按规则聚合的余额(含有效期) */
+    balance: (artistId: number) =>
+      this.get<{ rows: TicketBalanceRow[]; total: number }>('/tickets/balance/' + String(artistId)),
+    /** 艺人端:本人余额+流水 */
+    my: (q: { businessDateFrom: string; businessDateTo: string }) =>
+      this.get<{ balance: { rows: TicketBalanceRow[]; total: number }; txns: TicketTxnRow[] }>('/tickets/my', q),
+  }
+
+  /* ── 展示控制台(投放在场艺人到包厢/组别展示屏) ── */
+  showcase = {
+    list: (q?: { active?: boolean; roomId?: number; groupId?: number }) =>
+      this.get<{ rows: ShowcaseCastRow[] }>('/showcase', q),
+    cast: (p: { artistIds: number[]; roomId?: number; groupId?: number }, idemKey?: string) =>
+      this.post<{ ids: number[]; skipped: number[] }>('/showcase/cast', p, idemKey),
+    end: (id: number) => this.post<{ ended: true }>('/showcase/' + String(id) + '/end', {}),
+    endAll: (p?: { roomId?: number; groupId?: number }) =>
+      this.post<{ ended: number }>('/showcase/end-all', p ?? {}),
+  }
+
+  /* ── 门店参数(艺人设置 8 项;计费配置含最低消费/封顶/通道清单) ── */
+  storeConfig = {
+    get: () => this.get<StoreArtistSettingsView>('/store-config/artist-settings'),
+    update: (p: Partial<StoreArtistSettingsUpdate>) =>
+      this.put<{ updated: true }>('/store-config/artist-settings', p),
   }
 
   /* ── 房账(方案甲:开/关房 + 关房统一结算) ── */
@@ -309,9 +430,21 @@ export class LeisureApiClient {
     list: (q: { reviewType?: string; keyword?: string }) =>
       this.get<{ rows: ArtistReview[]; total: number }>('/reviews', q),
   }
+  /* ── 预约(BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定) ── */
   bookings = {
-    list: (q: { businessDate: string }) =>
-      this.get<{ rows: ArtistBooking[]; total: number }>('/bookings', q),
+    list: (q: { businessDate?: string; status?: BookingStatus; page?: number; pageSize?: number }) =>
+      this.get<{ rows: BookingRow[]; total: number; page: number; pageSize: number }>('/bookings', q),
+    create: (p: {
+      bookingTime?: string
+      roomId?: number
+      groupId?: number
+      artistId?: number
+      artistName?: string
+      bookingNo?: string
+    }, idemKey?: string) =>
+      this.post<{ id: number; bookingNo: string }>('/bookings', p, idemKey),
+    setStatus: (id: number, status: Exclude<BookingStatus, 'BOOKED'>) =>
+      this.post<{ status: BookingStatus }>('/bookings/' + String(id) + '/status', { status }),
   }
 
   /** 营业日辅助(客户端预览;最终以服务端响应为准) */
@@ -335,6 +468,9 @@ export class LeisureApiClient {
       body,
       idempotencyKey: idemKey ?? newIdempotencyKey(),
     })
+  }
+  private put<T>(path: string, body?: unknown) {
+    return this.transport.request<T>({ method: 'PUT', path, body })
   }
   private del(path: string) {
     return this.transport.request<void>({ method: 'DELETE', path })

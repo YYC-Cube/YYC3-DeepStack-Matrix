@@ -201,6 +201,12 @@ export interface RoomBillingConfig {
   roundingThresholdMinutes: number
   /** 跨天处理:连续累计(班次周期 08:00~次日 08:00,跨天上钟时长不截断) */
   crossDayAccumulate: boolean
+  /** 最低消费(元/场;预设 0=不启用;可编辑):计费低于此值按此值计 */
+  minCharge?: number
+  /** 封顶计费(元/场;预设 0=不封顶;可编辑):计费高于此值按此值计 */
+  capCharge?: number
+  /** 收费通道清单(后台可编辑;驱动充值/结算/自点单的通道下拉) */
+  channels?: PayChannelItem[]
 }
 
 /** 艺人设置 8 项(门店级隔离:A 店配置不影响 B 店;配置优先级:门店级 > 全局 env 默认) */
@@ -234,7 +240,25 @@ export interface StoreArtistSettings {
  *  RECHARGE 充值 · ROOM_SETTLE 房账关房结算(时间费即台费,下钟仅计入房账不落流水) ·
  *  MANUAL_DEDUCT 手动扣费 · REVERSE 冲正。原 SESSION_DEDUCT(下钟即扣)已废止 */
 export type FeeTxnType = 'RECHARGE' | 'ROOM_SETTLE' | 'MANUAL_DEDUCT' | 'REVERSE'
-export type PayChannel = 'CASH' | 'DOUYIN'
+/** 收费通道(用户裁决 2026-11-01):现金/转账/自定义1-3;DOUYIN 为历史兼容保留 */
+export type PayChannel = 'CASH' | 'TRANSFER' | 'CUSTOM1' | 'CUSTOM2' | 'CUSTOM3' | 'DOUYIN'
+/** 通道 code 入参:保留内置通道自动补全,同时接受门店自定义 code(服务端按门店清单校验) */
+export type PayChannelCode = PayChannel | (string & Record<never, never>)
+
+/** 收费通道清单项(后台可编辑标签;code 大写字母/数字/下划线 ≤20) */
+export interface PayChannelItem {
+  code: PayChannelCode
+  label: string
+}
+
+/** 默认收费通道清单(门店可在设置中增删改名,存 store_config) */
+export const DEFAULT_PAY_CHANNELS: PayChannelItem[] = [
+  { code: 'CASH', label: '现金' },
+  { code: 'TRANSFER', label: '转账' },
+  { code: 'CUSTOM1', label: '自定义1' },
+  { code: 'CUSTOM2', label: '自定义2' },
+  { code: 'CUSTOM3', label: '自定义3' },
+]
 
 export interface StageFeeTxn {
   id: number

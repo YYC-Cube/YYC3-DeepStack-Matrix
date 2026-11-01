@@ -23,6 +23,9 @@ import { ApprovalModule } from './modules/approval/approval.module.js'
 import { TaxonomyModule } from './modules/taxonomy/taxonomy.module.js'
 import { ReportModule } from './modules/report/report.module.js'
 import { RoomModule } from './modules/room/room.module.js'
+import { TicketModule } from './modules/ticket/ticket.module.js'
+import { ShowcaseModule } from './modules/showcase/showcase.module.js'
+import { BookingModule } from './modules/booking/booking.module.js'
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { RoomModule } from './modules/room/room.module.js'
     TaxonomyModule,
     ReportModule,
     RoomModule,
+    TicketModule,
+    ShowcaseModule,
+    BookingModule,
   ],
   providers: [
     PrismaService,

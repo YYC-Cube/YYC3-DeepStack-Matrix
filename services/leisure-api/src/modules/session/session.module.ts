@@ -27,7 +27,6 @@ import { Prisma } from '@prisma/client'
 import {
   assertCanTakeSession,
   calcSessionFee,
-  calcBillHours,
   diffMinutes,
   resolveBusinessDate,
   resolvePricingSlot,
@@ -252,6 +251,8 @@ export class SessionService {
       enabled: session.roundingEnabled ?? true,
       thresholdMinutes: session.roundingMinutes ?? env().BILL_ROUNDING_MINUTES,
     }
+    // 最低消费/封顶(门店级,后台可编辑;预设 0=不启用)
+    const storeSettings = await this.storeConfig.getArtistSettings(session.storeId)
 
     // 计费(单源):HOURLY=先保底再进位×单价;FLAT=一口价(§6.3/§6.6 强制下钟同规)
     let fee: ReturnType<typeof calcSessionFee>
@@ -267,6 +268,8 @@ export class SessionService {
         startAt: session.startAt,
         endAt: now,
         minDurationMinutes: artist.sameRoomMinMinutes,
+        minCharge: storeSettings.roomBilling.minCharge,
+        capCharge: storeSettings.roomBilling.capCharge,
       })
     } else {
       fee = calcSessionFee({
@@ -277,6 +280,8 @@ export class SessionService {
         endAt: now,
         minDurationMinutes: artist.sameRoomMinMinutes,
         rounding,
+        minCharge: storeSettings.roomBilling.minCharge,
+        capCharge: storeSettings.roomBilling.capCharge,
       })
     }
 
@@ -395,13 +400,22 @@ export class SessionService {
         ? Number(slot.unitPrice)
         : rule !== undefined ? Number(rule.amount) : Number(artist?.hourlyRate ?? 0)
       const settings = await this.storeConfig.getArtistSettings(artist!.storeId)
-      const durationMinutes = diffMinutes(start, end)
-      // 计费小时按「回拨时长 + 进位阈值快照」直接计算(而非沿用 0 时长的 finishIn 结果)
-      const billHours = calcBillHours(durationMinutes, {
-        enabled: settings.roomBilling.roundingEnabled,
-        thresholdMinutes: settings.roomBilling.roundingThresholdMinutes,
+      // 单源重算:回拨时长 + 进位阈值快照 + 最低消费/封顶钳位(而非沿用 0 时长的 finishIn 结果)
+      const recalced = calcSessionFee({
+        rule: undefined,
+        mode: 'HOURLY',
+        hourlyRate: unitPrice,
+        startAt: start,
+        endAt: end,
+        rounding: {
+          enabled: settings.roomBilling.roundingEnabled,
+          thresholdMinutes: settings.roomBilling.roundingThresholdMinutes,
+        },
+        minCharge: settings.roomBilling.minCharge,
+        capCharge: settings.roomBilling.capCharge,
       })
-      const feeAmount = Math.round(billHours * unitPrice * 100) / 100
+      const billHours = recalced.billHours ?? 0
+      const feeAmount = recalced.amount
       const upd = await tx.showSession.update({
         where: { id: created.sessionId },
         data: {

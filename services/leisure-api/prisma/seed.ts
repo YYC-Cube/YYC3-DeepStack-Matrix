@@ -164,6 +164,7 @@ async function main() {
     'attend:qrcode', 'attend:manual', 'attend:ledger:view', 'attend:summary:view',
     'session:view', 'session:finish', 'session:cross',
     'showcase:cast', 'showcase:view', 'order:view', 'review:view',
+    'booking:view', 'booking:manage',
     'approval:decide', 'audit:view', 'report:export', 'setting:manage',
   ]
   let role = await prisma.role.findFirst({

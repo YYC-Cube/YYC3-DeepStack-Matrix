@@ -97,6 +97,61 @@ describe('stage-fee', () => {
     expect(out.billHours).toBe(2)
     expect(out.amount).toBe(200)
   })
+  it('最低消费兜底(20 分钟进位 1 小时×40=40 < 最低消费 88 → 88)', () => {
+    const out = calcSessionFee({
+      rule: undefined,
+      startAt: '2026-10-31T08:00:00',
+      endAt: '2026-10-31T08:20:00',
+      mode: 'HOURLY',
+      hourlyRate: 40,
+      minCharge: 88,
+    })
+    expect(out.billHours).toBe(1)
+    expect(out.amount).toBe(88)
+  })
+  it('封顶计费(计费 720 > 封顶 588 → 588)', () => {
+    const out = calcSessionFee({
+      rule: undefined,
+      startAt: '2026-10-31T08:00:00',
+      endAt: '2026-10-31T14:10:00',
+      mode: 'HOURLY',
+      hourlyRate: 120,
+      capCharge: 588,
+    })
+    expect(out.billHours).toBe(6)
+    expect(out.amount).toBe(588)
+  })
+  it('最低消费不触发于 0 时长空场次;未配置时按自然计费', () => {
+    const zero = calcSessionFee({
+      rule: undefined,
+      startAt: '2026-10-31T08:00:00',
+      endAt: '2026-10-31T08:00:00',
+      mode: 'HOURLY',
+      hourlyRate: 120,
+      minCharge: 88,
+    })
+    expect(zero.amount).toBe(0)
+    const off = calcSessionFee({
+      rule: undefined,
+      startAt: '2026-10-31T08:00:00',
+      endAt: '2026-10-31T08:20:00',
+      mode: 'HOURLY',
+      hourlyRate: 120,
+    })
+    expect(off.amount).toBe(120)
+  })
+  it('先保底后封顶(计费超封顶时以封顶为准)', () => {
+    const out = calcSessionFee({
+      rule: undefined,
+      startAt: '2026-10-31T08:00:00',
+      endAt: '2026-10-31T20:01:00',
+      mode: 'HOURLY',
+      hourlyRate: 100,
+      minCharge: 200,
+      capCharge: 500,
+    })
+    expect(out.amount).toBe(500)
+  })
 })
 
 /* ── 进位阈值(需求全集 §6.3 伪代码口径,2026-11-01 裁决) ── */

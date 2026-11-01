@@ -15,11 +15,18 @@ interface SettingsView {
   allowSelfScanFinish: boolean
   allowStageWithoutCheckin: boolean
   ticketPurchaseEnabled: boolean
+  ticketPurchaseMaxPerDay?: number
   roomBilling: {
     feeMode: 'HOURLY' | 'FLAT'
     roundingEnabled: boolean
     roundingThresholdMinutes: number
     crossDayAccumulate: boolean
+    /** 最低消费(元/场;0=不启用) */
+    minCharge: number
+    /** 封顶计费(元/场;0=不封顶) */
+    capCharge: number
+    /** 收费通道清单(现金/转账/自定义1-3;后台可编辑) */
+    channels: Array<{ code: string; label: string }>
   }
   stageAssignMode: 'ROTATION' | 'SELF_PICK' | 'MIXED'
 }
@@ -42,13 +49,32 @@ export default function SettingsArtistPage() {
 
   async function save(): Promise<void> {
     if (s === null) return
+    const min = s.roomBilling.minCharge
+    const cap = s.roomBilling.capCharge
+    if (!Number.isFinite(min) || min < 0 || !Number.isFinite(cap) || cap < 0) {
+      toast.error('最低消费/封顶计费须为 ≥0 的数值(0=不启用)')
+      return
+    }
+    if (min > 0 && cap > 0 && cap < min) {
+      toast.error('封顶计费不得低于最低消费')
+      return
+    }
+    if (s.roomBilling.channels.length === 0) {
+      toast.error('至少保留一条收费通道')
+      return
+    }
     setBusy(true)
     try {
       await req('PUT', '/store-config/artist-settings', {
         checkoutMinMinutes: s.checkoutMinMinutes,
         allowSelfScanFinish: s.allowSelfScanFinish,
         allowStageWithoutCheckin: s.allowStageWithoutCheckin,
-        ticketPurchase: { enabled: s.ticketPurchaseEnabled },
+        ticketPurchase: {
+          enabled: s.ticketPurchaseEnabled,
+          ...(s.ticketPurchaseMaxPerDay !== undefined && s.ticketPurchaseMaxPerDay > 0
+            ? { maxPerDay: s.ticketPurchaseMaxPerDay }
+            : {}),
+        },
         reportSettings: { requireReview: s.reportRequireReview },
         roomBilling: s.roomBilling,
         stageAssignMode: s.stageAssignMode,
@@ -122,6 +148,26 @@ export default function SettingsArtistPage() {
             />
             <span className="text-xs text-[#8b9bb4]">分钟(默认15;剩余分钟 &gt; N 进位 1 小时)</span>
           </div>
+          <div className="flex items-center gap-3">
+            <Label className="text-xs text-[#8b9bb4] w-24">最低消费</Label>
+            <Input
+              type="number"
+              className="w-28"
+              value={String(s.roomBilling.minCharge)}
+              onChange={(e) => setS({ ...s, roomBilling: { ...s.roomBilling, minCharge: Number(e.target.value) } })}
+            />
+            <span className="text-xs text-[#8b9bb4]">元/场(预设 0=不启用;计费低于此值按此值计)</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Label className="text-xs text-[#8b9bb4] w-24">封顶计费</Label>
+            <Input
+              type="number"
+              className="w-28"
+              value={String(s.roomBilling.capCharge)}
+              onChange={(e) => setS({ ...s, roomBilling: { ...s.roomBilling, capCharge: Number(e.target.value) } })}
+            />
+            <span className="text-xs text-[#8b9bb4]">元/场(预设 0=不封顶;计费高于此值按此值计)</span>
+          </div>
           <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
             <Checkbox
               checked={s.roomBilling.crossDayAccumulate}
@@ -129,6 +175,64 @@ export default function SettingsArtistPage() {
             />
             跨天连续累计(08:00~次日 08:00 不截断)
           </label>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-[#8b9bb4]">收费通道(驱动充值/结算/台票购买下拉;code 大写字母数字,自定义标签可改)</p>
+            {s.roomBilling.channels.map((c, i) => (
+              <div key={c.code + String(i)} className="flex items-center gap-2">
+                <Input
+                  className="w-28"
+                  value={c.code}
+                  onChange={(e) => {
+                    const channels = [...s.roomBilling.channels]
+                    channels[i] = { ...c, code: e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, '') }
+                    setS({ ...s, roomBilling: { ...s.roomBilling, channels } })
+                  }}
+                />
+                <Input
+                  className="flex-1"
+                  value={c.label}
+                  onChange={(e) => {
+                    const channels = [...s.roomBilling.channels]
+                    channels[i] = { ...c, label: e.target.value }
+                    setS({ ...s, roomBilling: { ...s.roomBilling, channels } })
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setS({ ...s, roomBilling: { ...s.roomBilling, channels: s.roomBilling.channels.filter((_, j) => j !== i) } })
+                  }
+                >
+                  删除
+                </Button>
+              </div>
+            ))}
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={s.roomBilling.channels.length >= 10}
+                onClick={() => {
+                  let n = s.roomBilling.channels.length + 1
+                  let code = 'CUSTOM' + String(n)
+                  while (s.roomBilling.channels.some((c) => c.code === code)) {
+                    n += 1
+                    code = 'CUSTOM' + String(n)
+                  }
+                  setS({
+                    ...s,
+                    roomBilling: {
+                      ...s.roomBilling,
+                      channels: [...s.roomBilling.channels, { code, label: '自定义' + String(n) }],
+                    },
+                  })
+                }}
+              >
+                + 添加通道
+              </Button>
+            </div>
+          </div>
         </Card>
         <Card className="p-4 flex flex-col gap-3">
           <p className="text-sm text-[#00d4ff]">② 报备设置</p>
@@ -139,8 +243,24 @@ export default function SettingsArtistPage() {
           <p className="text-sm text-[#00d4ff]">⑥ 台票购买</p>
           <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
             <Checkbox checked={s.ticketPurchaseEnabled} onCheckedChange={(v) => setS({ ...s, ticketPurchaseEnabled: v === true })} />
-            允许台票购买(台票域整体 II 期)
+            允许台票购买
           </label>
+          <div className="flex items-center gap-3">
+            <Label className="text-xs text-[#8b9bb4] w-24">每日上限</Label>
+            <Input
+              type="number"
+              className="w-28"
+              value={s.ticketPurchaseMaxPerDay !== undefined ? String(s.ticketPurchaseMaxPerDay) : ''}
+              placeholder="不限"
+              onChange={(e) =>
+                setS({
+                  ...s,
+                  ticketPurchaseMaxPerDay: e.target.value === '' ? undefined : Number(e.target.value),
+                })
+              }
+            />
+            <span className="text-xs text-[#8b9bb4]">张/人/日(空=不限)</span>
+          </div>
           <p className="text-sm text-[#00d4ff]">⑧ 上钟模式</p>
           <SelectBox
             value={s.stageAssignMode}

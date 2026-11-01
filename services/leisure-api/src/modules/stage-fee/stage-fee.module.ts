@@ -25,11 +25,11 @@ import {
 import {
   ArrayNotEmpty,
   IsArray,
-  IsIn,
   IsInt,
   IsNumber,
   IsString,
   Length,
+  Matches,
   Min,
 } from 'class-validator'
 import type { Request } from 'express'
@@ -44,6 +44,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { StoreConfigService } from '../store-config/store-config.module.js'
 
 /* ── DTO ── */
 
@@ -65,8 +66,10 @@ class RechargeDto {
   @IsNumber()
   @Min(0.01)
   amount!: number
-  @IsIn(['CASH', 'DOUYIN'])
-  payChannel!: 'CASH' | 'DOUYIN'
+  /** 收费通道 code(现金/转账/自定义1-3;须在门店通道清单内,服务层二次校验) */
+  @IsString()
+  @Matches(/^[A-Za-z0-9_]{1,20}$/)
+  payChannel!: string
 }
 
 class ManualDeductDto {
@@ -90,7 +93,10 @@ class ReverseDto {
 
 @Injectable()
 export class StageFeeService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storeConfig: StoreConfigService,
+  ) {}
 
   /* ── 规则(等级×房型矩阵,A5) ── */
 
@@ -171,17 +177,15 @@ export class StageFeeService {
   /* ── 充值(C-10 幂等由 Idempotency-Key 拦截器承担) ── */
 
   async recharge(
-    p: { artistId: number; amount: number; payChannel: 'CASH' | 'DOUYIN' },
+    p: { artistId: number; amount: number; payChannel: string },
     operator: { sub: number; storeId?: number },
   ): Promise<{ txnId: number; balance: number }> {
-    // MVP 仅现金记账;抖音渠道预下单+回调落流水为 II 期(10 号文档 §2.5)
-    if (p.payChannel !== 'CASH') {
-      throw new BadRequestException('当前仅支持现金渠道,抖音支付 II 期开通')
-    }
     const artist = await this.prisma.artist.findFirst({
       where: { id: p.artistId, deletedAt: null },
     })
     if (artist === null) throw new NotFoundException('艺人不存在')
+    // 收费通道:现金/转账/自定义1-3(门店清单内,后台可编辑);在线支付(抖音预下单+回调)II 期
+    const payChannel = await this.storeConfig.assertPayChannel(artist.storeId, p.payChannel)
     const store = await this.prisma.store.findUnique({ where: { id: artist.storeId } })
     const cut = store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT
     const businessDate = new Date(resolveBusinessDate(new Date(), { cutTime: cut }))
@@ -195,7 +199,7 @@ export class StageFeeService {
         groupId: artist.groupId,
         type: 'RECHARGE',
         amount: p.amount,
-        payChannel: 'CASH',
+        payChannel,
         operatorId: operator.sub,
       },
     })
@@ -634,7 +638,7 @@ export class StageFeeController {
 
 @Module({
   controllers: [FeeRuleController, StageFeeController],
-  providers: [StageFeeService, PrismaService],
+  providers: [StageFeeService, PrismaService, StoreConfigService],
   exports: [StageFeeService],
 })
 export class StageFeeModule {}

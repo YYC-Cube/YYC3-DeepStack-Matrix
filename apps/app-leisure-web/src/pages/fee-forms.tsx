@@ -2,12 +2,12 @@
  * A7 台费充值 / A8 手动扣费(表单页)
  * A8 红线:备注必填;金额≥阈值(默认500)→ 202+41201 转审批(非报错语义,引导查看审批单)
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { client, idemKey, toastError } from '@/lib/api'
 import { fmtMoney } from '@/lib/format'
-import { ConfirmButton, Field, MoneyText, PageHeader } from '@/components/kit'
+import { ConfirmButton, Field, MoneyText, PageHeader, SelectBox } from '@/components/kit'
 
 interface ArtistRow {
   id: number
@@ -73,6 +73,19 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
   const [amount, setAmount] = useState('')
   const [remark, setRemark] = useState('')
   const [busy, setBusy] = useState(false)
+  // 收费通道(后台可编辑:现金/转账/自定义1-3;须在门店清单内)
+  const [channels, setChannels] = useState<Array<{ code: string; label: string }>>([])
+  const [channel, setChannel] = useState('CASH')
+
+  useEffect(() => {
+    client.storeConfig
+      .get()
+      .then((s) => {
+        setChannels(s.roomBilling.channels)
+        if (s.roomBilling.channels.length > 0) setChannel(s.roomBilling.channels[0]?.code ?? 'CASH')
+      })
+      .catch(() => {})
+  }, [])
 
   async function pickBalance(a: ArtistRow): Promise<void> {
     setArtist(a)
@@ -102,7 +115,7 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
     setBusy(true)
     try {
       if (isRecharge) {
-        const res = await client.fees.recharge({ artistId: artist.id, amount: n, payChannel: 'CASH' }, idemKey('recharge'))
+        const res = await client.fees.recharge({ artistId: artist.id, amount: n, payChannel: channel }, idemKey('recharge'))
         toast.success('充值成功:余额 ¥' + fmtMoney(res.balance))
         setBalance(res.balance)
       } else {
@@ -135,7 +148,7 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
         title={isRecharge ? '台费充值' : '台费手动扣费'}
         desc={
           isRecharge
-            ? 'MVP 支持现金渠道(幂等键防重复提交);抖音支付 II 期'
+            ? '收费通道按门店清单(现金/转账/自定义,后台可编辑);幂等键防重复提交'
             : '备注必填;金额 ≥ 阈值(默认 ¥500)自动转审批单,审批通过才落账(双人防线)'
         }
       />
@@ -163,6 +176,16 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
         <Field label={isRecharge ? '充值金额(元)' : '扣费金额(元)'} required>
           <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
         </Field>
+        {isRecharge && channels.length > 0 && (
+          <Field label="收费通道">
+            <SelectBox
+              className="w-48"
+              value={channel}
+              onChange={(v) => setChannel(v)}
+              options={channels.map((c) => ({ value: c.code, label: c.label }))}
+            />
+          </Field>
+        )}
         {!isRecharge && (
           <Field label="扣费原因(备注,必填)" required>
             <Input value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="如:违规罚款/抽成,须写明事由" />

@@ -7,6 +7,7 @@ import { Body, Controller, Get, Injectable, Module, Put, Req } from '@nestjs/com
 import { IsArray, IsIn, IsInt, IsObject, IsOptional, IsString, IsBoolean, Min, Max } from 'class-validator'
 import type { Request } from 'express'
 import { BadRequestException } from '@nestjs/common'
+import { DEFAULT_PAY_CHANNELS } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
@@ -68,6 +69,12 @@ class ArtistSettingsDto {
     roundingEnabled?: boolean
     roundingThresholdMinutes?: number
     crossDayAccumulate?: boolean
+    /** 最低消费(元/场;0=不启用) */
+    minCharge?: number
+    /** 封顶计费(元/场;0=不封顶) */
+    capCharge?: number
+    /** 收费通道清单(现金/转账/自定义1-3;后台可编辑标签) */
+    channels?: Array<{ code: string; label: string }>
   }
 
   @IsOptional()
@@ -93,8 +100,49 @@ export interface ArtistSettingsView {
     roundingEnabled: boolean
     roundingThresholdMinutes: number
     crossDayAccumulate: boolean
+    /** 最低消费(元/场;预设 0=不启用;后台可编辑) */
+    minCharge: number
+    /** 封顶计费(元/场;预设 0=不封顶;后台可编辑) */
+    capCharge: number
+    /** 收费通道清单(预设:现金/转账/自定义1-3;后台可编辑) */
+    channels: Array<{ code: string; label: string }>
   }
   stageAssignMode: 'ROTATION' | 'SELF_PICK' | 'MIXED'
+}
+
+/** 通道清单形态收敛:code 非空去重(大写)、label 非空、最多 10 项 */
+function normalizeChannels(raw: unknown): Array<{ code: string; label: string }> {
+  if (!Array.isArray(raw)) {
+    throw new BadRequestException('收费通道须为数组')
+  }
+  if (raw.length === 0 || raw.length > 10) {
+    throw new BadRequestException('收费通道须 1-10 项')
+  }
+  const seen = new Set<string>()
+  const out: Array<{ code: string; label: string }> = []
+  for (const item of raw as Array<{ code?: unknown; label?: unknown }>) {
+    const code = typeof item.code === 'string' ? item.code.trim().toUpperCase() : ''
+    const label = typeof item.label === 'string' ? item.label.trim() : ''
+    if (code === '' || label === '') {
+      throw new BadRequestException('收费通道 code/label 不能为空')
+    }
+    if (!/^[A-Z0-9_]{1,20}$/.test(code)) {
+      throw new BadRequestException('收费通道 code 仅限大写字母/数字/下划线(≤20)')
+    }
+    if (seen.has(code)) {
+      throw new BadRequestException('收费通道 code 重复')
+    }
+    seen.add(code)
+    out.push({ code, label: label.slice(0, 20) })
+  }
+  return out
+}
+
+function assertMoney(v: number | undefined, name: string): void {
+  if (v === undefined) return
+  if (!Number.isFinite(v) || v < 0 || v > 1_000_000) {
+    throw new BadRequestException(name + '须为 0-1000000 的数值(0=不启用)')
+  }
 }
 
 @Injectable()
@@ -107,7 +155,15 @@ export class StoreConfigService {
     const byKey = new Map(rows.map((r) => [r.configKey, r.configValue]))
 
     const roomBillingRow = byKey.get(CONFIG_KEYS.roomBilling) as
-      | { feeMode?: string; roundingEnabled?: boolean; roundingThresholdMinutes?: number; crossDayAccumulate?: boolean }
+      | {
+          feeMode?: string
+          roundingEnabled?: boolean
+          roundingThresholdMinutes?: number
+          crossDayAccumulate?: boolean
+          minCharge?: number
+          capCharge?: number
+          channels?: Array<{ code: string; label: string }>
+        }
       | undefined
     const reportRow = byKey.get(CONFIG_KEYS.report) as
       | { requireReview?: boolean; openFrom?: string; openTo?: string }
@@ -139,18 +195,40 @@ export class StoreConfigService {
       // ⑥ 台票购买
       ticketPurchaseEnabled: ticketRow?.enabled ?? true,
       ticketPurchaseMaxPerDay: ticketRow?.maxPerDay,
-      // ⑦ 包厢计费规则(env 阈值默认 → 门店覆盖)
+      // ⑦ 包厢计费规则(env 阈值默认 → 门店覆盖;最低消费/封顶预设 0;通道预设五项)
       roomBilling: {
         feeMode: (roomBillingRow?.feeMode as ArtistSettingsView['roomBilling']['feeMode'] | undefined) ?? 'HOURLY',
         roundingEnabled: roomBillingRow?.roundingEnabled ?? true,
         roundingThresholdMinutes:
           roomBillingRow?.roundingThresholdMinutes ?? e.BILL_ROUNDING_MINUTES,
         crossDayAccumulate: roomBillingRow?.crossDayAccumulate ?? true,
+        minCharge: roomBillingRow?.minCharge ?? 0,
+        capCharge: roomBillingRow?.capCharge ?? 0,
+        channels:
+          Array.isArray(roomBillingRow?.channels) && roomBillingRow.channels.length > 0
+            ? roomBillingRow.channels
+            : DEFAULT_PAY_CHANNELS.map((c) => ({ code: String(c.code), label: c.label })),
       },
       // ⑧ 上钟模式
       stageAssignMode: (byKey.get(CONFIG_KEYS.stageAssignMode) as ArtistSettingsView['stageAssignMode'] | undefined) ?? 'MIXED',
     }
     return view
+  }
+
+  /**
+   * 收费通道校验(充值/台票购买/关房结算共用):须在门店通道清单内;返回规范化 code。
+   * 在线支付(DOUYIN 预下单+回调)为 II 期,不在清单内即拒绝。
+   */
+  async assertPayChannel(storeId: number, code: string): Promise<string> {
+    const normalized = typeof code === 'string' ? code.trim().toUpperCase() : ''
+    if (normalized === '') {
+      throw new BadRequestException('收费通道不能为空')
+    }
+    const settings = await this.getArtistSettings(storeId)
+    if (!settings.roomBilling.channels.some((c) => c.code === normalized)) {
+      throw new BadRequestException('收费通道不在门店清单内(请到艺人设置·计费配置中维护)')
+    }
+    return normalized
   }
 
   /** 写:仅落显式提供的键;服务内显式字段收敛(第二层防线),未知键丢弃 */
@@ -197,8 +275,20 @@ export class StoreConfigService {
       if (threshold !== undefined && (threshold < 0 || threshold > 59)) {
         throw new BadRequestException('进位阈值须在 0-59 分钟之间')
       }
+      // 最低消费/封顶:0=不启用;两者同时 >0 时封顶不得低于最低消费
+      assertMoney(body.roomBilling.minCharge, '最低消费')
+      assertMoney(body.roomBilling.capCharge, '封顶计费')
       const before = await this.readRow(storeId, CONFIG_KEYS.roomBilling)
       const cur = before ?? {}
+      const minCharge = body.roomBilling.minCharge ?? (cur.minCharge as number | undefined) ?? 0
+      const capCharge = body.roomBilling.capCharge ?? (cur.capCharge as number | undefined) ?? 0
+      if (minCharge > 0 && capCharge > 0 && capCharge < minCharge) {
+        throw new BadRequestException('封顶计费不得低于最低消费')
+      }
+      const channels =
+        body.roomBilling.channels !== undefined
+          ? normalizeChannels(body.roomBilling.channels)
+          : (cur.channels as Array<{ code: string; label: string }> | undefined)
       jobs.push({
         key: CONFIG_KEYS.roomBilling,
         value: {
@@ -207,6 +297,9 @@ export class StoreConfigService {
           roundingThresholdMinutes:
             body.roomBilling.roundingThresholdMinutes ?? cur.roundingThresholdMinutes ?? env().BILL_ROUNDING_MINUTES,
           crossDayAccumulate: body.roomBilling.crossDayAccumulate ?? cur.crossDayAccumulate ?? true,
+          minCharge,
+          capCharge,
+          ...(channels !== undefined ? { channels } : {}),
         },
       })
     }

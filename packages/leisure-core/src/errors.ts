@@ -30,6 +30,12 @@ export const ERR = {
   ROOM_NOT_OPEN: 40908,
   NOT_IN_ROOM: 40909,
   ORDER_LIMIT_EXCEEDED: 40910,
+  /** 台票余额不足(核销时;需求全集 §6.6) */
+  TICKET_NO_BALANCE: 40911,
+  /** 台票已过期(首次购买 + validDays) */
+  TICKET_EXPIRED: 40912,
+  /** 预约状态流转非法(BOOKED→ARRIVED/CANCELLED,终态锁定) */
+  BOOKING_STATE_INVALID: 40913,
   /** 房号店内唯一冲突(需求全集 §5.2;04 文档错误码表节选外追加) */
   ROOM_NO_DUPLICATED: 40907,
   APPROVAL_PENDING: 41201,

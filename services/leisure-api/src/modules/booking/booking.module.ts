@@ -1,0 +1,268 @@
+/**
+ * 预约管理模块:客人预约艺人/包厢(实测 PC「预约管理」列名:预约号/预约时间/包厢/组别/艺人/状态)
+ * 模型:artist_booking(storeId+bookingNo 唯一;status BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定)
+ * - 预约号自动生成 BK{yyyymmdd}-{序号};到店(ARRIVED)可带开房动作在前端引导,此处只做状态流转
+ * - 预约锁钟/到店自动上钟(需求全集 P1)为后续项,本模块先把底座与流转落地
+ */
+import {
+  Body,
+  Controller,
+  Get,
+  Injectable,
+  Module,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common'
+import { IsIn, IsInt, IsISO8601, IsOptional, IsString, Length } from 'class-validator'
+import type { Request } from 'express'
+import { randomInt } from 'node:crypto'
+import { ERR, LeisureError, resolveBusinessDate } from '@yyc3/leisure-core'
+import { PrismaService } from '../../prisma/prisma.service.js'
+import { env } from '../../config/env.js'
+import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+
+/* ── 状态机(对齐 leisure-core BookingStatus) ── */
+
+const BOOKING_STATUS = ['BOOKED', 'ARRIVED', 'CANCELLED', 'NO_SHOW'] as const
+type BookingStatus = (typeof BOOKING_STATUS)[number]
+const TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  BOOKED: ['ARRIVED', 'CANCELLED', 'NO_SHOW'],
+  ARRIVED: [],
+  CANCELLED: [],
+  NO_SHOW: [],
+}
+
+/* ── DTO ── */
+
+class CreateBookingDto {
+  /** 预约到店时间(ISO);缺省=现在 */
+  @IsOptional()
+  @IsISO8601()
+  bookingTime?: string
+  @IsOptional()
+  @IsInt()
+  roomId?: number
+  @IsOptional()
+  @IsInt()
+  groupId?: number
+  @IsOptional()
+  @IsInt()
+  artistId?: number
+  /** 未建档艺人/口头指名时的名字(artistId 存在时以档案艺名为准) */
+  @IsOptional()
+  @IsString()
+  @Length(1, 64)
+  artistName?: string
+  /** 外部预约号(如小程序/电话登记号);缺省自动生成 */
+  @IsOptional()
+  @IsString()
+  @Length(1, 32)
+  bookingNo?: string
+}
+
+class SetStatusDto {
+  @IsIn(['ARRIVED', 'CANCELLED', 'NO_SHOW'])
+  status!: Exclude<BookingStatus, 'BOOKED'>
+}
+
+const DEFAULT_PAGE_SIZE = 20
+const MAX_PAGE_SIZE = 100
+
+/* ── Service ── */
+
+@Injectable()
+export class BookingService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async list(
+    storeId: number,
+    q: { businessDate?: string; status?: string; page: number; pageSize: number },
+  ): Promise<{ rows: unknown[]; total: number; page: number; pageSize: number }> {
+    const page = q.page > 0 ? q.page : 1
+    const pageSize = q.pageSize > 0 ? Math.min(q.pageSize, MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE
+    const where = {
+      storeId,
+      ...(q.businessDate !== undefined && q.businessDate !== '' ? { businessDate: new Date(q.businessDate) } : {}),
+      ...(q.status !== undefined && q.status !== '' ? { status: q.status } : {}),
+    }
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.artistBooking.findMany({
+        where,
+        orderBy: [{ bookingTime: 'asc' }, { id: 'desc' }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { artist: { select: { stageName: true, badgeNo: true } } },
+      }),
+      this.prisma.artistBooking.count({ where }),
+    ])
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        businessDate: r.businessDate.toISOString().slice(0, 10),
+        bookingNo: r.bookingNo,
+        bookingTime: r.bookingTime !== null ? r.bookingTime.toISOString() : null,
+        roomId: r.roomId,
+        roomName: r.roomName,
+        groupId: r.groupId,
+        artistId: r.artistId,
+        artistName: r.artistId !== null ? r.artist?.stageName ?? r.artistName : r.artistName,
+        badgeNo: r.artist?.badgeNo ?? null,
+        status: r.status,
+      })),
+      total,
+      page,
+      pageSize,
+    }
+  }
+
+  async create(storeId: number, body: CreateBookingDto, operatorId: number): Promise<{ id: number; bookingNo: string }> {
+    const bookingTime = body.bookingTime !== undefined ? new Date(body.bookingTime) : new Date()
+    const store = await this.prisma.store.findUnique({ where: { id: storeId } })
+    const cut = store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT
+    const businessDateStr = resolveBusinessDate(bookingTime, { cutTime: cut })
+    const businessDate = new Date(businessDateStr)
+
+    let roomName: string | null = null
+    if (body.roomId !== undefined) {
+      const room = await this.prisma.room.findFirst({ where: { id: body.roomId, storeId } })
+      if (room === null) throw new NotFoundException('包厢不存在')
+      roomName = room.roomName ?? room.roomNo
+    }
+    let artistName: string | null = body.artistName ?? null
+    if (body.artistId !== undefined) {
+      const artist = await this.prisma.artist.findFirst({ where: { id: body.artistId, storeId, deletedAt: null } })
+      if (artist === null) throw new NotFoundException('艺人不存在')
+      artistName = artist.stageName ?? artist.realName
+    }
+    if (body.groupId !== undefined) {
+      const group = await this.prisma.artistGroup.findFirst({ where: { id: body.groupId, storeId } })
+      if (group === null) throw new NotFoundException('组别不存在')
+    }
+
+    // 预约号:外部号优先;否则 BK{yyyymmdd}-{当日序号},冲突时补随机尾号(最多 3 次)
+    let bookingNo = body.bookingNo ?? ''
+    if (bookingNo === '') {
+      const seq = await this.prisma.artistBooking.count({ where: { storeId, businessDate } })
+      bookingNo = 'BK' + businessDateStr.replace(/-/g, '') + '-' + String(seq + 1).padStart(4, '0')
+    }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const exists = await this.prisma.artistBooking.findFirst({ where: { storeId, bookingNo }, select: { id: true } })
+      if (exists === null) break
+      if (body.bookingNo !== undefined) {
+        throw new LeisureError(ERR.BOOKING_STATE_INVALID, '预约号已存在')
+      }
+      bookingNo = bookingNo.slice(0, 26) + '-' + String(randomInt(100, 1000))
+    }
+
+    const created = await this.prisma.artistBooking.create({
+      data: {
+        storeId,
+        businessDate,
+        bookingNo,
+        bookingTime,
+        roomId: body.roomId ?? null,
+        roomName,
+        groupId: body.groupId ?? null,
+        artistId: body.artistId ?? null,
+        artistName,
+        status: 'BOOKED',
+      },
+    })
+    await this.audit(storeId, operatorId, 'BOOKING_CREATE', 'artist_booking', String(created.id), null, created)
+    return { id: created.id, bookingNo }
+  }
+
+  async setStatus(
+    id: number,
+    storeId: number,
+    status: Exclude<BookingStatus, 'BOOKED'>,
+    operatorId: number,
+  ): Promise<{ status: BookingStatus }> {
+    const before = await this.prisma.artistBooking.findFirst({ where: { id, storeId } })
+    if (before === null) throw new NotFoundException('预约不存在')
+    const cur = before.status as BookingStatus
+    const allowed = TRANSITIONS[cur] ?? []
+    if (!allowed.includes(status)) {
+      throw new LeisureError(ERR.BOOKING_STATE_INVALID, '预约状态不可从 ' + cur + ' 流转到 ' + status)
+    }
+    const after = await this.prisma.artistBooking.update({ where: { id }, data: { status } })
+    await this.audit(storeId, operatorId, 'BOOKING_STATUS', 'artist_booking', String(id), before, after)
+    return { status }
+  }
+
+  private async audit(
+    storeId: number,
+    operatorId: number,
+    action: string,
+    targetType: string,
+    targetId: string,
+    before: unknown,
+    after: unknown,
+  ): Promise<void> {
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operatorId,
+        action,
+        targetType,
+        targetId,
+        beforeJson: (before ?? null) as object,
+        afterJson: (after ?? null) as object,
+      },
+    })
+  }
+}
+
+/* ── Controller ── */
+
+@Controller('bookings')
+export class BookingController {
+  constructor(private readonly svc: BookingService) {}
+
+  @RequirePerm('booking:view')
+  @Get()
+  async list(
+    @Req() req: Request,
+    @Query('businessDate') businessDate?: string,
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.list(user?.storeId ?? 1, {
+      businessDate,
+      status,
+      page: Number(page ?? 1),
+      pageSize: Number(pageSize ?? DEFAULT_PAGE_SIZE),
+    })
+  }
+
+  @RequirePerm('booking:manage')
+  @Post()
+  async create(@Req() req: Request, @Body() body: CreateBookingDto): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.create(user?.storeId ?? 1, body, user?.sub ?? 0)
+  }
+
+  @RequirePerm('booking:manage')
+  @Post(':id/status')
+  async setStatus(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: SetStatusDto,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.setStatus(id, user?.storeId ?? 1, body.status, user?.sub ?? 0)
+  }
+}
+
+@Module({
+  controllers: [BookingController],
+  providers: [BookingService, PrismaService],
+  exports: [BookingService],
+})
+export class BookingModule {}

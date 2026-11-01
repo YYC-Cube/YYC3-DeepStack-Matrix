@@ -73,10 +73,10 @@ export const MENU: MenuGroup[] = [
     label: '台票体系',
     icon: Receipt,
     items: [
-      { key: 'a6', label: '台票设置', path: '/todo/a6', perm: 'ticketrule:manage', badge: 'II' },
-      { key: 'a12', label: '台票购买', path: '/todo/a12', perm: 'ticket:buy', badge: 'II' },
-      { key: 'a13', label: '台票购买记录', path: '/todo/a13', perm: 'ticket:ledger:view', badge: 'II' },
-      { key: 'a14', label: '台票使用记录', path: '/todo/a14', perm: 'ticket:ledger:view', badge: 'II' },
+      { key: 'a6', label: '台票设置', path: '/tickets', perm: 'ticketrule:manage' },
+      { key: 'a12', label: '台票购买', path: '/tickets', perm: 'ticket:buy' },
+      { key: 'a13', label: '台票购买记录', path: '/tickets', perm: 'ticket:ledger:view' },
+      { key: 'a14', label: '台票使用记录', path: '/tickets', perm: 'ticket:ledger:view' },
     ],
   },
   {
@@ -88,13 +88,13 @@ export const MENU: MenuGroup[] = [
     ],
   },
   {
-    label: '扩展域(II 期)',
+    label: '扩展域',
     icon: LayoutDashboard,
     items: [
       { key: 'a21', label: '艺人订单', path: '/todo/a21', perm: 'order:view', badge: 'II' },
-      { key: 'a22', label: '展示控制台', path: '/todo/a22', perm: 'showcase:view', badge: 'II' },
+      { key: 'a22', label: '展示控制台', path: '/showcase', perm: 'showcase:view' },
       { key: 'a23', label: '服务评价', path: '/todo/a23', perm: 'review:view', badge: 'II' },
-      { key: 'a24', label: '预约管理', path: '/todo/a24', perm: 'order:view', badge: 'II' },
+      { key: 'a24', label: '预约管理', path: '/bookings', perm: 'booking:view' },
     ],
   },
   {

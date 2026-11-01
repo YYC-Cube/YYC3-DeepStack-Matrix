@@ -3,6 +3,7 @@ export default defineAppConfig({
     'pages/home/index',
     'pages/attendance/index',
     'pages/mine/index',
+    'pages/tickets/index',
     'pages/bind/index',
   ],
   window: {

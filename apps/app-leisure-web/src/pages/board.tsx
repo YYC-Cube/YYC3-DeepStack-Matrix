@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { PageHeader } from '@/components/kit'
+import type { BillPreview } from '@yyc3/leisure-core'
 
 interface RoomRow {
   id: number
@@ -65,10 +66,12 @@ export default function BoardPage(): React.JSX.Element {
   const [openFor, setOpenFor] = useState<RoomRow | null>(null)
   const [pickedArtists, setPickedArtists] = useState<number[]>([])
 
-  // 关房结算单
+  // 关房结算单(接真后端明细预览)
   const [closeFor, setCloseFor] = useState<RoomRow | null>(null)
   const [closeSession, setCloseSession] = useState<OpenSessionRow | null>(null)
-  const [settleType, setSettleType] = useState<'CASH' | 'FEE_DEDUCT'>('CASH')
+  const [preview, setPreview] = useState<BillPreview | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [settleType, setSettleType] = useState<'CASH' | 'FEE_DEDUCT' | 'MIXED'>('CASH')
   const [deductArtistId, setDeductArtistId] = useState<number | null>(null)
   const [deductAmount, setDeductAmount] = useState<string>('0')
   const [result, setResult] = useState<CloseResult | null>(null)
@@ -105,14 +108,44 @@ export default function BoardPage(): React.JSX.Element {
     } catch (e) { toastError(e, '开房失败') } finally { setBusy(false) }
   }
 
+  /** 打开关房弹窗:拉取真后端结算单预览(明细 + 此刻报价) */
+  const openClose = async (room: RoomRow, session: OpenSessionRow): Promise<void> => {
+    setCloseFor(room)
+    setCloseSession(session)
+    setPreview(null)
+    setResult(null)
+    setSettleType('CASH')
+    setDeductArtistId(null)
+    setDeductAmount('0')
+    setPreviewLoading(true)
+    try {
+      const p = await client.roomSessions.billPreview(session.id)
+      setPreview(p)
+      if (p.artists.length === 1) setDeductArtistId(p.artists[0]?.artistId ?? null)
+    } catch (e) {
+      toastError(e, '结算单预览加载失败')
+    } finally {
+      setPreviewLoading(false)
+    }
+  }
+
   const doClose = async (session: OpenSessionRow): Promise<void> => {
-    if (settleType === 'FEE_DEDUCT' && deductArtistId === null) {
+    const needDeduct = settleType === 'FEE_DEDUCT' || settleType === 'MIXED'
+    const amount = Number(deductAmount)
+    if (needDeduct && deductArtistId === null) {
       toast.error('台费抵扣需选择艺人')
       return
     }
-    const amount = Number(deductAmount)
-    if (settleType === 'FEE_DEDUCT' && (!Number.isFinite(amount) || amount <= 0)) {
+    if (needDeduct && (!Number.isFinite(amount) || amount <= 0)) {
       toast.error('抵扣金额必须大于 0')
+      return
+    }
+    if (needDeduct && preview !== null && amount > preview.totalAmount + 0.009) {
+      toast.error('抵扣额不得超过结算总额 ¥' + String(preview.totalAmount))
+      return
+    }
+    if (settleType === 'FEE_DEDUCT' && preview !== null && Math.abs(amount - preview.totalAmount) > 0.009) {
+      toast.error('全额台费抵扣需等于结算总额;部分抵扣请选「现金+抵扣」')
       return
     }
     setBusy(true)
@@ -120,11 +153,11 @@ export default function BoardPage(): React.JSX.Element {
       const out = await client.roomSessions.close({
         roomSessionId: session.id,
         settleType,
-        feeDeductAllocations:
-          settleType === 'CASH' ? [] : [{ artistId: deductArtistId ?? 0, amount }],
+        feeDeductAllocations: needDeduct ? [{ artistId: deductArtistId ?? 0, amount }] : [],
       })
       setResult(out)
       toast.success(session.roomNo + ' 关房结算完成:合计 ¥' + String(out.totalAmount))
+      setCloseFor(null)
       await load()
     } catch (e) { toastError(e, '关房失败') } finally { setBusy(false) }
   }
@@ -175,7 +208,7 @@ export default function BoardPage(): React.JSX.Element {
                   <Button size="sm" variant="outline" disabled={busy} onClick={() => { setOpenFor(r) }}>开房</Button>
                 )}
                 {canClose && (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { setCloseFor(r); setCloseSession(open) }}>关房</Button>
+                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { void openClose(r, open) }}>关房</Button>
                 )}
                 {canClean && (
                   <Button size="sm" variant="outline" disabled={busy} onClick={() => { void cleaningDone(r.id) }}>清扫完成</Button>
@@ -215,48 +248,97 @@ export default function BoardPage(): React.JSX.Element {
         </DialogContent>
       </Dialog>
 
-      {/* 关房结算单(方案甲) */}
+      {/* 关房结算单(方案甲;明细为后端实时预览) */}
       <Dialog open={closeFor !== null} onOpenChange={(o) => { if (!o) setCloseFor(null) }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>关房结算 · {closeFor?.roomNo ?? ''}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 text-sm">
-            <div>
-              <Label>结算方式</Label>
-              <RadioGroup value={settleType} onValueChange={(v) => { setSettleType(v as 'CASH' | 'FEE_DEDUCT') }} className="flex gap-4 pt-1">
-                <div className="flex items-center gap-1"><RadioGroupItem value="CASH" id="cash" /><label htmlFor="cash">现金</label></div>
-                <div className="flex items-center gap-1"><RadioGroupItem value="FEE_DEDUCT" id="fee" /><label htmlFor="fee">台费抵扣</label></div>
-              </RadioGroup>
-            </div>
-            {settleType === 'FEE_DEDUCT' && (
-              <div className="space-y-1">
-                <Label>抵扣艺人</Label>
-                <select
-                  className="w-full border rounded px-2 py-1 text-sm"
-                  value={deductArtistId ?? ''}
-                  onChange={(e) => { setDeductArtistId(e.target.value === '' ? null : Number(e.target.value)) }}
-                >
-                  <option value="">请选择</option>
-                  {artists.map((a) => (
-                    <option key={a.id} value={a.id}>{a.stageName ?? a.realName}({a.badgeNo})</option>
+          {previewLoading && <div className="py-8 text-center text-sm text-[#8b9bb4]">结算单预览加载中…</div>}
+          {!previewLoading && preview !== null && (
+            <div className="space-y-3 text-sm">
+              {/* 明细:时间费 */}
+              <div>
+                <div className="text-xs text-[#8b9bb4] mb-1">
+                  时间费明细(进行中场次为此刻报价,关房按实际时刻重算
+                  {preview.billing.minCharge > 0 ? ' · 最低消费 ¥' + String(preview.billing.minCharge) : ''}
+                  {preview.billing.capCharge > 0 ? ' · 封顶 ¥' + String(preview.billing.capCharge) : ''})
+                </div>
+                <div className="border rounded border-[rgba(0,212,255,0.12)] divide-y divide-[rgba(0,212,255,0.06)]">
+                  {preview.sessions.map((s) => (
+                    <div key={s.sessionId} className="flex items-center gap-2 px-2 py-1.5 flex-wrap">
+                      <span className="w-24 truncate">{s.stageName ?? '—'}</span>
+                      <span className="text-xs text-[#8b9bb4]">{s.startAt.slice(11, 16)}~{s.endAt !== null ? s.endAt.slice(11, 16) : '进行中'}</span>
+                      <span className="text-xs">{String(s.durationMinutes)} 分钟{String(s.billHours ?? 0) !== '0' ? ' → ' + String(s.billHours) + ' 小时' : ''}</span>
+                      <span className="text-xs text-[#8b9bb4]">¥{String(s.unitPrice)}/时{s.priceSlotName !== null ? ' · ' + s.priceSlotName : ''}</span>
+                      {s.minDurationApplied && <span className="text-[10px] text-[#ffaa00]">保底</span>}
+                      <span className="ml-auto font-medium text-[#00d4ff]">¥{String(s.amount)}</span>
+                    </div>
                   ))}
-                </select>
-                <Input
-                  placeholder="抵扣金额(元)"
-                  inputMode="decimal"
-                  value={deductAmount}
-                  onChange={(e) => { setDeductAmount(e.target.value) }}
-                />
+                  {preview.sessions.length === 0 && <div className="px-2 py-2 text-xs text-[#8b9bb4]">无上钟时间费</div>}
+                </div>
               </div>
-            )}
-            <div className="text-xs opacity-70">
-              关房后包厢进入「清扫中」;时间费与点单计入本结算单,台费抵扣按艺人生成 ROOM_SETTLE 流水(不可变)。
+              {/* 明细:自点单 */}
+              <div>
+                <div className="text-xs text-[#8b9bb4] mb-1">自点单明细(PLACED 视同送达一并结算)</div>
+                <div className="border rounded border-[rgba(0,212,255,0.12)] divide-y divide-[rgba(0,212,255,0.06)]">
+                  {preview.orders.map((o) => (
+                    <div key={o.orderId} className="flex items-center gap-2 px-2 py-1.5">
+                      <span className="w-24 truncate">{o.stageName ?? '—'}</span>
+                      <span className="text-xs text-[#8b9bb4]">{Array.isArray(o.items) ? String(o.items.length) + ' 项' : ''} · {o.status === 'PLACED' ? '未送达' : '已送达'}</span>
+                      <span className="ml-auto font-medium">¥{String(o.totalAmount)}</span>
+                    </div>
+                  ))}
+                  {preview.orders.length === 0 && <div className="px-2 py-2 text-xs text-[#8b9bb4]">无点单</div>}
+                </div>
+              </div>
+              {/* 合计 */}
+              <div className="flex gap-4 justify-end text-sm">
+                <span>时间费 <b className="text-[#00d4ff]">¥{String(preview.roomFee)}</b></span>
+                <span>点单 <b className="text-[#00d4ff]">¥{String(preview.orderTotal)}</b></span>
+                <span>合计 <b className="text-[#00ff88] text-base">¥{String(preview.totalAmount)}</b></span>
+              </div>
+              {/* 结算方式 */}
+              <div>
+                <Label>结算方式</Label>
+                <RadioGroup value={settleType} onValueChange={(v) => { setSettleType(v as 'CASH' | 'FEE_DEDUCT' | 'MIXED') }} className="flex gap-4 pt-1">
+                  <div className="flex items-center gap-1"><RadioGroupItem value="CASH" id="cash" /><label htmlFor="cash">现金</label></div>
+                  <div className="flex items-center gap-1"><RadioGroupItem value="FEE_DEDUCT" id="fee" /><label htmlFor="fee">台费抵扣(全额)</label></div>
+                  <div className="flex items-center gap-1"><RadioGroupItem value="MIXED" id="mixed" /><label htmlFor="mixed">现金+抵扣</label></div>
+                </RadioGroup>
+              </div>
+              {(settleType === 'FEE_DEDUCT' || settleType === 'MIXED') && (
+                <div className="space-y-1">
+                  <Label>抵扣艺人(在房:{preview.artists.map((a) => (a.stageName ?? '—') + ' 余额¥' + String(a.feeBalance)).join(' · ')})</Label>
+                  <select
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    value={deductArtistId ?? ''}
+                    onChange={(e) => { setDeductArtistId(e.target.value === '' ? null : Number(e.target.value)) }}
+                  >
+                    <option value="">请选择</option>
+                    {preview.artists.map((a) => (
+                      <option key={a.artistId} value={a.artistId}>{a.stageName ?? '—'}({a.badgeNo ?? '无腰牌'}) 余额 ¥{String(a.feeBalance)}</option>
+                    ))}
+                  </select>
+                  <Input
+                    placeholder={settleType === 'FEE_DEDUCT' ? '抵扣金额(须=合计 ¥' + String(preview.totalAmount) + ')' : '抵扣金额(元;剩余按现金收款)'}
+                    inputMode="decimal"
+                    value={deductAmount}
+                    onChange={(e) => { setDeductAmount(e.target.value) }}
+                  />
+                  {settleType === 'MIXED' && Number(deductAmount) > 0 && (
+                    <div className="text-xs text-[#8b9bb4]">现金应收 ¥{String(Math.max(0, Math.round((preview.totalAmount - Number(deductAmount)) * 100) / 100))}</div>
+                  )}
+                </div>
+              )}
+              <div className="text-xs opacity-70">
+                关房后包厢进入「清扫中」;抵扣部分逐艺人生成 ROOM_SETTLE 流水(不可变)。
+              </div>
             </div>
-          </div>
+          )}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setCloseFor(null)}>取消</Button>
-            <Button disabled={busy} onClick={() => { if (closeSession !== null) void doClose(closeSession) }}>确认结算</Button>
+            <Button disabled={busy || previewLoading || preview === null} onClick={() => { if (closeSession !== null) void doClose(closeSession) }}>确认结算</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -223,16 +223,19 @@ export class SessionService {
   }
 
   /* ── 下钟(可入事务;transfer 时传入 tx) ── */
-  /** 房账/调度复用:事务内下钟(计费计入房账,方案甲) */
-  async finishIn(
+  /**
+   * 计费报价(只读):关房结算单预览与 finishIn 共用同一算路——
+   * 快照(feeMode/unitPrice/进位)× 艺人保底 × 门店最低消费/封顶;at 缺省=现在
+   */
+  async quoteIn(
     db: DbClient,
     sessionId: number,
-    operator: { sub: number; storeId?: number },
+    at: Date = new Date(),
   ): Promise<{
-    feeAmount: number
+    session: Prisma.ShowSessionGetPayload<Record<string, never>>
+    artist: Prisma.ArtistGetPayload<Record<string, never>>
     durationMinutes: number
-    billHours: number | undefined
-    ticketHint: boolean
+    fee: ReturnType<typeof calcSessionFee>
   }> {
     const session = await db.showSession.findFirst({
       where: { id: sessionId, endAt: null },
@@ -244,8 +247,7 @@ export class SessionService {
     if (artist === null) {
       throw new NotFoundException('艺人不存在')
     }
-    const now = new Date()
-    const durationMinutes = diffMinutes(session.startAt, now)
+    const durationMinutes = diffMinutes(session.startAt, at)
     const mode = session.feeMode ?? 'HOURLY'
     const rounding = {
       enabled: session.roundingEnabled ?? true,
@@ -266,7 +268,7 @@ export class SessionService {
           amount: Number(session.unitPrice ?? 0),
         },
         startAt: session.startAt,
-        endAt: now,
+        endAt: at,
         minDurationMinutes: artist.sameRoomMinMinutes,
         minCharge: storeSettings.roomBilling.minCharge,
         capCharge: storeSettings.roomBilling.capCharge,
@@ -277,13 +279,29 @@ export class SessionService {
         mode: 'HOURLY',
         hourlyRate: Number(session.unitPrice ?? 0),
         startAt: session.startAt,
-        endAt: now,
+        endAt: at,
         minDurationMinutes: artist.sameRoomMinMinutes,
         rounding,
         minCharge: storeSettings.roomBilling.minCharge,
         capCharge: storeSettings.roomBilling.capCharge,
       })
     }
+    return { session, artist, durationMinutes, fee }
+  }
+
+  /** 房账/调度复用:事务内下钟(计费计入房账,方案甲) */
+  async finishIn(
+    db: DbClient,
+    sessionId: number,
+    operator: { sub: number; storeId?: number },
+  ): Promise<{
+    feeAmount: number
+    durationMinutes: number
+    billHours: number | undefined
+    ticketHint: boolean
+  }> {
+    const now = new Date()
+    const { session, artist, durationMinutes, fee } = await this.quoteIn(db, sessionId, now)
 
     // 方案甲:下钟不落流水、不做余额防线——费用计入房账,关房统一结算(ROOM_SETTLE)
     const updated = await db.showSession.update({

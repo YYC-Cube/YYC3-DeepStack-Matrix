@@ -26,6 +26,10 @@ const EnvSchema = z.object({
   OPENAPI_ENABLED: z.enum(['true', 'false']).default('false'),
   // 现场屏 scene 签名密钥(HMAC-SHA256,防伪造;生产必须替换强随机)
   SCENE_HMAC_KEY: z.string().default('dev-only-scene-key-change-me'),
+  // 硬件语音盒子(钟房叫钟联动;未配置=仅大屏 Web Speech)。URL 模板含 {text} 占位,如
+  // http://192.168.1.50/tts?text={text};仅允许 http/https 且目标为私网/局域网地址(盒子在店内)
+  VOICE_BOX_URL: z.string().optional(),
+  VOICE_BOX_TIMEOUT_MS: z.coerce.number().int().min(200).max(10_000).default(3000),
   WX_APPID: z.string().optional(),
   WX_SECRET: z.string().optional(),
 })

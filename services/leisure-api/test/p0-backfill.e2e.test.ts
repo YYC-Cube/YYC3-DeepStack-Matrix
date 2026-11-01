@@ -159,4 +159,85 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P0 缺失回补(
     )
     expect(second.body.data.overall).toBe('MATCHED')
   })
+
+  it('关房结算单预览:开房 → 预览明细(实时报价)→ 与真结算同额', async () => {
+    // 选一间空闲房(避免与并行套件的 B01 冲突)
+    const rooms = await api<{ rows: Array<{ id: number; roomNo: string; status: string }> }>(
+      'GET',
+      '/store/rooms?pageSize=50',
+      undefined,
+      adminToken,
+    )
+    const free = rooms.body.data.rows.find((r) => r.status === 'FREE')
+    expect(free).toBeDefined()
+
+    const opened = await api<{ roomSessionId: number }>(
+      'POST',
+      '/room-sessions/open',
+      { roomId: free!.id, artistIds: [artistId] },
+      adminToken,
+    )
+    expect(opened.body.code).toBe(0)
+
+    const preview = await api<{
+      roomNo: string
+      sessions: Array<{ sessionId: number; live: boolean; amount: number; artistId: number }>
+      orders: unknown[]
+      roomFee: number
+      totalAmount: number
+      artists: Array<{ artistId: number; feeBalance: number }>
+      billing: { minCharge: number; capCharge: number }
+    }>('GET', '/room-sessions/' + String(opened.body.data.roomSessionId) + '/bill-preview', undefined, adminToken)
+    expect(preview.body.code).toBe(0)
+    expect(preview.body.data.roomNo).toBe(free!.roomNo)
+    expect(preview.body.data.sessions.length).toBeGreaterThanOrEqual(1)
+    expect(preview.body.data.sessions.every((s) => s.live)).toBe(true)
+    expect(preview.body.data.orders).toHaveLength(0)
+    expect(preview.body.data.totalAmount).toBe(preview.body.data.roomFee)
+    expect(preview.body.data.artists.some((a) => a.artistId === artistId)).toBe(true)
+    expect(typeof preview.body.data.billing.minCharge).toBe('number')
+
+    const closed = await api<{ totalAmount: number; roomFee: number }>(
+      'POST',
+      '/room-sessions/' + String(opened.body.data.roomSessionId) + '/close',
+      { settleType: 'CASH' },
+      adminToken,
+    )
+    expect(closed.body.code).toBe(0)
+    // 预览与真结算同一算路(quoteIn),短间隔内金额一致
+    expect(closed.body.data.totalAmount).toBe(preview.body.data.totalAmount)
+
+    // 清扫归位
+    await api('POST', '/rooms/' + String(free!.id) + '/cleaning-done', {}, adminToken)
+  })
+
+  it('语音盒子测试端点:未配置 VOICE_BOX_URL → skipped 不算失败', async () => {
+    const res = await api<{ ok: boolean; skipped: boolean; configured: boolean }>(
+      'POST',
+      '/voice-box/test',
+      { text: 'e2e 语音盒子测试' },
+      adminToken,
+    )
+    expect(res.body.code).toBe(0)
+    expect(res.body.data.ok).toBe(true)
+    expect(res.body.data.skipped).toBe(true)
+    expect(res.body.data.configured).toBe(false)
+  })
+
+  it('双轨 14 天门禁视图:14 格 + 连续天数 + 门禁判定字段', async () => {
+    const h = await api<{
+      days: Array<{ businessDate: string; overall: string; complete: boolean }>
+      streak: number
+      gateDays: number
+      gatePassed: boolean
+      currentBusinessDate: string
+    }>('GET', '/reports/recon/history?days=14', undefined, adminToken)
+    expect(h.body.code).toBe(0)
+    expect(h.body.data.days).toHaveLength(14)
+    expect(h.body.data.gateDays).toBe(14)
+    expect(typeof h.body.data.streak).toBe('number')
+    // 今日(最后格)为进行中
+    expect(h.body.data.days[13]!.businessDate).toBe(h.body.data.currentBusinessDate)
+    expect(h.body.data.days[13]!.complete).toBe(false)
+  })
 })

@@ -25,15 +25,21 @@ import {
 } from '@nestjs/common'
 import type { Request } from 'express'
 import {
+  diffMinutes,
   resolveBusinessDate,
   sumFeeBalance,
   ERR,
   LeisureError,
+  HttpVoiceBoxTransport,
+  NoopVoiceBoxTransport,
+  type VoiceBoxResult,
+  type VoiceBoxTransport,
 } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import type { ReqWithUser } from '../../common/guards/jwt.guard.js'
 import { SessionModule, SessionService } from '../session/session.module.js'
+import { StoreConfigService } from '../store-config/store-config.module.js'
 
 type Operator = { sub: number; name: string; storeId?: number; scope: 'ADMIN' | 'ARTIST' }
 
@@ -47,11 +53,66 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
+/* ── 关房结算单预览视图 ── */
+
+interface BillSessionRow {
+  sessionId: number
+  artistId: number
+  stageName: string | null
+  badgeNo: string | null
+  startAt: string
+  endAt: string | null
+  durationMinutes: number
+  billHours: number | null
+  unitPrice: number
+  priceSlotName: string | null
+  amount: number
+  /** true=进行中(金额为此刻报价,关房时按实际时刻重算) */
+  live: boolean
+  minDurationApplied: boolean
+}
+
+interface BillOrderRow {
+  orderId: number
+  artistId: number
+  stageName: string | null
+  items: unknown
+  totalAmount: number
+  status: string
+  placedAt: string
+}
+
+export interface BillPreview {
+  roomSessionId: number
+  roomId: number
+  roomNo: string
+  startAt: string
+  elapsedMinutes: number
+  quotedAt: string
+  sessions: BillSessionRow[]
+  orders: BillOrderRow[]
+  roomFee: number
+  orderTotal: number
+  totalAmount: number
+  /** 在房艺人(抵扣分配参考:台费余额) */
+  artists: Array<{ artistId: number; stageName: string | null; badgeNo: string | null; feeBalance: number }>
+  billing: {
+    feeMode: 'HOURLY' | 'FLAT'
+    roundingEnabled: boolean
+    roundingThresholdMinutes: number
+    minCharge: number
+    capCharge: number
+  }
+}
+
 @Injectable()
 export class RoomService {
+  private voiceBox: VoiceBoxTransport | undefined
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly sessionService: SessionService,
+    private readonly storeConfig: StoreConfigService,
   ) {}
 
   /* ── 开房:创建房账 + 绑定在场艺人(进房即上钟,方案甲融合) ── */
@@ -276,6 +337,154 @@ export class RoomService {
         settledSessions: settledSessionsArr.length,
       }
     })
+  }
+
+  /* ── 关房结算单预览(只读):与 close 同一归集口径,金额为此刻报价 ── */
+
+  async billPreview(roomSessionId: number, operator: Operator): Promise<BillPreview> {
+    const rs = await this.prisma.roomSession.findUnique({ where: { id: roomSessionId } })
+    if (rs === null) throw new NotFoundException('房账不存在')
+    if (operator.storeId !== undefined && rs.storeId !== operator.storeId) {
+      throw new NotFoundException('房账不存在')
+    }
+    if (rs.status !== 'OPEN') throw new LeisureError(ERR.ROOM_NOT_OPEN, '房账非 OPEN 态')
+    const now = new Date()
+    const sessions: BillSessionRow[] = []
+    let roomFee = 0
+
+    // ① 在房艺人进行中场次 → 此刻报价(与 finishIn 同一算路 quoteIn)
+    const bound = await this.prisma.roomSessionArtist.findMany({
+      where: { sessionId: rs.id, leftAt: null },
+    })
+    for (const b of bound) {
+      const live = await this.prisma.showSession.findFirst({
+        where: { artistId: b.artistId, roomId: rs.roomId, endAt: null, roomSessionId: null },
+        orderBy: { startAt: 'desc' },
+      })
+      if (live === null) continue
+      const q = await this.sessionService.quoteIn(this.prisma, live.id, now)
+      roomFee += q.fee.amount
+      sessions.push({
+        sessionId: live.id,
+        artistId: b.artistId,
+        stageName: q.artist.stageName,
+        badgeNo: q.artist.badgeNo,
+        startAt: live.startAt.toISOString(),
+        endAt: null,
+        durationMinutes: q.durationMinutes,
+        billHours: q.fee.billHours ?? null,
+        unitPrice: Number(live.unitPrice ?? 0),
+        priceSlotName: live.priceSlotName,
+        amount: q.fee.amount,
+        live: true,
+        minDurationApplied: q.fee.minDurationApplied,
+      })
+    }
+
+    // ② 已下钟未归本场次的存量(与 close 步骤②同 where,endAt 非空避免与 ① 重叠)
+    const pending = await this.prisma.showSession.findMany({
+      where: { roomId: rs.roomId, roomSessionId: null, startAt: { gte: rs.startAt }, endAt: { not: null } },
+    })
+    for (const s of pending) {
+      roomFee += Number(s.feeAmount ?? 0)
+      sessions.push({
+        sessionId: s.id,
+        artistId: s.artistId,
+        stageName: null,
+        badgeNo: null,
+        startAt: s.startAt.toISOString(),
+        endAt: s.endAt !== null ? s.endAt.toISOString() : null,
+        durationMinutes: s.durationMinutes ?? 0,
+        billHours: s.billHours,
+        unitPrice: Number(s.unitPrice ?? 0),
+        priceSlotName: s.priceSlotName,
+        amount: Number(s.feeAmount ?? 0),
+        live: false,
+        minDurationApplied: false,
+      })
+    }
+    // ② 补艺人名(一次取齐)
+    const pendingArtistIds = Array.from(new Set(sessions.filter((x) => x.stageName === null).map((x) => x.artistId)))
+    if (pendingArtistIds.length > 0) {
+      const artists = await this.prisma.artist.findMany({
+        where: { id: { in: pendingArtistIds } },
+        select: { id: true, stageName: true, badgeNo: true },
+      })
+      const nameMap = new Map(artists.map((a) => [a.id, a]))
+      for (const row of sessions) {
+        if (row.stageName === null) {
+          const a = nameMap.get(row.artistId)
+          row.stageName = a?.stageName ?? null
+          row.badgeNo = a?.badgeNo ?? null
+        }
+      }
+    }
+    roomFee = round2(roomFee)
+
+    // ③ 自点单归集(PLACED 视同送达,提示同 close)
+    const orders = await this.prisma.selfOrder.findMany({
+      where: { sessionId: rs.id, status: { in: ['PLACED', 'DELIVERED'] } },
+      orderBy: { id: 'asc' },
+    })
+    const orderTotal = round2(orders.reduce((acc, o) => acc + Number(o.totalAmount), 0))
+    const orderArtistIds = Array.from(new Set(orders.map((o) => o.artistId)))
+    const orderArtists = orderArtistIds.length > 0
+      ? await this.prisma.artist.findMany({
+          where: { id: { in: orderArtistIds } },
+          select: { id: true, stageName: true },
+        })
+      : []
+    const orderName = new Map(orderArtists.map((a) => [a.id, a.stageName]))
+
+    // ④ 在房艺人台费余额(抵扣分配参考)
+    const artistRows: BillPreview['artists'] = []
+    for (const b of bound) {
+      const a = await this.prisma.artist.findUnique({
+        where: { id: b.artistId },
+        select: { stageName: true, badgeNo: true },
+      })
+      const txns = await this.prisma.stageFeeTxn.findMany({
+        where: { artistId: b.artistId },
+        select: { amount: true },
+      })
+      artistRows.push({
+        artistId: b.artistId,
+        stageName: a?.stageName ?? null,
+        badgeNo: a?.badgeNo ?? null,
+        feeBalance: sumFeeBalance(txns.map((t) => ({ amount: Number(t.amount) }))),
+      })
+    }
+
+    const settings = await this.storeConfig.getArtistSettings(rs.storeId)
+    return {
+      roomSessionId: rs.id,
+      roomId: rs.roomId,
+      roomNo: rs.roomNo,
+      startAt: rs.startAt.toISOString(),
+      elapsedMinutes: diffMinutes(rs.startAt, now),
+      quotedAt: now.toISOString(),
+      sessions,
+      orders: orders.map((o) => ({
+        orderId: o.id,
+        artistId: o.artistId,
+        stageName: orderName.get(o.artistId) ?? null,
+        items: o.items,
+        totalAmount: Number(o.totalAmount),
+        status: o.status,
+        placedAt: o.placedAt.toISOString(),
+      })),
+      roomFee,
+      orderTotal,
+      totalAmount: round2(roomFee + orderTotal),
+      artists: artistRows,
+      billing: {
+        feeMode: settings.roomBilling.feeMode,
+        roundingEnabled: settings.roomBilling.roundingEnabled,
+        roundingThresholdMinutes: settings.roomBilling.roundingThresholdMinutes,
+        minCharge: settings.roomBilling.minCharge,
+        capCharge: settings.roomBilling.capCharge,
+      },
+    }
   }
 
   /* ── 清扫 ── */
@@ -589,6 +798,60 @@ export class RoomService {
     return { rows }
   }
 
+  /* ── 硬件语音盒子(II 期联动层) ── */
+
+  /** 盒子传输:env VOICE_BOX_URL 未配置或非法 → Noop(skipped,不影响 Web Speech 主通道) */
+  private voiceBoxOf(): VoiceBoxTransport {
+    if (this.voiceBox !== undefined) return this.voiceBox
+    const url = env().VOICE_BOX_URL
+    if (url === undefined || url === '') {
+      this.voiceBox = new NoopVoiceBoxTransport()
+      return this.voiceBox
+    }
+    try {
+      this.voiceBox = new HttpVoiceBoxTransport({
+        urlTemplate: url,
+        timeoutMs: env().VOICE_BOX_TIMEOUT_MS,
+      })
+    } catch {
+      // 配置非法:降级为 Noop(启动不失败;结果记审计可排查)
+      this.voiceBox = new NoopVoiceBoxTransport()
+    }
+    return this.voiceBox
+  }
+
+  /** 盒子分发(尽力而为):结果落审计 VOICE_BOX_DISPATCH,失败不阻断叫钟流转 */
+  private async dispatchVoiceBox(callId: number, storeId: number, text: string): Promise<void> {
+    const result = await this.voiceBoxOf().announce(text)
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: null,
+        action: 'VOICE_BOX_DISPATCH',
+        targetType: 'room_call',
+        targetId: String(callId),
+        afterJson: { text, ...result } as object,
+      },
+    })
+  }
+
+  /** 盒子连通性测试(管理端):读 env 配置直接发一条 */
+  async testVoiceBox(text: string, storeId: number, operatorId: number): Promise<VoiceBoxResult & { configured: boolean }> {
+    const url = env().VOICE_BOX_URL
+    const result = await this.voiceBoxOf().announce(text)
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operatorId,
+        action: 'VOICE_BOX_TEST',
+        targetType: 'voice_box',
+        targetId: 'test',
+        afterJson: { text, url: url ?? null, ...result } as object,
+      },
+    })
+    return { ...result, configured: url !== undefined && url !== '' }
+  }
+
   async setCallStatus(
     id: number,
     status: 'CALLED' | 'ACCEPTED' | 'DONE' | 'CANCELLED',
@@ -613,6 +876,10 @@ export class RoomService {
         afterJson: { from: call.status, to: status } as object,
       },
     })
+    // 硬件盒子联动:CALLED 即向店内盒子分发播报(异步尽力而为,不拖慢流转响应)
+    if (status === 'CALLED' && call.voiceText !== null && call.voiceText !== '') {
+      void this.dispatchVoiceBox(call.id, call.storeId, call.voiceText).catch(() => undefined)
+    }
     return { ok: true }
   }
 
@@ -680,6 +947,20 @@ export class RoomController {
       },
       user,
     )
+  }
+
+  @Get('room-sessions/:id/bill-preview')
+  async billPreview(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const user = op(req)
+    if (user.scope !== 'ADMIN') throw new ForbiddenException('仅管理端可查看结算单预览')
+    return this.svc.billPreview(id, user)
+  }
+
+  @Post('voice-box/test')
+  async voiceBoxTest(@Req() req: Request, @Body() body: { text?: string }): Promise<unknown> {
+    const user = op(req)
+    if (user.scope !== 'ADMIN') throw new ForbiddenException('仅管理端可测试语音盒子')
+    return this.svc.testVoiceBox(body.text ?? '语音盒子测试', user.storeId ?? 1, user.sub)
   }
 
   @Get('room-sessions')
@@ -824,6 +1105,6 @@ export class RoomController {
 @Module({
   imports: [SessionModule],
   controllers: [RoomController],
-  providers: [RoomService, PrismaService],
+  providers: [RoomService, PrismaService, StoreConfigService],
 })
 export class RoomModule {}

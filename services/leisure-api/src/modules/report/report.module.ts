@@ -16,17 +16,90 @@ import {
   Res,
 } from '@nestjs/common'
 import type { Request, Response } from 'express'
-import { resolveBusinessDate, REPORT_TYPES } from '@yyc3/leisure-core'
+import { resolveBusinessDate, shiftBusinessDate, REPORT_TYPES } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 const MAX_RANGE_DAYS = 92
+const RECON_METRICS = ['openCount', 'roomFee', 'orderTotal', 'checkedIn'] as const
+/** 双轨切换门禁:连续完整营业日全 MATCHED 的天数 */
+export const RECON_GATE_DAYS = 14
 
 /* ── Service ── */
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100
+}
+
+export interface SelfMetrics {
+  openCount: number
+  roomFee: number
+  orderTotal: number
+  checkedIn: number
+}
+
+/** 双轨自算指标(方案甲独立运营口径;与智慧商家日报对齐 4 项)——纯查询,供 Service 与日切 job 共用 */
+export async function computeSelfMetrics(prisma: PrismaService, storeId: number, businessDate: string): Promise<SelfMetrics> {
+  const bd = new Date(businessDate)
+  const [rs, orders, checkin] = await Promise.all([
+    prisma.roomSession.aggregate({
+      where: { storeId, businessDate: bd },
+      _count: { _all: true },
+      _sum: { roomFee: true },
+    }),
+    prisma.roomSession.aggregate({
+      where: { storeId, businessDate: bd },
+      _sum: { orderTotal: true },
+    }),
+    prisma.attendanceReport.count({
+      where: { storeId, businessDate: bd, type: 'CHECKIN' },
+    }),
+  ])
+  return {
+    openCount: rs._count._all,
+    roomFee: round2(Number(rs._sum.roomFee ?? 0)),
+    orderTotal: round2(Number(orders._sum.orderTotal ?? 0)),
+    checkedIn: checkin,
+  }
+}
+
+/**
+ * 日切自动快照:把自算四指标写入 recon_diff(status=PENDING_LEGACY,待录对侧);
+ * 已有行(对侧已录)则按新自算值重算 diff/status。幂等,日切 job 与手工均可调用。
+ */
+export async function snapshotReconSelf(prisma: PrismaService, storeId: number, businessDate: string): Promise<void> {
+  const bd = new Date(businessDate)
+  const self = await computeSelfMetrics(prisma, storeId, businessDate)
+  const existing = await prisma.reconDiff.findMany({ where: { storeId, businessDate: bd } })
+  const byMetric = new Map(existing.map((r) => [r.metric, r]))
+  for (const key of RECON_METRICS) {
+    const selfValue = round2(self[key])
+    const cur = byMetric.get(key)
+    if (cur === undefined) {
+      await prisma.reconDiff.create({
+        data: { storeId, businessDate: bd, metric: key, selfValue, legacyValue: 0, diff: selfValue, status: 'PENDING_LEGACY' },
+      })
+      continue
+    }
+    if (cur.status === 'PENDING_LEGACY') {
+      await prisma.reconDiff.update({ where: { id: cur.id }, data: { selfValue, diff: selfValue } })
+      continue
+    }
+    const legacyValue = Number(cur.legacyValue)
+    const diff = round2(selfValue - legacyValue)
+    const status = cur.status === 'EXPLAINED' ? 'EXPLAINED' : Math.abs(diff) < 0.01 ? 'MATCHED' : 'OPEN'
+    await prisma.reconDiff.update({ where: { id: cur.id }, data: { selfValue, diff, status } })
+  }
+}
+
+/** 单日总体:NO_DATA / PENDING_LEGACY / MATCHED / EXPLAINED(全部已解释或匹配) / OPEN */
+function overallOf(statuses: string[]): string {
+  if (statuses.length === 0) return 'NO_DATA'
+  if (statuses.some((s) => s === 'PENDING_LEGACY')) return 'PENDING_LEGACY'
+  if (statuses.every((s) => s === 'MATCHED')) return 'MATCHED'
+  if (statuses.every((s) => s === 'MATCHED' || s === 'EXPLAINED')) return 'EXPLAINED'
+  return 'OPEN'
 }
 
 @Injectable()
@@ -53,33 +126,8 @@ export class ReportService {
 
   /* ── 1. 台费扣款明细(§8.3 含包厢维度:关联场次房号/房型) ── */
   /** 双轨自算指标(方案甲独立运营口径;与智慧商家日报对齐 4 项) */
-  async selfMetrics(storeId: number, businessDate: string): Promise<{
-    openCount: number
-    roomFee: number
-    orderTotal: number
-    checkedIn: number
-  }> {
-    const bd = new Date(businessDate)
-    const [rs, orders, checkin] = await Promise.all([
-      this.prisma.roomSession.aggregate({
-        where: { storeId, businessDate: bd },
-        _count: { _all: true },
-        _sum: { roomFee: true },
-      }),
-      this.prisma.roomSession.aggregate({
-        where: { storeId, businessDate: bd },
-        _sum: { orderTotal: true },
-      }),
-      this.prisma.attendanceReport.count({
-        where: { storeId, businessDate: bd, type: 'CHECKIN' },
-      }),
-    ])
-    return {
-      openCount: rs._count._all,
-      roomFee: round2(Number(rs._sum.roomFee ?? 0)),
-      orderTotal: round2(Number(orders._sum.orderTotal ?? 0)),
-      checkedIn: checkin,
-    }
+  async selfMetrics(storeId: number, businessDate: string): Promise<SelfMetrics> {
+    return computeSelfMetrics(this.prisma, storeId, businessDate)
   }
 
   /** 双轨导入:录对侧(智慧商家)日报值 → 逐指标 upsert 差异行 */
@@ -129,7 +177,7 @@ export class ReportService {
   async reconList(storeId: number, businessDate: string): Promise<{
     rows: Array<{ metric: string; selfValue: number; legacyValue: number; diff: number; status: string }>
     overall: string
-    selfMetrics: { openCount: number; roomFee: number; orderTotal: number; checkedIn: number }
+    selfMetrics: SelfMetrics
   }> {
     const bd = new Date(businessDate)
     const selfMetrics = await this.selfMetrics(storeId, businessDate)
@@ -137,7 +185,7 @@ export class ReportService {
       where: { storeId, businessDate: bd },
       orderBy: { metric: 'asc' },
     })
-    const overall = rows.length > 0 && rows.every((r) => r.status === 'MATCHED') ? 'MATCHED' : rows.length === 0 ? 'NO_DATA' : 'OPEN'
+    const overall = overallOf(rows.map((r) => r.status))
     return {
       rows: rows.map((r) => ({
         metric: r.metric,
@@ -149,6 +197,69 @@ export class ReportService {
       overall,
       selfMetrics,
     }
+  }
+
+  /** 手工触发当日自算快照(日切 job 会自动做;试点首日/补录用) */
+  async reconSnapshot(storeId: number, businessDate: string, operatorId?: number): Promise<{ snapshotted: true }> {
+    await snapshotReconSelf(this.prisma, storeId, businessDate)
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operatorId ?? null,
+        action: 'RECON_SELF_SNAPSHOT',
+        targetType: 'recon_diff',
+        targetId: businessDate,
+      },
+    })
+    return { snapshotted: true }
+  }
+
+  /**
+   * 14 天门禁视图:近 N 个营业日(含今日,今日标 complete=false)逐日总体 + 连续 MATCHED 天数(自昨日往前数完整日)
+   * gatePassed = streak ≥ RECON_GATE_DAYS
+   */
+  async reconHistory(storeId: number, days: number): Promise<{
+    days: Array<{ businessDate: string; overall: string; complete: boolean; matched: number; total: number }>
+    streak: number
+    gateDays: number
+    gatePassed: boolean
+    currentBusinessDate: string
+  }> {
+    const n = Math.min(Math.max(days, 1), 60)
+    const cut = await this.storeCutOf(storeId)
+    const current = resolveBusinessDate(new Date(), { cutTime: cut })
+    const dates: string[] = []
+    for (let i = n - 1; i >= 0; i--) dates.push(shiftBusinessDate(current, -i))
+    const rows = await this.prisma.reconDiff.findMany({
+      where: { storeId, businessDate: { gte: new Date(dates[0] ?? current), lte: new Date(current) } },
+      select: { businessDate: true, status: true },
+    })
+    const byDate = new Map<string, string[]>()
+    for (const r of rows) {
+      const key = r.businessDate.toISOString().slice(0, 10)
+      const list = byDate.get(key) ?? []
+      list.push(r.status)
+      byDate.set(key, list)
+    }
+    const out = dates.map((d) => {
+      const statuses = byDate.get(d) ?? []
+      return {
+        businessDate: d,
+        overall: overallOf(statuses),
+        complete: d < current,
+        matched: statuses.filter((s) => s === 'MATCHED').length,
+        total: statuses.length,
+      }
+    })
+    // 连续 MATCHED:从最近一个完整日往前数
+    let streak = 0
+    for (let i = out.length - 1; i >= 0; i--) {
+      const d = out[i]
+      if (d === undefined || !d.complete) continue
+      if (d.overall === 'MATCHED') streak += 1
+      else break
+    }
+    return { days: out, streak, gateDays: RECON_GATE_DAYS, gatePassed: streak >= RECON_GATE_DAYS, currentBusinessDate: current }
   }
 
   async deductDetail(storeId: number, q: { from: Date; to: Date }, groupId?: number) {
@@ -432,6 +543,20 @@ export class ReportController {
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.importLegacy(user?.storeId ?? 1, body.businessDate, body.metrics, user?.sub)
+  }
+
+  /** 双轨对账:手工触发自算快照(日切 job 自动做;首日/补录用) */
+  @Post('recon/snapshot')
+  async reconSnapshot(@Req() req: Request, @Body() body: { businessDate: string }): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.reconSnapshot(user?.storeId ?? 1, body.businessDate, user?.sub)
+  }
+
+  /** 双轨对账:14 天门禁视图(逐日总体 + 连续 MATCHED 天数) */
+  @Get('recon/history')
+  async reconHistory(@Req() req: Request, @Query('days') days?: string): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.reconHistory(user?.storeId ?? 1, Number(days ?? 14))
   }
 
   /** 通用:查询或 CSV 导出(导出经 @Res 直写,绕过 JSON 信封) */

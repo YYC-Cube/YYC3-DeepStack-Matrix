@@ -1,10 +1,11 @@
 /**
- * B4 我的(台费/流水):余额卡 + 流水列表(充值/扣费/冲正;类型中文标签与四端同源)
- * 台票/评价区块为 II 期占位;数据走 ARTIST scope 端点(强制本人)
+ * B4 我的(台费/流水):余额卡 + 流水列表(充值/关房结算/手动扣费/冲正;类型中文标签与四端同源)
+ * 台票走独立页(B7);评价为 III 期占位;数据走 ARTIST scope 端点(强制本人)
  */
 import { useCallback, useState } from 'react'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
+import Taro from '@tarojs/taro'
 import { loadAuth, myTxns, errText } from '../../lib/api'
 
 interface TxnRow {
@@ -18,7 +19,7 @@ interface TxnRow {
 
 const TYPE_LABEL: Record<string, string> = {
   RECHARGE: '充值',
-  SESSION_DEDUCT: '上钟扣费',
+  ROOM_SETTLE: '关房结算',
   MANUAL_DEDUCT: '手动扣费',
   REVERSE: '冲正',
 }
@@ -87,7 +88,14 @@ export default function Mine() {
       </View>
 
       <View className="mp-card">
-        <Text className="mp-muted">台票 / 我的服务评价:II 期开通</Text>
+        <Text className="mp-muted">我的台票(B7)</Text>
+        <Button className="mp-btn" onClick={() => Taro.navigateTo({ url: '/pages/tickets/index' })}>
+          查看台票余额与流水
+        </Button>
+      </View>
+
+      <View className="mp-card">
+        <Text className="mp-muted">我的服务评价:III 期开通</Text>
       </View>
 
       {msg !== '' && (

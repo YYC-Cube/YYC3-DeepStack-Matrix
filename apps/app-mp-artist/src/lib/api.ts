@@ -192,6 +192,27 @@ export function myTxns(p: { businessDateFrom: string; businessDateTo: string }):
     .catch(translate)
 }
 
+/** B7:本人台票余额+流水(强制本人;台票四页的艺人端视图) */
+export function myTickets(p: { businessDateFrom: string; businessDateTo: string }): Promise<{
+  balance: {
+    rows: Array<{ ticketRuleId: number; name: string; validDays: number; balance: number; expireAt: string | null }>
+    total: number
+  }
+  txns: Array<{ id: number; businessDate: string; type: string; ruleName: string; qty: number; amount: number; createdAt: string }>
+}> {
+  return Taro.request({
+    url: 'http://127.0.0.1:3001/api/v1/tickets/my?businessDateFrom=' + encodeURIComponent(p.businessDateFrom) + '&businessDateTo=' + encodeURIComponent(p.businessDateTo),
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{
+      balance: { rows: Array<{ ticketRuleId: number; name: string; validDays: number; balance: number; expireAt: string | null }>; total: number }
+      txns: Array<{ id: number; businessDate: string; type: string; ruleName: string; qty: number; amount: number; createdAt: string }>
+    }>(res))
+    .catch(translate)
+}
+
 /** scene 校验(B2 扫码后;HMAC 签名+60s 时间窗 ±2 分钟容差) */
 export function qrcodeVerify(scene: string): Promise<{ valid: boolean; storeId?: number; businessDate?: string; reason?: string }> {
   return Taro.request({

@@ -10,6 +10,7 @@ import {
   shiftBusinessDate,
 } from '@yyc3/leisure-core'
 import { PrismaService } from '../prisma/prisma.service.js'
+import { snapshotReconSelf } from '../modules/report/report.module.js'
 
 const TICK_MS = 60_000
 
@@ -58,6 +59,17 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
     const target = shiftBusinessDate(currentBd, -1) // 上一营业日(日切后即完整)
     const targetDate = new Date(target)
     const startedAt = new Date()
+
+    // 双轨对账试点:上一营业日自算四指标自动快照(幂等:已有行即跳过;对侧值由人工录入后比对)
+    const reconRows = await this.prisma.reconDiff.count({ where: { storeId, businessDate: targetDate } })
+    if (reconRows === 0) {
+      try {
+        await snapshotReconSelf(this.prisma, storeId, target)
+        this.logger.log('recon self snapshot: store=' + storeName + ' bd=' + target)
+      } catch (err) {
+        this.logger.warn('recon snapshot failed: ' + (err instanceof Error ? err.message : String(err)))
+      }
+    }
 
     const existing = await this.prisma.dailySummary.findUnique({
       where: { storeId_businessDate: { storeId, businessDate: targetDate } },

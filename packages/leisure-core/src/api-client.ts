@@ -80,6 +80,78 @@ export interface ShowcaseCastRow {
   endedAt: string | null
 }
 
+/** 关房结算单预览行(与 close 同一归集口径;live=true 金额为此刻报价) */
+export interface BillPreviewSessionRow {
+  sessionId: number
+  artistId: number
+  stageName: string | null
+  badgeNo: string | null
+  startAt: string
+  endAt: string | null
+  durationMinutes: number
+  billHours: number | null
+  unitPrice: number
+  priceSlotName: string | null
+  amount: number
+  live: boolean
+  minDurationApplied: boolean
+}
+
+export interface BillPreview {
+  roomSessionId: number
+  roomId: number
+  roomNo: string
+  startAt: string
+  elapsedMinutes: number
+  quotedAt: string
+  sessions: BillPreviewSessionRow[]
+  orders: Array<{
+    orderId: number
+    artistId: number
+    stageName: string | null
+    items: unknown
+    totalAmount: number
+    status: string
+    placedAt: string
+  }>
+  roomFee: number
+  orderTotal: number
+  totalAmount: number
+  artists: Array<{ artistId: number; stageName: string | null; badgeNo: string | null; feeBalance: number }>
+  billing: {
+    feeMode: 'HOURLY' | 'FLAT'
+    roundingEnabled: boolean
+    roundingThresholdMinutes: number
+    minCharge: number
+    capCharge: number
+  }
+}
+
+/** 双轨对账单日结果(overall: NO_DATA/PENDING_LEGACY/MATCHED/EXPLAINED/OPEN) */
+export interface ReconListResult {
+  rows: Array<{ metric: string; selfValue: number; legacyValue: number; diff: number; status: string }>
+  overall: string
+  selfMetrics: { openCount: number; roomFee: number; orderTotal: number; checkedIn: number }
+}
+
+/** 双轨对账 14 天门禁视图 */
+export interface ReconHistory {
+  days: Array<{ businessDate: string; overall: string; complete: boolean; matched: number; total: number }>
+  streak: number
+  gateDays: number
+  gatePassed: boolean
+  currentBusinessDate: string
+}
+
+/** 语音盒子测试结果 */
+export interface VoiceBoxTestResult {
+  ok: boolean
+  skipped?: boolean
+  status?: number
+  error?: string
+  configured: boolean
+}
+
 /** 门店参数合并视图(GET /store-config/artist-settings;门店行 > env/内置默认) */
 export interface StoreArtistSettingsView {
   requiredProfileFields: string[]
@@ -360,10 +432,12 @@ export class LeisureApiClient {
       this.put<{ updated: true }>('/store-config/artist-settings', p),
   }
 
-  /* ── 房账(方案甲:开/关房 + 关房统一结算) ── */
+  /* ── 房账(方案甲:开/关房 + 结算单预览 + 关房统一结算) ── */
   roomSessions = {
     open: (p: { roomId: number; artistIds: number[] }, idemKey?: string) =>
       this.post<{ roomSessionId: number; businessDate: string }>('/room-sessions/open', p, idemKey),
+    /** 结算单预览(只读;关房弹窗展示明细,金额为此刻报价) */
+    billPreview: (id: number) => this.get<BillPreview>('/room-sessions/' + String(id) + '/bill-preview'),
     close: (p: {
       roomSessionId: number
       settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
@@ -381,6 +455,21 @@ export class LeisureApiClient {
   rooms = {
     cleaningDone: (roomId: number) => this.post<{ ok: true }>('/rooms/' + String(roomId) + '/cleaning-done', {}),
     bulkCleaningDone: () => this.post<{ updated: number }>('/rooms/bulk-cleaning-done', {}),
+  }
+
+  /* ── 硬件语音盒子(II 期联动层;未配置 VOICE_BOX_URL 时 skipped) ── */
+  voiceBox = {
+    test: (text: string) => this.post<VoiceBoxTestResult>('/voice-box/test', { text }),
+  }
+
+  /* ── 双轨对账(P0 门禁;14 天连续 MATCHED 才满足切换) ── */
+  recon = {
+    list: (businessDate: string) => this.get<ReconListResult>('/reports/recon', { businessDate }),
+    importLegacy: (p: { businessDate: string; metrics: Record<string, number> }) =>
+      this.post<{ rows: Array<{ metric: string; status: string }> }>('/reports/recon/legacy', p),
+    /** 手工触发自算快照(日切 job 自动做;首日/补录用) */
+    snapshot: (businessDate: string) => this.post<{ snapshotted: true }>('/reports/recon/snapshot', { businessDate }),
+    history: (days = 14) => this.get<ReconHistory>('/reports/recon/history', { days }),
   }
 
   /* ── 艺人自点单 ── */

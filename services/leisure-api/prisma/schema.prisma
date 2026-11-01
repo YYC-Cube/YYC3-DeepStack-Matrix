@@ -3,6 +3,9 @@
 
 generator client {
   provider = "prisma-client-js"
+  // 多引擎:宿主 darwin-arm64(native)+ 容器 node:22-alpine(arm64 musl;openssl 双版本兜底检测差异)
+  // 注:target 名内嵌 arm64——本仓库容器固定 arm64(Apple Silicon 开发机),x64 宿主需调整
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-1.1.x"]
 }
 
 datasource db {

@@ -44,6 +44,7 @@ const RealtimePage = sus(lazy(() => import('@/pages/realtime')))
 const SessionsPage = sus(lazy(() => import('@/pages/sessions')))
 const SettingsArtistPage = sus(lazy(() => import('@/pages/settings-artist')))
 const RoomsPage = sus(lazy(() => import('@/pages/rooms')))
+const ReportCenterPage = sus(lazy(() => import('@/pages/report-center')))
 const TodoPage = sus(lazy(() => import('@/pages/placeholder')))
 
 export const router = createHashRouter([
@@ -76,6 +77,7 @@ export const router = createHashRouter([
       // 设置域
       { path: 'settings/artist', element: <SettingsArtistPage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
+      { path: 'reports', element: <ReportCenterPage /> },
       // II 期/IV 期占位
       { path: 'todo/:key', element: <TodoPage /> },
     ],

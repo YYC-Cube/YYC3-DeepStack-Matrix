@@ -209,8 +209,8 @@ export class ArtistService {
         where: { storeId, badgeNo: body.badgeNo },
       })
       if (dup !== null) {
-        // 40901 腰牌号重复(对齐 04-API 错误码)
-        throw new ConflictException('腰牌号已存在')
+        // 40901 腰牌号重复(04-API §10;业务码入响应体)
+        throw new LeisureError(ERR.BADGE_DUPLICATED, '腰牌号已存在')
       }
     }
     const created = await this.prisma.artist.create({
@@ -292,7 +292,7 @@ export class ArtistService {
         where: { storeId: before.storeId, badgeNo: body.badgeNo },
       })
       if (dup !== null) {
-        throw new ConflictException('腰牌号已存在')
+        throw new LeisureError(ERR.BADGE_DUPLICATED, '腰牌号已存在')
       }
     }
     const after = await this.prisma.artist.update({

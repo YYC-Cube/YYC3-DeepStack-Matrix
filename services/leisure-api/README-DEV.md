@@ -1,6 +1,31 @@
 # YYC³ LeisureAPI · 开发速查(README-DEV)
 
-> 阶段2 完成:auth / artist(审核状态)/ attendance / store(房型+房号)/ store-config(艺人设置8项)/ **session(上下钟·串台·转包厢)/ stage-fee(规则·充值·扣费·冲正·余额)/ approval(双人审批)/ 日切汇总 job** 已实现;report/ticket/payment 为阶段6+/II 期。
+> **MVP 六阶段全部完成**(阶段1 骨架/1-B 补缺/2 场次资金/3-4 Web 管理端+PWA/5 艺人小程序/6 报表+联调)。
+> 模块:auth · artist(审核状态)· attendance(含现场屏 scene HMAC)· store(房型+房号)· store-config(艺人设置8项)· session(上下钟·串台·转包厢)· stage-fee(规则·充值·扣费·冲正·余额·艺人自查)· approval(双人审批)· taxonomy(等级组别)· **report(7 张 MVP)** · 日切 job。台票/订单评价/预约/展示/支付渠道为 II 期。
+
+## 一键起停(阶段6)
+
+```bash
+bash services/leisure-api/scripts/dev-up.sh        # 编译 core+api → compose 起 MySQL/Redis/API(容器化)
+bash services/leisure-api/scripts/dev-up.sh down   # 全停
+```
+- 容器 API 为 bind-mount 模式(node:22-alpine + openssl;Prisma 多引擎 binaryTargets 已配 arm64 musl 双版本)
+- 迁移/种子仍按下方宿主流程执行(需 leisure 账号 DDL 权限)
+
+## 报表(阶段6,10-后端 §七 7 张 MVP;§8.3 包厢维度)
+
+| 端点(GET /reports/…) | 权限 | 包厢维度 |
+|---|---|---|
+| stage-fee/deduct-detail | fee:ledger:view | ✅ 房号/房型(关联场次) |
+| stage-fee/recharge | fee:ledger:view | — |
+| stage-fee/summary | fee:ledger:view | ✅ 涉及包厢聚合列 |
+| attendance/detail | attend:ledger:view | — |
+| attendance/summary | attend:summary:view | — |
+| session/detail | session:view | ✅ 房号/房型/计费小时/单价 |
+| session/summary | session:view | ✅ 涉及包厢聚合列 |
+
+- 全部支持 `&format=csv`(UTF-8 BOM,Excel 直开;xlsx 真格式 II 期);导出另需 `report:export`(导出权限与查看分离)
+- 区间上限 92 天;默认当日(营业日口径)
 
 ## 快速启动
 

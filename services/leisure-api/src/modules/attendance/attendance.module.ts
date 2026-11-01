@@ -17,6 +17,8 @@ import {
 } from '@nestjs/common'
 import type { Request } from 'express'
 import {
+  ERR,
+  LeisureError,
   millisSinceBusinessDayStart,
   resolveBusinessDate,
   REPORT_TYPES,
@@ -126,7 +128,8 @@ export class AttendanceService {
     const minMinutes = await this.checkoutMinMinutes(ctx.storeId)
     const minMs = minMinutes * 60_000
     if (sinceCheckin < minMs && sinceDayStart >= minMs) {
-      throw new ConflictException('签到未满 ' + String(minMinutes) + ' 分钟,禁止签退')
+      // 40905(04-API §10;业务码入响应体)
+      throw new LeisureError(ERR.CHECKOUT_TOO_EARLY, '签到未满 ' + String(minMinutes) + ' 分钟,禁止签退')
     }
     const updated = await this.prisma.attendanceReport.update({
       where: { id: report.id },

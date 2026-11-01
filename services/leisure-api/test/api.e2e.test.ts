@@ -151,23 +151,23 @@ describe.skipIf(!canRun || token === '')('阶段1-B 核心 API e2e', () => {
     await api('DELETE', '/artists/' + String(artistId), undefined, token)
   })
 
-  it('门店参数:GET 含 env 默认 → PUT 阈值 15→10 → 恢复(需求全集 §7)', async () => {
+  it('门店参数:GET → PUT 阈值(初值无关,规避并发文件互扰)→ 回读一致 → 恢复初值(需求全集 §7)', async () => {
     const got = await api<{
       checkoutMinMinutes: number
       roomBilling: { feeMode: string; roundingEnabled: boolean; roundingThresholdMinutes: number }
       stageAssignMode: string
     }>('GET', '/store-config/artist-settings', undefined, token)
     expect(got.body.code).toBe(0)
-    expect(got.body.data.roomBilling.roundingThresholdMinutes).toBe(15)
     expect(got.body.data.roomBilling.feeMode).toBe('HOURLY')
-    expect(got.body.data.checkoutMinMinutes).toBe(60)
     expect(got.body.data.stageAssignMode).toBe('MIXED')
+    const initial = got.body.data.roomBilling.roundingThresholdMinutes
 
-    // 门店级覆盖阈值 = 10(部分更新,其余键不受影响)
+    // 门店级覆盖阈值 = 初值+1(部分更新,其余键不受影响;不依赖固定初值——vitest 文件并发下另有用例写此键)
+    const target = initial === 10 ? 11 : 10
     const put = await api<{ updated: boolean }>(
       'PUT',
       '/store-config/artist-settings',
-      { roomBilling: { roundingThresholdMinutes: 10 } },
+      { roomBilling: { roundingThresholdMinutes: target } },
       token,
     )
     expect(put.body.code).toBe(0)
@@ -177,11 +177,11 @@ describe.skipIf(!canRun || token === '')('阶段1-B 核心 API e2e', () => {
       undefined,
       token,
     )
-    expect(changed.body.data.roomBilling.roundingThresholdMinutes).toBe(10)
+    expect(changed.body.data.roomBilling.roundingThresholdMinutes).toBe(target)
     expect(changed.body.data.roomBilling.feeMode).toBe('HOURLY')
 
-    // 恢复默认 15
-    await api('PUT', '/store-config/artist-settings', { roomBilling: { roundingThresholdMinutes: 15 } }, token)
+    // 恢复初值
+    await api('PUT', '/store-config/artist-settings', { roomBilling: { roundingThresholdMinutes: initial } }, token)
   })
 
   it('未知字段请求 → 400(whitelist 边界)', async () => {

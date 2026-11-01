@@ -5,6 +5,7 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import {
+  BarChart3,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -76,6 +77,13 @@ export const MENU: MenuGroup[] = [
     ],
   },
   {
+    label: '报表',
+    icon: BarChart3,
+    items: [
+      { key: 'a25', label: '报表中心(7 张)', path: '/reports', perm: 'fee:ledger:view' },
+    ],
+  },
+  {
     label: '扩展域(II 期)',
     icon: LayoutDashboard,
     items: [
@@ -83,7 +91,6 @@ export const MENU: MenuGroup[] = [
       { key: 'a22', label: '展示控制台', path: '/todo/a22', perm: 'showcase:view', badge: 'II' },
       { key: 'a23', label: '服务评价', path: '/todo/a23', perm: 'review:view', badge: 'II' },
       { key: 'a24', label: '预约管理', path: '/todo/a24', perm: 'order:view', badge: 'II' },
-      { key: 'a25', label: '报表中心', path: '/todo/a25', perm: 'report:export', badge: 'VI' },
     ],
   },
   {

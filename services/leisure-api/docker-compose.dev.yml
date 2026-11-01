@@ -1,8 +1,32 @@
-# YYC³ LeisureAPI · 本地开发环境(MySQL + Redis)
-# 启动:docker compose -f docker-compose.dev.yml up -d
+# YYC³ LeisureAPI · 本地开发环境(MySQL + Redis + API)
+# 只起数据层:docker compose -f docker-compose.dev.yml up -d
+# 一键全栈(development profile,含 API):docker compose -f docker-compose.dev.yml --profile full up -d
+# 或:bash scripts/dev-up.sh(含编译)
 # 说明:密码仅为本地开发;生产凭据走密钥管理
 
 services:
+  api:
+    build: .
+    image: leisure-api:dev
+    container_name: leisure-api
+    profiles: ["full"]
+    working_dir: /workspace/services/leisure-api
+    # bind-mount 仓库根:复用宿主 node_modules 与已编译 dist(铁律:领域逻辑 import leisure-core 的 dist)
+    volumes:
+      - ../../:/workspace:rw
+    environment:
+      # 容器内直连 compose 网络(覆盖 .env 中的 127.0.0.1 宿主映射)
+      DATABASE_URL: mysql://leisure_app:leisure-app-dev-only@mysql:3306/leisure
+      REDIS_URL: redis://redis:6379
+    command: sh -c "node --env-file=.env --watch dist/main.js"
+    ports:
+      - "3001:3001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   mysql:
     image: mysql:8.0
     container_name: leisure-mysql

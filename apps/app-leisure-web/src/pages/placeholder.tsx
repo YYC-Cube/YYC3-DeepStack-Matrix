@@ -14,7 +14,6 @@ const TITLES: Record<string, { title: string; milestone: string; reason: string 
   a22: { title: '展示控制台', milestone: 'II 期', reason: 'showcase 投放为 II 期范围' },
   a23: { title: '服务评价', milestone: 'II 期', reason: '评价域为 II 期范围' },
   a24: { title: '预约管理', milestone: 'II 期', reason: '预约域为 II 期范围' },
-  a25: { title: '报表中心(10 张)', milestone: '阶段6', reason: 'report 模块 7 张 MVP 报表在阶段6 交付(4 张含包厢房号/类型维度)' },
 }
 
 export default function TodoPage() {

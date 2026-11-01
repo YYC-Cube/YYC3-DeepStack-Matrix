@@ -73,7 +73,8 @@ export class SessionService {
   ) {}
 
   /* ── 上钟(可入事务;transfer 时传入 tx) ── */
-  private async startIn(
+  /** 房账/调度复用:事务内上钟(方案甲融合) */
+  async startIn(
     db: DbClient,
     p: { artistId: number; roomId: number },
     operator: { sub: number; storeId?: number },
@@ -198,7 +199,8 @@ export class SessionService {
   }
 
   /* ── 下钟(可入事务;transfer 时传入 tx) ── */
-  private async finishIn(
+  /** 房账/调度复用:事务内下钟(计费计入房账,方案甲) */
+  async finishIn(
     db: DbClient,
     sessionId: number,
     operator: { sub: number; storeId?: number },
@@ -479,5 +481,6 @@ export class SessionController {
 @Module({
   controllers: [SessionController],
   providers: [SessionService, PrismaService, StoreConfigService],
+  exports: [SessionService],
 })
 export class SessionModule {}

@@ -61,13 +61,14 @@ model Room {
   roomName   String?  @map("room_name") @db.VarChar(64)
   roomTypeId Int      @map("room_type_id")
   capacity   Int? // 容纳人数
-  status     String   @default("FREE") @db.VarChar(16) // FREE/OCCUPIED/MAINTENANCE/DISABLED
+  status     String   @default("FREE") @db.VarChar(16) // FREE/OCCUPIED/CLEANING/MAINTENANCE/DISABLED
   remark     String?  @db.VarChar(255)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  store    Store    @relation(fields: [storeId], references: [id])
-  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+  store        Store          @relation(fields: [storeId], references: [id])
+  roomType     RoomType       @relation(fields: [roomTypeId], references: [id])
+  roomSessions RoomSession[]
 
   @@unique([storeId, roomNo])
   @@index([storeId, status])
@@ -139,12 +140,14 @@ model Artist {
   store        Store            @relation(fields: [storeId], references: [id])
   group        ArtistGroup?     @relation("group", fields: [groupId], references: [id])
   level        ArtistLevel?     @relation("level", fields: [levelId], references: [id])
-  reports      AttendanceReport[]
-  sessions     ShowSession[]
-  feeTxns      StageFeeTxn[]
-  ticketTxns   TicketTxn[]
-  reviews      ArtistReview[]
-  bookings     ArtistBooking[]
+  reports             AttendanceReport[]
+  sessions            ShowSession[]
+  feeTxns             StageFeeTxn[]
+  ticketTxns          TicketTxn[]
+  reviews             ArtistReview[]
+  bookings            ArtistBooking[]
+  roomSessionArtists  RoomSessionArtist[]
+  selfOrders          SelfOrder[]
   showcaseCasts ShowcaseCast[]
 
   @@unique([storeId, badgeNo])
@@ -245,8 +248,12 @@ model ShowSession {
   feeMode         String?   @map("fee_mode") @db.VarChar(8) // HOURLY/FLAT 快照
   billNo          String?   @map("bill_no") @db.VarChar(64)
   operatorId      Int?      @map("operator_id")
+  // 房账关联(方案甲:下钟计费计入房账;关房结算时回填 room_session_id/settled_at)
+  roomSessionId   Int?      @map("room_session_id")
+  settledAt       DateTime? @map("settled_at")
 
-  artist Artist @relation(fields: [artistId], references: [id])
+  artist      Artist       @relation(fields: [artistId], references: [id])
+  roomSession RoomSession? @relation(fields: [roomSessionId], references: [id])
 
   @@index([storeId, businessDate])
   @@index([artistId, startAt])
@@ -572,4 +579,89 @@ model JobRunLog {
 
   @@index([jobName, startedAt])
   @@map("job_run_log")
+}
+
+// ─────────────── 房账(方案甲:开/关房 + 关房统一结算) ───────────────
+
+model RoomSession {
+  id              Int       @id @default(autoincrement())
+  storeId         Int       @map("store_id")
+  businessDate    DateTime  @map("business_date") @db.Date
+  roomId          Int       @map("room_id")
+  roomNo          String    @map("room_no") @db.VarChar(32)
+  openedBy        Int       @map("opened_by")
+  startAt         DateTime  @map("start_at")
+  endAt           DateTime? @map("end_at")
+  status          String    @default("OPEN") @db.VarChar(16) // OPEN/CLOSED
+  roomFee         Decimal?  @map("room_fee") @db.Decimal(10, 2) // Σ上钟时间费(关房结算时汇总)
+  orderTotal      Decimal   @default(0) @map("order_total") @db.Decimal(10, 2) // Σ自点单
+  totalAmount     Decimal?  @map("total_amount") @db.Decimal(10, 2)
+  settleType      String?   @map("settle_type") @db.VarChar(16) // CASH/FEE_DEDUCT/MIXED
+  feeDeductAmount Decimal?  @map("fee_deduct_amount") @db.Decimal(10, 2)
+  closedBy        Int?      @map("closed_by")
+  remark          String?   @db.VarChar(255)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  closedAt        DateTime? @map("closed_at")
+
+  room       Room                @relation(fields: [roomId], references: [id])
+  artists    RoomSessionArtist[]
+  selfOrders SelfOrder[]
+  showSessions ShowSession[]
+
+  @@index([storeId, businessDate])
+  @@index([roomId, status])
+  @@map("room_session")
+}
+
+model RoomSessionArtist {
+  id        Int       @id @default(autoincrement())
+  sessionId Int       @map("session_id")
+  artistId  Int       @map("artist_id")
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  leftAt    DateTime? @map("left_at")
+
+  roomSession RoomSession @relation(fields: [sessionId], references: [id])
+  artist      Artist      @relation(fields: [artistId], references: [id])
+
+  @@index([sessionId])
+  @@index([artistId, joinedAt])
+  @@map("room_session_artist")
+}
+
+model SelfOrder {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  businessDate DateTime  @map("business_date") @db.Date
+  sessionId    Int       @map("session_id")
+  roomId       Int       @map("room_id")
+  artistId     Int       @map("artist_id") // 点单人
+  items        Json
+  totalAmount  Decimal   @map("total_amount") @db.Decimal(10, 2)
+  status       String    @default("PLACED") @db.VarChar(16) // PLACED/DELIVERED/SETTLED/CANCELLED
+  placedAt     DateTime  @default(now()) @map("placed_at")
+  deliveredAt  DateTime? @map("delivered_at")
+  settledAt    DateTime? @map("settled_at")
+  remark       String?   @db.VarChar(255)
+
+  roomSession RoomSession @relation(fields: [sessionId], references: [id])
+  artist      Artist      @relation(fields: [artistId], references: [id])
+
+  @@index([sessionId])
+  @@index([artistId, businessDate])
+  @@map("self_order")
+}
+
+model Goods {
+  id        Int       @id @default(autoincrement())
+  storeId   Int       @map("store_id")
+  name      String    @db.VarChar(64)
+  category  String?   @db.VarChar(32)
+  unit      String?   @db.VarChar(16)
+  salePrice Decimal   @map("sale_price") @db.Decimal(10, 2)
+  onSale    Boolean   @default(true) @map("on_sale")
+  sort      Int       @default(0)
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([storeId, name, deletedAt])
+  @@map("goods")
 }

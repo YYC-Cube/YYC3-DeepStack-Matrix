@@ -328,3 +328,57 @@ export interface BusinessDayConfig {
   /** 日切时刻 HH:mm,实测口径默认 08:00 */
   cutTime: string
 }
+
+/* ───────────────────────── 房账(方案甲:开/关房 + 关房统一结算) ───────────────────────── */
+
+export interface RoomSession {
+  id: number
+  storeId: number
+  businessDate: string
+  roomId: number
+  roomNo: string
+  openedBy: number
+  startAt: string
+  endAt?: string
+  status: 'OPEN' | 'CLOSED'
+  /** Σ上钟时间费(关房结算时汇总;下钟计费计入房账不即扣) */
+  roomFee?: number
+  /** Σ艺人自点单 */
+  orderTotal: number
+  totalAmount?: number
+  settleType?: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
+  feeDeductAmount?: number
+  artistIds: number[]
+}
+
+export interface RoomSessionArtist {
+  sessionId: number
+  artistId: number
+  joinedAt: string
+  leftAt?: string
+}
+
+/** 艺人自点单(差异化核心:点单权交给房内艺人) */
+export interface SelfOrder {
+  id: number
+  sessionId: number
+  roomId: number
+  artistId: number
+  items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }>
+  totalAmount: number
+  status: 'PLACED' | 'DELIVERED' | 'SETTLED' | 'CANCELLED'
+  placedAt: string
+  deliveredAt?: string
+  settledAt?: string
+}
+
+/** 自点单商品目录 */
+export interface Goods {
+  id: number
+  storeId: number
+  name: string
+  category?: string
+  unit?: string
+  salePrice: number
+  onSale: boolean
+}

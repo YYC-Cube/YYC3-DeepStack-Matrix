@@ -20,6 +20,8 @@ import type {
   TicketRule,
   TicketTxn,
   RealtimeStatus,
+  RoomSession,
+  SelfOrder,
 } from './types.js'
 
 /* ───────────────────────── 传输层抽象 ───────────────────────── */
@@ -234,6 +236,50 @@ export class LeisureApiClient {
       this.post<{ ok: true }>('/tickets/use', p, idemKey),
     txns: (q: { businessDateFrom: string; businessDateTo: string; type?: 'BUY' | 'USE'; keyword?: string }) =>
       this.get<{ rows: TicketTxn[]; total: number; totalAmount: number }>('/tickets/txns', q),
+  }
+
+  /* ── 房账(方案甲:开/关房 + 关房统一结算) ── */
+  roomSessions = {
+    open: (p: { roomId: number; artistIds: number[] }, idemKey?: string) =>
+      this.post<{ roomSessionId: number; businessDate: string }>('/room-sessions/open', p, idemKey),
+    close: (p: {
+      roomSessionId: number
+      settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
+      feeDeductAllocations?: Array<{ artistId: number; amount: number }>
+      remark?: string
+    }, idemKey?: string) =>
+      this.post<{ roomFee: number; orderTotal: number; totalAmount: number; settledSessions: number }>(
+        '/room-sessions/' + String(p.roomSessionId) + '/close',
+        p,
+        idemKey,
+      ),
+    list: (q: { businessDate: string; status?: string }) =>
+      this.get<{ rows: RoomSession[]; total: number }>('/room-sessions', q),
+  }
+  rooms = {
+    cleaningDone: (roomId: number) => this.post<{ ok: true }>('/rooms/' + String(roomId) + '/cleaning-done', {}),
+    bulkCleaningDone: () => this.post<{ updated: number }>('/rooms/bulk-cleaning-done', {}),
+  }
+
+  /* ── 艺人自点单 ── */
+  selfOrders = {
+    place: (p: {
+      sessionId: number
+      artistId: number
+      items: Array<{ goodsId: number; qty: number }>
+    }, idemKey?: string) =>
+      this.post<{ orderId: number; totalAmount: number }>('/self-orders', p, idemKey),
+    deliver: (orderId: number) => this.post<{ ok: true }>('/self-orders/' + String(orderId) + '/deliver', {}),
+    cancel: (orderId: number, idemKey?: string) =>
+      this.post<{ ok: true }>('/self-orders/' + String(orderId) + '/cancel', {}, idemKey),
+    list: (q: { sessionId?: number; artistId?: number; businessDate?: string; status?: string }) =>
+      this.get<{ rows: SelfOrder[]; total: number; totalAmount: number }>('/self-orders', q),
+  }
+  goods = {
+    list: (q?: { onSale?: boolean }) =>
+      this.get<{ rows: Array<{ id: number; name: string; category?: string; unit?: string; salePrice: number }> }>('/goods', q),
+    create: (p: { name: string; category?: string; unit?: string; salePrice: number; onSale?: boolean }) =>
+      this.post<{ id: number }>('/goods', p),
   }
 
   /* ── 档案 ── */

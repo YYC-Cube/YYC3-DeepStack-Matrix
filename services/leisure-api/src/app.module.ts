@@ -22,6 +22,7 @@ import { StageFeeModule } from './modules/stage-fee/stage-fee.module.js'
 import { ApprovalModule } from './modules/approval/approval.module.js'
 import { TaxonomyModule } from './modules/taxonomy/taxonomy.module.js'
 import { ReportModule } from './modules/report/report.module.js'
+import { RoomModule } from './modules/room/room.module.js'
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ReportModule } from './modules/report/report.module.js'
     ApprovalModule,
     TaxonomyModule,
     ReportModule,
+    RoomModule,
   ],
   providers: [
     PrismaService,

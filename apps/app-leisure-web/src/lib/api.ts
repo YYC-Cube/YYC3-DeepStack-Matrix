@@ -12,11 +12,17 @@ export const transport = new FetchTransport({ baseUrl: '/api/v1', getToken: () =
 
 export const client = new LeisureApiClient(transport, { baseUrl: '/api/v1' })
 
-/** 业务错误是否为未认证 → 登出跳转 */
+/** 业务错误是否为未认证/须改密 → 登出跳转 / 跳改密页 */
 function guardAuthError(e: unknown): boolean {
   if (e instanceof LeisureError && e.code === 40001) {
     useAuthStore.getState().logout()
     window.location.hash = '#/login'
+    return true
+  }
+  if (e instanceof LeisureError && e.code === 40302) {
+    // 首登必改(P0-1):后端拒绝一切业务接口,前端收敛到改密页
+    useAuthStore.setState({ mustChangePassword: true })
+    window.location.hash = '#/change-password'
     return true
   }
   return false
@@ -37,10 +43,10 @@ export async function req<T>(
   }
 }
 
-/** 统一错误提示(返回是否为 401,调用方可据此中断流程) */
+/** 统一错误提示(返回是否为 401/须改密,调用方可据此中断流程) */
 export function toastError(e: unknown, fallback = '操作失败'): boolean {
   if (e instanceof LeisureError) {
-    if (e.code === 40001) return true
+    if (e.code === 40001 || e.code === 40302) return guardAuthError(e)
     // 202+41201 审批挂起不是失败语义,调用方自行处理;此处仅提示纯错误
     toast.error(e.message || fallback)
     return false

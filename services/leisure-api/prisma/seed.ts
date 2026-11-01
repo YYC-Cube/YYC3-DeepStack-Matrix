@@ -193,9 +193,14 @@ async function main() {
         phone: adminPhone,
         passwordHash: await bcrypt.hash('ChangeMe@2026', 10),
         roleId: role.id,
+        mustChangePassword: true,
       },
     })
     console.log('[seed] 管理员已创建: ' + adminPhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
+  } else if (!adminExists.mustChangePassword && (await bcrypt.compare('ChangeMe@2026', adminExists.passwordHash))) {
+    // 仍在用默认口令 → 补打首登必改标志(幂等升级)
+    await prisma.adminUser.update({ where: { id: adminExists.id }, data: { mustChangePassword: true } })
+    console.log('[seed] 管理员仍为默认口令,已置首登必改')
   }
 
   // 财务角色+账号(双人防线第二人:手动扣费审批人≠申请人,C-08)
@@ -228,21 +233,27 @@ async function main() {
         phone: financePhone,
         passwordHash: await bcrypt.hash('ChangeMe@2026', 10),
         roleId: financeRole.id,
+        mustChangePassword: true,
       },
     })
     console.log('[seed] 财务已创建: ' + financePhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
+  } else if (!financeExists.mustChangePassword && (await bcrypt.compare('ChangeMe@2026', financeExists.passwordHash))) {
+    await prisma.adminUser.update({ where: { id: financeExists.id }, data: { mustChangePassword: true } })
+    console.log('[seed] 财务仍为默认口令,已置首登必改')
   }
 
-  // 测试账号(用户名登录;dev/演示用,密码固定 123456,每次 seed 重置;生产 seed 不得携带)
-  const testAccounts: Array<{ username: string; phone: string; name: string; roleId: number }> = [
-    { username: 'admin', phone: '13800000001', name: '测试管理员 admin', roleId: role.id },
-    { username: 'china', phone: '13800000002', name: '测试账号 china', roleId: role.id },
+  // 测试账号(用户名登录;dev/演示用,密码固定,每次 seed 重置;生产 seed 不得携带)
+  // e2epwd:首登必改流程专用——默认口令 + mustChangePassword=true,e2e 在两个强密码间轮换
+  const testAccounts: Array<{ username: string; phone: string; name: string; roleId: number; password: string; mustChange: boolean }> = [
+    { username: 'admin', phone: '13800000001', name: '测试管理员 admin', roleId: role.id, password: '123456', mustChange: false },
+    { username: 'china', phone: '13800000002', name: '测试账号 china', roleId: role.id, password: '123456', mustChange: false },
+    { username: 'e2epwd', phone: '13800000003', name: 'e2e 改密流程账号', roleId: role.id, password: 'ChangeMe@2026', mustChange: true },
   ]
   for (const t of testAccounts) {
-    const passwordHash = await bcrypt.hash('123456', 10)
+    const passwordHash = await bcrypt.hash(t.password, 10)
     await prisma.adminUser.upsert({
       where: { username: t.username },
-      update: { passwordHash, roleId: t.roleId, status: 1, failedLoginCount: 0, lockedUntil: null },
+      update: { passwordHash, roleId: t.roleId, status: 1, failedLoginCount: 0, lockedUntil: null, mustChangePassword: t.mustChange },
       create: {
         storeId: store.id,
         name: t.name,
@@ -250,10 +261,11 @@ async function main() {
         username: t.username,
         passwordHash,
         roleId: t.roleId,
+        mustChangePassword: t.mustChange,
       },
     })
   }
-  console.log('[seed] 测试账号就绪: admin / china(密码 123456,管理员角色)')
+  console.log('[seed] 测试账号就绪: admin / china(密码 123456,管理员角色);e2epwd(默认口令,首登必改)')
 
   console.log('[seed] 完成: store=' + store.name + ' roomTypes=' + roomTypes.length + ' rooms=' + String(roomSamples.reduce((n, s) => n + s.count, 0)) + ' level=技师 group=江海龙 artists=3 storeConfig=8项')
 }

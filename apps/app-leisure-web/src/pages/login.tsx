@@ -28,12 +28,26 @@ export default function Login() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ account: account.trim(), password }),
       })
-      const json = (await r.json()) as { code: number; msg: string; data?: { accessToken: string; name: string; permCodes: string[] } }
+      const json = (await r.json()) as {
+        code: number
+        msg: string
+        data?: { accessToken: string; name: string; permCodes: string[]; mustChangePassword?: boolean }
+      }
       if (json.code !== 0 || json.data === undefined) {
         toast.error(json.msg)
         return
       }
-      login({ token: json.data.accessToken, name: json.data.name, permCodes: json.data.permCodes })
+      login({
+        token: json.data.accessToken,
+        name: json.data.name,
+        permCodes: json.data.permCodes,
+        mustChangePassword: json.data.mustChangePassword === true,
+      })
+      if (json.data.mustChangePassword === true) {
+        toast.info('首次登录,请先修改默认密码')
+        navigate('/change-password')
+        return
+      }
       toast.success('欢迎回来,' + json.data.name)
       navigate('/')
     } catch (e) {
@@ -43,9 +57,10 @@ export default function Login() {
     }
   }
 
-  // 已登录直接进(开发友好)
+  // 已登录直接进(开发友好);首登未改密则去改密页
+  const mustChange = useAuthStore((s) => s.mustChangePassword)
   if (token !== null && token !== '') {
-    void navigate('/')
+    void navigate(mustChange ? '/change-password' : '/')
   }
 
   return (

@@ -13,6 +13,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import type { Request } from 'express'
+import { ERR, LeisureError } from '@yyc3/leisure-core'
 
 export interface JwtPayload {
   sub: number
@@ -20,11 +21,16 @@ export interface JwtPayload {
   storeId?: number
   permCodes: string[]
   scope: 'ADMIN' | 'ARTIST'
+  /** 首登必改(P0-1):true 时除改密/me 外管理端接口一律 40302 */
+  mustChangePassword?: boolean
 }
 
 export interface ReqWithUser extends Request {
   user?: JwtPayload
 }
+
+/** 改密前仍可访问的管理端路径(后缀匹配,兼容全局前缀) */
+const PASSWORD_CHANGE_ALLOWLIST = ['/auth/admin/change-password', '/auth/me']
 
 export const PERM_KEY = 'leisure:perm'
 export const PUBLIC_KEY = 'leisure:public'
@@ -63,6 +69,15 @@ export class JwtGuard implements CanActivate {
       throw new UnauthorizedException('invalid or expired token')
     }
     ;(req as ReqWithUser).user = payload
+
+    // 首登必改(P0-1):默认口令未改前,管理端只放行改密与 me
+    if (payload.scope === 'ADMIN' && payload.mustChangePassword === true) {
+      const path = (req.path ?? req.url ?? '').split('?')[0] ?? ''
+      const allowed = PASSWORD_CHANGE_ALLOWLIST.some((p) => path.endsWith(p))
+      if (!allowed) {
+        throw new LeisureError(ERR.PASSWORD_CHANGE_REQUIRED, '首次登录须先修改默认密码')
+      }
+    }
 
     // 功能码校验(类/方法元数据合并)
     // 标注了 @RequirePerm 的路由=管理端接口:scope 非 ADMIN 一律拒绝

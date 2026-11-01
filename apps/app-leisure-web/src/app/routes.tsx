@@ -25,14 +25,17 @@ function sus<T extends object>(C: ComponentType<T>): ComponentType<T> {
   }
 }
 
-/* ── 登录守卫:未登录一律去 /login ── */
+/* ── 登录守卫:未登录一律去 /login;首登未改密一律去 /change-password(P0-1) ── */
 function NeedAuth({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const token = useAuthStore((s) => s.token)
+  const mustChange = useAuthStore((s) => s.mustChangePassword)
   if (token === null || token === '') window.location.hash = '#/login'
+  else if (mustChange) window.location.hash = '#/change-password'
   return children
 }
 
 const LoginPage = sus(lazy(() => import('@/pages/login')))
+const ChangePasswordPage = sus(lazy(() => import('@/pages/change-password')))
 const ArtistsPage = sus(lazy(() => import('@/pages/artists')))
 const TaxonomyPage = sus(lazy(() => import('@/pages/taxonomy')))
 const FeeRulesPage = sus(lazy(() => import('@/pages/fee-rules')))
@@ -57,6 +60,7 @@ const ReviewsPage = sus(lazy(() => import('@/pages/reviews')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/change-password', element: <ChangePasswordPage /> },
   {
     path: '/',
     element: (

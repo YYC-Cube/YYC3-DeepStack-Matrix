@@ -11,6 +11,25 @@ import { JwtGuard, Public, type JwtPayload } from '../../common/guards/jwt.guard
 // Public 注:wx/bind 在艺人尚未持 token 阶段调用,鉴权凭 bindToken 本身(15min 签名),路由须公开
 import { LeisureError, ERR } from '@yyc3/leisure-core'
 
+/* ── 密码策略(P0-1):8-64 位、含字母与数字、不与旧密相同、不在弱口令清单 ── */
+
+const WEAK_PASSWORDS = new Set(['changeme@2026', '123456', '12345678', 'password', 'admin123', 'qwerty123', '11111111'])
+
+export function assertPasswordPolicy(newPassword: unknown, oldPassword?: string): void {
+  if (typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 64) {
+    throw new ConflictException('新密码须为 8-64 位')
+  }
+  if (!/[A-Za-z]/.test(newPassword) || !/\d/.test(newPassword)) {
+    throw new ConflictException('新密码须同时包含字母与数字')
+  }
+  if (oldPassword !== undefined && newPassword === oldPassword) {
+    throw new ConflictException('新密码不能与原密码相同')
+  }
+  if (WEAK_PASSWORDS.has(newPassword.toLowerCase())) {
+    throw new ConflictException('新密码过于简单')
+  }
+}
+
 /* ── Service ── */
 
 @Injectable()
@@ -26,6 +45,7 @@ export class AuthService {
     refreshToken: string
     permCodes: string[]
     name: string
+    mustChangePassword: boolean
   }> {
     const account = (p.account ?? p.phone ?? '').trim()
     if (account === '' || typeof p.password !== 'string' || p.password === '') {
@@ -81,7 +101,52 @@ export class AuthService {
       storeId: user.storeId ?? undefined,
       permCodes,
       scope: 'ADMIN',
+      mustChangePassword: user.mustChangePassword,
     })
+  }
+
+  /**
+   * 修改密码(P0-1 首登必改落地):校验旧密 → 强度策略 → 更新哈希并清 mustChangePassword → 重签 token
+   * 策略:8-64 位、含字母与数字、不得与旧密相同、不在弱口令清单
+   */
+  async changePassword(
+    userId: number,
+    p: { oldPassword: string; newPassword: string },
+  ): Promise<{ accessToken: string; refreshToken: string; permCodes: string[]; name: string; mustChangePassword: boolean }> {
+    const user = await this.prisma.adminUser.findUnique({ where: { id: userId } })
+    if (user === null || user.status !== 1) {
+      throw new UnauthorizedException('账号不存在或已停用')
+    }
+    if (typeof p.oldPassword !== 'string' || !(await bcrypt.compare(p.oldPassword, user.passwordHash))) {
+      throw new UnauthorizedException('原密码错误')
+    }
+    assertPasswordPolicy(p.newPassword, p.oldPassword)
+    const passwordHash = await bcrypt.hash(p.newPassword, 10)
+    await this.prisma.adminUser.update({
+      where: { id: user.id },
+      data: { passwordHash, mustChangePassword: false, failedLoginCount: 0, lockedUntil: null },
+    })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId: user.storeId ?? 1,
+        actorId: user.id,
+        action: 'PASSWORD_CHANGED',
+        targetType: 'admin_user',
+        targetId: String(user.id),
+        afterJson: { mustChangePassword: false } as object,
+      },
+    })
+    const role = user.roleId ? await this.prisma.role.findUnique({ where: { id: user.roleId } }) : null
+    const permCodes = Array.isArray(role?.permCodes) ? (role?.permCodes as string[]) : []
+    const issued = await this.issue({
+      sub: user.id,
+      name: user.name,
+      storeId: user.storeId ?? undefined,
+      permCodes,
+      scope: 'ADMIN',
+      mustChangePassword: false,
+    })
+    return { ...issued, mustChangePassword: false }
   }
 
   /** 微信登录骨架:code 换 openid(凭据就绪后接通);未绑定返回 NEED_BIND */
@@ -186,6 +251,7 @@ export class AuthService {
     refreshToken: string
     permCodes: string[]
     name: string
+    mustChangePassword: boolean
   }> {
     const accessToken = await this.jwt.signAsync(payload, {
       secret: env().JWT_SECRET,
@@ -195,7 +261,13 @@ export class AuthService {
       { sub: payload.sub, typ: 'REFRESH' },
       { secret: env().JWT_REFRESH_SECRET, expiresIn: env().JWT_REFRESH_TTL },
     )
-    return { accessToken, refreshToken, permCodes: payload.permCodes, name: payload.name }
+    return {
+      accessToken,
+      refreshToken,
+      permCodes: payload.permCodes,
+      name: payload.name,
+      mustChangePassword: payload.mustChangePassword === true,
+    }
   }
 
   /** 微信 code2session(凭据就绪后接通;骨架返回确定性占位以支撑联调) */
@@ -256,6 +328,19 @@ export class AuthController {
   async me(@Req() req: Request): Promise<unknown> {
     const user = (req as Request & { user?: JwtPayload }).user
     return user ?? {}
+  }
+
+  /** 修改密码(管理端;首登必改时唯一放行的写接口)→ 返回新 token */
+  @Post('admin/change-password')
+  async changePassword(
+    @Req() req: Request,
+    @Body() body: { oldPassword: string; newPassword: string },
+  ): Promise<unknown> {
+    const user = (req as Request & { user?: JwtPayload }).user
+    if (user === undefined || user.scope !== 'ADMIN') {
+      throw new UnauthorizedException('仅管理端账号可修改密码')
+    }
+    return this.auth.changePassword(user.sub, body)
   }
 }
 

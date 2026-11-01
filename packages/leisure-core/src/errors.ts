@@ -20,6 +20,8 @@ export class LeisureError extends Error {
 export const ERR = {
   UNAUTHENTICATED: 40001,
   FORBIDDEN: 40301,
+  /** 首登必改密码:默认口令未改前,除改密/me 外管理端接口一律拒绝(P0-1) */
+  PASSWORD_CHANGE_REQUIRED: 40302,
   NOT_FOUND: 40401,
   BADGE_DUPLICATED: 40901,
   WECHAT_BOUND_ELSEWHERE: 40902,

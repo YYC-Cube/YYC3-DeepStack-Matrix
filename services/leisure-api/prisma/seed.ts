@@ -233,6 +233,28 @@ async function main() {
     console.log('[seed] 财务已创建: ' + financePhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
   }
 
+  // 测试账号(用户名登录;dev/演示用,密码固定 123456,每次 seed 重置;生产 seed 不得携带)
+  const testAccounts: Array<{ username: string; phone: string; name: string; roleId: number }> = [
+    { username: 'admin', phone: '13800000001', name: '测试管理员 admin', roleId: role.id },
+    { username: 'china', phone: '13800000002', name: '测试账号 china', roleId: role.id },
+  ]
+  for (const t of testAccounts) {
+    const passwordHash = await bcrypt.hash('123456', 10)
+    await prisma.adminUser.upsert({
+      where: { username: t.username },
+      update: { passwordHash, roleId: t.roleId, status: 1, failedLoginCount: 0, lockedUntil: null },
+      create: {
+        storeId: store.id,
+        name: t.name,
+        phone: t.phone,
+        username: t.username,
+        passwordHash,
+        roleId: t.roleId,
+      },
+    })
+  }
+  console.log('[seed] 测试账号就绪: admin / china(密码 123456,管理员角色)')
+
   console.log('[seed] 完成: store=' + store.name + ' roomTypes=' + roomTypes.length + ' rooms=' + String(roomSamples.reduce((n, s) => n + s.count, 0)) + ' level=技师 group=江海龙 artists=3 storeConfig=8项')
 }
 

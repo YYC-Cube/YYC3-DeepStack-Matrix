@@ -1,5 +1,5 @@
 /**
- * 登录页:手机号+密码 → JWT(后端连错 5 次锁 15 分钟)
+ * 登录页:账号(用户名或手机号)+密码 → JWT(后端连错 5 次锁 15 分钟)
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -12,13 +12,13 @@ export default function Login() {
   const navigate = useNavigate()
   const login = useAuthStore((s) => s.login)
   const token = useAuthStore((s) => s.token)
-  const [phone, setPhone] = useState('13103790379')
+  const [account, setAccount] = useState('admin')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
 
   async function submit(): Promise<void> {
-    if (phone === '' || password === '') {
-      toast.error('请输入手机号与密码')
+    if (account.trim() === '' || password === '') {
+      toast.error('请输入账号与密码')
       return
     }
     setBusy(true)
@@ -26,7 +26,7 @@ export default function Login() {
       const r = await fetch('/api/v1/auth/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
+        body: JSON.stringify({ account: account.trim(), password }),
       })
       const json = (await r.json()) as { code: number; msg: string; data?: { accessToken: string; name: string; permCodes: string[] } }
       if (json.code !== 0 || json.data === undefined) {
@@ -59,8 +59,8 @@ export default function Login() {
           <p className="text-xs text-[#8b9bb4] mt-1">艺人管理系统 · Web 管理端</p>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-[#8b9bb4]">手机号</label>
-          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="手机号" />
+          <label className="text-xs text-[#8b9bb4]">账号(用户名或手机号)</label>
+          <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder="admin / china / 手机号" autoComplete="username" />
         </div>
         <div className="flex flex-col gap-2">
           <label className="text-xs text-[#8b9bb4]">密码</label>

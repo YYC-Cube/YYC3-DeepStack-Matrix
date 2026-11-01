@@ -20,17 +20,24 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  /** 管理端登录(手机号+密码);连错5次锁15分钟(库计数,Redis 增强位阶段3接) */
-  async adminLogin(p: { phone: string; password: string }): Promise<{
+  /** 管理端登录(账号=用户名或手机号 + 密码);连错5次锁15分钟(库计数,Redis 增强位阶段3接) */
+  async adminLogin(p: { account?: string; phone?: string; password: string }): Promise<{
     accessToken: string
     refreshToken: string
     permCodes: string[]
     name: string
   }> {
-    const user = await this.prisma.adminUser.findUnique({ where: { phone: p.phone } })
+    const account = (p.account ?? p.phone ?? '').trim()
+    if (account === '' || typeof p.password !== 'string' || p.password === '') {
+      throw new UnauthorizedException('账号或密码错误')
+    }
+    // 纯数字按手机号,否则按用户名(两者均唯一)
+    const user = /^\d{6,20}$/.test(account)
+      ? await this.prisma.adminUser.findUnique({ where: { phone: account } })
+      : await this.prisma.adminUser.findUnique({ where: { username: account } })
     if (user === null) {
       // 不存在账号与密码错误同文案,不给枚举探测面
-      throw new UnauthorizedException('手机号或密码错误')
+      throw new UnauthorizedException('账号或密码错误')
     }
     if (user.status !== 1) {
       throw new UnauthorizedException('账号已停用')
@@ -55,7 +62,7 @@ export class AuthService {
           data: { failedLoginCount: failed },
         })
       }
-      throw new UnauthorizedException('手机号或密码错误')
+      throw new UnauthorizedException('账号或密码错误')
     }
     // 成功即复位
     if (user.failedLoginCount !== 0 || user.lockedUntil !== null) {
@@ -225,7 +232,7 @@ export class AuthController {
   @Public()
   @Post('admin/login')
   async adminLogin(
-    @Body() body: { phone: string; password: string },
+    @Body() body: { account?: string; phone?: string; password: string },
   ): Promise<unknown> {
     return this.auth.adminLogin(body)
   }

@@ -521,6 +521,8 @@ model AdminUser {
   storeId      Int?     @map("store_id")
   name         String   @db.VarChar(64)
   phone        String   @db.VarChar(20) @unique
+  // 登录用户名(测试/非手机号账号;可空唯一)
+  username     String?  @unique @db.VarChar(32)
   passwordHash String   @map("password_hash") @db.VarChar(128)
   roleId       Int?     @map("role_id")
   status       Int      @default(1)

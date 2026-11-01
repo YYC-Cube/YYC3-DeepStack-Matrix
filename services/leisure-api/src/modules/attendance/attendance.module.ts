@@ -22,6 +22,7 @@ import {
   REPORT_TYPES,
   type ReportType,
 } from '@yyc3/leisure-core'
+import { createHmac } from 'node:crypto'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
@@ -297,7 +298,7 @@ export class AttendanceService {
   }
 
   /**
-   * 报备现场屏签到码(05 文档 A15):场景值 = storeId + 营业日 + 60s 时间窗
+   * 报备现场屏签到码(05 文档 A15):场景值 = storeId + 营业日 + 60s 时间窗 + HMAC 签名
    * 带参小程序码真图依赖 WX_APPID/WX_SECRET(阶段5);未配置时返回 PENDING_CREDENTIALS,
    * 前端展示 scene 协议与占位说明。定时刷新(60s 窗口)即「防截屏」语义的实现载体。
    */
@@ -313,7 +314,8 @@ export class AttendanceService {
     const businessDate = resolveBusinessDate(now, { cutTime: cut })
     // 60s 时间窗:跨窗刷新 → 现场屏二维码周期性变化(防截屏滥用)
     const window = Math.floor(now.getTime() / 60_000)
-    const scene = 'lm.checkin|s=' + String(storeId) + '|bd=' + businessDate + '|w=' + String(window)
+    const scene =
+      'lm.checkin|s=' + String(storeId) + '|bd=' + businessDate + '|w=' + String(window) + '|sig=' + this.sceneSig(storeId, businessDate, window)
     const wxReady = env().WX_APPID !== undefined && env().WX_APPID !== '' && env().WX_SECRET !== undefined && env().WX_SECRET !== ''
     return {
       scene,
@@ -323,6 +325,47 @@ export class AttendanceService {
       // 阶段5:调微信 getwxacodeunlimit 生成带参小程序码,base64 写入此字段
       qrcodeImage: null,
     }
+  }
+
+  /** scene HMAC 签名(前 8 位十六进制;防伪造扫码,扩展方案①落地) */
+  private sceneSig(storeId: number, businessDate: string, window: number): string {
+    return createHmac('sha256', env().SCENE_HMAC_KEY)
+      .update('lm.checkin|s=' + String(storeId) + '|bd=' + businessDate + '|w=' + String(window))
+      .digest('hex')
+      .slice(0, 8)
+  }
+
+  /** scene 校验(B2 扫码后调用):签名正确 + 时间窗 ±2 分钟容差 + 营业日一致 */
+  verifyScene(scene: string): { valid: boolean; storeId?: number; businessDate?: string; reason?: string } {
+    const parts = scene.split('|')
+    const get = (k: string): string | undefined => parts.find((p) => p.startsWith(k + '='))?.slice(k.length + 1)
+    const s = Number(get('s'))
+    const bd = get('bd')
+    const w = Number(get('w'))
+    const sig = get('sig')
+    if (!Number.isInteger(s) || s <= 0 || bd === undefined || !/^\d{4}-\d{2}-\d{2}$/.test(bd) || !Number.isInteger(w) || sig === undefined) {
+      return { valid: false, reason: 'scene 格式非法' }
+    }
+    const expect = this.sceneSig(s, bd, w)
+    if (sig !== expect) {
+      return { valid: false, storeId: s, businessDate: bd, reason: 'scene 签名不匹配' }
+    }
+    const now = Math.floor(Date.now() / 60_000)
+    if (Math.abs(now - w) > 2) {
+      return { valid: false, storeId: s, businessDate: bd, reason: 'scene 已过期,请扫现场屏最新码' }
+    }
+    return { valid: true, storeId: s, businessDate: bd }
+  }
+
+  /** 艺人端:今日最新报备(B2 状态卡;scope=ARTIST,仅本人) */
+  async myToday(artistId: number, storeId: number): Promise<{ businessDate: string; report: unknown | null }> {
+    const cut = await this.storeCut(storeId)
+    const businessDate = resolveBusinessDate(new Date(), { cutTime: cut })
+    const report = await this.prisma.attendanceReport.findFirst({
+      where: { storeId, artistId, businessDate: new Date(businessDate) },
+      orderBy: { reportTime: 'desc' },
+    })
+    return { businessDate, report }
   }
 
   /** 实时看板(阶段2:考勤态 + session 上钟/串台;DB 推导,Redis 承载为 II 期) */
@@ -490,12 +533,29 @@ export class AttendanceController {
     })
   }
 
-  /** 报备现场屏签到码(A15;scene 60s 轮换) */
+  /** 报备现场屏签到码(A15;scene 60s 轮换 + HMAC 签名) */
   @RequirePerm('attend:qrcode')
   @Get('qrcode')
   async qrcode(@Req() req: Request): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.qrcode(user?.storeId ?? 1)
+  }
+
+  /** scene 校验(B2 扫码后;管理端或艺人端均可调用) */
+  @Get('qrcode/verify')
+  async verifyScene(@Req() req: Request, @Query('scene') scene: string): Promise<unknown> {
+    void (req as ReqWithUser).user
+    return this.svc.verifyScene(scene ?? '')
+  }
+
+  /** 艺人端:今日最新报备(仅本人;B2 状态卡) */
+  @Get('my-today')
+  async myToday(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    if (user === undefined || user.scope !== 'ARTIST') {
+      throw new UnauthorizedException('仅艺人端可查询本人报备')
+    }
+    return this.svc.myToday(user.sub, user.storeId ?? 1)
   }
 }
 

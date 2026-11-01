@@ -1,0 +1,52 @@
+{
+  "name": "@yyc3/app-mp-artist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YYC³ LeisureManage 艺人端小程序(Taro4 + React + TS)· 领域逻辑 import @yyc3/leisure-core",
+  "author": "YanYuCloudCube Team <admin@0379.email>",
+  "license": "MIT",
+  "templateInfo": {
+    "name": "default",
+    "typescript": true,
+    "css": "none",
+    "framework": "React"
+  },
+  "scripts": {
+    "build:weapp": "taro build --type weapp",
+    "dev:weapp": "npm run build:weapp -- --watch",
+    "build:h5": "taro build --type h5",
+    "dev:h5": "npm run build:h5 -- --watch"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.24.4",
+    "@tarojs/components": "4.1.7",
+    "@tarojs/helper": "4.1.7",
+    "@tarojs/plugin-framework-react": "4.1.7",
+    "@tarojs/plugin-platform-h5": "4.1.7",
+    "@tarojs/plugin-platform-weapp": "4.1.7",
+    "@tarojs/react": "4.1.7",
+    "@tarojs/runtime": "4.1.7",
+    "@tarojs/shared": "4.1.7",
+    "@tarojs/taro": "4.1.7",
+    "@yyc3/leisure-core": "file:../../packages/leisure-core",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-react": "^7.29.7",
+    "@tarojs/cli": "4.1.7",
+    "@tarojs/webpack5-runner": "4.1.7",
+    "@types/react": "^18.3.3",
+    "@types/webpack-env": "^1.13.6",
+    "babel-preset-taro": "4.1.7",
+    "postcss": "^8.4.38",
+    "typescript": "^5.9.3",
+    "webpack": "^5.91.0"
+  }
+}

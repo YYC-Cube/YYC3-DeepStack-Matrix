@@ -22,6 +22,8 @@ const EnvSchema = z.object({
   BILL_ROUNDING_MINUTES: z.coerce.number().int().min(0).max(59).default(15),
   // 开放 API 生态预留开关(2026-11-01 v1.1 裁决:原 INTEGRATION_ENABLED 主系统联动废止)
   OPENAPI_ENABLED: z.enum(['true', 'false']).default('false'),
+  // 现场屏 scene 签名密钥(HMAC-SHA256,防伪造;生产必须替换强随机)
+  SCENE_HMAC_KEY: z.string().default('dev-only-scene-key-change-me'),
   WX_APPID: z.string().optional(),
   WX_SECRET: z.string().optional(),
 })

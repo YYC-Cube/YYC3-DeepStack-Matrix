@@ -33,6 +33,7 @@ import {
   Min,
 } from 'class-validator'
 import type { Request } from 'express'
+import { UnauthorizedException } from '@nestjs/common'
 import {
   ERR,
   LeisureError,
@@ -315,6 +316,31 @@ export class StageFeeService {
     return sumFeeBalance(txns.map((t) => ({ amount: Number(t.amount) })))
   }
 
+  /** 艺人端:本人余额+流水(B4 我的流水;scope=ARTIST,强制本人,防水平越权) */
+  async my(artistId: number, q: { businessDateFrom: string; businessDateTo: string }): Promise<{
+    balance: number
+    rows: Array<{ id: number; type: string; amount: string; remark: string | null; refType: string | null; createdAt: Date }>
+  }> {
+    const where = {
+      artistId,
+      businessDate: { gte: new Date(q.businessDateFrom), lte: new Date(q.businessDateTo) },
+    }
+    const [rows, balance] = await Promise.all([
+      this.prisma.stageFeeTxn.findMany({
+        where,
+        orderBy: { id: 'desc' },
+        take: 100,
+        select: { id: true, type: true, amount: true, remark: true, refType: true, createdAt: true },
+      }),
+      this.balanceOf(artistId),
+    ])
+    // Decimal 序列化为字符串(与全局 Decimal→string 口径一致)
+    return {
+      balance,
+      rows: rows.map((r) => ({ ...r, amount: String(r.amount) })),
+    }
+  }
+
   async balance(artistId: number): Promise<{ balance: number }> {
     return { balance: await this.balanceOf(artistId) }
   }
@@ -479,6 +505,20 @@ export class StageFeeController {
   @Get('balance/:artistId')
   async balance(@Req() req: Request, @Param('artistId', ParseIntPipe) artistId: number): Promise<unknown> {
     return this.svc.balance(artistId)
+  }
+
+  /** 艺人端:本人余额+流水(B4;scope=ARTIST) */
+  @Get('my')
+  async my(
+    @Req() req: Request,
+    @Query('businessDateFrom') businessDateFrom: string,
+    @Query('businessDateTo') businessDateTo: string,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    if (user === undefined || user.scope !== 'ARTIST') {
+      throw new UnauthorizedException('仅艺人端可查询本人流水')
+    }
+    return this.svc.my(user.sub, { businessDateFrom, businessDateTo })
   }
 
   @RequirePerm('fee:manual')

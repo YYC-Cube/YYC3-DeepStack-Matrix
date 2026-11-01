@@ -46,6 +46,10 @@ const SettingsArtistPage = sus(lazy(() => import('@/pages/settings-artist')))
 const RoomsPage = sus(lazy(() => import('@/pages/rooms')))
 const ReportCenterPage = sus(lazy(() => import('@/pages/report-center')))
 const TodoPage = sus(lazy(() => import('@/pages/placeholder')))
+const BoardPage = sus(lazy(() => import('@/pages/board')))
+const ClockScreenPage = sus(lazy(() => import('@/pages/clock-screen')))
+const ReconPage = sus(lazy(() => import('@/pages/recon')))
+const PricingPage = sus(lazy(() => import('@/pages/pricing')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -77,6 +81,10 @@ export const router = createHashRouter([
       // 设置域
       { path: 'settings/artist', element: <SettingsArtistPage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
+      { path: 'rooms/board', element: <BoardPage /> },
+      { path: 'clock-screen', element: <ClockScreenPage /> },
+      { path: 'reports/recon', element: <ReconPage /> },
+      { path: 'fees/pricing', element: <PricingPage /> },
       { path: 'reports', element: <ReportCenterPage /> },
       // II 期/IV 期占位
       { path: 'todo/:key', element: <TodoPage /> },

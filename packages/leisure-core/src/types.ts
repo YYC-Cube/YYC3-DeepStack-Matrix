@@ -372,6 +372,20 @@ export interface SelfOrder {
   settledAt?: string
 }
 
+/** 叫钟队列(P0-1 大屏语音叫钟) */
+export interface RoomCall {
+  id: number
+  storeId: number
+  businessDate: string
+  roomId: number
+  roomNo: string
+  artistId: number
+  stageName: string
+  status: 'QUEUED' | 'CALLED' | 'ACCEPTED' | 'DONE' | 'CANCELLED'
+  calledAt?: string
+  voiceText?: string
+}
+
 /** 自点单商品目录 */
 export interface Goods {
   id: number

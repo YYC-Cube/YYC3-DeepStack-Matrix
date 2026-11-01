@@ -22,6 +22,7 @@ import type {
   RealtimeStatus,
   RoomSession,
   SelfOrder,
+  RoomCall,
 } from './types.js'
 
 /* ───────────────────────── 传输层抽象 ───────────────────────── */
@@ -280,6 +281,16 @@ export class LeisureApiClient {
       this.get<{ rows: Array<{ id: number; name: string; category?: string; unit?: string; salePrice: number }> }>('/goods', q),
     create: (p: { name: string; category?: string; unit?: string; salePrice: number; onSale?: boolean }) =>
       this.post<{ id: number }>('/goods', p),
+  }
+
+  /* ── P0-1 叫钟队列 ── */
+  calls = {
+    create: (p: { roomId: number; artistId: number }) =>
+      this.post<{ callId: number; voiceText: string }>('/room-calls', p),
+    list: (q: { businessDate: string; status?: string }) =>
+      this.get<{ rows: RoomCall[]; total: number }>('/room-calls', q),
+    setStatus: (id: number, status: 'CALLED' | 'ACCEPTED' | 'DONE' | 'CANCELLED') =>
+      this.post<{ ok: true }>('/room-calls/' + String(id) + '/status', { status }),
   }
 
   /* ── 档案 ── */

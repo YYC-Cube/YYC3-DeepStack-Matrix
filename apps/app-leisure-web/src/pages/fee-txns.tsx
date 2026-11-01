@@ -28,7 +28,7 @@ interface TxnRow {
 export default function FeeTxnsPage() {
   const params = useParams()
   const navigate = useNavigate()
-  const type = (params.type ?? 'RECHARGE') as 'RECHARGE' | 'SESSION_DEDUCT' | 'MANUAL_DEDUCT'
+  const type = (params.type ?? 'RECHARGE') as 'RECHARGE' | 'ROOM_SETTLE' | 'MANUAL_DEDUCT'
   const [rows, setRows] = useState<TxnRow[]>()
   const [total, setTotal] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -85,7 +85,7 @@ export default function FeeTxnsPage() {
       ),
     },
     ...(type === 'RECHARGE' ? [{ key: 'payChannel', header: '渠道', render: (r: TxnRow) => (r.payChannel === 'CASH' ? '现金' : (r.payChannel ?? '—')) }] : []),
-    ...(type === 'SESSION_DEDUCT' ? [{ key: 'ref', header: '关联场次', render: (r: TxnRow) => (r.refId !== null ? '#' + String(r.refId) : '—') }] : []),
+    ...(type === 'ROOM_SETTLE' ? [{ key: 'ref', header: '关联场次', render: (r: TxnRow) => (r.refId !== null ? '#' + String(r.refId) : '—') }] : []),
     { key: 'remark', header: '备注', render: (r) => r.remark ?? '—' },
     { key: 'approval', header: '审批单', render: (r) => (r.approvalId !== null ? '#' + String(r.approvalId) : '—') },
     { key: 'createdAt', header: '时间', render: (r) => fmtTime(r.createdAt) },
@@ -117,7 +117,7 @@ export default function FeeTxnsPage() {
         desc="流水只增不改;更正走冲正(反向流水关联原单);余额 = Σ流水"
         actions={
           <div className="flex gap-1">
-            {(['RECHARGE', 'SESSION_DEDUCT', 'MANUAL_DEDUCT'] as const).map((t) => (
+            {(['RECHARGE', 'ROOM_SETTLE', 'MANUAL_DEDUCT'] as const).map((t) => (
               <Button key={t} variant={t === type ? 'default' : 'outline'} size="sm" onClick={() => navigate('/fees/txns/' + t)}>
                 {TXN_TYPE_LABEL[t]}
               </Button>

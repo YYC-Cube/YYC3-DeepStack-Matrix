@@ -48,6 +48,8 @@ export const MENU: MenuGroup[] = [
     items: [
       { key: 'a19', label: '实时状态看板', path: '/attendance/realtime', perm: 'attend:summary:view' },
       { key: 'a20', label: '艺人上下钟', path: '/sessions', perm: 'session:view' },
+      { key: 'board', label: '房态看板(方案甲)', path: '/rooms/board', perm: 'session:view' },
+      { key: 'clock', label: '钟房大屏(语音叫钟)', path: '/clock-screen', perm: 'session:view' },
       { key: 'a16', label: '报备明细', path: '/attendance/reports', perm: 'attend:ledger:view' },
       { key: 'a17', label: '报备汇总', path: '/attendance/summary', perm: 'attend:summary:view' },
       { key: 'a18', label: '补打卡', path: '/attendance/manual', perm: 'attend:manual' },
@@ -59,10 +61,11 @@ export const MENU: MenuGroup[] = [
     icon: CreditCard,
     items: [
       { key: 'a5', label: '台费规则', path: '/fees/rules', perm: 'feerule:manage' },
+      { key: 'pricing', label: '时段差异化定价', path: '/fees/pricing', perm: 'feerule:manage' },
       { key: 'a7', label: '台费充值', path: '/fees/recharge', perm: 'fee:recharge' },
       { key: 'a8', label: '手动扣费', path: '/fees/deduct', perm: 'fee:manual' },
       { key: 'a9', label: '充值记录', path: '/fees/txns/RECHARGE', perm: 'fee:ledger:view' },
-      { key: 'a10', label: '扣费记录', path: '/fees/txns/SESSION_DEDUCT', perm: 'fee:ledger:view' },
+      { key: 'a10', label: '扣费记录', path: '/fees/txns/ROOM_SETTLE', perm: 'fee:ledger:view' },
       { key: 'a11', label: '手动扣费记录', path: '/fees/txns/MANUAL_DEDUCT', perm: 'fee:ledger:view' },
     ],
   },
@@ -81,6 +84,7 @@ export const MENU: MenuGroup[] = [
     icon: BarChart3,
     items: [
       { key: 'a25', label: '报表中心(7 张)', path: '/reports', perm: 'fee:ledger:view' },
+      { key: 'recon', label: '双轨对账(P0 门禁)', path: '/reports/recon', perm: 'report:export' },
     ],
   },
   {

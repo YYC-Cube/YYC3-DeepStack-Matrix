@@ -234,6 +234,19 @@ export interface StoreArtistSettings {
   stageAssignMode: StageAssignMode
 }
 
+/** ① 资料必填项可选字段清单(门店在「艺人设置」勾选;后端新增/编辑按此校验)——四端同源 */
+export const ARTIST_PROFILE_FIELDS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: 'realName', label: '姓名' },
+  { key: 'stageName', label: '艺名' },
+  { key: 'phone', label: '手机号' },
+  { key: 'gender', label: '性别' },
+  { key: 'badgeNo', label: '腰牌号' },
+  { key: 'groupId', label: '组别' },
+  { key: 'levelId', label: '等级' },
+  { key: 'supervisorName', label: '主管' },
+  { key: 'hourlyRate', label: '计时单价' },
+]
+
 /* ───────────────────────── 资金流水(只增不改) ───────────────────────── */
 
 /** 台费流水类型(方案甲裁决 2026-11-01):

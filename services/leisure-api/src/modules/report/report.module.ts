@@ -52,15 +52,18 @@ export async function computeSelfMetrics(prisma: PrismaService, storeId: number,
       where: { storeId, businessDate: bd },
       _sum: { orderTotal: true },
     }),
-    prisma.attendanceReport.count({
-      where: { storeId, businessDate: bd, type: 'CHECKIN' },
+    // 签到人数:已通过审核的 CHECKIN 去重艺人数(与对侧「签到(人)」口径一致;补打卡重复行不重复计)
+    prisma.attendanceReport.findMany({
+      where: { storeId, businessDate: bd, type: 'CHECKIN', reviewStatus: 'APPROVED' },
+      distinct: ['artistId'],
+      select: { artistId: true },
     }),
   ])
   return {
     openCount: rs._count._all,
     roomFee: round2(Number(rs._sum.roomFee ?? 0)),
     orderTotal: round2(Number(orders._sum.orderTotal ?? 0)),
-    checkedIn: checkin,
+    checkedIn: checkin.length,
   }
 }
 

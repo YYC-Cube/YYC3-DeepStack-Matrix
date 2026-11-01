@@ -32,8 +32,24 @@ import {
   Min,
 } from 'class-validator'
 import { PrismaService } from '../../prisma/prisma.service.js'
-import { ERR, LeisureError } from '@yyc3/leisure-core'
+import { ARTIST_PROFILE_FIELDS, ERR, LeisureError } from '@yyc3/leisure-core'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { StoreConfigService } from '../store-config/store-config.module.js'
+
+/** ① 资料必填项(艺人设置):按门店配置校验 body 中各字段非空;返回缺失字段中文名 */
+function assertRequiredProfileFields(required: string[], body: Record<string, unknown>): void {
+  const missing: string[] = []
+  for (const key of required) {
+    const meta = ARTIST_PROFILE_FIELDS.find((f) => f.key === key)
+    if (meta === undefined) continue // 配置了未知字段名,忽略(不阻断业务)
+    const v = body[key]
+    const empty = v === undefined || v === null || (typeof v === 'string' && v.trim() === '')
+    if (empty) missing.push(meta.label)
+  }
+  if (missing.length > 0) {
+    throw new BadRequestException('资料必填项缺失: ' + missing.join('、'))
+  }
+}
 
 interface ArtistCreateBody {
   // storeId 不在契约内:svc.create 以独立入参接收(控制器做 body→用户默认店兜底)
@@ -151,7 +167,10 @@ class ArtistAuditDto {
 
 @Injectable()
 export class ArtistService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storeConfig: StoreConfigService,
+  ) {}
 
   async list(q: {
     storeId: number
@@ -174,9 +193,10 @@ export class ArtistService {
       OR:
         q.keyword !== undefined && q.keyword !== ''
           ? [
-              { realName: { contains: q.keyword } },
-              { stageName: { contains: q.keyword } },
-              { badgeNo: { contains: q.keyword } },
+              // PostgreSQL contains 默认大小写敏感;腰牌/手机号按不敏感匹配
+              { realName: { contains: q.keyword, mode: 'insensitive' as const } },
+              { stageName: { contains: q.keyword, mode: 'insensitive' as const } },
+              { badgeNo: { contains: q.keyword, mode: 'insensitive' as const } },
               { phone: { contains: q.keyword } },
             ]
           : undefined,
@@ -202,6 +222,9 @@ export class ArtistService {
     if (body.realName === undefined || body.realName === '') {
       throw new BadRequestException('realName 必填')
     }
+    // ① 资料必填项(门店配置;艺人设置①)——后台新增按配置校验
+    const settings = await this.storeConfig.getArtistSettings(storeId)
+    assertRequiredProfileFields(settings.requiredProfileFields, body as unknown as Record<string, unknown>)
     if (body.badgeNo !== undefined && body.badgeNo !== '') {
       // 腰牌号店内唯一含软删档案(uk_badge 唯一索引不滤 deleted_at):
       // 查重若滤软删,删除后同号重建会直撞 DB 唯一键(500);此处统一 40901
@@ -441,6 +464,6 @@ export class ArtistController {
 
 @Module({
   controllers: [ArtistController],
-  providers: [ArtistService, PrismaService],
+  providers: [ArtistService, PrismaService, StoreConfigService],
 })
 export class ArtistModule {}

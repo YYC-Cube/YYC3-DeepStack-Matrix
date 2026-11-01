@@ -9,6 +9,8 @@ import {
   Injectable,
   Module,
   NotFoundException,
+  Param,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -28,6 +30,7 @@ import { createHmac } from 'node:crypto'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { StoreConfigService } from '../store-config/store-config.module.js'
 
 const VALID_REPORT_TYPES = REPORT_TYPES.map((t) => t.code) as string[]
 
@@ -35,9 +38,26 @@ function isReportType(v: string): v is ReportType {
   return VALID_REPORT_TYPES.includes(v)
 }
 
+/** 报备开放时段(艺人设置②):HH:mm 窗口,支持跨零点(如 18:00~04:00);任一端为空=全天 */
+function withinOpenWindow(now: Date, from?: string, to?: string): boolean {
+  if (from === undefined || from === '' || to === undefined || to === '') return true
+  const toMin = (s: string): number => {
+    const [h, m] = s.split(':').map((x) => Number(x))
+    return (h ?? 0) * 60 + (m ?? 0)
+  }
+  const cur = now.getHours() * 60 + now.getMinutes()
+  const a = toMin(from)
+  const b = toMin(to)
+  if (a === b) return true
+  return a < b ? cur >= a && cur <= b : cur >= a || cur <= b
+}
+
 @Injectable()
 export class AttendanceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storeConfig: StoreConfigService,
+  ) {}
 
   /** 营业日切口径:门店级 business_day_cut_time 优先(铁律 3),env 为兜底 */
   private async storeCut(storeId: number): Promise<string> {
@@ -81,6 +101,13 @@ export class AttendanceService {
     if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
       throw new NotFoundException('艺人不存在或已停用')
     }
+    // 艺人设置②:报备开放时段 + 是否需主管审核
+    const settings = await this.storeConfig.getArtistSettings(ctx.storeId)
+    if (!withinOpenWindow(now, settings.reportOpenFrom, settings.reportOpenTo)) {
+      throw new ConflictException(
+        '不在报备开放时段(' + String(settings.reportOpenFrom) + '~' + String(settings.reportOpenTo) + ')',
+      )
+    }
     const geoOk = p.lat !== undefined && p.lng !== undefined
     const created = await this.prisma.attendanceReport.create({
       data: {
@@ -95,6 +122,7 @@ export class AttendanceService {
         checkinLng: p.lng,
         checkinGeoOk: geoOk,
         source: 0,
+        reviewStatus: settings.reportRequireReview ? 'PENDING' : 'APPROVED',
       },
     })
     return { reportId: created.id, businessDate }
@@ -154,6 +182,7 @@ export class AttendanceService {
     businessDate: string
     groupId?: number
     type?: string
+    reviewStatus?: string
     keyword?: string
     page?: number
     pageSize?: number
@@ -165,6 +194,7 @@ export class AttendanceService {
       businessDate: new Date(q.businessDate),
       groupId: q.groupId,
       type: q.type,
+      ...(q.reviewStatus !== undefined && q.reviewStatus !== '' ? { reviewStatus: q.reviewStatus } : {}),
     }
     const [rows, total] = await Promise.all([
       this.prisma.attendanceReport.findMany({
@@ -186,7 +216,8 @@ export class AttendanceService {
   }): Promise<{ rows: unknown[] }> {
     const rows = await this.prisma.attendanceReport.groupBy({
       by: ['groupId', 'supervisorName', 'type'],
-      where: { storeId: q.storeId, businessDate: new Date(q.businessDate) },
+      // 汇总仅计已通过审核(门店未开审核时全部为 APPROVED,口径不变)
+      where: { storeId: q.storeId, businessDate: new Date(q.businessDate), reviewStatus: 'APPROVED' },
       _count: { _all: true },
     })
     const artists = await this.prisma.artist.findMany({
@@ -283,9 +314,12 @@ export class AttendanceService {
     if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
       throw new NotFoundException('艺人不存在或已停用')
     }
+    const storeId = artist?.storeId ?? operator.storeId ?? 1
+    // 补打卡与自助报备同流:门店开启主管审核时进入 PENDING
+    const settings = await this.storeConfig.getArtistSettings(storeId)
     const created = await this.prisma.attendanceReport.create({
       data: {
-        storeId: artist?.storeId ?? operator.storeId ?? 1,
+        storeId,
         businessDate: new Date(p.businessDate),
         artistId: p.artistId,
         groupId: artist?.groupId ?? null,
@@ -295,9 +329,41 @@ export class AttendanceService {
         source: 1,
         operatorId: operator.sub,
         remark: p.reason,
+        reviewStatus: settings.reportRequireReview ? 'PENDING' : 'APPROVED',
       },
     })
     return { reportId: created.id }
+  }
+
+  /** 报备审核(艺人设置②):PENDING → APPROVED/REJECTED;终态不可再改;审计留痕 */
+  async review(
+    id: number,
+    decision: 'APPROVED' | 'REJECTED',
+    operator: { sub: number; storeId?: number },
+  ): Promise<{ reviewStatus: string }> {
+    const report = await this.prisma.attendanceReport.findUnique({ where: { id } })
+    if (report === null || (operator.storeId !== undefined && report.storeId !== operator.storeId)) {
+      throw new NotFoundException('报备记录不存在')
+    }
+    if (report.reviewStatus !== 'PENDING') {
+      throw new ConflictException('该报备已审核,不可重复操作')
+    }
+    const updated = await this.prisma.attendanceReport.update({
+      where: { id },
+      data: { reviewStatus: decision, reviewedBy: operator.sub, reviewedAt: new Date() },
+    })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId: report.storeId,
+        actorId: operator.sub,
+        action: 'ATTENDANCE_REVIEW',
+        targetType: 'attendance_report',
+        targetId: String(id),
+        beforeJson: { reviewStatus: 'PENDING' } as object,
+        afterJson: { reviewStatus: decision } as object,
+      },
+    })
+    return { reviewStatus: updated.reviewStatus }
   }
 
   /**
@@ -407,7 +473,8 @@ export class AttendanceService {
         badgeNo: true,
         groupId: true,
         reports: {
-          where: { businessDate: today },
+          // 实时态仅认已通过审核的报备(PENDING 不计签到)
+          where: { businessDate: today, reviewStatus: 'APPROVED' },
           select: { type: true, checkoutTime: true },
         },
       },
@@ -482,6 +549,7 @@ export class AttendanceController {
     @Query('businessDate') businessDate: string,
     @Query('groupId') groupId?: string,
     @Query('type') type?: string,
+    @Query('reviewStatus') reviewStatus?: string,
     @Query('keyword') keyword?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
@@ -492,10 +560,26 @@ export class AttendanceController {
       businessDate,
       groupId: groupId !== undefined ? Number(groupId) : undefined,
       type,
+      reviewStatus,
       keyword,
       page: page !== undefined ? Number(page) : undefined,
       pageSize: pageSize !== undefined ? Number(pageSize) : undefined,
     })
+  }
+
+  /** 报备审核(艺人设置②;主管/前台 attend:manual):PENDING → APPROVED/REJECTED */
+  @RequirePerm('attend:manual')
+  @Post('reports/:id/review')
+  async review(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { decision: 'APPROVED' | 'REJECTED' },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    if (body.decision !== 'APPROVED' && body.decision !== 'REJECTED') {
+      throw new ConflictException('decision 须为 APPROVED 或 REJECTED')
+    }
+    return this.svc.review(id, body.decision, { sub: user?.sub ?? 0, storeId: user?.storeId })
   }
 
   @RequirePerm('attend:summary:view')
@@ -564,6 +648,6 @@ export class AttendanceController {
 
 @Module({
   controllers: [AttendanceController],
-  providers: [AttendanceService, PrismaService],
+  providers: [AttendanceService, PrismaService, StoreConfigService],
 })
 export class AttendanceModule {}

@@ -5,12 +5,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Checkbox, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
+import { ARTIST_PROFILE_FIELDS } from '@yyc3/leisure-core'
 import { req, toastError } from '@/lib/api'
 import { PageHeader, SelectBox } from '@/components/kit'
 
 interface SettingsView {
   requiredProfileFields: string[]
   reportRequireReview: boolean
+  reportOpenFrom?: string
+  reportOpenTo?: string
   checkoutMinMinutes: number
   allowSelfScanFinish: boolean
   allowStageWithoutCheckin: boolean
@@ -66,6 +69,7 @@ export default function SettingsArtistPage() {
     setBusy(true)
     try {
       await req('PUT', '/store-config/artist-settings', {
+        requiredProfileFields: s.requiredProfileFields,
         checkoutMinMinutes: s.checkoutMinMinutes,
         allowSelfScanFinish: s.allowSelfScanFinish,
         allowStageWithoutCheckin: s.allowStageWithoutCheckin,
@@ -75,7 +79,11 @@ export default function SettingsArtistPage() {
             ? { maxPerDay: s.ticketPurchaseMaxPerDay }
             : {}),
         },
-        reportSettings: { requireReview: s.reportRequireReview },
+        reportSettings: {
+          requireReview: s.reportRequireReview,
+          ...(s.reportOpenFrom !== undefined && s.reportOpenFrom !== '' ? { openFrom: s.reportOpenFrom } : {}),
+          ...(s.reportOpenTo !== undefined && s.reportOpenTo !== '' ? { openTo: s.reportOpenTo } : {}),
+        },
         roomBilling: s.roomBilling,
         stageAssignMode: s.stageAssignMode,
       })
@@ -103,6 +111,29 @@ export default function SettingsArtistPage() {
         }
       />
       <div className="grid grid-cols-2 gap-4 max-w-4xl">
+        <Card className="p-4 flex flex-col gap-3">
+          <p className="text-sm text-[#00d4ff]">① 资料必填项(后台新增艺人按此校验)</p>
+          <div className="grid grid-cols-3 gap-2">
+            {ARTIST_PROFILE_FIELDS.map((f) => (
+              <label key={f.key} className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+                <Checkbox
+                  checked={s.requiredProfileFields.includes(f.key)}
+                  onCheckedChange={(v) =>
+                    setS({
+                      ...s,
+                      requiredProfileFields:
+                        v === true
+                          ? Array.from(new Set([...s.requiredProfileFields, f.key]))
+                          : s.requiredProfileFields.filter((k) => k !== f.key),
+                    })
+                  }
+                />
+                {f.label}
+              </label>
+            ))}
+          </div>
+          <p className="text-xs text-[#8b9bb4]">缺项时新增接口返回 400 并点名字段;姓名为系统硬必填</p>
+        </Card>
         <Card className="p-4 flex flex-col gap-3">
           <p className="text-sm text-[#00d4ff]">③ 签到后多久可签退(分钟)</p>
           <Input type="number" value={String(s.checkoutMinMinutes)} onChange={(e) => setS({ ...s, checkoutMinMinutes: Number(e.target.value) })} />
@@ -238,8 +269,25 @@ export default function SettingsArtistPage() {
           <p className="text-sm text-[#00d4ff]">② 报备设置</p>
           <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
             <Checkbox checked={s.reportRequireReview} onCheckedChange={(v) => setS({ ...s, reportRequireReview: v === true })} />
-            报备需主管审核
+            报备需主管审核(开启后新报备为「待审核」,汇总/实时仅计已通过)
           </label>
+          <div className="flex items-center gap-2">
+            <Label className="text-xs text-[#8b9bb4] w-24">开放时段</Label>
+            <Input
+              type="time"
+              className="w-28"
+              value={s.reportOpenFrom ?? ''}
+              onChange={(e) => setS({ ...s, reportOpenFrom: e.target.value })}
+            />
+            <span className="text-xs text-[#8b9bb4]">~</span>
+            <Input
+              type="time"
+              className="w-28"
+              value={s.reportOpenTo ?? ''}
+              onChange={(e) => setS({ ...s, reportOpenTo: e.target.value })}
+            />
+            <span className="text-xs text-[#8b9bb4]">(空=全天;支持跨零点如 18:00~04:00)</span>
+          </div>
           <p className="text-sm text-[#00d4ff]">⑥ 台票购买</p>
           <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
             <Checkbox checked={s.ticketPurchaseEnabled} onCheckedChange={(v) => setS({ ...s, ticketPurchaseEnabled: v === true })} />

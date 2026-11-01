@@ -75,9 +75,16 @@ describe.skipIf(!canRun || adminToken === '')('08 文档 ★ 用例 + 报表', (
   })
 
   it('★A-02 腰牌号重复 → 40901(含软删档案)', async () => {
-    const r = await api<null>('POST', '/artists', { realName: '重复腰牌', badgeNo: 'A1001' }, adminToken)
+    // 带齐门店默认必填项(姓名/手机),确保命中的是腰牌重复而非 ① 必填项校验
+    const r = await api<null>('POST', '/artists', { realName: '重复腰牌', phone: '13900000098', badgeNo: 'A1001' }, adminToken)
     expect(r.http).toBe(409)
     expect(r.body.code).toBe(40901)
+  })
+
+  it('①必填项:门店默认必填 姓名/手机 → 缺手机 400 并点名字段', async () => {
+    const r = await api<null>('POST', '/artists', { realName: '缺手机档案', badgeNo: 'ZZ' + String(Date.now()).slice(-6) }, adminToken)
+    expect(r.http).toBe(400)
+    expect(r.body.msg).toContain('手机号')
   })
 
   it('★B-03 签退时限:默认 60 分钟内签退 → 40905;门店级配置置 0 后放行(§7 门店级>env)', async () => {

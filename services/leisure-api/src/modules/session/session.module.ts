@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Injectable,
   Module,
@@ -20,6 +21,7 @@ import {
   Post,
   Query,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { IsInt } from 'class-validator'
 import type { Request } from 'express'
@@ -121,7 +123,8 @@ export class SessionService {
         select: { roomId: true, startAt: true },
       }),
       db.attendanceReport.count({
-        where: { artistId: artist.id, businessDate: bdDate, type: 'CHECKIN' },
+        // 仅已通过审核的签到才算「已报备」(艺人设置② 开启审核时 PENDING 不计)
+        where: { artistId: artist.id, businessDate: bdDate, type: 'CHECKIN', reviewStatus: 'APPROVED' },
       }),
     ])
     const check = assertCanTakeSession({
@@ -471,6 +474,38 @@ export class SessionService {
     return this.finishIn(this.prisma, sessionId, operator)
   }
 
+  /** 艺人端自助下钟(艺人设置④ allowSelfScanFinish):取本人最新进行中场次下钟;开关关闭 → 403 */
+  async myFinish(artistId: number): Promise<{
+    sessionId: number
+    feeAmount: number
+    durationMinutes: number
+    billHours: number | undefined
+  }> {
+    const artist = await this.prisma.artist.findFirst({ where: { id: artistId, deletedAt: null } })
+    if (artist === null) throw new NotFoundException('艺人不存在')
+    const settings = await this.storeConfig.getArtistSettings(artist.storeId)
+    if (!settings.allowSelfScanFinish) {
+      throw new ForbiddenException('门店未开放艺人自助扫码下钟,请联系前台')
+    }
+    const live = await this.prisma.showSession.findFirst({
+      where: { artistId, endAt: null },
+      orderBy: { startAt: 'desc' },
+    })
+    if (live === null) throw new NotFoundException('当前没有进行中的场次')
+    const out = await this.finishIn(this.prisma, live.id, { sub: artistId, storeId: artist.storeId })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId: artist.storeId,
+        actorId: artistId,
+        action: 'SESSION_SELF_FINISH',
+        targetType: 'show_session',
+        targetId: String(live.id),
+        afterJson: { feeAmount: out.feeAmount, durationMinutes: out.durationMinutes } as object,
+      },
+    })
+    return { sessionId: live.id, feeAmount: out.feeAmount, durationMinutes: out.durationMinutes, billHours: out.billHours }
+  }
+
   /** 串台:保持当前场次并行,另开一场独立核算(§6.6;maxCrossRooms 由前置校验拦截) */
   async cross(
     sessionId: number,
@@ -564,6 +599,16 @@ export class SessionController {
   async start(@Req() req: Request, @Body() body: SessionStartDto): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.start(body, { sub: user?.sub ?? 0, storeId: user?.storeId })
+  }
+
+  /** 艺人端手动扫码下钟(艺人设置④;scope=ARTIST):门店开关关闭 → 403;无进行中场次 → 404 */
+  @Post('my/finish')
+  async myFinish(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    if (user === undefined || user.scope !== 'ARTIST') {
+      throw new UnauthorizedException('仅艺人端可自助下钟')
+    }
+    return this.svc.myFinish(user.sub)
   }
 
   @RequirePerm('session:finish')

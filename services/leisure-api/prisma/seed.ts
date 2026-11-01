@@ -163,7 +163,7 @@ async function main() {
     'ticket:buy', 'ticket:use', 'ticket:ledger:view',
     'attend:qrcode', 'attend:manual', 'attend:ledger:view', 'attend:summary:view',
     'session:view', 'session:finish', 'session:cross',
-    'showcase:cast', 'showcase:view', 'order:view', 'review:view',
+    'showcase:cast', 'showcase:view', 'order:view', 'review:view', 'review:create',
     'booking:view', 'booking:manage',
     'approval:decide', 'audit:view', 'report:export', 'setting:manage',
   ]

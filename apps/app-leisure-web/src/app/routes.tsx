@@ -53,6 +53,7 @@ const PricingPage = sus(lazy(() => import('@/pages/pricing')))
 const TicketsPage = sus(lazy(() => import('@/pages/tickets')))
 const ShowcasePage = sus(lazy(() => import('@/pages/showcase')))
 const BookingsPage = sus(lazy(() => import('@/pages/bookings')))
+const ReviewsPage = sus(lazy(() => import('@/pages/reviews')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -86,6 +87,7 @@ export const router = createHashRouter([
       // 扩展域
       { path: 'showcase', element: <ShowcasePage /> },
       { path: 'bookings', element: <BookingsPage /> },
+      { path: 'reviews', element: <ReviewsPage /> },
       // 设置域
       { path: 'settings/artist', element: <SettingsArtistPage /> },
       { path: 'store/rooms', element: <RoomsPage /> },

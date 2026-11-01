@@ -10,7 +10,6 @@ import type {
   Artist,
   ArtistBooking,
   ArtistOrder,
-  ArtistReview,
   AttendanceReport,
   BookingStatus,
   PayChannelCode,
@@ -132,6 +131,28 @@ export interface ReconListResult {
   rows: Array<{ metric: string; selfValue: number; legacyValue: number; diff: number; status: string }>
   overall: string
   selfMetrics: { openCount: number; roomFee: number; orderTotal: number; checkedIn: number }
+}
+
+/** 服务评价行(列表用;含艺人冗余) */
+export interface ReviewRow {
+  id: number
+  businessDate: string
+  artistId: number
+  stageName: string | null
+  badgeNo: string | null
+  realName: string
+  reviewType: string | null
+  score: number | null
+  content: string | null
+  reviewer: string | null
+  createdAt: string
+}
+
+/** 评价统计(均分/星级分布) */
+export interface ReviewSummary {
+  count: number
+  avgScore: number
+  dist: Record<'1' | '2' | '3' | '4' | '5', number>
 }
 
 /** 双轨对账 14 天门禁视图 */
@@ -515,9 +536,22 @@ export class LeisureApiClient {
     list: (q: { businessDateFrom: string; businessDateTo: string; payStatus?: string; orderType?: string; orderNo?: string }) =>
       this.get<{ rows: ArtistOrder[]; total: number }>('/artist-orders', q),
   }
+  /* ── 服务评价(III 期:只增不改不删;统计按营业日区间) ── */
   reviews = {
-    list: (q: { reviewType?: string; keyword?: string }) =>
-      this.get<{ rows: ArtistReview[]; total: number }>('/reviews', q),
+    list: (q: {
+      businessDateFrom: string
+      businessDateTo: string
+      artistId?: number
+      reviewType?: string
+      minScore?: number
+      keyword?: string
+      page?: number
+      pageSize?: number
+    }) => this.get<{ rows: ReviewRow[]; total: number; summary: ReviewSummary; page: number; pageSize: number }>('/reviews', q),
+    create: (p: { artistId: number; reviewType: string; score: number; content?: string; reviewer?: string; at?: string }, idemKey?: string) =>
+      this.post<{ id: number }>('/reviews', p, idemKey),
+    /** 艺人端:本人评价 */
+    my: () => this.get<{ rows: ReviewRow[]; summary: ReviewSummary }>('/reviews/my'),
   }
   /* ── 预约(BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定) ── */
   bookings = {

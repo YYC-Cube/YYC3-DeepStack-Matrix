@@ -211,17 +211,23 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P0 缺失回补(
     await api('POST', '/rooms/' + String(free!.id) + '/cleaning-done', {}, adminToken)
   })
 
-  it('语音盒子测试端点:未配置 VOICE_BOX_URL → skipped 不算失败', async () => {
-    const res = await api<{ ok: boolean; skipped: boolean; configured: boolean }>(
+  it('语音盒子测试端点:双态自洽(未配置→skipped;已配置→真发不抛)', async () => {
+    const res = await api<{ ok: boolean; skipped?: boolean; configured: boolean }>(
       'POST',
       '/voice-box/test',
       { text: 'e2e 语音盒子测试' },
       adminToken,
     )
     expect(res.body.code).toBe(0)
-    expect(res.body.data.ok).toBe(true)
-    expect(res.body.data.skipped).toBe(true)
-    expect(res.body.data.configured).toBe(false)
+    // dev 环境可能已配 VOICE_BOX_URL(mock 盒子联调);两种状态各自自洽——
+    // 已配置:真发,盒子在线 ok=true / 离线 ok=false 但不抛(code 仍 0);未配置:skipped=true
+    if (res.body.data.configured) {
+      expect(typeof res.body.data.ok).toBe('boolean')
+      expect(res.body.data.skipped).toBeUndefined()
+    } else {
+      expect(res.body.data.ok).toBe(true)
+      expect(res.body.data.skipped).toBe(true)
+    }
   })
 
   it('双轨 14 天门禁视图:14 格 + 连续天数 + 门禁判定字段', async () => {

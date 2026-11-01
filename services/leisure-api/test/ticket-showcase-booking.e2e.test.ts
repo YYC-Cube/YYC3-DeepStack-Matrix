@@ -185,6 +185,34 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     expect(locked.body.code).toBe(40913)
   })
 
+  it('服务评价:录入 5★ → 区间列表含该条 → 统计均分/分布自洽', async () => {
+    const created = await api<{ id: number }>(
+      'POST',
+      '/reviews',
+      { artistId, reviewType: '综合', score: 5, content: 'e2e 服务很好', reviewer: 'A01 客人' },
+      adminToken,
+    )
+    expect(created.body.code).toBe(0)
+
+    const today = new Date().toISOString().slice(0, 10)
+    const list = await api<{
+      rows: Array<{ id: number; score: number | null; reviewType: string | null }>
+      total: number
+      summary: { count: number; avgScore: number; dist: Record<string, number> }
+    }>('GET', '/reviews?businessDateFrom=' + today + '&businessDateTo=' + today + '&artistId=' + String(artistId), undefined, adminToken)
+    expect(list.body.code).toBe(0)
+    expect(list.body.data.rows.some((r) => r.id === created.body.data.id)).toBe(true)
+    expect(list.body.data.summary.count).toBeGreaterThanOrEqual(1)
+    expect(list.body.data.summary.avgScore).toBeGreaterThanOrEqual(1)
+    expect(list.body.data.summary.avgScore).toBeLessThanOrEqual(5)
+    const distSum = Object.values(list.body.data.summary.dist).reduce((a, b) => a + b, 0)
+    expect(distSum).toBe(list.body.data.summary.count)
+
+    // 评分越界 → 400(class-validator)
+    const bad = await api('POST', '/reviews', { artistId, reviewType: '综合', score: 9 }, adminToken)
+    expect(bad.body.code).not.toBe(0)
+  })
+
   it('最低消费:设置 88 → 回拨 20 分钟离线上钟 → 台费兜到 88', async () => {
     const put = await api(
       'PUT',

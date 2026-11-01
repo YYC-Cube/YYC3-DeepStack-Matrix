@@ -93,7 +93,7 @@ export const MENU: MenuGroup[] = [
     items: [
       { key: 'a21', label: '艺人订单', path: '/todo/a21', perm: 'order:view', badge: 'II' },
       { key: 'a22', label: '展示控制台', path: '/showcase', perm: 'showcase:view' },
-      { key: 'a23', label: '服务评价', path: '/todo/a23', perm: 'review:view', badge: 'II' },
+      { key: 'a23', label: '服务评价', path: '/reviews', perm: 'review:view' },
       { key: 'a24', label: '预约管理', path: '/bookings', perm: 'booking:view' },
     ],
   },

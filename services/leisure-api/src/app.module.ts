@@ -26,6 +26,7 @@ import { RoomModule } from './modules/room/room.module.js'
 import { TicketModule } from './modules/ticket/ticket.module.js'
 import { ShowcaseModule } from './modules/showcase/showcase.module.js'
 import { BookingModule } from './modules/booking/booking.module.js'
+import { ReviewModule } from './modules/review/review.module.js'
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { BookingModule } from './modules/booking/booking.module.js'
     TicketModule,
     ShowcaseModule,
     BookingModule,
+    ReviewModule,
   ],
   providers: [
     PrismaService,

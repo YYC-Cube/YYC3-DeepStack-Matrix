@@ -242,8 +242,11 @@ async function main() {
     console.log('[seed] 财务仍为默认口令,已置首登必改')
   }
 
-  // 测试账号(用户名登录;dev/演示用,密码固定,每次 seed 重置;生产 seed 不得携带)
+  // 测试账号(用户名登录;dev/演示用,密码固定,每次 seed 重置;**生产 seed 不得携带:NODE_ENV=prod 跳过**)
   // e2epwd:首登必改流程专用——默认口令 + mustChangePassword=true,e2e 在两个强密码间轮换
+  if (process.env.NODE_ENV === 'prod') {
+    console.log('[seed] NODE_ENV=prod:跳过测试账号(admin/china/e2epwd)')
+  } else {
   const testAccounts: Array<{ username: string; phone: string; name: string; roleId: number; password: string; mustChange: boolean }> = [
     { username: 'admin', phone: '13800000001', name: '测试管理员 admin', roleId: role.id, password: '123456', mustChange: false },
     { username: 'china', phone: '13800000002', name: '测试账号 china', roleId: role.id, password: '123456', mustChange: false },
@@ -266,6 +269,7 @@ async function main() {
     })
   }
   console.log('[seed] 测试账号就绪: admin / china(密码 123456,管理员角色);e2epwd(默认口令,首登必改)')
+  }
 
   console.log('[seed] 完成: store=' + store.name + ' roomTypes=' + roomTypes.length + ' rooms=' + String(roomSamples.reduce((n, s) => n + s.count, 0)) + ' level=技师 group=江海龙 artists=3 storeConfig=8项')
 }

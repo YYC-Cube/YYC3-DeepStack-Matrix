@@ -22,17 +22,25 @@ async function bootstrap(): Promise<void> {
     new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true }),
   )
   app.useGlobalFilters(new LeisureExceptionFilter())
-  app.enableCors({ origin: true, credentials: true })
+  // CORS:配置了白名单(生产必填)按白名单放行;否则放行任意源(仅 dev)
+  const corsOrigins = (env().CORS_ORIGINS ?? '').split(',').map((s) => s.trim()).filter((s) => s !== '')
+  app.enableCors(
+    corsOrigins.length > 0 ? { origin: corsOrigins, credentials: true } : { origin: true, credentials: true },
+  )
 
-  const docCfg = new DocumentBuilder()
-    .setTitle('YYC³ LeisureManage API')
-    .setVersion('0.1.0')
-    .addBearerAuth()
-    .build()
-  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, docCfg))
+  if (env().NODE_ENV !== 'prod' || env().SWAGGER_ENABLED === 'true') {
+    const docCfg = new DocumentBuilder()
+      .setTitle('YYC³ LeisureManage API')
+      .setVersion('0.1.0')
+      .addBearerAuth()
+      .build()
+    SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, docCfg))
+  }
 
   await app.listen(env().PORT)
-  new Logger('bootstrap').log('leisure-api listening on :' + String(env().PORT) + ' /api/v1 (docs: /docs)')
+  new Logger('bootstrap').log(
+    'leisure-api listening on :' + String(env().PORT) + ' /api/v1 (env ' + env().NODE_ENV + ', cors ' + (corsOrigins.length > 0 ? String(corsOrigins.length) + ' origins' : 'any') + ')',
+  )
 }
 
 void bootstrap()

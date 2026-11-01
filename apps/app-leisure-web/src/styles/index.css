@@ -1,0 +1,6 @@
+/**
+ * YYC³ LeisureManage Web · 全局样式入口
+ * 结构沿用 app-web-full:tailwind(tw4)→ 主题令牌(theme.css,shadcn 变量)
+ */
+@import './tailwind.css';
+@import './theme.css';

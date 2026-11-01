@@ -1,0 +1,16 @@
+/**
+ * @file: tailwind.css
+ * @description: tailwind.css description
+ * @author: YanYuCloudCube Team
+ * @version: v1.0.0
+ * @created: 2026-03-31
+ * @updated: 2026-03-31
+ * @status: active
+ * @tags: [style]
+ */
+
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,ts,jsx,tsx}';
+@source '../../../../packages/ui/src/**/*.{js,ts,jsx,tsx}';
+
+@import 'tw-animate-css';

@@ -281,6 +281,44 @@ export class ArtistService {
     return { updated }
   }
 
+  /** 更新档案(显式字段收敛;审计前后值;不做 body spread) */
+  async update(id: number, body: ArtistCreateBody, operatorId: number): Promise<void> {
+    const before = await this.prisma.artist.findFirst({ where: { id, deletedAt: null } })
+    if (before === null) {
+      throw new BadRequestException('艺人不存在或已删除')
+    }
+    if (body.badgeNo !== undefined && body.badgeNo !== '' && body.badgeNo !== before.badgeNo) {
+      const dup = await this.prisma.artist.findFirst({
+        where: { storeId: before.storeId, badgeNo: body.badgeNo },
+      })
+      if (dup !== null) {
+        throw new ConflictException('腰牌号已存在')
+      }
+    }
+    const after = await this.prisma.artist.update({
+      where: { id },
+      data: {
+        groupId: body.groupId ?? before.groupId,
+        supervisorName: body.supervisorName ?? before.supervisorName,
+        levelId: body.levelId ?? before.levelId,
+        realName: body.realName ?? before.realName,
+        stageName: body.stageName ?? before.stageName,
+        gender: body.gender ?? before.gender,
+        phone: body.phone ?? before.phone,
+        badgeNo: body.badgeNo ?? before.badgeNo,
+        performanceTarget: body.performanceTarget ?? before.performanceTarget,
+        maxTotalShows: body.maxTotalShows ?? before.maxTotalShows,
+        maxCrossRooms: body.maxCrossRooms ?? before.maxCrossRooms,
+        firstShowMinMinutes: body.firstShowMinMinutes ?? before.firstShowMinMinutes,
+        sameRoomMinMinutes: body.sameRoomMinMinutes ?? before.sameRoomMinMinutes,
+        tipFixed: body.tipFixed ?? before.tipFixed,
+        hourlyRate: body.hourlyRate ?? before.hourlyRate,
+        auditStatus: body.auditStatus ?? before.auditStatus,
+      },
+    })
+    await this.audit(operatorId, 'ARTIST_UPDATE', 'artist', String(id), before, after)
+  }
+
   /** 档案审核流转(需求全集 §3:等待审核/审核未通过/审核通过;通过才对外展示) */
   async auditArtist(
     id: number,
@@ -363,6 +401,18 @@ export class ArtistController {
     const user = (req as ReqWithUser).user
     await this.svc.softDelete(id, user?.sub ?? 0)
     return { deleted: true }
+  }
+
+  @RequirePerm('artist:edit')
+  @Put(':id')
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: ArtistCreateDto,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    await this.svc.update(id, body, user?.sub ?? 0)
+    return { updated: true }
   }
 
   /** 档案审核流转(需求全集 §3;A1 列表筛选 + A2 表单依据) */

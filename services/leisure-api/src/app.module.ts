@@ -20,6 +20,7 @@ import { StoreConfigModule } from './modules/store-config/store-config.module.js
 import { SessionModule } from './modules/session/session.module.js'
 import { StageFeeModule } from './modules/stage-fee/stage-fee.module.js'
 import { ApprovalModule } from './modules/approval/approval.module.js'
+import { TaxonomyModule } from './modules/taxonomy/taxonomy.module.js'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ApprovalModule } from './modules/approval/approval.module.js'
     SessionModule,
     StageFeeModule,
     ApprovalModule,
+    TaxonomyModule,
   ],
   providers: [
     PrismaService,

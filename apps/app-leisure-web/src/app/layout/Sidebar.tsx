@@ -73,10 +73,8 @@ export const MENU: MenuGroup[] = [
     label: '台票体系',
     icon: Receipt,
     items: [
-      { key: 'a6', label: '台票设置', path: '/tickets', perm: 'ticketrule:manage' },
-      { key: 'a12', label: '台票购买', path: '/tickets', perm: 'ticket:buy' },
-      { key: 'a13', label: '台票购买记录', path: '/tickets', perm: 'ticket:ledger:view' },
-      { key: 'a14', label: '台票使用记录', path: '/tickets', perm: 'ticket:ledger:view' },
+      // 四视图(设置/购买/购买记录/使用记录)收在一页,由页内 Tabs 切换;?tab= 深链
+      { key: 'tickets', label: '台票体系', path: '/tickets', perm: 'ticket:ledger:view' },
     ],
   },
   {
@@ -165,10 +163,13 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                     <div
                       key={i.key}
                       onClick={() => navigate(i.path)}
-                      className="pl-10 pr-3 py-1.5 mx-1 rounded text-xs cursor-pointer truncate"
+                      className={`mx-1 mb-0.5 rounded pr-3 py-1.5 text-xs cursor-pointer truncate transition-colors ${
+                        active ? 'pl-8 border-l-2' : 'pl-10 border-l-2 border-transparent'
+                      }`}
                       style={{
                         color: active ? '#00d4ff' : '#a8b8cc',
                         background: active ? 'rgba(0,212,255,0.08)' : undefined,
+                        ...(active ? { borderColor: '#00d4ff' } : {}),
                       }}
                     >
                       {i.label}

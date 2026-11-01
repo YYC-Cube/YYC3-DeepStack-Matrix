@@ -3,6 +3,7 @@
  * 流水只增:购买=purchase(通道走门店清单),核销=use(余额/有效期由单源判定)
  */
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { Button, Card, Input, Tabs, TabsContent, TabsList, TabsTrigger } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { client, idemKey, req, toastError } from '@/lib/api'
@@ -357,7 +358,13 @@ function TxnTab({ type }: { type: 'BUY' | 'USE' }): React.JSX.Element {
   )
 }
 
+const TAB_KEYS = ['rules', 'purchase', 'buy-log', 'use-log'] as const
+
 export default function TicketsPage(): React.JSX.Element {
+  // ?tab= 深链(侧边栏单项 + 页内四视图;URL 可分享/刷新保持视图)
+  const [params, setParams] = useSearchParams()
+  const raw = params.get('tab') ?? 'rules'
+  const tab = (TAB_KEYS as readonly string[]).includes(raw) ? raw : 'rules'
   const [channels, setChannels] = useState<Array<{ code: string; label: string }>>([])
   useEffect(() => {
     req<{ roomBilling: { channels: Array<{ code: string; label: string }> } }>('GET', '/store-config/artist-settings')
@@ -368,7 +375,7 @@ export default function TicketsPage(): React.JSX.Element {
   return (
     <div>
       <PageHeader title="台票体系" desc="设置/购买/购买记录/使用记录;流水只增不改,余额=ΣBUY−ΣUSE" />
-      <Tabs defaultValue="rules">
+      <Tabs value={tab} onValueChange={(v) => setParams({ tab: v }, { replace: true })}>
         <TabsList>
           <TabsTrigger value="rules">台票设置</TabsTrigger>
           <TabsTrigger value="purchase">台票购买</TabsTrigger>

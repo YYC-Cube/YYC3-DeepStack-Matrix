@@ -92,7 +92,7 @@ export function DataTable<T extends object>(p: {
           )}
           {p.loading !== true &&
             rows.map((row, i) => (
-              <TableRow key={i} className="border-b border-[rgba(0,212,255,0.06)]">
+              <TableRow key={i} className="border-b border-[rgba(0,212,255,0.06)] transition-colors hover:bg-white/[0.02]">
                 {p.columns.map((c) => (
                   <TableCell key={c.key} className={c.className}>
                     {c.render !== undefined ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? '—')}

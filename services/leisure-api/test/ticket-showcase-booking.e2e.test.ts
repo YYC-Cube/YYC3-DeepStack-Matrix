@@ -56,6 +56,17 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
       adminToken,
     )
     artistId = artists.body.data.rows.find((a) => a.badgeNo === 'A1001')!.id
+    // 自含前置:干净库上为 A1001 补当日签到(最低消费用例要离线上钟;幂等)
+    const today = new Date().toISOString().slice(0, 10)
+    const reports = await api<{ rows: Array<{ artistId: number }> }>(
+      'GET',
+      '/attendance/reports?businessDate=' + today + '&type=CHECKIN&pageSize=200',
+      undefined,
+      adminToken,
+    )
+    if (!reports.body.data.rows.some((r) => r.artistId === artistId)) {
+      await api('POST', '/attendance/manual', { artistId, type: 'CHECKIN', businessDate: today, reason: 'e2e 前置签到' }, adminToken)
+    }
     // A1003 为 seed 中 PENDING(未审核)艺人,用于展示投放门禁反向用例
     pendingArtistId = artists.body.data.rows.find((a) => a.badgeNo === 'A1003')?.id ?? 0
 

@@ -1,8 +1,9 @@
-# YYC³ LeisureAPI · 本地开发环境(MySQL + Redis + API)
+# YYC³ LeisureAPI · 本地开发环境(PostgreSQL 15 + Redis + API)
 # 只起数据层:docker compose -f docker-compose.dev.yml up -d
 # 一键全栈(development profile,含 API):docker compose -f docker-compose.dev.yml --profile full up -d
 # 或:bash scripts/dev-up.sh(含编译)
-# 说明:密码仅为本地开发;生产凭据走密钥管理
+# 说明:密码仅为本地开发;生产凭据走密钥管理(~/.yyc3-keybackup)
+# 2026-11-02 切 PostgreSQL:与部署目标(NAS yyc3-45 PG15,端口 5433)引擎/端口对齐;MySQL 迁移归档于 prisma/migrations-mysql-archive
 
 services:
   api:
@@ -16,36 +17,35 @@ services:
       - ../../:/workspace:rw
     environment:
       # 容器内直连 compose 网络(覆盖 .env 中的 127.0.0.1 宿主映射)
-      DATABASE_URL: mysql://leisure_app:leisure-app-dev-only@mysql:3306/leisure
+      DATABASE_URL: postgresql://leisure_app:leisure-app-dev-only@postgres:5432/leisure?schema=public
       REDIS_URL: redis://redis:6379
     command: sh -c "node --env-file=.env --watch dist/main.js"
     ports:
       - "3001:3001"
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
 
-  mysql:
-    image: mysql:8.0
-    container_name: leisure-mysql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+  postgres:
+    image: postgres:15-alpine
+    container_name: leisure-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: root-dev-only
-      MYSQL_DATABASE: leisure
-      MYSQL_USER: leisure
-      MYSQL_PASSWORD: leisure-dev-only
+      POSTGRES_DB: leisure
+      POSTGRES_USER: leisure
+      POSTGRES_PASSWORD: leisure-dev-only
+      # 应用运行账号口令(由 docker/pg-init/01-accounts.sh 读取创建 leisure_app)
+      LEISURE_APP_PASSWORD: leisure-app-dev-only
     ports:
-      # 3307 而非 3306:本机常有 Homebrew MariaDB/MySQL 占用 127.0.0.1:3306(IPv4),
-      # Docker 端口发布只抢到 IPv6,Prisma 连 127.0.0.1 会命中本机实例而非容器
-      - "3307:3306"
+      # 5434:本机 5433 是生产 PG15 主库(Homebrew,NAS 为流复制备库),开发容器必须避开
+      - "5434:5432"
     volumes:
-      - leisure-mysql-data:/var/lib/mysql
-      # 仅数据卷首次初始化时执行:给 leisure 用户影子库权限(prisma migrate dev)
-      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+      - leisure-pg-data:/var/lib/postgresql/data
+      # 仅数据卷首次初始化时执行:创建 leisure_app 运行角色 + 默认权限
+      - ./docker/pg-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uleisure", "-pleisure-dev-only"]
+      test: ["CMD-SHELL", "pg_isready -U leisure -d leisure"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -54,7 +54,7 @@ services:
     image: redis:7-alpine
     container_name: leisure-redis
     ports:
-      # 6380 而非 6379:本机常有 redis-server 占用 IPv4 6379(同上)
+      # 6380 而非 6379:本机常有 redis-server 占用 IPv4 6379
       - "6380:6379"
     volumes:
       - leisure-redis-data:/data
@@ -65,5 +65,5 @@ services:
       retries: 20
 
 volumes:
-  leisure-mysql-data:
+  leisure-pg-data:
   leisure-redis-data:

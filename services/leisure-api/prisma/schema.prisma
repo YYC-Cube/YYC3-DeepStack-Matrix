@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -150,6 +150,7 @@ model Artist {
   roomSessionArtists  RoomSessionArtist[]
   selfOrders          SelfOrder[]
   showcaseCasts ShowcaseCast[]
+  dispatchLogs  DispatchLog[]
 
   @@unique([storeId, badgeNo])
   @@index([storeId, stageName])
@@ -216,13 +217,43 @@ model AttendanceReport {
   source        Int       @default(0) // 0自助 1补打卡
   operatorId    Int?      @map("operator_id")
   remark        String?   @db.VarChar(255)
+  // 报备审核(艺人设置②):requireReview=true 时新报备为 PENDING,汇总/实时仅计 APPROVED;补打卡亦走此流
+  reviewStatus  String    @default("APPROVED") @map("review_status") @db.VarChar(16) // APPROVED/PENDING/REJECTED
+  reviewedBy    Int?      @map("reviewed_by")
+  reviewedAt    DateTime? @map("reviewed_at")
 
   artist Artist @relation(fields: [artistId], references: [id])
 
   @@index([storeId, businessDate])
   @@index([artistId, businessDate])
   @@index([storeId, groupId, type, businessDate])
+  @@index([storeId, reviewStatus, businessDate])
   @@map("attendance_report")
+}
+
+// ─────────────── 轮台派单日志(艺人设置⑧ 上钟模式;主管轮台报表数据源) ───────────────
+
+model DispatchLog {
+  id             Int      @id @default(autoincrement())
+  storeId        Int      @map("store_id")
+  businessDate   DateTime @map("business_date") @db.Date
+  roomSessionId  Int?     @map("room_session_id")
+  artistId       Int      @map("artist_id")
+  groupId        Int?     @map("group_id")
+  supervisorName String?  @map("supervisor_name") @db.VarChar(64)
+  mode           String   @db.VarChar(16) // ROTATION/SELF_PICK/MIXED(开房时门店模式快照)
+  position       Int      @default(0) // 该艺人当日第 N 次被派
+  suggested      Boolean  @default(false) // 是否为引擎推荐位(轮到他)
+  overridden     Boolean  @default(false) // 混合模式下越过推荐位人工指定
+  reason         String?  @db.VarChar(255) // 越过原因
+  operatorId     Int?     @map("operator_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  @@index([storeId, businessDate])
+  @@index([artistId, businessDate])
+  @@map("dispatch_log")
 }
 
 // ─────────────── 场次(上下钟) ───────────────
@@ -524,6 +555,8 @@ model AdminUser {
   // 登录用户名(测试/非手机号账号;可空唯一)
   username     String?  @unique @db.VarChar(32)
   passwordHash String   @map("password_hash") @db.VarChar(128)
+  // 首登必改:seed/管理员重置的默认密码置 true;改密成功置 false;为 true 时除改密/me/登录外接口一律 40302
+  mustChangePassword Boolean @default(false) @map("must_change_password")
   roleId       Int?     @map("role_id")
   status       Int      @default(1)
   // 登录防爆破:连错 5 次锁 15 分钟(42901);成功登录即复位

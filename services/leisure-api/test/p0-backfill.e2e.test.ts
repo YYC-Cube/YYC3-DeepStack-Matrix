@@ -65,6 +65,17 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P0 缺失回补(
       adminToken,
     )
     artistId = artists.body.data.rows.find((a) => a.badgeNo === 'A1001')!.id
+    // 自含前置:干净库上为 A1001 补当日签到(门店默认未签到禁上钟;幂等)
+    const today = new Date().toISOString().slice(0, 10)
+    const reports = await api<{ rows: Array<{ artistId: number }> }>(
+      'GET',
+      '/attendance/reports?businessDate=' + today + '&type=CHECKIN&pageSize=200',
+      undefined,
+      adminToken,
+    )
+    if (!reports.body.data.rows.some((r) => r.artistId === artistId)) {
+      await api('POST', '/attendance/manual', { artistId, type: 'CHECKIN', businessDate: today, reason: 'e2e 前置签到' }, adminToken)
+    }
   })
 
   it('P0-2 时段定价:创建全天槽位(200 元)→ 离线上钟回拨 2 小时 → 台费=2×200', async () => {

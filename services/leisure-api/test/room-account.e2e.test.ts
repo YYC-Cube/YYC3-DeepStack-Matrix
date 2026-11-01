@@ -60,6 +60,17 @@ describe.skipIf(!canRun)('房账全链 e2e(方案甲)', () => {
     )
     const target = artists.body.data.rows.find((a) => a.badgeNo === 'A1001')
     artistId = target!.id
+    // 自含前置:门店默认「未签到禁上钟」,干净库上需先为 A1001 补一条当日签到(幂等:已有则跳过)
+    const today = new Date().toISOString().slice(0, 10)
+    const reports = await api<{ rows: Array<{ artistId: number }> }>(
+      'GET',
+      '/attendance/reports?businessDate=' + today + '&type=CHECKIN&pageSize=200',
+      undefined,
+      adminToken,
+    )
+    if (!reports.body.data.rows.some((r) => r.artistId === artistId)) {
+      await api('POST', '/attendance/manual', { artistId, type: 'CHECKIN', businessDate: today, reason: 'e2e 前置签到' }, adminToken)
+    }
     const rooms = await api<{ rows: Array<{ id: number; roomNo: string; status: string }> }>(
       'GET',
       '/store/rooms?pageSize=50',

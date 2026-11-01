@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { View, Text, Button } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { loadAuth, clearAuth, myToday, errText } from '../../lib/api'
+import { loadAuth, clearAuth, myToday, myFinish, errText } from '../../lib/api'
 
 interface TodayReport {
   type: string
@@ -66,6 +66,28 @@ export default function Home() {
       <View className="mp-card">
         <Button className="mp-btn" onClick={() => Taro.switchTab({ url: '/pages/attendance/index' })}>
           扫码签到 / 签退
+        </Button>
+        <Button
+          className="mp-btn-outline"
+          onClick={() => {
+            // 艺人设置④:门店开放「手动扫码下钟」时可自助下钟(关闭时后端 403 并提示联系前台)
+            Taro.showModal({
+              title: '自助下钟',
+              content: '确认结束当前进行中的场次?计费按进位规则核算并计入房账。',
+              success: (r) => {
+                if (!r.confirm) return
+                void myFinish()
+                  .then((out) => {
+                    Taro.showToast({ title: '已下钟 ' + String(out.durationMinutes) + ' 分钟', icon: 'success' })
+                  })
+                  .catch((e) => {
+                    Taro.showToast({ title: errText(e), icon: 'none' })
+                  })
+              },
+            })
+          }}
+        >
+          自助下钟
         </Button>
         <Button className="mp-btn-outline" onClick={() => Taro.switchTab({ url: '/pages/mine/index' })}>
           我的台费流水

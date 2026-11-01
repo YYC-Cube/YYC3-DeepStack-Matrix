@@ -38,6 +38,8 @@ export const ERR = {
   TICKET_EXPIRED: 40912,
   /** 预约状态流转非法(BOOKED→ARRIVED/CANCELLED,终态锁定) */
   BOOKING_STATE_INVALID: 40913,
+  /** 轮台模式派单越序(艺人设置⑧ ROTATION:须按队列顺序;MIXED 越序须填原因) */
+  DISPATCH_ORDER_VIOLATION: 40914,
   /** 房号店内唯一冲突(需求全集 §5.2;04 文档错误码表节选外追加) */
   ROOM_NO_DUPLICATED: 40907,
   APPROVAL_PENDING: 41201,

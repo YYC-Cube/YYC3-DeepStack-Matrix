@@ -40,6 +40,7 @@ import { env } from '../../config/env.js'
 import type { ReqWithUser } from '../../common/guards/jwt.guard.js'
 import { SessionModule, SessionService } from '../session/session.module.js'
 import { StoreConfigService } from '../store-config/store-config.module.js'
+import { DispatchModule, DispatchService } from '../dispatch/dispatch.module.js'
 
 type Operator = { sub: number; name: string; storeId?: number; scope: 'ADMIN' | 'ARTIST' }
 
@@ -113,13 +114,14 @@ export class RoomService {
     private readonly prisma: PrismaService,
     private readonly sessionService: SessionService,
     private readonly storeConfig: StoreConfigService,
+    private readonly dispatch: DispatchService,
   ) {}
 
   /* ── 开房:创建房账 + 绑定在场艺人(进房即上钟,方案甲融合) ── */
   async open(
-    p: { roomId: number; artistIds: number[] },
+    p: { roomId: number; artistIds: number[]; overrideReason?: string },
     operator: Operator,
-  ): Promise<{ roomSessionId: number; businessDate: string }> {
+  ): Promise<{ roomSessionId: number; businessDate: string; dispatchMode: string; overridden: number[] }> {
     return this.prisma.$transaction(async (tx) => {
       const room = await tx.room.findUnique({ where: { id: p.roomId } })
       if (room === null) throw new NotFoundException('包厢不存在')
@@ -145,8 +147,17 @@ export class RoomService {
         },
       })
 
-      // 进房即上钟(方案甲融合):逐艺人复用场次事务(校验+计费快照+占用流转)
+      // 艺人设置⑧ 上钟模式:轮台顺序校验 + 派单日志(须在 startIn 之前——上钟后艺人即离开队列)
       const uniqueIds = [...new Set(p.artistIds)]
+      const dispatch = await this.dispatch.validateAndLog(tx, {
+        storeId: room.storeId,
+        roomSessionId: session.id,
+        artistIds: uniqueIds,
+        operatorId: operator.sub,
+        overrideReason: p.overrideReason,
+      })
+
+      // 进房即上钟(方案甲融合):逐艺人复用场次事务(校验+计费快照+占用流转)
       for (const artistId of uniqueIds) {
         await this.sessionService.startIn(tx, { artistId, roomId: room.id }, {
           sub: operator.sub,
@@ -171,7 +182,7 @@ export class RoomService {
           afterJson: { roomId: room.id, roomNo: room.roomNo, artistIds: uniqueIds },
         },
       })
-      return { roomSessionId: session.id, businessDate }
+      return { roomSessionId: session.id, businessDate, dispatchMode: dispatch.mode, overridden: dispatch.overridden }
     })
   }
 
@@ -926,7 +937,7 @@ export class RoomController {
   constructor(private readonly svc: RoomService) {}
 
   @Post('room-sessions/open')
-  async open(@Req() req: Request, @Body() body: { roomId: number; artistIds: number[] }): Promise<unknown> {
+  async open(@Req() req: Request, @Body() body: { roomId: number; artistIds: number[]; overrideReason?: string }): Promise<unknown> {
     return this.svc.open(body, op(req))
   }
 
@@ -1103,7 +1114,7 @@ export class RoomController {
 /* ── Module ── */
 
 @Module({
-  imports: [SessionModule],
+  imports: [SessionModule, DispatchModule],
   controllers: [RoomController],
   providers: [RoomService, PrismaService, StoreConfigService],
 })

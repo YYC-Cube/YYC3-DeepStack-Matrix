@@ -26,6 +26,7 @@ const REPORTS: ReportDef[] = [
   { key: 'asum', path: '/reports/attendance/summary', title: '报备汇总', perm: 'attend:summary:view', roomDims: false, desc: '组别×主管矩阵(单营业日)' },
   { key: 'sdetail', path: '/reports/session/detail', title: '上下钟明细', perm: 'session:view', roomDims: true, desc: '房号/类型/计费小时/单价(§8.3)' },
   { key: 'ssum', path: '/reports/session/summary', title: '上下钟汇总', perm: 'session:view', roomDims: true, desc: '按艺人次数/时长/台费 · 涉及包厢(§8.3)' },
+  { key: 'rotation', path: '/reports/dispatch-rotation', title: '主管轮台报表', perm: 'session:view', roomDims: false, desc: '主管/组别/艺人被派次数 · 按序/越序(艺人设置⑧ 公平性考核)' },
 ]
 
 interface Preview {

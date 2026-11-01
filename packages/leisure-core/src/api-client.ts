@@ -174,6 +174,23 @@ export interface VoiceBoxTestResult {
   configured: boolean
 }
 
+/** 轮台队列(艺人设置⑧):当日已签到且空闲的在岗艺人,按被派次数/最近被派/签到时间排序 */
+export interface DispatchQueue {
+  businessDate: string
+  mode: 'ROTATION' | 'SELF_PICK' | 'MIXED' | string
+  rows: Array<{
+    position: number
+    artistId: number
+    stageName: string | null
+    badgeNo: string | null
+    groupId: number | null
+    supervisorName: string | null
+    todayDispatches: number
+    lastDispatchAt: string | null
+    checkedInAt: string
+  }>
+}
+
 /** 门店参数合并视图(GET /store-config/artist-settings;门店行 > env/内置默认) */
 export interface StoreArtistSettingsView {
   requiredProfileFields: string[]
@@ -457,8 +474,9 @@ export class LeisureApiClient {
 
   /* ── 房账(方案甲:开/关房 + 结算单预览 + 关房统一结算) ── */
   roomSessions = {
-    open: (p: { roomId: number; artistIds: number[] }, idemKey?: string) =>
-      this.post<{ roomSessionId: number; businessDate: string }>('/room-sessions/open', p, idemKey),
+    /** 开房:artistIds 进房即上钟;轮台模式(⑧)越序 40914,混合模式可带 overrideReason */
+    open: (p: { roomId: number; artistIds: number[]; overrideReason?: string }, idemKey?: string) =>
+      this.post<{ roomSessionId: number; businessDate: string; dispatchMode: string; overridden: number[] }>('/room-sessions/open', p, idemKey),
     /** 结算单预览(只读;关房弹窗展示明细,金额为此刻报价) */
     billPreview: (id: number) => this.get<BillPreview>('/room-sessions/' + String(id) + '/bill-preview'),
     close: (p: {
@@ -483,6 +501,12 @@ export class LeisureApiClient {
   /* ── 硬件语音盒子(II 期联动层;未配置 VOICE_BOX_URL 时 skipped) ── */
   voiceBox = {
     test: (text: string) => this.post<VoiceBoxTestResult>('/voice-box/test', { text }),
+  }
+
+  /* ── 轮台派单(艺人设置⑧):当日队列与推荐位 ── */
+  dispatch = {
+    queue: () => this.get<DispatchQueue>('/dispatch/queue'),
+    next: (count = 1) => this.get<DispatchQueue>('/dispatch/next', { count }),
   }
 
   /* ── 双轨对账(P0 门禁;14 天连续 MATCHED 才满足切换) ── */

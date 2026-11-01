@@ -509,6 +509,65 @@ export class ReportService {
       rooms: [...b.rooms].join(' / ') || '—',
     }))
   }
+
+  /* ── 8. 主管轮台报表:按主管/组别/艺人统计被派次数与按序/越序(公平性考核;数据源 dispatch_log) ── */
+  async dispatchRotation(storeId: number, q: { from: Date; to: Date }, groupId?: number): Promise<Array<{
+    supervisorName: string
+    groupId: number | null
+    artistId: number
+    stageName: string | null
+    badgeNo: string | null
+    dispatches: number
+    suggested: number
+    overridden: number
+    lastDispatchAt: string
+  }>> {
+    const logs = await this.prisma.dispatchLog.findMany({
+      where: { storeId, businessDate: { gte: q.from, lte: q.to }, ...(groupId !== undefined ? { groupId } : {}) },
+      include: { artist: { select: { stageName: true, badgeNo: true } } },
+      orderBy: { id: 'asc' },
+    })
+    const byArtist = new Map<number, {
+      supervisorName: string
+      groupId: number | null
+      stageName: string | null
+      badgeNo: string | null
+      dispatches: number
+      suggested: number
+      overridden: number
+      last: Date
+    }>()
+    for (const l of logs) {
+      const cur = byArtist.get(l.artistId) ?? {
+        supervisorName: l.supervisorName ?? '',
+        groupId: l.groupId,
+        stageName: l.artist.stageName,
+        badgeNo: l.artist.badgeNo,
+        dispatches: 0,
+        suggested: 0,
+        overridden: 0,
+        last: l.createdAt,
+      }
+      cur.dispatches += 1
+      if (l.suggested) cur.suggested += 1
+      if (l.overridden) cur.overridden += 1
+      if (l.createdAt > cur.last) cur.last = l.createdAt
+      byArtist.set(l.artistId, cur)
+    }
+    return [...byArtist.entries()]
+      .map(([artistId, b]) => ({
+        supervisorName: b.supervisorName,
+        groupId: b.groupId,
+        artistId,
+        stageName: b.stageName,
+        badgeNo: b.badgeNo,
+        dispatches: b.dispatches,
+        suggested: b.suggested,
+        overridden: b.overridden,
+        lastDispatchAt: b.last.toISOString(),
+      }))
+      .sort((a, b) => a.supervisorName.localeCompare(b.supervisorName) || b.dispatches - a.dispatches)
+  }
 }
 
 /* ── CSV 助手(UTF-8 BOM;引号转义) ── */
@@ -728,6 +787,26 @@ export class ReportController {
       this.svc.sessionSummary(s, r, g),
       ['艺名', '腰牌号', '上钟次数', '总时长(分)', '总台费', '涉及包厢'],
       (d) => (d as Awaited<ReturnType<ReportService['sessionSummary']>>).map((r) => [r.stageName, r.badgeNo, r.count, r.totalMinutes, r.totalFee, r.rooms]),
+      req,
+    )
+  }
+
+  /* ── 8. 主管轮台报表(需求全集 §8.2 第 8 张;数据源 dispatch_log,艺人设置⑧) ── */
+  @Get('dispatch-rotation')
+  async dispatchRotation(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('businessDateFrom') from?: string,
+    @Query('businessDateTo') to?: string,
+    @Query('groupId') groupId?: string,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    await this.send(res, 'session:view', 'dispatch-rotation', { format, businessDateFrom: from, businessDateTo: to, groupId }, (s, r, g) =>
+      this.svc.dispatchRotation(s, r, g),
+      ['主管', '组别', '艺名', '腰牌号', '被派次数', '按序派单', '越序派单', '最近派单'],
+      (d) => (d as Awaited<ReturnType<ReportService['dispatchRotation']>>).map((r) => [
+        r.supervisorName, r.groupId, r.stageName, r.badgeNo, r.dispatches, r.suggested, r.overridden, r.lastDispatchAt,
+      ]),
       req,
     )
   }

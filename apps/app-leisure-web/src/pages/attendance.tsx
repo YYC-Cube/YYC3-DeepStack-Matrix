@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { REPORT_TYPES } from '@yyc3/leisure-core'
-import { client, toastError } from '@/lib/api'
+import { client, req, toastError } from '@/lib/api'
 import { fmtTime, today } from '@/lib/format'
 import { DataTable, Field, PageHeader, SelectBox, type Column } from '@/components/kit'
 
@@ -24,6 +24,8 @@ interface ReportRow {
   checkinLng: string | null
   source: number
   remark: string | null
+  /** 艺人设置②:APPROVED/PENDING/REJECTED(门店未开审核时恒为 APPROVED) */
+  reviewStatus?: string
 }
 interface SummaryRow {
   groupId: number
@@ -77,6 +79,17 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
   useEffect(() => {
     void load()
   }, [load])
+
+  /** 报备审核(艺人设置②):PENDING → 通过/驳回 */
+  async function review(id: number, decision: 'APPROVED' | 'REJECTED'): Promise<void> {
+    try {
+      await req('POST', '/attendance/reports/' + String(id) + '/review', { decision })
+      toast.success(decision === 'APPROVED' ? '已通过' : '已驳回')
+      await load()
+    } catch (e) {
+      toastError(e, '审核失败')
+    }
+  }
 
   async function submitManual(): Promise<void> {
     if (form === null || form.artistId === '' || form.reason.trim() === '') {
@@ -175,6 +188,21 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
         ),
     },
     { key: 'source', header: '来源', render: (r) => (r.source === 1 ? '补打卡' : '自助') },
+    {
+      key: 'review',
+      header: '审核',
+      render: (r) =>
+        r.reviewStatus === 'PENDING' ? (
+          <span className="flex gap-1">
+            <Button size="sm" variant="outline" onClick={() => void review(r.id, 'APPROVED')}>通过</Button>
+            <Button size="sm" variant="ghost" onClick={() => void review(r.id, 'REJECTED')}>驳回</Button>
+          </span>
+        ) : r.reviewStatus === 'REJECTED' ? (
+          <span className="text-xs text-[#ff6699]">已驳回</span>
+        ) : (
+          <span className="text-xs text-[#00ff88]">已通过</span>
+        ),
+    },
     { key: 'remark', header: '备注', render: (r) => r.remark ?? '—' },
   ]
 

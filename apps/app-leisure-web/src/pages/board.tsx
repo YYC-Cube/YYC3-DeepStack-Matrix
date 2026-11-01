@@ -20,7 +20,7 @@ import {
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { PageHeader } from '@/components/kit'
-import type { BillPreview } from '@yyc3/leisure-core'
+import type { BillPreview, DispatchQueue } from '@yyc3/leisure-core'
 
 interface RoomRow {
   id: number
@@ -62,9 +62,35 @@ export default function BoardPage(): React.JSX.Element {
   const [openSessions, setOpenSessions] = useState<OpenSessionRow[]>([])
   const [busy, setBusy] = useState(false)
 
-  // 开房弹窗
+  // 开房弹窗(含轮台推荐位,艺人设置⑧)
   const [openFor, setOpenFor] = useState<RoomRow | null>(null)
   const [pickedArtists, setPickedArtists] = useState<number[]>([])
+  const [queue, setQueue] = useState<DispatchQueue | null>(null)
+  const [overrideReason, setOverrideReason] = useState('')
+
+  const MODE_TEXT: Record<string, string> = { ROTATION: '轮台(须按序)', SELF_PICK: '自选', MIXED: '混合(推荐可越过)' }
+
+  const openRoomDialog = async (room: RoomRow): Promise<void> => {
+    setOpenFor(room)
+    setPickedArtists([])
+    setOverrideReason('')
+    setQueue(null)
+    try {
+      const q = await client.dispatch.queue()
+      setQueue(q)
+      // 轮台/混合模式默认预选队列第一位
+      if (q.rows.length > 0 && q.mode !== 'SELF_PICK') setPickedArtists([q.rows[0]!.artistId])
+    } catch (e) {
+      toastError(e, '轮台队列加载失败')
+    }
+  }
+
+  /** 所选是否越过推荐位(前 k 位,k=所选人数) */
+  const offOrder = (): number[] => {
+    if (queue === null) return []
+    const topK = new Set(queue.rows.slice(0, pickedArtists.length).map((r) => r.artistId))
+    return pickedArtists.filter((id) => !topK.has(id))
+  }
 
   // 关房结算单(接真后端明细预览)
   const [closeFor, setCloseFor] = useState<RoomRow | null>(null)
@@ -100,10 +126,18 @@ export default function BoardPage(): React.JSX.Element {
     if (ids.length === 0) { toast.error('至少绑定一名在场艺人'); return }
     setBusy(true)
     try {
-      await client.roomSessions.open({ roomId: room.id, artistIds: ids })
-      toast.success(room.roomNo + ' 开房成功(进房即上钟)')
+      const out = await client.roomSessions.open({
+        roomId: room.id,
+        artistIds: ids,
+        ...(overrideReason.trim() !== '' ? { overrideReason: overrideReason.trim() } : {}),
+      })
+      toast.success(
+        room.roomNo + ' 开房成功(进房即上钟)' +
+          (out.overridden.length > 0 ? ' · 越过轮台推荐 ' + String(out.overridden.length) + ' 人已记录' : ''),
+      )
       setOpenFor(null)
       setPickedArtists([])
+      setOverrideReason('')
       await load()
     } catch (e) { toastError(e, '开房失败') } finally { setBusy(false) }
   }
@@ -205,7 +239,7 @@ export default function BoardPage(): React.JSX.Element {
               <div className="text-sm">{st === 'OCCUPIED' ? '消费中' : STATUS_TEXT[st] ?? st}</div>
               <div className="flex gap-1 pt-1 flex-wrap">
                 {canOpen && (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { setOpenFor(r) }}>开房</Button>
+                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { void openRoomDialog(r) }}>开房</Button>
                 )}
                 {canClose && (
                   <Button size="sm" variant="outline" disabled={busy} onClick={() => { void openClose(r, open) }}>关房</Button>
@@ -226,20 +260,59 @@ export default function BoardPage(): React.JSX.Element {
             <DialogTitle>开房 · {openFor?.roomNo ?? ''}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
+            {queue !== null && (
+              <div className="rounded border border-[rgba(0,212,255,0.2)] p-2 text-xs space-y-1">
+                <div className="text-[#00d4ff]">
+                  上钟模式:{MODE_TEXT[queue.mode] ?? queue.mode}
+                  <span className="text-[#8b9bb4] ml-2">轮台队列(已签到·空闲)</span>
+                </div>
+                {queue.rows.length === 0 && <div className="text-[#8b9bb4]">当前无可派艺人(需当日签到且空闲)</div>}
+                <div className="flex flex-wrap gap-1">
+                  {queue.rows.slice(0, 8).map((q) => (
+                    <span
+                      key={q.artistId}
+                      className="px-1.5 py-0.5 rounded border"
+                      style={{
+                        borderColor: q.position <= Math.max(pickedArtists.length, 1) ? '#00ff8866' : 'rgba(0,212,255,0.2)',
+                        color: q.position <= Math.max(pickedArtists.length, 1) ? '#00ff88' : '#a8b8cc',
+                      }}
+                    >
+                      #{String(q.position)} {q.stageName ?? String(q.artistId)}({String(q.todayDispatches)}次)
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
             <Label>绑定在场艺人(进房即上钟,计费入本房账)</Label>
             <div className="max-h-56 overflow-y-auto space-y-1">
-              {artists.filter((a) => a.badgeNo !== null).map((a) => (
-                <label key={a.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={pickedArtists.includes(a.id)}
-                    onCheckedChange={(c) => {
-                      setPickedArtists(c === true ? [...pickedArtists, a.id] : pickedArtists.filter((x) => x !== a.id))
-                    }}
-                  />
-                  {a.stageName ?? a.realName}({a.badgeNo})
-                </label>
-              ))}
+              {artists.filter((a) => a.badgeNo !== null).map((a) => {
+                const pos = queue?.rows.find((q) => q.artistId === a.id)?.position
+                return (
+                  <label key={a.id} className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={pickedArtists.includes(a.id)}
+                      onCheckedChange={(c) => {
+                        setPickedArtists(c === true ? [...pickedArtists, a.id] : pickedArtists.filter((x) => x !== a.id))
+                      }}
+                    />
+                    {a.stageName ?? a.realName}({a.badgeNo})
+                    {pos !== undefined && <span className="text-[10px] text-[#00d4ff]">轮台#{String(pos)}</span>}
+                  </label>
+                )
+              })}
             </div>
+            {queue !== null && queue.mode !== 'SELF_PICK' && offOrder().length > 0 && (
+              <div className="space-y-1">
+                <div className="text-xs text-[#ffaa00]">
+                  {queue.mode === 'ROTATION' ? '轮台模式:所选越过队列顺序,后端将拒绝(40914)' : '已越过轮台推荐位,将记入主管轮台报表;可填原因'}
+                </div>
+                <Input
+                  placeholder="越序原因(如:客人指名)"
+                  value={overrideReason}
+                  onChange={(e) => { setOverrideReason(e.target.value) }}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpenFor(null)}>取消</Button>

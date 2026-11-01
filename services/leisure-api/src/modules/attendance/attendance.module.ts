@@ -85,6 +85,13 @@ export class AttendanceService {
     const now = new Date()
     const businessDate = resolveBusinessDate(now, { cutTime: await this.storeCut(ctx.storeId) })
     const bdDate = new Date(businessDate)
+    // 艺人设置②:报备开放时段(先于判重——时段外一律不受理)+ 是否需主管审核
+    const settings = await this.storeConfig.getArtistSettings(ctx.storeId)
+    if (!withinOpenWindow(now, settings.reportOpenFrom, settings.reportOpenTo)) {
+      throw new ConflictException(
+        '不在报备开放时段(' + String(settings.reportOpenFrom) + '~' + String(settings.reportOpenTo) + ')',
+      )
+    }
     const dup = await this.prisma.attendanceReport.findFirst({
       where: {
         storeId: ctx.storeId,
@@ -100,13 +107,6 @@ export class AttendanceService {
     // 艺人不存在/已软删/已停用:显式 404,不落到 FK 冲突的 500
     if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
       throw new NotFoundException('艺人不存在或已停用')
-    }
-    // 艺人设置②:报备开放时段 + 是否需主管审核
-    const settings = await this.storeConfig.getArtistSettings(ctx.storeId)
-    if (!withinOpenWindow(now, settings.reportOpenFrom, settings.reportOpenTo)) {
-      throw new ConflictException(
-        '不在报备开放时段(' + String(settings.reportOpenFrom) + '~' + String(settings.reportOpenTo) + ')',
-      )
     }
     const geoOk = p.lat !== undefined && p.lng !== undefined
     const created = await this.prisma.attendanceReport.create({

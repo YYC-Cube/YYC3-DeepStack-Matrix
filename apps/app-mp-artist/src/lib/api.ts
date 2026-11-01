@@ -192,6 +192,19 @@ export function myTxns(p: { businessDateFrom: string; businessDateTo: string }):
     .catch(translate)
 }
 
+/** B2+:艺人自助下钟(艺人设置④ 开关;关闭时后端 403) */
+export function myFinish(): Promise<{ sessionId: number; feeAmount: number; durationMinutes: number }> {
+  return Taro.request({
+    url: 'http://127.0.0.1:3001/api/v1/sessions/my/finish',
+    method: 'POST',
+    data: {},
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ sessionId: number; feeAmount: number; durationMinutes: number }>(res))
+    .catch(translate)
+}
+
 /** B7:本人台票余额+流水(强制本人;台票四页的艺人端视图) */
 export function myTickets(p: { businessDateFrom: string; businessDateTo: string }): Promise<{
   balance: {

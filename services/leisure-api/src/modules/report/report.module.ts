@@ -4,7 +4,17 @@
  * 红线:营业日口径过滤(business_date);分页≤200;导出走 report:export,查看走各自域权限
  * 导出格式:CSV + UTF-8 BOM(Excel 直开;xlsx 真格式 II 期,04-API format 参数兼容)
  */
-import { Controller, Get, Injectable, Module, Query, Req, Res } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Injectable,
+  Module,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common'
 import type { Request, Response } from 'express'
 import { resolveBusinessDate, REPORT_TYPES } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
@@ -14,6 +24,10 @@ import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt
 const MAX_RANGE_DAYS = 92
 
 /* ── Service ── */
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100
+}
 
 @Injectable()
 export class ReportService {
@@ -38,6 +52,105 @@ export class ReportService {
   }
 
   /* ── 1. 台费扣款明细(§8.3 含包厢维度:关联场次房号/房型) ── */
+  /** 双轨自算指标(方案甲独立运营口径;与智慧商家日报对齐 4 项) */
+  async selfMetrics(storeId: number, businessDate: string): Promise<{
+    openCount: number
+    roomFee: number
+    orderTotal: number
+    checkedIn: number
+  }> {
+    const bd = new Date(businessDate)
+    const [rs, orders, checkin] = await Promise.all([
+      this.prisma.roomSession.aggregate({
+        where: { storeId, businessDate: bd },
+        _count: { _all: true },
+        _sum: { roomFee: true },
+      }),
+      this.prisma.roomSession.aggregate({
+        where: { storeId, businessDate: bd },
+        _sum: { orderTotal: true },
+      }),
+      this.prisma.attendanceReport.count({
+        where: { storeId, businessDate: bd, type: 'CHECKIN' },
+      }),
+    ])
+    return {
+      openCount: rs._count._all,
+      roomFee: round2(Number(rs._sum.roomFee ?? 0)),
+      orderTotal: round2(Number(orders._sum.orderTotal ?? 0)),
+      checkedIn: checkin,
+    }
+  }
+
+  /** 双轨导入:录对侧(智慧商家)日报值 → 逐指标 upsert 差异行 */
+  async importLegacy(
+    storeId: number,
+    businessDate: string,
+    metrics: Record<string, number>,
+    operatorId?: number,
+  ): Promise<{ rows: Array<{ metric: string; selfValue: number; legacyValue: number; diff: number; status: string }> }> {
+    const bd = new Date(businessDate)
+    const self = await this.selfMetrics(storeId, businessDate)
+    const out: Array<{ metric: string; selfValue: number; legacyValue: number; diff: number; status: string }> = []
+    for (const key of ['openCount', 'roomFee', 'orderTotal', 'checkedIn'] as const) {
+      const selfValue = round2(self[key])
+      const legacyValue = round2(Number(metrics[key] ?? 0))
+      const diff = round2(selfValue - legacyValue)
+      const status = Math.abs(diff) < 0.01 ? 'MATCHED' : 'OPEN'
+      await this.prisma.reconDiff.upsert({
+        where: { storeId_businessDate_metric: { storeId, businessDate: bd, metric: key } },
+        update: { selfValue, legacyValue, diff, status },
+        create: {
+          storeId,
+          businessDate: bd,
+          metric: key,
+          selfValue,
+          legacyValue,
+          diff,
+          status,
+        },
+      })
+      out.push({ metric: key, selfValue, legacyValue, diff, status })
+    }
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operatorId ?? null,
+        action: 'RECON_LEGACY_IMPORT',
+        targetType: 'recon_diff',
+        targetId: businessDate,
+        afterJson: out as unknown as object,
+      },
+    })
+    return { rows: out }
+  }
+
+  /** 双轨查询:差异行 + 总体状态(全 MATCHED 才过 14 天门禁的一天) */
+  async reconList(storeId: number, businessDate: string): Promise<{
+    rows: Array<{ metric: string; selfValue: number; legacyValue: number; diff: number; status: string }>
+    overall: string
+    selfMetrics: { openCount: number; roomFee: number; orderTotal: number; checkedIn: number }
+  }> {
+    const bd = new Date(businessDate)
+    const selfMetrics = await this.selfMetrics(storeId, businessDate)
+    const rows = await this.prisma.reconDiff.findMany({
+      where: { storeId, businessDate: bd },
+      orderBy: { metric: 'asc' },
+    })
+    const overall = rows.length > 0 && rows.every((r) => r.status === 'MATCHED') ? 'MATCHED' : rows.length === 0 ? 'NO_DATA' : 'OPEN'
+    return {
+      rows: rows.map((r) => ({
+        metric: r.metric,
+        selfValue: Number(r.selfValue),
+        legacyValue: Number(r.legacyValue),
+        diff: Number(r.diff),
+        status: r.status,
+      })),
+      overall,
+      selfMetrics,
+    }
+  }
+
   async deductDetail(storeId: number, q: { from: Date; to: Date }, groupId?: number) {
     const txns = await this.prisma.stageFeeTxn.findMany({
       where: { storeId, businessDate: { gte: q.from, lte: q.to }, type: 'ROOM_SETTLE', groupId },
@@ -300,6 +413,26 @@ function toCsv(headers: string[], rows: Array<Array<string | number | null | boo
 @Controller('reports')
 export class ReportController {
   constructor(private readonly svc: ReportService) {}
+
+  /** 双轨对账:查询(差异矩阵+总体) */
+  @Get('recon')
+  async recon(
+    @Req() req: Request,
+    @Query('businessDate') businessDate: string,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.reconList(user?.storeId ?? 1, businessDate)
+  }
+
+  /** 双轨对账:导入对侧日报(录 legacy 值并即时比对) */
+  @Post('recon/legacy')
+  async importLegacy(
+    @Req() req: Request,
+    @Body() body: { businessDate: string; metrics: Record<string, number> },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.importLegacy(user?.storeId ?? 1, body.businessDate, body.metrics, user?.sub)
+  }
 
   /** 通用:查询或 CSV 导出(导出经 @Res 直写,绕过 JSON 信封) */
   private async send(

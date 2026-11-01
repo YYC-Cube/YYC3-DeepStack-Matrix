@@ -533,6 +533,89 @@ export class RoomService {
     return { id: created.id }
   }
 
+  /* ── P0-1 钟房叫钟队列(大屏 + 语音播报文本) ── */
+  async createCall(
+    p: { roomId: number; artistId: number },
+    operator: Operator,
+  ): Promise<{ callId: number; voiceText: string }> {
+    const room = await this.prisma.room.findUnique({ where: { id: p.roomId } })
+    if (room === null) throw new NotFoundException('包厢不存在')
+    const artist = await this.prisma.artist.findUnique({ where: { id: p.artistId } })
+    if (artist === null) throw new NotFoundException('艺人不存在')
+    const store = await this.prisma.store.findUnique({ where: { id: room.storeId } })
+    const businessDate = resolveBusinessDate(new Date(), {
+      cutTime: store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT,
+    })
+    const voiceText = '请' + (artist.stageName ?? artist.realName) + '到' + room.roomNo + '包厢'
+    const created = await this.prisma.roomCall.create({
+      data: {
+        storeId: room.storeId,
+        businessDate: new Date(businessDate),
+        roomId: room.id,
+        roomNo: room.roomNo,
+        artistId: artist.id,
+        stageName: artist.stageName ?? artist.realName,
+        status: 'QUEUED',
+        voiceText,
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId: room.storeId,
+        actorId: operator.sub,
+        action: 'ROOM_CALL_CREATED',
+        targetType: 'room_call',
+        targetId: String(created.id),
+        afterJson: { roomId: room.id, artistId: artist.id, voiceText } as object,
+      },
+    })
+    return { callId: created.id, voiceText }
+  }
+
+  async listCalls(
+    storeId: number,
+    businessDate: string,
+    status?: string,
+  ): Promise<{ rows: unknown[] }> {
+    const rows = await this.prisma.roomCall.findMany({
+      where: {
+        storeId,
+        businessDate: new Date(businessDate),
+        status,
+      },
+      orderBy: { id: 'desc' },
+      take: 100,
+    })
+    return { rows }
+  }
+
+  async setCallStatus(
+    id: number,
+    status: 'CALLED' | 'ACCEPTED' | 'DONE' | 'CANCELLED',
+    operator: Operator,
+  ): Promise<{ ok: true }> {
+    const call = await this.prisma.roomCall.findUnique({ where: { id } })
+    if (call === null) throw new NotFoundException('叫钟不存在')
+    if (call.status === 'DONE' || call.status === 'CANCELLED') {
+      throw new ConflictException('已终态,不可再流转')
+    }
+    await this.prisma.roomCall.update({
+      where: { id },
+      data: { status, ...(status === 'CALLED' ? { calledAt: new Date() } : {}) },
+    })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId: call.storeId,
+        actorId: operator.sub,
+        action: 'ROOM_CALL_STATUS',
+        targetType: 'room_call',
+        targetId: String(id),
+        afterJson: { from: call.status, to: status } as object,
+      },
+    })
+    return { ok: true }
+  }
+
   /** 艺人端「我的包厢」 */
   async myRoom(artistId: number, storeId: number): Promise<unknown> {
     const bind = await this.prisma.roomSessionArtist.findFirst({
@@ -693,6 +776,39 @@ export class RoomController {
       throw new BadRequestException('name/salePrice 必填')
     }
     return this.svc.createGoods({ ...body, storeId: user.storeId ?? 1 })
+  }
+
+  @Post('room-calls')
+  async createCall(
+    @Req() req: Request,
+    @Body() body: { roomId: number; artistId: number },
+  ): Promise<unknown> {
+    return this.svc.createCall(body, op(req))
+  }
+
+  @Get('room-calls')
+  async listCalls(
+    @Req() req: Request,
+    @Query('businessDate') businessDate: string,
+    @Query('status') status?: string,
+  ): Promise<unknown> {
+    const user = op(req)
+    return this.svc.listCalls(user.storeId ?? 1, businessDate, status)
+  }
+
+  @Post('room-calls/:id/status')
+  async setCallStatus(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { status: string },
+  ): Promise<unknown> {
+    const allowed = ['CALLED', 'ACCEPTED', 'DONE', 'CANCELLED']
+    if (!allowed.includes(body.status)) throw new BadRequestException('无效状态')
+    return this.svc.setCallStatus(
+      id,
+      body.status as 'CALLED' | 'ACCEPTED' | 'DONE' | 'CANCELLED',
+      op(req),
+    )
   }
 
   @Get('me/room')

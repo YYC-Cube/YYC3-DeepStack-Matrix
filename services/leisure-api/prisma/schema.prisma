@@ -45,8 +45,9 @@ model RoomType {
   sort       Int     @default(0)
   status     Int     @default(1)
 
-  store Store  @relation(fields: [storeId], references: [id])
-  rooms Room[]
+  store        Store         @relation(fields: [storeId], references: [id])
+  rooms        Room[]
+  pricingSlots PricingSlot[]
 
   @@unique([storeId, name])
   @@map("room_type")
@@ -246,6 +247,7 @@ model ShowSession {
   roundingMinutes Int?      @map("rounding_minutes")
   roundingEnabled Boolean?  @map("rounding_enabled") // 进位开关快照(NULL=旧数据,按当前配置兜底)
   feeMode         String?   @map("fee_mode") @db.VarChar(8) // HOURLY/FLAT 快照
+  priceSlotName   String?   @map("price_slot_name") @db.VarChar(64) // 时段定价快照名(P0-2)
   billNo          String?   @map("bill_no") @db.VarChar(64)
   operatorId      Int?      @map("operator_id")
   // 房账关联(方案甲:下钟计费计入房账;关房结算时回填 room_session_id/settled_at)
@@ -259,6 +261,66 @@ model ShowSession {
   @@index([artistId, startAt])
   @@index([storeId, roomId, startAt])
   @@map("show_session")
+}
+
+// ─────────────── P0-2 时段差异化定价(需求全集 §12:早/晚场/周末/节假日切换) ───────────────
+
+model PricingSlot {
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  roomTypeId  Int       @map("room_type_id")
+  name        String    @db.VarChar(64) // 早场/晚场/周末/节假日
+  daysOfWeek  Json?     @map("days_of_week") // 数字数组[0-6],0=周日;NULL=不限
+  dateFrom    DateTime? @map("date_from") @db.Date
+  dateTo      DateTime? @map("date_to") @db.Date
+  startClock  String    @map("start_clock") @db.VarChar(5) // HH:mm(支持跨零点:start>end)
+  endClock    String    @map("end_clock") @db.VarChar(5)
+  unitPrice   Decimal   @map("unit_price") @db.Decimal(10, 2)
+  priority    Int       @default(0) // 同命中取 priority 最高
+  status      Int       @default(1)
+  deletedAt   DateTime? @map("deleted_at")
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+
+  @@index([storeId, roomTypeId, status])
+  @@map("pricing_slot")
+}
+
+// ─────────────── P0-1 钟房叫钟队列(大屏 + 语音播报) ───────────────
+
+model RoomCall {
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  businessDate DateTime @map("business_date") @db.Date
+  roomId      Int       @map("room_id")
+  roomNo      String    @map("room_no") @db.VarChar(32)
+  artistId    Int       @map("artist_id")
+  stageName   String    @map("stage_name") @db.VarChar(64)
+  status      String    @default("QUEUED") @db.VarChar(16) // QUEUED/CALLED/ACCEPTED/DONE/CANCELLED
+  calledAt    DateTime? @map("called_at")
+  voiceText   String?   @map("voice_text") @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([storeId, businessDate, status])
+  @@map("room_call")
+}
+
+// ─────────────── 双轨对账(与实测系统并行,14 天零差异门禁) ───────────────
+
+model ReconDiff {
+  id           Int      @id @default(autoincrement())
+  storeId      Int      @map("store_id")
+  businessDate DateTime @map("business_date") @db.Date
+  metric       String   @map("metric") @db.VarChar(32) // openCount/roomFee/orderTotal/checkedIn
+  selfValue    Decimal  @map("self_value") @db.Decimal(12, 2)
+  legacyValue  Decimal  @map("legacy_value") @db.Decimal(12, 2)
+  diff         Decimal  @map("diff") @db.Decimal(12, 2)
+  status       String   @default("OPEN") @db.VarChar(16) // MATCHED/OPEN/EXPLAINED
+  note         String?  @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([storeId, businessDate, metric])
+  @@map("recon_diff")
 }
 
 // ─────────────── 台费 ───────────────

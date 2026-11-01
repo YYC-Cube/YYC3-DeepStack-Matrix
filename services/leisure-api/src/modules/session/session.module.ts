@@ -27,8 +27,10 @@ import { Prisma } from '@prisma/client'
 import {
   assertCanTakeSession,
   calcSessionFee,
+  calcBillHours,
   diffMinutes,
   resolveBusinessDate,
+  resolvePricingSlot,
   resolveStageFeeRule,
   ticketBalance,
   ERR,
@@ -43,6 +45,7 @@ import { StoreConfigService } from '../store-config/store-config.module.js'
 type DbClient = Pick<
   PrismaService,
   | 'store'
+  | 'pricingSlot'
   | 'artist'
   | 'room'
   | 'showSession'
@@ -160,7 +163,28 @@ export class SessionService {
       ? resolveStageFeeRule(rules, artist.levelId, room.roomTypeId)
       : undefined
     // Decimal → number:单源计费函数按 number 运算(金额精度 2 位,铁律 6)
-    const unitPrice = rule !== undefined ? Number(rule.amount) : Number(artist.hourlyRate)
+    // P0-2 时段差异化定价:命中槽位覆盖基础单价(快照到场次,门店改配置不影响进行中)
+    const slotRows = await db.pricingSlot.findMany({
+      where: { storeId: artist.storeId, roomTypeId: room.roomTypeId, status: 1, deletedAt: null },
+    })
+    const slot = resolvePricingSlot(
+      slotRows.map((r) => ({
+        roomTypeId: r.roomTypeId,
+        name: r.name,
+        daysOfWeek: Array.isArray(r.daysOfWeek) ? (r.daysOfWeek as number[]) : null,
+        dateFrom: r.dateFrom !== null ? r.dateFrom.toISOString().slice(0, 10) : null,
+        dateTo: r.dateTo !== null ? r.dateTo.toISOString().slice(0, 10) : null,
+        startClock: r.startClock,
+        endClock: r.endClock,
+        unitPrice: Number(r.unitPrice),
+        priority: r.priority,
+      })),
+      room.roomTypeId,
+      now,
+    )
+    const unitPrice = slot !== undefined
+      ? Number(slot.unitPrice)
+      : rule !== undefined ? Number(rule.amount) : Number(artist.hourlyRate)
     const isCross = activeSessions.length > 0 && !activeSessions.some((s) => s.roomId === room.id)
 
     const created = await db.showSession.create({
@@ -178,6 +202,7 @@ export class SessionService {
         roundingMinutes: billing.roundingThresholdMinutes,
         roundingEnabled: billing.roundingEnabled,
         feeMode: billing.feeMode,
+        priceSlotName: slot !== undefined ? slot.name : null,
         operatorId: operator.sub,
       },
     })
@@ -311,6 +336,97 @@ export class SessionService {
     return this.startIn(this.prisma, p, operator)
   }
 
+  /** P0-3 离线兜底:断网期间本地上钟,恢复后回传(时间可回拨;计费快照按回拨时点) */
+  async offlineSession(
+    p: { clientOpId: string; artistId: number; roomId: number; startAt: string; endAt: string },
+    operator: { sub: number; storeId?: number },
+  ): Promise<{ sessionId: number; feeAmount: number; billHours: number }> {
+    const idem = await this.prisma.idempotencyKey.findFirst({
+      where: { idemKey: p.clientOpId, path: '/sessions/offline' },
+    })
+    if (idem !== null && idem.responseSnapshot !== null) {
+      return idem.responseSnapshot as { sessionId: number; feeAmount: number; billHours: number }
+    }
+    const start = new Date(p.startAt)
+    const end = new Date(p.endAt)
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
+      throw new BadRequestException('离线上钟时间无效(endAt 必须晚于 startAt)')
+    }
+    const fee = await this.prisma.$transaction(async (tx) => {
+      const created = await this.startIn(tx, { artistId: p.artistId, roomId: p.roomId }, operator)
+      const fin = await this.finishIn(tx, created.sessionId, operator)
+      // 回拨真实起止时间(快照计费按回拨时长重算:HOURLY 模式重跑 calcSessionFee)
+      const artist = await tx.artist.findUnique({ where: { id: p.artistId } })
+      const room = await tx.room.findUnique({ where: { id: p.roomId } })
+      const rules = await tx.stageFeeRule.findMany({ where: { storeId: artist!.storeId, deletedAt: null } })
+      const rule = artist?.levelId !== null && artist?.levelId !== undefined
+        ? resolveStageFeeRule(
+            rules.map((r) => ({
+              id: r.id,
+              storeId: r.storeId,
+              levelId: r.levelId,
+              roomTypeIds: Array.isArray(r.roomTypeIds) ? (r.roomTypeIds as number[]) : [],
+              amount: Number(r.amount),
+            })),
+            artist.levelId,
+            room!.roomTypeId,
+          )
+        : undefined
+      // P0-2:回拨时点同样吃时段槽位覆盖(与在线快照语义一致)
+      const slotRows = await tx.pricingSlot.findMany({
+        where: { storeId: artist!.storeId, roomTypeId: room!.roomTypeId, status: 1, deletedAt: null },
+      })
+      const slot = resolvePricingSlot(
+        slotRows.map((r) => ({
+          roomTypeId: r.roomTypeId,
+          name: r.name,
+          daysOfWeek: Array.isArray(r.daysOfWeek) ? (r.daysOfWeek as number[]) : null,
+          dateFrom: r.dateFrom !== null ? r.dateFrom.toISOString().slice(0, 10) : null,
+          dateTo: r.dateTo !== null ? r.dateTo.toISOString().slice(0, 10) : null,
+          startClock: r.startClock,
+          endClock: r.endClock,
+          unitPrice: Number(r.unitPrice),
+          priority: r.priority,
+        })),
+        room!.roomTypeId,
+        start,
+      )
+      const unitPrice = slot !== undefined
+        ? Number(slot.unitPrice)
+        : rule !== undefined ? Number(rule.amount) : Number(artist?.hourlyRate ?? 0)
+      const settings = await this.storeConfig.getArtistSettings(artist!.storeId)
+      const durationMinutes = diffMinutes(start, end)
+      // 计费小时按「回拨时长 + 进位阈值快照」直接计算(而非沿用 0 时长的 finishIn 结果)
+      const billHours = calcBillHours(durationMinutes, {
+        enabled: settings.roomBilling.roundingEnabled,
+        thresholdMinutes: settings.roomBilling.roundingThresholdMinutes,
+      })
+      const feeAmount = Math.round(billHours * unitPrice * 100) / 100
+      const upd = await tx.showSession.update({
+        where: { id: created.sessionId },
+        data: {
+          startAt: start,
+          endAt: end,
+          durationMinutes: diffMinutes(start, end),
+          feeAmount,
+          billHours,
+          priceSlotName: slot !== undefined ? slot.name : null,
+        },
+      })
+      // 方案甲:不落流水(费用计入房账/场次,待结算归集)
+      await tx.idempotencyKey.create({
+        data: {
+          storeId: artist!.storeId,
+          idemKey: p.clientOpId,
+          path: '/sessions/offline',
+          responseSnapshot: { sessionId: created.sessionId, feeAmount, billHours } as object,
+        },
+      })
+      return { sessionId: created.sessionId, feeAmount, billHours }
+    })
+    return fee
+  }
+
   async finish(
     sessionId: number,
     operator: { sub: number; storeId?: number },
@@ -440,6 +556,16 @@ export class SessionController {
   }
 
   @RequirePerm('session:finish')
+  @Post('offline')
+  async offline(
+    @Req() req: Request,
+    @Body()
+    body: { clientOpId: string; artistId: number; roomId: number; startAt: string; endAt: string },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.offlineSession(body, { sub: user?.sub ?? 0, storeId: user?.storeId })
+  }
+
   @Post(':id/transfer')
   async transfer(
     @Req() req: Request,

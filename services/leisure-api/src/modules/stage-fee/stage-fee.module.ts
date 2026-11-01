@@ -341,6 +341,61 @@ export class StageFeeService {
     }
   }
 
+  /* ── P0-2 时段差异化定价 CRUD(等级×房型基础价的时段覆盖层) ── */
+  async listPricingSlots(storeId: number, roomTypeId?: number) {
+    const rows = await this.prisma.pricingSlot.findMany({
+      where: {
+        storeId,
+        deletedAt: null,
+        ...(roomTypeId !== undefined ? { roomTypeId } : {}),
+      },
+      orderBy: [{ priority: 'desc' }, { id: 'asc' }],
+    })
+    return { rows }
+  }
+
+  async upsertPricingSlot(p: {
+    storeId: number
+    id?: number
+    roomTypeId: number
+    name: string
+    daysOfWeek?: number[] | null
+    dateFrom?: string | null
+    dateTo?: string | null
+    startClock: string
+    endClock: string
+    unitPrice: number
+    priority?: number
+    status?: number
+  }) {
+    const toDate = (v?: string | null): Date | null =>
+      v === undefined || v === null || v === '' ? null : new Date(v)
+    const data = {
+      storeId: p.storeId,
+      roomTypeId: p.roomTypeId,
+      name: p.name,
+      daysOfWeek: (p.daysOfWeek ?? null) as object,
+      dateFrom: toDate(p.dateFrom),
+      dateTo: toDate(p.dateTo),
+      startClock: p.startClock,
+      endClock: p.endClock,
+      unitPrice: p.unitPrice,
+      priority: p.priority ?? 0,
+      status: p.status ?? 1,
+    }
+    if (p.id !== undefined && p.id > 0) {
+      await this.prisma.pricingSlot.update({ where: { id: p.id }, data })
+      return { id: p.id }
+    }
+    const created = await this.prisma.pricingSlot.create({ data })
+    return { id: created.id }
+  }
+
+  async deletePricingSlot(id: number) {
+    await this.prisma.pricingSlot.update({ where: { id }, data: { deletedAt: new Date(), status: 0 } })
+    return { ok: true }
+  }
+
   async balance(artistId: number): Promise<{ balance: number }> {
     return { balance: await this.balanceOf(artistId) }
   }
@@ -502,6 +557,39 @@ export class StageFeeController {
   }
 
   @RequirePerm('fee:ledger:view')
+  /* ── P0-2 时段差异化定价 ── */
+  @Get('pricing-slots')
+  async pricingSlots(
+    @Req() req: Request,
+    @Query('roomTypeId') roomTypeId?: string,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.listPricingSlots(user?.storeId ?? 1, roomTypeId !== undefined ? Number(roomTypeId) : undefined)
+  }
+
+  @Post('pricing-slots')
+  async upsertPricingSlot(@Req() req: Request, @Body() body: {
+    id?: number
+    roomTypeId: number
+    name: string
+    daysOfWeek?: number[]
+    dateFrom?: string
+    dateTo?: string
+    startClock: string
+    endClock: string
+    unitPrice: number
+    priority?: number
+    status?: number
+  }): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.upsertPricingSlot({ ...body, storeId: user?.storeId ?? 1 })
+  }
+
+  @Delete('pricing-slots/:id')
+  async deletePricingSlot(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    return this.svc.deletePricingSlot(id)
+  }
+
   @Get('balance/:artistId')
   async balance(@Req() req: Request, @Param('artistId', ParseIntPipe) artistId: number): Promise<unknown> {
     return this.svc.balance(artistId)

@@ -53,5 +53,17 @@ services:
       timeout: 3s
       retries: 10
 
+  # 边缘隧道:把 NAS API(192.168.3.45:3001)映射到 ECS(yyc3-33)8801,由 Traefik 终止 TLS 对外
+  # (frps allowPorts 8800-8810;ECS 侧 8801 仅安全组/边缘决定公网可达性,Traefik 为唯一入口)
+  frpc:
+    image: docker.1ms.run/snowdreamtech/frpc:0.64.0
+    container_name: yyc3-leisure-frpc
+    restart: unless-stopped
+    volumes:
+      - ./frpc.toml:/etc/frp/frpc.toml:ro
+    depends_on:
+      api:
+        condition: service_healthy
+
 # 注:按规范镜像 tar 备份保留在项目目录:
 #   /Volume3/@apps/DockerEngine/dockerd/bin/docker save yyc3-leisure-api:1.0.0-rc.1 -o yyc3-leisure-api-1.0.0-rc.1.tar

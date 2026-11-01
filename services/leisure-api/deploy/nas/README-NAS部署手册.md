@@ -15,7 +15,8 @@
 - [x] NAS 代码快照:**最小构建集**(workspace 清单 21 个 package.json + leisure-core + leisure-api,1.8 MB)→ `/Volume3/docker/yyc3-leisure-api/src/`(整仓 12 GB 含 docs/apps 素材,勿整仓 rsync)
 - [x] NAS 首次镜像构建:`yyc3-leisure-api:1.0.0-rc.1`(eb950499818c;pnpm install 57s @npmmirror;Docker Compose v5.1.2)
 - [x] 容器起 + 冒烟:`yyc3-leisure-api`/`yyc3-leisure-redis` **healthy**;`listening on :3001 (env prod, cors 2 origins)`;auth/me 401;正式账号登录 `mustChangePassword=true`、业务接口 40302;日切 job 已在生产库物化昨日汇总(证明 API→主库 Tailscale+scram 连通)
-- [ ] 网关反代(§6;ICP 备案中)· 首登改密(由 Owner 本人完成)· 删除 seed 示例艺人(可选)
+- [x] **公网网关已通(2026-11-02)**:两域名 443(api 401/web 200/h5 200,Let's Encrypt 双域 SAN 证书);链路 Traefik→edge nginx→frp 8801→NAS(见 §6)
+- [ ] Owner 首登改密(改 `13103790379`/`13103790380` 默认口令)· 删除 seed 示例艺人(可选)· 盒子/微信正式凭据
 
 ## 1. 代码快照(本机执行;代码与部署分离)
 
@@ -71,13 +72,14 @@ docker save yyc3-leisure-api:1.0.0-rc.1 -o yyc3-leisure-api-1.0.0-rc.1.tar   # �
 6. 钟房大屏语音 + `POST /voice-box/test`(配 VOICE_BOX_URL 后)
 7. 备库只读抽查(NAS):`psql 备库 -c 'select 1'` 可读、写报错
 
-## 6. 网关与域名
+## 6. 网关与域名(2026-11-02 实测已通)
 
-- 域名:`lm.0379.pro`(Web 管理端)/ `lm.0379.world`(艺人端 H5);公网 `39.97.53.176`(阿里云)
-- **ICP 备案:大陆服务器 80/443 必须备案**(.pro/.world 可备,周期 1–3 周;期间用 Tailscale 直连 NAS 过渡,见 ENV 说明 §六)
-- nginx 示例(双域名/TLS/反代/静态):[nginx-lm.conf.example](nginx-lm.conf.example);证书:certbot --nginx
-- CORS_ORIGINS 已置 `https://lm.0379.pro,https://lm.0379.world`(与网关严格一致)
-- 艺人端 H5 正式构建:`TARO_APP_API_BASE=https://lm.0379.pro/api/v1 pnpm --dir apps/app-mp-artist build:h5`(已实测内联)
+- **拓扑**:边缘 `yyc3-33`(阿里云 ECS 39.97.53.176,**Traefik v3 file-provider 终止 TLS**)→ 边缘 nginx 容器 `yyc3-leisure-edge`(127.0.0.1:8070,静态+API 分流)→ **frp 隧道**(NAS `yyc3-leisure-frpc` → ECS frps **8801**)→ NAS API 3001
+- 域名:`lm.0379.world`(主)/`lm.0379.pro`(别名)——同一张 Let's Encrypt 证书双域 SAN(自动签发);`/` Web 管理端 · `/m/` 艺人端 H5 · `/api/v1` API
+- ECS 侧资产:`/root/yyc3-leisure-edge/`(compose+nginx.conf+web/+h5/);Traefik 路由在 `/root/0379-world/traefik/dynamic.yml`(追加 `leisure-web` 路由,原文件自动留 bak)
+- NAS 侧:`frpc.toml`(token 只存 NAS 600 文件,不入仓库)+ compose `frpc` 服务
+- CORS_ORIGINS=两域名;H5 `TARO_APP_API_BASE=https://lm.0379.pro/api/v1` 编译期内联(CORS 预检 204 实测)
+- 公网验证:两域名 api 401 / web 200 / h5 200,ssl_verify=0;ECS 安全组如未放行 8801 也无碍(仅 Traefik 80/443 面向公网)
 
 ## 7. 备份与回退
 

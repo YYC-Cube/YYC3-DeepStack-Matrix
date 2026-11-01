@@ -1,0 +1,21 @@
+# YYC³ LeisureManage · 边缘静态+API 分流(ECS yyc3-33,位于 Traefik 之后;Traefik 终止 TLS 并整站转发到本容器 127.0.0.1:8070)
+# 布局:/root/yyc3-leisure-edge/{docker-compose.yml,nginx.conf,web/,h5/}
+# 域名:lm.0379.world(主)/lm.0379.pro(别名)——两者同配置:/ → Web 管理端,/m/ → 艺人端 H5,/api/v1 → frp 隧道 8801 → NAS API
+services:
+  edge:
+    image: nginx:1.27-alpine
+    container_name: yyc3-leisure-edge
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8070:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./web:/usr/share/nginx/html/web:ro
+      - ./h5:/usr/share/nginx/html/h5:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz | grep -q ok"]
+      interval: 15s
+      timeout: 3s
+      retries: 5

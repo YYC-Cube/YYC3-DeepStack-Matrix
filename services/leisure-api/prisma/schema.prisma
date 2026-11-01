@@ -279,7 +279,7 @@ model StageFeeTxn {
   stageName    String?  @map("stage_name") @db.VarChar(64) // 冗余,免 join 检索
   badgeNo      String?  @map("badge_no") @db.VarChar(32)
   groupId      Int?     @map("group_id")
-  type         String   @db.VarChar(16) // RECHARGE/SESSION_DEDUCT/MANUAL_DEDUCT/REVERSE
+  type         String   @db.VarChar(16) // RECHARGE充值/ROOM_SETTLE房账关房结算(方案甲)/MANUAL_DEDUCT手动扣费/REVERSE冲正
   amount       Decimal  @db.Decimal(10, 2) // 充值+ 扣费− 冲正反号
   payChannel   String?  @map("pay_channel") @db.VarChar(16)
   payTxnNo     String?  @map("pay_txn_no") @db.VarChar(64)

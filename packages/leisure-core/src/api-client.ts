@@ -199,7 +199,7 @@ export class LeisureApiClient {
     txns: (q: {
       businessDateFrom: string
       businessDateTo: string
-      type?: 'RECHARGE' | 'SESSION_DEDUCT' | 'MANUAL_DEDUCT'
+      type?: 'RECHARGE' | 'ROOM_SETTLE' | 'MANUAL_DEDUCT'
       groupId?: number
       keyword?: string
     }) => this.get<{ rows: StageFeeTxn[]; total: number; totalAmount: number }>(

@@ -40,7 +40,7 @@ export class ReportService {
   /* ── 1. 台费扣款明细(§8.3 含包厢维度:关联场次房号/房型) ── */
   async deductDetail(storeId: number, q: { from: Date; to: Date }, groupId?: number) {
     const txns = await this.prisma.stageFeeTxn.findMany({
-      where: { storeId, businessDate: { gte: q.from, lte: q.to }, type: 'SESSION_DEDUCT', groupId },
+      where: { storeId, businessDate: { gte: q.from, lte: q.to }, type: 'ROOM_SETTLE', groupId },
       orderBy: { id: 'asc' },
     })
     const refIds = txns.map((t) => t.refId).filter((v): v is number => v !== null)
@@ -110,7 +110,7 @@ export class ReportService {
       }
       const amt = Number(t.amount)
       if (t.type === 'RECHARGE') row.recharge += amt
-      else if (t.type === 'SESSION_DEDUCT' || t.type === 'MANUAL_DEDUCT') row.deduct += amt
+      else if (t.type === 'ROOM_SETTLE' || t.type === 'MANUAL_DEDUCT') row.deduct += amt
       else if (t.type === 'REVERSE') row.reverse += amt
       byArtist.set(t.artistId, row)
     }

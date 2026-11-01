@@ -230,7 +230,10 @@ export interface StoreArtistSettings {
 
 /* ───────────────────────── 资金流水(只增不改) ───────────────────────── */
 
-export type FeeTxnType = 'RECHARGE' | 'SESSION_DEDUCT' | 'MANUAL_DEDUCT' | 'REVERSE'
+/** 台费流水类型(方案甲裁决 2026-11-01):
+ *  RECHARGE 充值 · ROOM_SETTLE 房账关房结算(时间费即台费,下钟仅计入房账不落流水) ·
+ *  MANUAL_DEDUCT 手动扣费 · REVERSE 冲正。原 SESSION_DEDUCT(下钟即扣)已废止 */
+export type FeeTxnType = 'RECHARGE' | 'ROOM_SETTLE' | 'MANUAL_DEDUCT' | 'REVERSE'
 export type PayChannel = 'CASH' | 'DOUYIN'
 
 export interface StageFeeTxn {

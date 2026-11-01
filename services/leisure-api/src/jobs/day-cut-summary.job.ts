@@ -72,7 +72,7 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
             _sum: { amount: true }, _count: { _all: true },
           }),
           this.prisma.stageFeeTxn.aggregate({
-            where: { storeId, businessDate: targetDate, type: 'SESSION_DEDUCT' },
+            where: { storeId, businessDate: targetDate, type: 'ROOM_SETTLE' },
             _sum: { amount: true }, _count: { _all: true },
           }),
           this.prisma.stageFeeTxn.aggregate({

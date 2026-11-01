@@ -5,7 +5,7 @@
  * - 上钟必选包厢房号;维修/停用不可选;占用/空闲随上下钟自动流转(§5.3)
  * - 上钟时快照单价+进位阈值+计费模式到场次,下钟按快照核算(§6.4;门店改配置不影响进行中场次)
  * - 转包厢=终止当前计时(同规结算)+同事务新开记录;串台=并行独立核算(§6.6)
- * - 下钟落 SESSION_DEDUCT 流水(只增);余额负数按 ALLOW_NEGATIVE_BALANCE 配置放行(对齐实测未收款)
+ * - 下钟计费计入房账(方案甲:不落流水、无余额防线);关房结算统一落 ROOM_SETTLE(见房账模块/12 号构建指导)
  */
 import {
   BadRequestException,
@@ -30,7 +30,6 @@ import {
   diffMinutes,
   resolveBusinessDate,
   resolveStageFeeRule,
-  sumFeeBalance,
   ticketBalance,
   ERR,
   LeisureError,
@@ -254,18 +253,7 @@ export class SessionService {
       })
     }
 
-    // 余额负数防线(默认放行=对齐实测「未收款」;配置关闭时拦截)
-    if (env().ALLOW_NEGATIVE_BALANCE !== 'true' && fee.amount > 0) {
-      const txns = await db.stageFeeTxn.findMany({
-        where: { artistId: artist.id },
-        select: { amount: true },
-      })
-      const balance = sumFeeBalance(txns.map((t) => ({ amount: Number(t.amount) })))
-      if (balance - fee.amount < 0) {
-        throw new LeisureError(400, '台费余额不足,禁止下钟扣费')
-      }
-    }
-
+    // 方案甲:下钟不落流水、不做余额防线——费用计入房账,关房统一结算(ROOM_SETTLE)
     const updated = await db.showSession.update({
       where: { id: session.id },
       data: {
@@ -276,7 +264,7 @@ export class SessionService {
       },
     })
 
-    // 房态流转:该房无进行中场次 → 空闲(§5.3)
+    // 房态流转:该房无进行中场次 → 空闲(§5.3;「清扫中」流转待房账模块接入)
     if (session.roomId !== null) {
       const stillActive = await db.showSession.count({
         where: { roomId: session.roomId, endAt: null },
@@ -286,24 +274,7 @@ export class SessionService {
       }
     }
 
-    // 台费流水(只增):SESSION_DEDUCT 负向,归集到场次营业日
-    const txn = await db.stageFeeTxn.create({
-      data: {
-        storeId: session.storeId,
-        businessDate: session.businessDate,
-        artistId: artist.id,
-        stageName: artist.stageName,
-        badgeNo: artist.badgeNo,
-        groupId: artist.groupId,
-        type: 'SESSION_DEDUCT',
-        amount: -fee.amount,
-        refType: 'session',
-        refId: session.id,
-        operatorId: operator.sub,
-      },
-    })
-
-    // 台票抵扣提示(§6.6 台票抵扣优先;核销走 /tickets/use,II 期全套)
+    // 台票抵扣提示(§6.6;方案甲后台票抵扣移至关房结算时,此处仅作提醒)
     const ticketTxnRows = await db.ticketTxn.findMany({
       where: { artistId: artist.id },
       select: { ticketRuleId: true, type: true, qty: true },
@@ -320,7 +291,7 @@ export class SessionService {
         targetType: 'show_session',
         targetId: String(session.id),
         beforeJson: session as unknown as object,
-        afterJson: { ...updated, txnId: txn.id },
+        afterJson: updated as unknown as object,
       },
     })
     return {

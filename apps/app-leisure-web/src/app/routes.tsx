@@ -39,6 +39,7 @@ const FeeRulesPage = sus(lazy(() => import('@/pages/fee-rules')))
 const FeeFormPage = sus(lazy(() => import('@/pages/fee-forms')))
 const FeeTxnsPage = sus(lazy(() => import('@/pages/fee-txns')))
 const AttendancePage = sus(lazy(() => import('@/pages/attendance')))
+const AttendanceScreenPage = sus(lazy(() => import('@/pages/attendance-screen')))
 const RealtimePage = sus(lazy(() => import('@/pages/realtime')))
 const SessionsPage = sus(lazy(() => import('@/pages/sessions')))
 const SettingsArtistPage = sus(lazy(() => import('@/pages/settings-artist')))
@@ -65,6 +66,7 @@ export const router = createHashRouter([
       { path: 'attendance/reports', element: <AttendancePage view="reports" /> },
       { path: 'attendance/summary', element: <AttendancePage view="summary" /> },
       { path: 'attendance/manual', element: <AttendancePage view="manual" /> },
+      { path: 'attendance/screen', element: <AttendanceScreenPage /> },
       { path: 'sessions', element: <SessionsPage /> },
       // 台费域
       { path: 'fees/rules', element: <FeeRulesPage /> },

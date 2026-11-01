@@ -182,7 +182,7 @@ export default function RoomsPage() {
         desc="房号店内唯一(40907);占用/空闲随上下钟自动流转,手工置占用将被拒绝;维修/停用上钟不可选(需求全集 §5)"
         actions={<Button onClick={() => setForm({ roomNo: '', roomName: '', roomTypeId: '', capacity: '', status: 'FREE', remark: '' })}>+ 新增包厢</Button>}
       />
-      <Card className="p-4 mb-4 flex items-center gap-3">
+      <Card className="p-4 mb-4 flex flex-row items-center gap-3">
         <SelectBox
           className="w-40"
           value={status}

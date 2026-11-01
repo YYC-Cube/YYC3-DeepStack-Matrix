@@ -296,6 +296,35 @@ export class AttendanceService {
     return { reportId: created.id }
   }
 
+  /**
+   * 报备现场屏签到码(05 文档 A15):场景值 = storeId + 营业日 + 60s 时间窗
+   * 带参小程序码真图依赖 WX_APPID/WX_SECRET(阶段5);未配置时返回 PENDING_CREDENTIALS,
+   * 前端展示 scene 协议与占位说明。定时刷新(60s 窗口)即「防截屏」语义的实现载体。
+   */
+  async qrcode(storeId: number): Promise<{
+    scene: string
+    businessDate: string
+    refreshAfterSeconds: number
+    qrcodeType: 'WX_MP' | 'PENDING_CREDENTIALS'
+    qrcodeImage: string | null
+  }> {
+    const now = new Date()
+    const cut = await this.storeCut(storeId)
+    const businessDate = resolveBusinessDate(now, { cutTime: cut })
+    // 60s 时间窗:跨窗刷新 → 现场屏二维码周期性变化(防截屏滥用)
+    const window = Math.floor(now.getTime() / 60_000)
+    const scene = 'lm.checkin|s=' + String(storeId) + '|bd=' + businessDate + '|w=' + String(window)
+    const wxReady = env().WX_APPID !== undefined && env().WX_APPID !== '' && env().WX_SECRET !== undefined && env().WX_SECRET !== ''
+    return {
+      scene,
+      businessDate,
+      refreshAfterSeconds: 60 - (Math.floor(now.getTime() / 1000) % 60),
+      qrcodeType: wxReady ? 'WX_MP' : 'PENDING_CREDENTIALS',
+      // 阶段5:调微信 getwxacodeunlimit 生成带参小程序码,base64 写入此字段
+      qrcodeImage: null,
+    }
+  }
+
   /** 实时看板(阶段2:考勤态 + session 上钟/串台;DB 推导,Redis 承载为 II 期) */
   async realtime(
     q: { storeId: number; groupId?: number; keyword?: string },
@@ -459,6 +488,14 @@ export class AttendanceController {
       groupId: groupId !== undefined ? Number(groupId) : undefined,
       keyword,
     })
+  }
+
+  /** 报备现场屏签到码(A15;scene 60s 轮换) */
+  @RequirePerm('attend:qrcode')
+  @Get('qrcode')
+  async qrcode(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.qrcode(user?.storeId ?? 1)
   }
 }
 

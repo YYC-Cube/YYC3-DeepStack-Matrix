@@ -78,7 +78,9 @@ const EMPTY_FORM: FormState = {
 }
 
 export default function ArtistsPage() {
-  const hasPerm = useAuthStore((s) => s.permCodes.includes.bind(s.permCodes))
+  // 注意:选择器必须返回稳定引用(返回 includes.bind 新函数会触发 zustand 无限重渲染)
+  const permCodes = useAuthStore((s) => s.permCodes)
+  const hasPerm = (code: string): boolean => permCodes.includes(code)
   const [rows, setRows] = useState<ArtistRow[]>()
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -295,7 +297,7 @@ export default function ArtistsPage() {
           )
         }
       />
-      <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">
+      <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <Input
           className="w-52"
           placeholder="姓名/艺名/腰牌号/手机号"
@@ -322,7 +324,7 @@ export default function ArtistsPage() {
 
       {/* 批量设置条(A1 交互) */}
       {selected.length > 0 && hasPerm('artist:batch') && (
-        <Card className="p-3 mb-4 flex items-center gap-3 flex-wrap text-sm">
+        <Card className="p-3 mb-4 flex flex-row flex-wrap items-center gap-3 text-sm">
           <span className="text-[#8b9bb4]">已选 {String(selected.length)} 人 · 批量:</span>
           <BatchControls groups={groups} levels={levels} onApply={batch} />
         </Card>

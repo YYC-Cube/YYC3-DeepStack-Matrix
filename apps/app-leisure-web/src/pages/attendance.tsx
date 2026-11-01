@@ -111,7 +111,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
     return (
       <div>
         <PageHeader title="报备汇总" desc="组别×主管矩阵(10 列);口径:按营业日" />
-        <Card className="p-4 mb-4 flex items-center gap-3">
+        <Card className="p-4 mb-4 flex flex-row items-center gap-3">
           <Input type="date" className="w-40" value={date} onChange={(e) => setDate(e.target.value)} />
         </Card>
         <Card className="p-0 overflow-x-auto">
@@ -189,7 +189,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
           )
         }
       />
-      <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">
+      <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <Input type="date" className="w-40" value={date} onChange={(e) => setDate(e.target.value)} />
         {view === 'reports' && (
           <>

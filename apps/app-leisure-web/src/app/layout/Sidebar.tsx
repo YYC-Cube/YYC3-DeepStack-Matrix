@@ -50,6 +50,7 @@ export const MENU: MenuGroup[] = [
       { key: 'a16', label: '报备明细', path: '/attendance/reports', perm: 'attend:ledger:view' },
       { key: 'a17', label: '报备汇总', path: '/attendance/summary', perm: 'attend:summary:view' },
       { key: 'a18', label: '补打卡', path: '/attendance/manual', perm: 'attend:manual' },
+      { key: 'a15', label: '报备现场屏', path: '/attendance/screen', perm: 'attend:qrcode' },
     ],
   },
   {
@@ -78,7 +79,6 @@ export const MENU: MenuGroup[] = [
     label: '扩展域(II 期)',
     icon: LayoutDashboard,
     items: [
-      { key: 'a15', label: '报备现场屏', path: '/todo/a15', perm: 'attend:qrcode', badge: 'IV' },
       { key: 'a21', label: '艺人订单', path: '/todo/a21', perm: 'order:view', badge: 'II' },
       { key: 'a22', label: '展示控制台', path: '/todo/a22', perm: 'showcase:view', badge: 'II' },
       { key: 'a23', label: '服务评价', path: '/todo/a23', perm: 'review:view', badge: 'II' },

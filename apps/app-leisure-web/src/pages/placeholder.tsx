@@ -10,7 +10,6 @@ const TITLES: Record<string, { title: string; milestone: string; reason: string 
   a12: { title: '台票购买', milestone: 'II 期', reason: 'ticket 模块为 II 期范围' },
   a13: { title: '台票购买记录', milestone: 'II 期', reason: 'ticket 模块为 II 期范围' },
   a14: { title: '台票使用记录', milestone: 'II 期', reason: 'ticket 模块为 II 期范围' },
-  a15: { title: '报备现场屏(全屏二维码)', milestone: '阶段4/5', reason: '二维码内容为带参小程序码,依赖艺人端小程序(阶段5)与 PWA 全屏模式(阶段4)' },
   a21: { title: '艺人订单', milestone: 'II 期', reason: '自有订单闭环为 II 期范围' },
   a22: { title: '展示控制台', milestone: 'II 期', reason: 'showcase 投放为 II 期范围' },
   a23: { title: '服务评价', milestone: 'II 期', reason: '评价域为 II 期范围' },

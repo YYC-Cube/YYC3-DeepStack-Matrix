@@ -137,7 +137,7 @@ export default function FeeTxnsPage() {
           <p className="text-xl font-semibold mt-1 text-[#e0f0ff]">{String(total)}</p>
         </Card>
       </div>
-      <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">
+      <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <Input type="date" className="w-40" value={from} onChange={(e) => { setPage(1); setFrom(e.target.value) }} />
         <span className="text-[#8b9bb4]">至</span>
         <Input type="date" className="w-40" value={to} onChange={(e) => { setPage(1); setTo(e.target.value) }} />

@@ -1,0 +1,27 @@
+{
+  "name": "YYC³ LeisureManage · 艺人管理",
+  "short_name": "LeisureManage",
+  "description": "YYC3-LeisureManage 独立运营多门店艺人管理系统 · Web 管理端/PWA(收银/主管)",
+  "id": "/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060e1f",
+  "theme_color": "#060e1f",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

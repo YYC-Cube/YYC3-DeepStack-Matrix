@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- maskable 图标:安全区内容收拢到中心 80% -->
+  <rect width="512" height="512" fill="#060e1f"/>
+  <circle cx="256" cy="230" r="120" fill="none" stroke="#00d4ff" stroke-width="18" opacity="0.35"/>
+  <path d="M256 152v78l56 32" fill="none" stroke="#00d4ff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="230" r="13" fill="#00ff88"/>
+  <text x="256" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="700" fill="#00d4ff">YYC³</text>
+</svg>

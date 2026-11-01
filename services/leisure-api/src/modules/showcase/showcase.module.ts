@@ -59,7 +59,7 @@ export class ShowcaseService {
     storeId: number,
     body: CastDto,
     operatorId: number,
-  ): Promise<{ ids: number[]; skipped: number[] }> {
+  ): Promise<{ ids: number[]; skipped: number[]; rejected: number[] }> {
     if (body.roomId !== undefined && body.groupId !== undefined) {
       throw new BadRequestException('roomId 与 groupId 二选一')
     }
@@ -71,13 +71,19 @@ export class ShowcaseService {
       const group = await this.prisma.artistGroup.findFirst({ where: { id: body.groupId, storeId } })
       if (group === null) throw new NotFoundException('组别不存在')
     }
-    const artistIds = Array.from(new Set(body.artistIds))
+    const requested = Array.from(new Set(body.artistIds))
     const artists = await this.prisma.artist.findMany({
-      where: { id: { in: artistIds }, storeId, deletedAt: null },
-      select: { id: true },
+      where: { id: { in: requested }, storeId, deletedAt: null },
+      select: { id: true, auditStatus: true },
     })
-    if (artists.length !== artistIds.length) {
+    if (artists.length !== requested.length) {
       throw new NotFoundException('部分艺人不存在或不属于本店')
+    }
+    // 上架管控(需求全集 §9 规则 4):仅审核通过的艺人可对外展示;未审核者返回 rejected 不投放
+    const rejected = artists.filter((a) => a.auditStatus !== 'APPROVED').map((a) => a.id)
+    const artistIds = artists.filter((a) => a.auditStatus === 'APPROVED').map((a) => a.id)
+    if (artistIds.length === 0) {
+      throw new BadRequestException('所选艺人均未审核通过,不可投放展示')
     }
     // 去重:同艺人同目标进行中投放不重复落记录
     const active = await this.prisma.showcaseCast.findMany({
@@ -109,11 +115,12 @@ export class ShowcaseService {
     if (ids.length > 0) {
       await this.audit(storeId, operatorId, 'SHOWCASE_CAST', 'showcase_cast', ids.join(','), null, {
         artistIds: toCreate,
+        rejected,
         roomId: body.roomId ?? null,
         groupId: body.groupId ?? null,
       })
     }
-    return { ids, skipped }
+    return { ids, skipped, rejected }
   }
 
   /** 投放列表(默认仅进行中;active=false 查全部,倒序最多 200) */

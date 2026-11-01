@@ -13,6 +13,7 @@ interface BalanceRow {
   validDays: number
   balance: number
   expireAt: string | null
+  expired?: boolean
 }
 interface TxnRow {
   id: number
@@ -69,7 +70,11 @@ export default function Tickets() {
             <View className="mp-txn-left">
               <Text className="mp-txn-type">{r.name}</Text>
               <Text className="mp-muted">
-                {r.validDays > 0 && r.expireAt !== null ? '有效期至 ' + r.expireAt.slice(0, 10) : '长期有效'}
+                {r.expired === true
+                  ? '已过期(' + (r.expireAt ?? '').slice(0, 10) + ')'
+                  : r.validDays > 0 && r.expireAt !== null
+                    ? '有效期至 ' + r.expireAt.slice(0, 10)
+                    : '长期有效'}
               </Text>
             </View>
             <Text className={r.balance > 0 ? 'mp-balance' : 'mp-muted'}>{String(r.balance)} 张</Text>

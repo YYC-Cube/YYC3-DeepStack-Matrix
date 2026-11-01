@@ -61,7 +61,9 @@ export default function ShowcasePage(): React.JSX.Element {
         ...(roomId !== '' ? { roomId: Number(roomId) } : {}),
       })
       toast.success(
-        '已投放 ' + String(res.ids.length) + ' 人' + (res.skipped.length > 0 ? ',去重跳过 ' + String(res.skipped.length) + ' 人' : ''),
+        '已投放 ' + String(res.ids.length) + ' 人' +
+          (res.skipped.length > 0 ? ',去重跳过 ' + String(res.skipped.length) + ' 人' : '') +
+          (res.rejected.length > 0 ? ',未审核通过被拒 ' + String(res.rejected.length) + ' 人' : ''),
       )
       setPicked([])
       await load()

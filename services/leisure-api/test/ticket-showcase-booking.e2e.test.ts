@@ -38,6 +38,7 @@ interface Envelope<T> {
 
 let adminToken = ''
 let artistId = 0
+let pendingArtistId = 0
 let ruleId = 0
 
 describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/预约/计费钳位', () => {
@@ -55,6 +56,8 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
       adminToken,
     )
     artistId = artists.body.data.rows.find((a) => a.badgeNo === 'A1001')!.id
+    // A1003 为 seed 中 PENDING(未审核)艺人,用于展示投放门禁反向用例
+    pendingArtistId = artists.body.data.rows.find((a) => a.badgeNo === 'A1003')?.id ?? 0
 
     // 规则幂等:同名单查复用,否则建
     const existing = await api<{ rows: Array<{ id: number; name: string }> }>(
@@ -127,22 +130,37 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     expect(txns.body.data.total).toBeGreaterThanOrEqual(1)
   })
 
-  it('展示:投放 → 重复投放去重 → 结束', async () => {
-    const first = await api<{ ids: number[]; skipped: number[] }>(
+  it('展示:投放 → 重复投放去重 → 未审核艺人被拒(§9 规则 4)→ 结束', async () => {
+    const first = await api<{ ids: number[]; skipped: number[]; rejected: number[] }>(
       'POST',
       '/showcase/cast',
       { artistIds: [artistId] },
       adminToken,
     )
     expect(first.body.code).toBe(0)
+    expect(first.body.data.rejected).toHaveLength(0)
 
-    const dup = await api<{ ids: number[]; skipped: number[] }>(
+    const dup = await api<{ ids: number[]; skipped: number[]; rejected: number[] }>(
       'POST',
       '/showcase/cast',
       { artistIds: [artistId] },
       adminToken,
     )
     expect(dup.body.data.skipped).toHaveLength(1)
+
+    if (pendingArtistId !== 0) {
+      // 仅未审核艺人 → 整单拒绝;混投 → 已审核投放、未审核进 rejected
+      const onlyPending = await api('POST', '/showcase/cast', { artistIds: [pendingArtistId] }, adminToken)
+      expect(onlyPending.body.code).not.toBe(0)
+      const mixed = await api<{ ids: number[]; skipped: number[]; rejected: number[] }>(
+        'POST',
+        '/showcase/cast',
+        { artistIds: [artistId, pendingArtistId] },
+        adminToken,
+      )
+      expect(mixed.body.code).toBe(0)
+      expect(mixed.body.data.rejected).toEqual([pendingArtistId])
+    }
 
     const list = await api<{ rows: Array<{ id: number; artistId: number }> }>(
       'GET',
@@ -151,6 +169,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
       adminToken,
     )
     expect(list.body.data.rows.some((r) => r.artistId === artistId)).toBe(true)
+    expect(list.body.data.rows.some((r) => r.artistId === pendingArtistId)).toBe(false)
 
     for (const id of first.body.data.ids) {
       const ended = await api('POST', '/showcase/' + String(id) + '/end', {}, adminToken)

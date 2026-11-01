@@ -385,7 +385,7 @@ export class TicketService {
   /* ── 余额(按规则聚合;含有效期) ── */
 
   async balance(artistId: number, storeId?: number): Promise<{
-    rows: Array<{ ticketRuleId: number; name: string; validDays: number; balance: number; expireAt: string | null }>
+    rows: Array<{ ticketRuleId: number; name: string; validDays: number; balance: number; expireAt: string | null; expired: boolean }>
     total: number
   }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: artistId, deletedAt: null } })
@@ -406,16 +406,21 @@ export class TicketService {
     const rules = ruleIds.length > 0
       ? await this.prisma.ticketRule.findMany({ where: { id: { in: ruleIds } } })
       : []
+    const now = Date.now()
     const rows = rules.map((r) => {
-      const bal = ticketBalance(txns, r.id)
+      const raw = ticketBalance(txns, r.id)
       let expireAt: string | null = null
+      let expired = false
       if (r.validDays > 0) {
         const buys = txns.filter((t) => t.ticketRuleId === r.id && t.type === 'BUY').map((t) => t.createdAt)
         if (buys.length > 0) {
-          expireAt = new Date(Math.min(...buys) + r.validDays * 86_400_000).toISOString()
+          const expireTs = Math.min(...buys) + r.validDays * 86_400_000
+          expireAt = new Date(expireTs).toISOString()
+          // 与 canUseTicket 同口径:到期即不可用,余额视图归零(资金无损,仅展示一致性)
+          expired = now >= expireTs
         }
       }
-      return { ticketRuleId: r.id, name: r.name, validDays: r.validDays, balance: bal, expireAt }
+      return { ticketRuleId: r.id, name: r.name, validDays: r.validDays, balance: expired ? 0 : raw, expireAt, expired }
     })
     return { rows, total: rows.reduce((acc, r) => acc + r.balance, 0) }
   }

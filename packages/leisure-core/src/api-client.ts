@@ -55,13 +55,14 @@ export interface TicketTxnRow extends Omit<TicketTxn, 'payChannel' | 'refSession
   operatorId: number | null
 }
 
-/** 台票余额行(按规则聚合;expireAt 为首购+validDays,长期票为 null) */
+/** 台票余额行(按规则聚合;expireAt 为首购+validDays,长期票为 null;expired=到期后余额视图归零) */
 export interface TicketBalanceRow {
   ticketRuleId: number
   name: string
   validDays: number
   balance: number
   expireAt: string | null
+  expired: boolean
 }
 
 /** 展示投放行 */
@@ -439,8 +440,9 @@ export class LeisureApiClient {
   showcase = {
     list: (q?: { active?: boolean; roomId?: number; groupId?: number }) =>
       this.get<{ rows: ShowcaseCastRow[] }>('/showcase', q),
+    /** 投放:仅审核通过艺人可投(rejected=未审核被拒);同目标去重(skipped) */
     cast: (p: { artistIds: number[]; roomId?: number; groupId?: number }, idemKey?: string) =>
-      this.post<{ ids: number[]; skipped: number[] }>('/showcase/cast', p, idemKey),
+      this.post<{ ids: number[]; skipped: number[]; rejected: number[] }>('/showcase/cast', p, idemKey),
     end: (id: number) => this.post<{ ended: true }>('/showcase/' + String(id) + '/end', {}),
     endAll: (p?: { roomId?: number; groupId?: number }) =>
       this.post<{ ended: number }>('/showcase/end-all', p ?? {}),

@@ -1,10 +1,11 @@
 /**
  * 预约管理模块:客人预约艺人/包厢(实测 PC「预约管理」列名:预约号/预约时间/包厢/组别/艺人/状态)
  * 模型:artist_booking(storeId+bookingNo 唯一;status BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定)
- * - 预约号自动生成 BK{yyyymmdd}-{序号};到店(ARRIVED)可带开房动作在前端引导,此处只做状态流转
- * - 预约锁钟/到店自动上钟(需求全集 P1)为后续项,本模块先把底座与流转落地
+ * - 预约号自动生成 BK{yyyymmdd}-{序号};押金登记口径;锁钟期=bookingTime+holdMinutes(期内撞开房 40915)
+ * - 到店(ARRIVED)且指名房+艺人 → 自动建叫钟(QUEUED,复用 RoomService.createCall;callId 回写)
  */
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -17,13 +18,14 @@ import {
   Query,
   Req,
 } from '@nestjs/common'
-import { IsIn, IsInt, IsISO8601, IsOptional, IsString, Length } from 'class-validator'
+import { IsIn, IsInt, IsISO8601, IsNumber, IsOptional, IsString, Length, Max, Min } from 'class-validator'
 import type { Request } from 'express'
 import { randomInt } from 'node:crypto'
 import { ERR, LeisureError, resolveBusinessDate } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { RoomModule, RoomService } from '../room/room.module.js'
 
 /* ── 状态机(对齐 leisure-core BookingStatus) ── */
 
@@ -62,6 +64,18 @@ class CreateBookingDto {
   @IsString()
   @Length(1, 32)
   bookingNo?: string
+  /** 押金(元;登记口径,收款在线下) */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1_000_000)
+  deposit?: number
+  /** 锁钟分钟数(默认 30;bookingTime+holdMinutes 内该房拒绝他人开房 40915) */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(24 * 60)
+  holdMinutes?: number
 }
 
 class SetStatusDto {
@@ -76,7 +90,10 @@ const MAX_PAGE_SIZE = 100
 
 @Injectable()
 export class BookingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly roomService: RoomService,
+  ) {}
 
   async list(
     storeId: number,
@@ -112,6 +129,9 @@ export class BookingService {
         artistName: r.artistId !== null ? r.artist?.stageName ?? r.artistName : r.artistName,
         badgeNo: r.artist?.badgeNo ?? null,
         status: r.status,
+        deposit: Number(r.deposit),
+        holdUntil: r.holdUntil !== null ? r.holdUntil.toISOString() : null,
+        callId: r.callId,
       })),
       total,
       page,
@@ -169,6 +189,13 @@ export class BookingService {
         groupId: body.groupId ?? null,
         artistId: body.artistId ?? null,
         artistName,
+        deposit: body.deposit ?? 0,
+        holdMinutes: body.holdMinutes ?? 30,
+        // 锁钟截止=到店时间+锁钟分钟(仅指名包厢时有意义;无房预约不锁)
+        holdUntil:
+          body.roomId !== undefined
+            ? new Date(bookingTime.getTime() + (body.holdMinutes ?? 30) * 60_000)
+            : null,
         status: 'BOOKED',
       },
     })
@@ -181,7 +208,7 @@ export class BookingService {
     storeId: number,
     status: Exclude<BookingStatus, 'BOOKED'>,
     operatorId: number,
-  ): Promise<{ status: BookingStatus }> {
+  ): Promise<{ status: BookingStatus; autoCallId: number | null }> {
     const before = await this.prisma.artistBooking.findFirst({ where: { id, storeId } })
     if (before === null) throw new NotFoundException('预约不存在')
     const cur = before.status as BookingStatus
@@ -190,8 +217,22 @@ export class BookingService {
       throw new LeisureError(ERR.BOOKING_STATE_INVALID, '预约状态不可从 ' + cur + ' 流转到 ' + status)
     }
     const after = await this.prisma.artistBooking.update({ where: { id }, data: { status } })
-    await this.audit(storeId, operatorId, 'BOOKING_STATUS', 'artist_booking', String(id), before, after)
-    return { status }
+
+    // 到店自动叫钟(P1):指名房+艺人的预约到店 → 自动进叫钟队列(QUEUED,前台大屏/语音接管)
+    let autoCallId: number | null = null
+    if (status === 'ARRIVED' && before.roomId !== null && before.artistId !== null) {
+      const call = await this.roomService.createCall(
+        { roomId: before.roomId, artistId: before.artistId },
+        { sub: operatorId, name: '', storeId, scope: 'ADMIN' },
+      )
+      await this.prisma.artistBooking.update({ where: { id }, data: { callId: call.callId } })
+      autoCallId = call.callId
+    }
+    await this.audit(storeId, operatorId, 'BOOKING_STATUS', 'artist_booking', String(id), before, {
+      ...after,
+      autoCallId,
+    })
+    return { status, autoCallId }
   }
 
   private async audit(
@@ -261,6 +302,7 @@ export class BookingController {
 }
 
 @Module({
+  imports: [RoomModule],
   controllers: [BookingController],
   providers: [BookingService, PrismaService],
   exports: [BookingService],

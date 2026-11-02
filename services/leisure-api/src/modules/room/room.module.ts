@@ -28,10 +28,13 @@ import {
   diffMinutes,
   resolveBusinessDate,
   sumFeeBalance,
+  ticketBalance,
+  canUseTicket,
   ERR,
   LeisureError,
   HttpVoiceBoxTransport,
   NoopVoiceBoxTransport,
+  type MeOrdersResult,
   type VoiceBoxResult,
   type VoiceBoxTransport,
 } from '@yyc3/leisure-core'
@@ -97,6 +100,17 @@ export interface BillPreview {
   totalAmount: number
   /** 在房艺人(抵扣分配参考:台费余额) */
   artists: Array<{ artistId: number; stageName: string | null; badgeNo: string | null; feeBalance: number }>
+  /** 在房艺人台票余额(§6.6 台票抵扣分配参考;可用性与核销校验同口径) */
+  ticketOptions: Array<{
+    artistId: number
+    stageName: string | null
+    badgeNo: string | null
+    ticketRuleId: number
+    ruleName: string
+    balance: number
+    faceValue: number
+    expireAt: string | null
+  }>
   billing: {
     feeMode: 'HOURLY' | 'FLAT'
     roundingEnabled: boolean
@@ -119,7 +133,7 @@ export class RoomService {
 
   /* ── 开房:创建房账 + 绑定在场艺人(进房即上钟,方案甲融合) ── */
   async open(
-    p: { roomId: number; artistIds: number[]; overrideReason?: string },
+    p: { roomId: number; artistIds: number[]; overrideReason?: string; ignoreBookingHold?: boolean },
     operator: Operator,
   ): Promise<{ roomSessionId: number; businessDate: string; dispatchMode: string; overridden: number[] }> {
     return this.prisma.$transaction(async (tx) => {
@@ -128,6 +142,20 @@ export class RoomService {
       if (room.status === 'OCCUPIED') throw new ConflictException('包厢占用中')
       if (room.status === 'MAINTENANCE') throw new ConflictException('包厢维修中')
       if (room.status === 'DISABLED') throw new ConflictException('包厢已停用')
+
+      // 预约锁钟(P1):存在未超时的 BOOKED 预约 → 40915;ignoreBookingHold 强开须记审计
+      if (p.ignoreBookingHold !== true) {
+        const held = await tx.artistBooking.findFirst({
+          where: { storeId: room.storeId, roomId: room.id, status: 'BOOKED', holdUntil: { gt: new Date() } },
+          select: { bookingNo: true },
+        })
+        if (held !== null) {
+          throw new LeisureError(
+            ERR.BOOKING_ROOM_HELD,
+            '该包厢预约锁钟中(' + held.bookingNo + '),请到「预约管理」处理或强开',
+          )
+        }
+      }
 
       const store = await tx.store.findUnique({ where: { id: room.storeId } })
       if (store === null) throw new NotFoundException('门店不存在')
@@ -179,24 +207,26 @@ export class RoomService {
           action: 'ROOM_OPENED',
           targetType: 'room_session',
           targetId: String(session.id),
-          afterJson: { roomId: room.id, roomNo: room.roomNo, artistIds: uniqueIds },
+          afterJson: { roomId: room.id, roomNo: room.roomNo, artistIds: uniqueIds, ignoreBookingHold: p.ignoreBookingHold === true },
         },
       })
       return { roomSessionId: session.id, businessDate, dispatchMode: dispatch.mode, overridden: dispatch.overridden }
     })
   }
 
-  /* ── 关房结算(方案甲核心):自动下钟 → Σ时间费+Σ点单 → 现金/台费抵扣/混合 ── */
+  /* ── 关房结算(方案甲核心):自动下钟 → Σ时间费+Σ点单 → 台票抵扣/台费抵扣/现金 ── */
   async close(
     p: {
       roomSessionId: number
-      settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
+      settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'
       feeDeductAllocations?: Array<{ artistId: number; amount: number }>
+      /** 台票抵扣(§6.6 并入结算):逐条 canUseTicket 校验 → 写 USE 行(只增)→ 抵扣额=qty×面值 */
+      ticketAllocations?: Array<{ artistId: number; ticketRuleId: number; qty: number }>
       remark?: string
     },
     operator: Operator,
     idemKey?: string,
-  ): Promise<{ roomFee: number; orderTotal: number; totalAmount: number; settledSessions: number }> {
+  ): Promise<{ roomFee: number; orderTotal: number; totalAmount: number; settledSessions: number; ticketDeductAmount: number; feeDeductAmount: number }> {
     return this.prisma.$transaction(async (tx) => {
       const rs = await tx.roomSession.findUnique({ where: { id: p.roomSessionId } })
       if (rs === null) throw new NotFoundException('房账不存在')
@@ -209,6 +239,7 @@ export class RoomService {
         where: { sessionId: rs.id, leftAt: null },
       })
       const settledSessionsArr: number[] = []
+      const firstSessionByArtist = new Map<number, number>() // 台票 USE 行 refSessionId 锚点
       let roomFee = 0
       for (const b of bound) {
         const live = await tx.showSession.findFirst({
@@ -222,6 +253,7 @@ export class RoomService {
           })
           roomFee += fin.feeAmount
           settledSessionsArr.push(live.id)
+          if (!firstSessionByArtist.has(b.artistId)) firstSessionByArtist.set(b.artistId, live.id)
         }
       }
 
@@ -232,6 +264,7 @@ export class RoomService {
       for (const s of pending) {
         roomFee += Number(s.feeAmount ?? 0)
         settledSessionsArr.push(s.id)
+        if (!firstSessionByArtist.has(s.artistId)) firstSessionByArtist.set(s.artistId, s.id)
       }
       roomFee = round2(roomFee)
 
@@ -243,7 +276,75 @@ export class RoomService {
 
       const totalAmount = round2(roomFee + orderTotal)
 
-      // ④ 台费抵扣:按艺人分配;Σ分配 = 抵扣额 ≤ 总额
+      // ③½ 台票抵扣(§6.6 并入结算):同票合并 → 事务内 canUseTicket 校验 → 写 USE 行(只增,refSessionId=本场首场次)
+      let ticketDeductAmount = 0
+      const ticketAllocs = p.ticketAllocations ?? []
+      if (p.settleType === 'TICKET' && ticketAllocs.length === 0) {
+        throw new BadRequestException('台票抵扣结算需提供 ticketAllocations')
+      }
+      if (ticketAllocs.length > 0 && p.settleType === 'FEE_DEDUCT') {
+        throw new BadRequestException('台票抵扣请选「台票」或「混合」结算')
+      }
+      if (ticketAllocs.length > 0) {
+        // 同(艺人,规则)合并数量,避免逐条校验重复消费同一余额
+        const merged = new Map<string, { artistId: number; ticketRuleId: number; qty: number }>()
+        for (const t of ticketAllocs) {
+          if (!Number.isInteger(t.qty) || t.qty <= 0) throw new BadRequestException('台票数量必须为正整数')
+          const key = String(t.artistId) + ':' + String(t.ticketRuleId)
+          const hit = merged.get(key)
+          if (hit !== undefined) hit.qty += t.qty
+          else merged.set(key, { artistId: t.artistId, ticketRuleId: t.ticketRuleId, qty: t.qty })
+        }
+        for (const t of merged.values()) {
+          const rule = await tx.ticketRule.findFirst({
+            where: { id: t.ticketRuleId, storeId: rs.storeId, deletedAt: null },
+          })
+          if (rule === null) throw new BadRequestException('台票规则不存在')
+          const txnRows = await tx.ticketTxn.findMany({
+            where: { artistId: t.artistId, ticketRuleId: rule.id },
+            select: { ticketRuleId: true, type: true, qty: true, createdAt: true },
+          })
+          const txns = txnRows.map((r) => ({
+            ticketRuleId: r.ticketRuleId,
+            type: r.type as 'BUY' | 'USE' | 'EXPIRE',
+            qty: r.qty,
+            createdAt: r.createdAt.toISOString(),
+          }))
+          const verdict = canUseTicket(txns, {
+            id: rule.id,
+            storeId: rule.storeId,
+            name: rule.name,
+            price: Number(rule.price),
+            validDays: rule.validDays,
+            status: rule.status === 1 ? 1 : 0,
+          })
+          if (!verdict.ok) {
+            throw new LeisureError(
+              verdict.reason === 'EXPIRED' ? ERR.TICKET_EXPIRED : ERR.TICKET_NO_BALANCE,
+              verdict.reason === 'EXPIRED' ? '台票已过期,不可抵扣' : '台票余额不足(艺人 ' + String(t.artistId) + ')',
+            )
+          }
+          if (ticketBalance(txns, rule.id) < t.qty) {
+            throw new LeisureError(ERR.TICKET_NO_BALANCE, '台票余额不足(艺人 ' + String(t.artistId) + ')')
+          }
+          ticketDeductAmount = round2(ticketDeductAmount + Number(rule.price) * t.qty)
+          await tx.ticketTxn.create({
+            data: {
+              storeId: rs.storeId,
+              businessDate: rs.businessDate,
+              artistId: t.artistId,
+              type: 'USE',
+              ticketRuleId: rule.id,
+              qty: t.qty,
+              amount: 0,
+              refSessionId: firstSessionByArtist.get(t.artistId) ?? null,
+              operatorId: operator.sub,
+            },
+          })
+        }
+      }
+
+      // ④ 台费抵扣:按艺人分配;台票+台费抵扣合计 ≤ 总额(余额现金收款)
       let feeDeductAmount = 0
       const allocations = p.feeDeductAllocations ?? []
       if (p.settleType === 'FEE_DEDUCT' || p.settleType === 'MIXED') {
@@ -254,9 +355,9 @@ export class RoomService {
           if (a.amount <= 0) throw new BadRequestException('抵扣额必须大于 0')
           feeDeductAmount = round2(feeDeductAmount + a.amount)
         }
-        if (feeDeductAmount > totalAmount) {
-          throw new BadRequestException('台费抵扣额超过结算总额')
-        }
+      }
+      if (round2(ticketDeductAmount + feeDeductAmount) > totalAmount) {
+        throw new BadRequestException('抵扣合计(台票+台费)超过结算总额')
       }
 
       // ⑤ 结算落账:抵扣部分逐艺人 ROOM_SETTLE(只增);现金部分直接收款登记
@@ -303,6 +404,7 @@ export class RoomService {
           totalAmount,
           settleType: p.settleType,
           feeDeductAmount: feeDeductAmount > 0 ? feeDeductAmount : null,
+          ticketDeductAmount: ticketDeductAmount > 0 ? ticketDeductAmount : null,
           status: 'CLOSED',
           closedBy: operator.sub,
           closedAt: now,
@@ -336,6 +438,8 @@ export class RoomService {
             totalAmount,
             settleType: p.settleType,
             feeDeductAmount: feeDeductAmount > 0 ? feeDeductAmount : null,
+            ticketDeductAmount: ticketDeductAmount > 0 ? ticketDeductAmount : null,
+            ticketAllocations: ticketAllocs.length > 0 ? ticketAllocs : undefined,
             txnIds,
           },
         },
@@ -346,6 +450,8 @@ export class RoomService {
         orderTotal,
         totalAmount,
         settledSessions: settledSessionsArr.length,
+        ticketDeductAmount,
+        feeDeductAmount,
       }
     })
   }
@@ -466,6 +572,58 @@ export class RoomService {
       })
     }
 
+    // ④½ 台票余额(§6.6 台票抵扣分配参考):在房艺人 × 规则聚合;可用性判定走单源 canUseTicket
+    const ticketOptions: BillPreview['ticketOptions'] = []
+    if (artistRows.length > 0) {
+      const ruleRows = await this.prisma.ticketRule.findMany({ where: { storeId: rs.storeId, deletedAt: null } })
+      const txnRows = await this.prisma.ticketTxn.findMany({
+        where: { artistId: { in: artistRows.map((a) => a.artistId) } },
+        select: { artistId: true, ticketRuleId: true, type: true, qty: true, createdAt: true },
+      })
+      const now = new Date()
+      for (const rule of ruleRows) {
+        const coreRule = {
+          id: rule.id,
+          storeId: rule.storeId,
+          name: rule.name,
+          price: Number(rule.price),
+          validDays: rule.validDays,
+          status: (rule.status === 1 ? 1 : 0) as 1 | 0,
+        }
+        for (const a of artistRows) {
+          const own = txnRows.filter((t) => t.artistId === a.artistId && t.ticketRuleId === rule.id)
+          if (own.length === 0) continue
+          const txns = own.map((t) => ({
+            ticketRuleId: t.ticketRuleId,
+            type: t.type as 'BUY' | 'USE' | 'EXPIRE',
+            qty: t.qty,
+            createdAt: t.createdAt.getTime(),
+          }))
+          const usable = canUseTicket(
+            txns.map((t) => ({ ...t, createdAt: new Date(t.createdAt).toISOString() })),
+            coreRule,
+            now,
+          )
+          if (!usable.ok) continue // 过期/零余额不进分配参考(与核销校验同口径)
+          let expireAt: string | null = null
+          if (rule.validDays > 0) {
+            const buys = txns.filter((t) => t.type === 'BUY').map((t) => t.createdAt)
+            if (buys.length > 0) expireAt = new Date(Math.min(...buys) + rule.validDays * 86_400_000).toISOString()
+          }
+          ticketOptions.push({
+            artistId: a.artistId,
+            stageName: a.stageName,
+            badgeNo: a.badgeNo,
+            ticketRuleId: rule.id,
+            ruleName: rule.name,
+            balance: ticketBalance(txns, rule.id),
+            faceValue: Number(rule.price),
+            expireAt,
+          })
+        }
+      }
+    }
+
     const settings = await this.storeConfig.getArtistSettings(rs.storeId)
     return {
       roomSessionId: rs.id,
@@ -488,6 +646,7 @@ export class RoomService {
       orderTotal,
       totalAmount: round2(roomFee + orderTotal),
       artists: artistRows,
+      ticketOptions,
       billing: {
         feeMode: settings.roomBilling.feeMode,
         roundingEnabled: settings.roomBilling.roundingEnabled,
@@ -921,14 +1080,75 @@ export class RoomService {
       orderTotalSoFar: round2(Number(orders._sum.totalAmount ?? 0)),
     }
   }
+
+  /** 艺人端「我的订单」(a21:房账+自点单归一视图;scope=ARTIST 强制本人) */
+  async myOrders(artistId: number): Promise<MeOrdersResult> {
+    const [orderRows, sessionRows] = await Promise.all([
+      this.prisma.selfOrder.findMany({
+        where: { artistId },
+        orderBy: { id: 'desc' },
+        take: 100,
+      }),
+      // 已随房账结算的本人在场场次(ROOM_FEE 行;未结算的进行中场次不入视图)
+      this.prisma.showSession.findMany({
+        where: { artistId, roomSessionId: { not: null } },
+        orderBy: { id: 'desc' },
+        take: 100,
+      }),
+    ])
+    const rsRows = await this.prisma.roomSession.findMany({
+      where: { id: { in: sessionRows.map((s) => s.roomSessionId ?? 0) } },
+      select: { id: true, roomNo: true },
+    })
+    const roomNoById = new Map(rsRows.map((r) => [r.id, r.roomNo]))
+
+    const orders: MeOrdersResult['orders'] = []
+    let orderTotal = 0
+    for (const o of orderRows) {
+      if (o.status !== 'CANCELLED') orderTotal = round2(orderTotal + Number(o.totalAmount))
+      orders.push({
+        id: o.id,
+        kind: 'SELF_ORDER',
+        businessDate: o.businessDate.toISOString().slice(0, 10),
+        roomNo: roomNoById.get(o.sessionId) ?? '',
+        amount: Number(o.totalAmount),
+        status: o.status,
+        placedAt: o.placedAt.toISOString(),
+        settledAt: o.settledAt !== null ? o.settledAt.toISOString() : null,
+        items: Array.isArray(o.items) ? (o.items as MeOrdersResult['orders'][number]['items']) : null,
+      })
+    }
+    let feeTotal = 0
+    for (const s of sessionRows) {
+      const amount = Number(s.feeAmount ?? 0)
+      feeTotal = round2(feeTotal + amount)
+      orders.push({
+        id: s.id,
+        kind: 'ROOM_FEE',
+        businessDate: s.businessDate.toISOString().slice(0, 10),
+        roomNo: s.roomSessionId !== null ? roomNoById.get(s.roomSessionId) ?? '' : '',
+        amount,
+        status: 'SETTLED',
+        placedAt: s.startAt.toISOString(),
+        settledAt: s.settledAt !== null ? s.settledAt.toISOString() : null,
+        items: null,
+      })
+    }
+    orders.sort((a, b) => (a.placedAt ?? '') < (b.placedAt ?? '') ? 1 : -1)
+    return {
+      orders,
+      summary: { orderTotal, feeTotal, count: orders.length },
+    }
+  }
 }
 
 /* ── Controller ── */
 
 interface RoomCloseBody {
   roomSessionId?: number
-  settleType?: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
+  settleType?: 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'
   feeDeductAllocations?: Array<{ artistId: number; amount: number }>
+  ticketAllocations?: Array<{ artistId: number; ticketRuleId: number; qty: number }>
   remark?: string
 }
 
@@ -937,7 +1157,7 @@ export class RoomController {
   constructor(private readonly svc: RoomService) {}
 
   @Post('room-sessions/open')
-  async open(@Req() req: Request, @Body() body: { roomId: number; artistIds: number[]; overrideReason?: string }): Promise<unknown> {
+  async open(@Req() req: Request, @Body() body: { roomId: number; artistIds: number[]; overrideReason?: string; ignoreBookingHold?: boolean }): Promise<unknown> {
     return this.svc.open(body, op(req))
   }
 
@@ -954,6 +1174,7 @@ export class RoomController {
         roomSessionId: id,
         settleType: body.settleType ?? 'CASH',
         feeDeductAllocations: body.feeDeductAllocations,
+        ticketAllocations: body.ticketAllocations,
         remark: body.remark,
       },
       user,
@@ -1109,6 +1330,14 @@ export class RoomController {
     if (user.scope !== 'ARTIST') throw new UnauthorizedException('仅艺人端')
     return this.svc.myRoom(user.sub, user.storeId ?? 1)
   }
+
+  /** 艺人端「我的订单」(a21):自点单 + 已随房账结算的本人上场次 */
+  @Get('me/orders')
+  async myOrders(@Req() req: Request): Promise<unknown> {
+    const user = op(req)
+    if (user.scope !== 'ARTIST') throw new UnauthorizedException('仅艺人端')
+    return this.svc.myOrders(user.sub)
+  }
 }
 
 /* ── Module ── */
@@ -1117,5 +1346,6 @@ export class RoomController {
   imports: [SessionModule, DispatchModule],
   controllers: [RoomController],
   providers: [RoomService, PrismaService, StoreConfigService],
+  exports: [RoomService],
 })
 export class RoomModule {}

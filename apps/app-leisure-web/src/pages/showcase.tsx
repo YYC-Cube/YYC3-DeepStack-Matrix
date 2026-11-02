@@ -86,7 +86,7 @@ export default function ShowcasePage(): React.JSX.Element {
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
         {/* 投放表单 */}
         <Card className="p-4 space-y-3">
-          <div className="text-sm text-[#00d4ff]">新建投放</div>
+          <div className="text-sm text-primary">新建投放</div>
           <div className="flex gap-2 items-center">
             <Input
               className="flex-1"
@@ -108,9 +108,9 @@ export default function ShowcasePage(): React.JSX.Element {
               ))}
             </select>
           </div>
-          <div className="max-h-72 overflow-y-auto space-y-1 border rounded p-2 border-[rgba(0,212,255,0.12)]">
+          <div className="max-h-72 overflow-y-auto space-y-1 border rounded p-2 border-line">
             {filtered.map((a) => (
-              <label key={a.id} className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+              <label key={a.id} className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
                 <Checkbox
                   checked={picked.includes(a.id)}
                   onCheckedChange={(c) => {
@@ -118,13 +118,13 @@ export default function ShowcasePage(): React.JSX.Element {
                   }}
                 />
                 {a.stageName ?? a.realName}
-                <span className="text-[#8b9bb4] text-xs">({a.badgeNo ?? '无腰牌'})</span>
+                <span className="text-fg-muted text-xs">({a.badgeNo ?? '无腰牌'})</span>
               </label>
             ))}
-            {filtered.length === 0 && <div className="text-xs text-[#8b9bb4] py-4 text-center">无匹配艺人</div>}
+            {filtered.length === 0 && <div className="text-xs text-fg-muted py-4 text-center">无匹配艺人</div>}
           </div>
           <div className="flex justify-between">
-            <span className="text-xs text-[#8b9bb4] self-center">已选 {String(picked.length)} 人</span>
+            <span className="text-xs text-fg-muted self-center">已选 {String(picked.length)} 人</span>
             <Button disabled={busy} onClick={() => void cast()}>
               投放
             </Button>
@@ -133,7 +133,7 @@ export default function ShowcasePage(): React.JSX.Element {
         {/* 进行中投放 */}
         <Card className="p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-[#00d4ff]">进行中投放({String(rows.length)})</div>
+            <div className="text-sm text-primary">进行中投放({String(rows.length)})</div>
             <ConfirmButton
               confirmTitle="确认结束全部投放?"
               confirmDesc="所有进行中的投放将写入结束时间(记录保留)"
@@ -149,11 +149,11 @@ export default function ShowcasePage(): React.JSX.Element {
           </div>
           <div className="space-y-2 max-h-[420px] overflow-y-auto">
             {rows.map((r) => (
-              <div key={r.id} className="flex items-center gap-3 text-sm border-b border-[rgba(0,212,255,0.06)] pb-2">
-                <span className="text-[#e0f0ff] w-28 truncate">{r.stageName ?? r.realName}</span>
-                <span className="text-[#8b9bb4] text-xs">{r.badgeNo ?? ''}</span>
+              <div key={r.id} className="flex items-center gap-3 text-sm border-b border-primary/6 pb-2">
+                <span className="text-[var(--lm-fg)] w-28 truncate">{r.stageName ?? r.realName}</span>
+                <span className="text-fg-muted text-xs">{r.badgeNo ?? ''}</span>
                 <StatusBadge label={r.roomNo ?? '门店大屏'} color="#00d4ff" />
-                <span className="text-xs text-[#8b9bb4] ml-auto">{r.createdAt.slice(11, 16)} 起</span>
+                <span className="text-xs text-fg-muted ml-auto">{r.createdAt.slice(11, 16)} 起</span>
                 <Button
                   size="sm"
                   variant="outline"
@@ -171,7 +171,7 @@ export default function ShowcasePage(): React.JSX.Element {
                 </Button>
               </div>
             ))}
-            {rows.length === 0 && <div className="text-xs text-[#8b9bb4] py-8 text-center">暂无进行中投放</div>}
+            {rows.length === 0 && <div className="text-xs text-fg-muted py-8 text-center">暂无进行中投放</div>}
           </div>
         </Card>
       </div>

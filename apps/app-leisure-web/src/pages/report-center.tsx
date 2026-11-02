@@ -102,11 +102,11 @@ export default function ReportCenterPage() {
         desc="4 张含包厢房号/类型维度(需求全集 §8.3);CSV 导出带 BOM,Excel 直开;xlsx 真格式 II 期"
       />
       <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
-        <span className="text-xs text-[#8b9bb4] w-16">区间</span>
+        <span className="text-xs text-fg-muted w-16">区间</span>
         <Input type="date" className="w-40" value={from} onChange={(e) => setFrom(e.target.value)} />
-        <span className="text-[#8b9bb4]">至</span>
+        <span className="text-fg-muted">至</span>
         <Input type="date" className="w-40" value={to} onChange={(e) => setTo(e.target.value)} />
-        <span className="text-xs text-[#8b9bb4] w-16 ml-4">汇总日</span>
+        <span className="text-xs text-fg-muted w-16 ml-4">汇总日</span>
         <Input type="date" className="w-40" value={summaryDay} onChange={(e) => setSummaryDay(e.target.value)} />
       </Card>
 
@@ -114,17 +114,17 @@ export default function ReportCenterPage() {
         {REPORTS.filter((r) => permCodes.includes(r.perm) || permCodes.includes('report:export')).map((r) => (
           <Card key={r.key} className="p-4">
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-sm font-medium text-[#e0f0ff]">{r.title}</p>
+              <p className="text-sm font-medium text-[var(--lm-fg)]">{r.title}</p>
               {r.roomDims && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-[#00ff8833] text-[#00ff88]">包厢维度</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded border border-success/20 text-success">包厢维度</span>
               )}
             </div>
-            <p className="text-xs text-[#8b9bb4] mb-3">{r.desc}</p>
+            <p className="text-xs text-fg-muted mb-3">{r.desc}</p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => void openPreview(r)}>
                 {busy === r.key ? '查询中…' : '预览'}
               </Button>
-              <Button variant="outline" size="sm" className="text-[#00d4ff]" disabled={busy !== ''} onClick={() => void download(r)}>
+              <Button variant="outline" size="sm" className="text-primary" disabled={busy !== ''} onClick={() => void download(r)}>
                 {busy === r.key + '-dl' ? '导出中…' : '导出 CSV'}
               </Button>
             </div>
@@ -134,13 +134,13 @@ export default function ReportCenterPage() {
 
       {preview !== null && (
         <Card className="p-4 mt-4 overflow-x-auto">
-          <p className="text-sm text-[#00d4ff] mb-2">{preview.title} · 前 {String(preview.rows.length - 1)} 行</p>
+          <p className="text-sm text-primary mb-2">{preview.title} · 前 {String(preview.rows.length - 1)} 行</p>
           <table className="w-full text-xs">
             <tbody>
               {preview.rows.map((row, i) => (
-                <tr key={i} className={i === 0 ? 'text-[#8b9bb4] border-b border-[rgba(0,212,255,0.2)]' : 'border-b border-[rgba(0,212,255,0.06)]'}>
+                <tr key={i} className={i === 0 ? 'text-fg-muted border-b border-line' : 'border-b border-primary/6'}>
                   {row.map((cell, j) => (
-                    <td key={j} className="px-2 py-1.5 text-[#e0f0ff] whitespace-nowrap max-w-[240px] truncate">{cell}</td>
+                    <td key={j} className="px-2 py-1.5 text-[var(--lm-fg)] whitespace-nowrap max-w-[240px] truncate">{cell}</td>
                   ))}
                 </tr>
               ))}

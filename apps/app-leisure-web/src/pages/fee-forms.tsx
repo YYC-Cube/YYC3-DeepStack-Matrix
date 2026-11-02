@@ -48,20 +48,20 @@ function ArtistPicker({ onPick }: { onPick: (a: ArtistRow) => void }): React.JSX
         </Button>
       </div>
       {rows.length > 0 && (
-        <Card className="p-1 divide-y divide-[rgba(0,212,255,0.08)]">
+        <Card className="p-1 divide-y divide-primary/8">
           {rows.map((a) => (
             <div
               key={a.id}
               onClick={() => onPick(a)}
-              className="px-3 py-2 text-sm cursor-pointer rounded hover:bg-[rgba(0,212,255,0.06)] flex justify-between"
+              className="px-3 py-2 text-sm cursor-pointer rounded hover:bg-primary/6 flex justify-between"
             >
-              <span className="text-[#e0f0ff]">{a.stageName ?? a.realName}</span>
-              <span className="text-[#8b9bb4]">{a.badgeNo ?? '无腰牌'} · {a.realName}</span>
+              <span className="text-[var(--lm-fg)]">{a.stageName ?? a.realName}</span>
+              <span className="text-fg-muted">{a.badgeNo ?? '无腰牌'} · {a.realName}</span>
             </div>
           ))}
         </Card>
       )}
-      {searched && rows.length === 0 && <p className="text-xs text-[#8b9bb4]">未找到匹配档案</p>}
+      {searched && rows.length === 0 && <p className="text-xs text-fg-muted">未找到匹配档案</p>}
     </div>
   )
 }
@@ -157,8 +157,8 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
           {artist === null ? (
             <ArtistPicker onPick={(a) => void pickBalance(a)} />
           ) : (
-            <div className="flex items-center justify-between rounded-md border border-[rgba(0,212,255,0.2)] px-3 py-2">
-              <span className="text-sm text-[#e0f0ff]">
+            <div className="flex items-center justify-between rounded-md border border-line px-3 py-2">
+              <span className="text-sm text-[var(--lm-fg)]">
                 {artist.stageName ?? artist.realName}({artist.badgeNo ?? '无腰牌'})
               </span>
               <Button variant="ghost" size="sm" onClick={() => setArtist(null)}>
@@ -168,9 +168,9 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
           )}
         </Field>
         {artist !== null && balance !== null && (
-          <div className="text-sm text-[#8b9bb4]">
+          <div className="text-sm text-fg-muted">
             当前余额:<MoneyText v={balance} /> 元
-            {balance < 0 && <span className="ml-2 text-[#ff3366] text-xs">(负余额=未收款,红色标识)</span>}
+            {balance < 0 && <span className="ml-2 text-destructive text-xs">(负余额=未收款,红色标识)</span>}
           </div>
         )}
         <Field label={isRecharge ? '充值金额(元)' : '扣费金额(元)'} required>
@@ -209,7 +209,7 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
           {busy ? '提交中…' : isRecharge ? '提交充值' : '提交扣费'}
         </ConfirmButton>
         {!isRecharge && (
-          <p className="text-xs text-[#8b9bb4]">提交后流水只增不改;更正请在「手动扣费记录」中走冲正(生成反向流水)。</p>
+          <p className="text-xs text-fg-muted">提交后流水只增不改;更正请在「手动扣费记录」中走冲正(生成反向流水)。</p>
         )}
       </Card>
     </div>

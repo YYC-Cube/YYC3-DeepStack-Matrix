@@ -23,9 +23,9 @@ export default function TodoPage() {
     <div>
       <PageHeader title={meta.title} desc={'里程碑:' + meta.milestone} />
       <Card className="p-10 text-center">
-        <p className="text-[#e0f0ff] mb-2">{meta.title} · 规划于 {meta.milestone}</p>
-        <p className="text-sm text-[#8b9bb4]">{meta.reason}</p>
-        <p className="text-xs text-[#8b9bb4] mt-4">依据:PROMPT 阶段划分 + 10-后端 §七 里程碑映射 + 需求全集 §11/§12(II/III 期参照项不入 MVP)</p>
+        <p className="text-[var(--lm-fg)] mb-2">{meta.title} · 规划于 {meta.milestone}</p>
+        <p className="text-sm text-fg-muted">{meta.reason}</p>
+        <p className="text-xs text-fg-muted mt-4">依据:PROMPT 阶段划分 + 10-后端 §七 里程碑映射 + 需求全集 §11/§12(II/III 期参照项不入 MVP)</p>
       </Card>
     </div>
   )

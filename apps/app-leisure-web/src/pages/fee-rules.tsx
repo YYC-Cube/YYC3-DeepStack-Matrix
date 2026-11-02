@@ -150,7 +150,7 @@ export default function FeeRulesPage() {
       <Card className="p-4 mb-4 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-[#8b9bb4] border-b border-[rgba(0,212,255,0.12)]">
+            <tr className="text-fg-muted border-b border-line">
               <th className="text-left py-2 pr-4">等级 \ 房型</th>
               {roomTypes.map((rt) => (
                 <th key={rt.id} className="text-left py-2 pr-4">
@@ -161,13 +161,13 @@ export default function FeeRulesPage() {
           </thead>
           <tbody>
             {matrix.map((row) => (
-              <tr key={row.level.id} className="border-b border-[rgba(0,212,255,0.06)]">
-                <td className="py-2 pr-4 text-[#e0f0ff]">{row.level.name}</td>
+              <tr key={row.level.id} className="border-b border-primary/6">
+                <td className="py-2 pr-4 text-[var(--lm-fg)]">{row.level.name}</td>
                 {row.cells.map((c) => (
                   <td key={c.roomTypeId} className="py-2 pr-4">
                     {c.amount !== null ? (
                       <button
-                        className="text-[#00d4ff] hover:underline"
+                        className="text-primary hover:underline"
                         onClick={() => {
                           const rule = (rules ?? []).find((r) => r.id === c.ruleId)
                           if (rule !== undefined) {
@@ -178,7 +178,7 @@ export default function FeeRulesPage() {
                         ¥{fmtMoney(c.amount)}
                       </button>
                     ) : (
-                      <span className="text-[#8b9bb4]/50">未配置</span>
+                      <span className="text-fg-muted/50">未配置</span>
                     )}
                   </td>
                 ))}
@@ -199,7 +199,7 @@ export default function FeeRulesPage() {
             <div className="flex flex-col gap-4">
               <Field label="艺人等级" required>
                 <select
-                  className="w-full h-9 rounded-md bg-[rgba(10,30,60,0.7)] border border-[rgba(0,212,255,0.2)] px-3 text-sm text-[#e0f0ff]"
+                  className="w-full h-9 rounded-md bg-card border border-line px-3 text-sm text-[var(--lm-fg)]"
                   value={form.levelId}
                   onChange={(e) => setForm({ ...form, levelId: e.target.value })}
                 >
@@ -212,10 +212,10 @@ export default function FeeRulesPage() {
                 </select>
               </Field>
               <div className="flex flex-col gap-2">
-                <Label className="text-[#8b9bb4] text-xs">适用包厢类型(至少一项)</Label>
+                <Label className="text-fg-muted text-xs">适用包厢类型(至少一项)</Label>
                 <div className="flex flex-wrap gap-3">
                   {roomTypes.map((rt) => (
-                    <label key={rt.id} className="flex items-center gap-1.5 text-sm text-[#e0f0ff]">
+                    <label key={rt.id} className="flex items-center gap-1.5 text-sm text-[var(--lm-fg)]">
                       <Checkbox
                         checked={form.roomTypeIds.includes(rt.id)}
                         onCheckedChange={(v) =>

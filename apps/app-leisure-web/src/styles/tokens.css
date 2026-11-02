@@ -1,0 +1,66 @@
+/**
+ * @file: tokens.css
+ * @description: LeisureManage 设计 token · --lm-* 变量契约(另一会话主题页按名读写,变量名一字不差)
+ *               参考源: YYC3-Cloud-Matrix src/app/config/design-system.ts + src/styles/theme.css
+ * @author: YanYuCloudCube Team
+ * @version: v1.0.0
+ * @created: 2026-11-02
+ * @status: active
+ * @tags: [style, design-token]
+ */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+   *  色彩系统 - 与 YYC3-Cloud-Matrix design-system.ts COLOR_TOKENS 同步
+   * ═══════════════════════════════════════════════════════════════ */
+  --lm-bg: #060e1f;
+  --lm-fg: #e0f0ff;
+  --lm-primary: #00d4ff;
+  --lm-primary-fg: #060e1f;
+  --lm-secondary: rgba(0, 180, 255, 0.15);
+  --lm-muted: rgba(0, 120, 200, 0.2);
+  --lm-muted-fg: #6bb8d9;
+  --lm-accent: rgba(0, 200, 255, 0.1);
+  --lm-danger: #ff3366;
+  --lm-border: rgba(0, 180, 255, 0.2);
+  --lm-ring: rgba(0, 212, 255, 0.5);
+  --lm-card: rgba(10, 30, 60, 0.7);
+  --lm-panel: rgba(6, 14, 31, 0.7);
+  --lm-line: rgba(0, 212, 255, 0.12);
+  --lm-success: #00ff88;
+  --lm-warning: #ffaa00;
+  --lm-text-muted: #8b9bb4;
+
+  /* ═══════════════════════════════════════════════════════════════
+   *  发光阴影 - 与 design-system.ts SHADOW_TOKENS 同步
+   * ═══════════════════════════════════════════════════════════════ */
+  --lm-glow-sm: 0 0 15px rgba(0, 180, 255, 0.05);
+  --lm-glow-md: 0 0 30px rgba(0, 180, 255, 0.1);
+  --lm-glow-lg: 0 0 40px rgba(0, 180, 255, 0.15);
+}
+
+/*
+ * Tailwind4 css-first 映射:生成 text-primary / bg-primary / border-line /
+ * text-fg-muted / text-success / text-warning / text-destructive /
+ * bg-panel / bg-card / divide-line / shadow-glow-* 等工具类
+ */
+@theme inline {
+  --color-primary: var(--lm-primary);
+  --color-primary-fg: var(--lm-primary-fg);
+  --color-secondary: var(--lm-secondary);
+  --color-muted: var(--lm-muted);
+  --color-muted-fg: var(--lm-muted-fg);
+  --color-accent: var(--lm-accent);
+  --color-destructive: var(--lm-danger);
+  --color-border: var(--lm-border);
+  --color-ring: var(--lm-ring);
+  --color-card: var(--lm-card);
+  --color-panel: var(--lm-panel);
+  --color-line: var(--lm-line);
+  --color-success: var(--lm-success);
+  --color-warning: var(--lm-warning);
+  --color-fg-muted: var(--lm-text-muted);
+  --shadow-glow-sm: var(--lm-glow-sm);
+  --shadow-glow-md: var(--lm-glow-md);
+  --shadow-glow-lg: var(--lm-glow-lg);
+}

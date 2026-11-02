@@ -269,12 +269,12 @@ export default function ArtistsPage() {
               编辑
             </Button>
             {r.auditStatus !== 'APPROVED' && hasPerm('artist:edit') && (
-              <Button variant="outline" size="sm" className="text-[#00ff88]" onClick={() => void audit(r.id, 'APPROVED')}>
+              <Button variant="outline" size="sm" className="text-success" onClick={() => void audit(r.id, 'APPROVED')}>
                 通过
               </Button>
             )}
             {r.auditStatus !== 'REJECTED' && hasPerm('artist:edit') && (
-              <Button variant="outline" size="sm" className="text-[#ff3366]" onClick={() => void audit(r.id, 'REJECTED')}>
+              <Button variant="outline" size="sm" className="text-destructive" onClick={() => void audit(r.id, 'REJECTED')}>
                 驳回
               </Button>
             )}
@@ -325,7 +325,7 @@ export default function ArtistsPage() {
       {/* 批量设置条(A1 交互) */}
       {selected.length > 0 && hasPerm('artist:batch') && (
         <Card className="p-3 mb-4 flex flex-row flex-wrap items-center gap-3 text-sm">
-          <span className="text-[#8b9bb4]">已选 {String(selected.length)} 人 · 批量:</span>
+          <span className="text-fg-muted">已选 {String(selected.length)} 人 · 批量:</span>
           <BatchControls groups={groups} levels={levels} onApply={batch} />
         </Card>
       )}

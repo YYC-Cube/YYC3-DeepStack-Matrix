@@ -52,7 +52,7 @@ export default function RealtimePage() {
             <div className="flex items-center gap-2">
               <StatusBadge label={RT_LABEL[s]} color={RT_COLOR[s]} />
             </div>
-            <p className="text-2xl font-semibold mt-2 text-[#e0f0ff]">{String(data?.counts[s] ?? 0)}</p>
+            <p className="text-2xl font-semibold mt-2 text-[var(--lm-fg)]">{String(data?.counts[s] ?? 0)}</p>
           </Card>
         ))}
       </div>
@@ -62,19 +62,19 @@ export default function RealtimePage() {
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
         {(data?.artists ?? []).map((a) => (
           <Card key={a.artistId} className="p-3 flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: RT_COLOR[a.status] ?? '#8b9bb4' }} />
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: RT_COLOR[a.status] ?? 'var(--lm-text-muted)' }} />
             <div className="min-w-0">
-              <p className="text-sm text-[#e0f0ff] truncate">
+              <p className="text-sm text-[var(--lm-fg)] truncate">
                 {a.stageName}
-                <span className="text-[#8b9bb4] ml-2 text-xs">{a.badgeNo ?? ''}</span>
+                <span className="text-fg-muted ml-2 text-xs">{a.badgeNo ?? ''}</span>
               </p>
-              <p className="text-xs text-[#8b9bb4] truncate">{a.roomName !== undefined ? '进行中 · ' + a.roomName : RT_LABEL[a.status]}</p>
+              <p className="text-xs text-fg-muted truncate">{a.roomName !== undefined ? '进行中 · ' + a.roomName : RT_LABEL[a.status]}</p>
             </div>
           </Card>
         ))}
       </div>
       {(data?.artists ?? []).length === 0 && (
-        <Card className="p-10 text-center text-[#8b9bb4]">暂无在册艺人</Card>
+        <Card className="p-10 text-center text-fg-muted">暂无在册艺人</Card>
       )}
     </div>
   )

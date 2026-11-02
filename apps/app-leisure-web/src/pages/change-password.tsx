@@ -79,25 +79,25 @@ export default function ChangePasswordPage(): React.JSX.Element {
   return (
     <div
       className="h-screen w-screen flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--lm-bg) 0%, var(--lm-panel) 30%, #081430 60%, #040c1a 100%)' }}
     >
       <Card className="w-[400px] p-8 flex flex-col gap-5">
         <div className="text-center">
-          <h1 className="text-lg font-semibold text-[#00d4ff]">修改密码</h1>
-          <p className="text-xs text-[#8b9bb4] mt-1">
+          <h1 className="text-lg font-semibold text-primary">修改密码</h1>
+          <p className="text-xs text-fg-muted mt-1">
             {mustChange ? '首次登录须先修改默认密码后方可使用系统' : name + ' · 修改登录密码'}
           </p>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-[#8b9bb4]">原密码</label>
+          <label className="text-xs text-fg-muted">原密码</label>
           <Input type="password" value={oldPassword} onChange={(e) => setOld(e.target.value)} autoComplete="current-password" />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-[#8b9bb4]">新密码(8-64 位,含字母与数字)</label>
+          <label className="text-xs text-fg-muted">新密码(8-64 位,含字母与数字)</label>
           <Input type="password" value={newPassword} onChange={(e) => setNew(e.target.value)} autoComplete="new-password" />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-[#8b9bb4]">确认新密码</label>
+          <label className="text-xs text-fg-muted">确认新密码</label>
           <Input
             type="password"
             value={confirm}

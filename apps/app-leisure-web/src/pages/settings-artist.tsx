@@ -96,7 +96,7 @@ export default function SettingsArtistPage() {
   }
 
   if (s === null) {
-    return <Card className="p-10 text-center text-[#8b9bb4]">加载中…</Card>
+    return <Card className="p-10 text-center text-fg-muted">加载中…</Card>
   }
 
   return (
@@ -112,10 +112,10 @@ export default function SettingsArtistPage() {
       />
       <div className="grid grid-cols-2 gap-4 max-w-4xl">
         <Card className="p-4 flex flex-col gap-3">
-          <p className="text-sm text-[#00d4ff]">① 资料必填项(后台新增艺人按此校验)</p>
+          <p className="text-sm text-primary">① 资料必填项(后台新增艺人按此校验)</p>
           <div className="grid grid-cols-3 gap-2">
             {ARTIST_PROFILE_FIELDS.map((f) => (
-              <label key={f.key} className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+              <label key={f.key} className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
                 <Checkbox
                   checked={s.requiredProfileFields.includes(f.key)}
                   onCheckedChange={(v) =>
@@ -132,29 +132,29 @@ export default function SettingsArtistPage() {
               </label>
             ))}
           </div>
-          <p className="text-xs text-[#8b9bb4]">缺项时新增接口返回 400 并点名字段;姓名为系统硬必填</p>
+          <p className="text-xs text-fg-muted">缺项时新增接口返回 400 并点名字段;姓名为系统硬必填</p>
         </Card>
         <Card className="p-4 flex flex-col gap-3">
-          <p className="text-sm text-[#00d4ff]">③ 签到后多久可签退(分钟)</p>
+          <p className="text-sm text-primary">③ 签到后多久可签退(分钟)</p>
           <Input type="number" value={String(s.checkoutMinMinutes)} onChange={(e) => setS({ ...s, checkoutMinMinutes: Number(e.target.value) })} />
-          <p className="text-xs text-[#8b9bb4]">防刷考勤;不足时限签退将 40905 拒绝</p>
+          <p className="text-xs text-fg-muted">防刷考勤;不足时限签退将 40905 拒绝</p>
         </Card>
         <Card className="p-4 flex flex-col gap-3">
-          <p className="text-sm text-[#00d4ff]">④ 手动扫码下钟</p>
-          <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+          <p className="text-sm text-primary">④ 手动扫码下钟</p>
+          <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox checked={s.allowSelfScanFinish} onCheckedChange={(v) => setS({ ...s, allowSelfScanFinish: v === true })} />
             艺人端支持扫码下钟(关闭=仅前台/后台下钟)
           </label>
-          <p className="text-sm text-[#00d4ff]">⑤ 未签到是否可上钟</p>
-          <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+          <p className="text-sm text-primary">⑤ 未签到是否可上钟</p>
+          <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox checked={s.allowStageWithoutCheckin} onCheckedChange={(v) => setS({ ...s, allowStageWithoutCheckin: v === true })} />
             宽松模式:未签到可直接上钟
           </label>
         </Card>
         <Card className="p-4 flex flex-col gap-3">
-          <p className="text-sm text-[#00d4ff]">⑦ 包厢计费规则(§6)</p>
+          <p className="text-sm text-primary">⑦ 包厢计费规则(§6)</p>
           <div className="flex items-center gap-3">
-            <Label className="text-xs text-[#8b9bb4] w-24">计费模式</Label>
+            <Label className="text-xs text-fg-muted w-24">计费模式</Label>
             <SelectBox
               className="w-40"
               value={s.roomBilling.feeMode}
@@ -162,7 +162,7 @@ export default function SettingsArtistPage() {
               options={[{ value: 'HOURLY', label: '小时计费' }, { value: 'FLAT', label: '一口价(预留)' }]}
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+          <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox
               checked={s.roomBilling.roundingEnabled}
               onCheckedChange={(v) => setS({ ...s, roomBilling: { ...s.roomBilling, roundingEnabled: v === true } })}
@@ -170,36 +170,36 @@ export default function SettingsArtistPage() {
             启用进位规则(关闭=向下取整到小时)
           </label>
           <div className="flex items-center gap-3">
-            <Label className="text-xs text-[#8b9bb4] w-24">进位阈值 N</Label>
+            <Label className="text-xs text-fg-muted w-24">进位阈值 N</Label>
             <Input
               type="number"
               className="w-28"
               value={String(s.roomBilling.roundingThresholdMinutes)}
               onChange={(e) => setS({ ...s, roomBilling: { ...s.roomBilling, roundingThresholdMinutes: Number(e.target.value) } })}
             />
-            <span className="text-xs text-[#8b9bb4]">分钟(默认15;剩余分钟 &gt; N 进位 1 小时)</span>
+            <span className="text-xs text-fg-muted">分钟(默认15;剩余分钟 &gt; N 进位 1 小时)</span>
           </div>
           <div className="flex items-center gap-3">
-            <Label className="text-xs text-[#8b9bb4] w-24">最低消费</Label>
+            <Label className="text-xs text-fg-muted w-24">最低消费</Label>
             <Input
               type="number"
               className="w-28"
               value={String(s.roomBilling.minCharge)}
               onChange={(e) => setS({ ...s, roomBilling: { ...s.roomBilling, minCharge: Number(e.target.value) } })}
             />
-            <span className="text-xs text-[#8b9bb4]">元/场(预设 0=不启用;计费低于此值按此值计)</span>
+            <span className="text-xs text-fg-muted">元/场(预设 0=不启用;计费低于此值按此值计)</span>
           </div>
           <div className="flex items-center gap-3">
-            <Label className="text-xs text-[#8b9bb4] w-24">封顶计费</Label>
+            <Label className="text-xs text-fg-muted w-24">封顶计费</Label>
             <Input
               type="number"
               className="w-28"
               value={String(s.roomBilling.capCharge)}
               onChange={(e) => setS({ ...s, roomBilling: { ...s.roomBilling, capCharge: Number(e.target.value) } })}
             />
-            <span className="text-xs text-[#8b9bb4]">元/场(预设 0=不封顶;计费高于此值按此值计)</span>
+            <span className="text-xs text-fg-muted">元/场(预设 0=不封顶;计费高于此值按此值计)</span>
           </div>
-          <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+          <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox
               checked={s.roomBilling.crossDayAccumulate}
               onCheckedChange={(v) => setS({ ...s, roomBilling: { ...s.roomBilling, crossDayAccumulate: v === true } })}
@@ -207,7 +207,7 @@ export default function SettingsArtistPage() {
             跨天连续累计(08:00~次日 08:00 不截断)
           </label>
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[#8b9bb4]">收费通道(驱动充值/结算/台票购买下拉;code 大写字母数字,自定义标签可改)</p>
+            <p className="text-xs text-fg-muted">收费通道(驱动充值/结算/台票购买下拉;code 大写字母数字,自定义标签可改)</p>
             {s.roomBilling.channels.map((c, i) => (
               <div key={c.code + String(i)} className="flex items-center gap-2">
                 <Input
@@ -266,35 +266,35 @@ export default function SettingsArtistPage() {
           </div>
         </Card>
         <Card className="p-4 flex flex-col gap-3">
-          <p className="text-sm text-[#00d4ff]">② 报备设置</p>
-          <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+          <p className="text-sm text-primary">② 报备设置</p>
+          <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox checked={s.reportRequireReview} onCheckedChange={(v) => setS({ ...s, reportRequireReview: v === true })} />
             报备需主管审核(开启后新报备为「待审核」,汇总/实时仅计已通过)
           </label>
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-[#8b9bb4] w-24">开放时段</Label>
+            <Label className="text-xs text-fg-muted w-24">开放时段</Label>
             <Input
               type="time"
               className="w-28"
               value={s.reportOpenFrom ?? ''}
               onChange={(e) => setS({ ...s, reportOpenFrom: e.target.value })}
             />
-            <span className="text-xs text-[#8b9bb4]">~</span>
+            <span className="text-xs text-fg-muted">~</span>
             <Input
               type="time"
               className="w-28"
               value={s.reportOpenTo ?? ''}
               onChange={(e) => setS({ ...s, reportOpenTo: e.target.value })}
             />
-            <span className="text-xs text-[#8b9bb4]">(空=全天;支持跨零点如 18:00~04:00)</span>
+            <span className="text-xs text-fg-muted">(空=全天;支持跨零点如 18:00~04:00)</span>
           </div>
-          <p className="text-sm text-[#00d4ff]">⑥ 台票购买</p>
-          <label className="flex items-center gap-2 text-sm text-[#e0f0ff]">
+          <p className="text-sm text-primary">⑥ 台票购买</p>
+          <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox checked={s.ticketPurchaseEnabled} onCheckedChange={(v) => setS({ ...s, ticketPurchaseEnabled: v === true })} />
             允许台票购买
           </label>
           <div className="flex items-center gap-3">
-            <Label className="text-xs text-[#8b9bb4] w-24">每日上限</Label>
+            <Label className="text-xs text-fg-muted w-24">每日上限</Label>
             <Input
               type="number"
               className="w-28"
@@ -307,9 +307,9 @@ export default function SettingsArtistPage() {
                 })
               }
             />
-            <span className="text-xs text-[#8b9bb4]">张/人/日(空=不限)</span>
+            <span className="text-xs text-fg-muted">张/人/日(空=不限)</span>
           </div>
-          <p className="text-sm text-[#00d4ff]">⑧ 上钟模式</p>
+          <p className="text-sm text-primary">⑧ 上钟模式</p>
           <SelectBox
             value={s.stageAssignMode}
             onChange={(v) => setS({ ...s, stageAssignMode: v as SettingsView['stageAssignMode'] })}

@@ -112,7 +112,7 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
         desc={isGroup ? '分组绑定主管,用于业绩归属与报备汇总' : '等级 × 包厢类型决定台费单价'}
         actions={<Button onClick={() => setForm({ name: '', supervisorName: '' })}>+ 新增{isGroup ? '组别' : '等级'}</Button>}
       />
-      <Card className="p-4 mb-3 text-xs text-[#8b9bb4]">
+      <Card className="p-4 mb-3 text-xs text-fg-muted">
         seed 参照:组别「江海龙」(主管同名) · 等级「技师」——名称店内唯一,软删可恢复
       </Card>
       <DataTable columns={columns} rows={rows} loading={loading} emptyText="暂无记录" />

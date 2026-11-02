@@ -150,12 +150,12 @@ export default function RoomsPage() {
             编辑
           </Button>
           {r.status !== 'FREE' && r.status !== 'OCCUPIED' && (
-            <Button variant="outline" size="sm" className="text-[#00ff88]" onClick={() => void setStatusOf(r.id, 'FREE')}>
+            <Button variant="outline" size="sm" className="text-success" onClick={() => void setStatusOf(r.id, 'FREE')}>
               启用
             </Button>
           )}
           {r.status !== 'MAINTENANCE' && r.status !== 'OCCUPIED' && (
-            <Button variant="outline" size="sm" className="text-[#ffaa00]" onClick={() => void setStatusOf(r.id, 'MAINTENANCE')}>
+            <Button variant="outline" size="sm" className="text-warning" onClick={() => void setStatusOf(r.id, 'MAINTENANCE')}>
               维修
             </Button>
           )}

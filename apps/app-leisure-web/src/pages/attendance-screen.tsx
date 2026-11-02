@@ -84,23 +84,23 @@ export default function AttendanceScreenPage() {
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col md:flex-row gap-4 p-4"
-      style={{ background: 'linear-gradient(160deg, #060e1f 0%, #081430 100%)' }}
+      style={{ background: 'linear-gradient(160deg, var(--lm-bg) 0%, #081430 100%)' }}
     >
       {/* 左:二维码区 */}
       <div className="flex-[3] flex flex-col items-center justify-center gap-4 min-w-0">
         <div className="text-center">
-          <h1 className="text-2xl md:text-4xl font-bold text-[#e0f0ff]">请使用微信扫码 · 签到 / 签退</h1>
-          <p className="text-sm md:text-base text-[#8b9bb4] mt-1">
-            营业日 {qr?.businessDate ?? '—'} · 签到码 <span className="text-[#00d4ff]">{String(countdown)}s</span> 后自动刷新
+          <h1 className="text-2xl md:text-4xl font-bold text-[var(--lm-fg)]">请使用微信扫码 · 签到 / 签退</h1>
+          <p className="text-sm md:text-base text-fg-muted mt-1">
+            营业日 {qr?.businessDate ?? '—'} · 签到码 <span className="text-primary">{String(countdown)}s</span> 后自动刷新
           </p>
         </div>
         <Card className="p-6 md:p-10 flex items-center justify-center" style={{ minHeight: 280, minWidth: 280 }}>
           {qr !== null && qr.qrcodeImage !== null ? (
             <img src={qr.qrcodeImage} alt="签到二维码" className="w-64 h-64 md:w-80 md:h-80" />
           ) : (
-            <div className="w-64 h-64 md:w-80 md:h-80 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[rgba(0,212,255,0.25)] rounded-lg text-center p-4">
-              <RefreshCw className="w-10 h-10 text-[#00d4ff] opacity-60" />
-              <p className="text-sm text-[#8b9bb4]">
+            <div className="w-64 h-64 md:w-80 md:h-80 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-primary/25 rounded-lg text-center p-4">
+              <RefreshCw className="w-10 h-10 text-primary opacity-60" />
+              <p className="text-sm text-fg-muted">
                 带参小程序码待微信凭据配置(阶段5)
                 <br />
                 接口已就绪,届时本区自动显示真码
@@ -123,32 +123,32 @@ export default function AttendanceScreenPage() {
             <Maximize className="w-4 h-4 mr-1" />
             全屏
           </Button>
-          <span className="text-[10px] text-[#8b9bb4] font-mono max-w-[200px] truncate">{qr?.scene ?? ''}</span>
+          <span className="text-[10px] text-fg-muted font-mono max-w-[200px] truncate">{qr?.scene ?? ''}</span>
         </div>
       </div>
 
       {/* 右:实时签到流 */}
       <div className="flex-[2] flex flex-col min-w-0 gap-2">
-        <p className="text-sm text-[#8b9bb4]">实时签到流(10s 刷新)</p>
+        <p className="text-sm text-fg-muted">实时签到流(10s 刷新)</p>
         <Card className="flex-1 p-0 overflow-y-auto">
-          {feed.length === 0 && <p className="text-center text-[#8b9bb4] py-10 text-sm">暂无报备记录</p>}
+          {feed.length === 0 && <p className="text-center text-fg-muted py-10 text-sm">暂无报备记录</p>}
           {feed.map((r) => (
             <div
               key={r.id}
-              className="flex items-center justify-between px-4 py-3 border-b border-[rgba(0,212,255,0.08)]"
-              style={r.id === latestId ? { background: 'rgba(0,255,136,0.08)' } : undefined}
+              className="flex items-center justify-between px-4 py-3 border-b border-primary/8"
+              style={r.id === latestId ? { background: 'color-mix(in srgb, var(--lm-success) 8%, transparent)' } : undefined}
             >
               <div className="min-w-0">
-                <p className="text-sm text-[#e0f0ff] truncate">
+                <p className="text-sm text-[var(--lm-fg)] truncate">
                   {r.stageName ?? '—'}
-                  <span className="text-[#8b9bb4] ml-2 text-xs">{r.badgeNo ?? ''}</span>
+                  <span className="text-fg-muted ml-2 text-xs">{r.badgeNo ?? ''}</span>
                 </p>
-                <p className="text-xs text-[#8b9bb4]">{fmtTime(r.reportTime)}</p>
+                <p className="text-xs text-fg-muted">{fmtTime(r.reportTime)}</p>
               </div>
               <span
                 className="text-xs px-2 py-0.5 rounded-full border shrink-0"
                 style={{
-                  color: r.type === 'CHECKIN' ? '#00ff88' : '#00d4ff',
+                  color: r.type === 'CHECKIN' ? 'var(--lm-success)' : 'var(--lm-primary)',
                   borderColor: (r.type === 'CHECKIN' ? '#00ff88' : '#00d4ff') + '44',
                 }}
               >

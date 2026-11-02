@@ -66,19 +66,19 @@ export default function Login() {
   return (
     <div
       className="h-screen w-screen flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--lm-bg) 0%, var(--lm-panel) 30%, #081430 60%, #040c1a 100%)' }}
     >
       <Card className="w-[380px] p-8 flex flex-col gap-5">
         <div className="text-center">
-          <h1 className="text-lg font-semibold text-[#00d4ff]">YYC³ LeisureManage</h1>
-          <p className="text-xs text-[#8b9bb4] mt-1">艺人管理系统 · Web 管理端</p>
+          <h1 className="text-lg font-semibold text-primary">YYC³ LeisureManage</h1>
+          <p className="text-xs text-fg-muted mt-1">艺人管理系统 · Web 管理端</p>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-[#8b9bb4]">账号(用户名或手机号)</label>
+          <label className="text-xs text-fg-muted">账号(用户名或手机号)</label>
           <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder="admin / china / 手机号" autoComplete="username" />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-[#8b9bb4]">密码</label>
+          <label className="text-xs text-fg-muted">密码</label>
           <Input
             type="password"
             value={password}
@@ -92,7 +92,7 @@ export default function Login() {
         <Button disabled={busy} onClick={() => void submit()}>
           {busy ? '登录中…' : '登录'}
         </Button>
-        <p className="text-[10px] text-[#8b9bb4] text-center">连续失败 5 次将锁定 15 分钟</p>
+        <p className="text-[10px] text-fg-muted text-center">连续失败 5 次将锁定 15 分钟</p>
       </Card>
     </div>
   )

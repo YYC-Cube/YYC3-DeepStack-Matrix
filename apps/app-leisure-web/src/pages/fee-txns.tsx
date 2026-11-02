@@ -94,7 +94,7 @@ export default function FeeTxnsPage() {
       header: '操作',
       render: (r) =>
         r.type === 'REVERSE' ? (
-          <span className="text-xs text-[#8b9bb4]">冲正单</span>
+          <span className="text-xs text-fg-muted">冲正单</span>
         ) : (
           <ConfirmButton
             confirmTitle="确认冲正"
@@ -127,19 +127,19 @@ export default function FeeTxnsPage() {
       />
       <div className="grid grid-cols-3 gap-3 mb-4">
         <Card className="p-4">
-          <p className="text-xs text-[#8b9bb4]">筛选区间流水合计</p>
+          <p className="text-xs text-fg-muted">筛选区间流水合计</p>
           <p className="text-xl font-semibold mt-1">
             <MoneyText v={totalAmount} />
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs text-[#8b9bb4]">笔数</p>
-          <p className="text-xl font-semibold mt-1 text-[#e0f0ff]">{String(total)}</p>
+          <p className="text-xs text-fg-muted">笔数</p>
+          <p className="text-xl font-semibold mt-1 text-[var(--lm-fg)]">{String(total)}</p>
         </Card>
       </div>
       <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <Input type="date" className="w-40" value={from} onChange={(e) => { setPage(1); setFrom(e.target.value) }} />
-        <span className="text-[#8b9bb4]">至</span>
+        <span className="text-fg-muted">至</span>
         <Input type="date" className="w-40" value={to} onChange={(e) => { setPage(1); setTo(e.target.value) }} />
         <Input className="w-52" placeholder="腰牌号/艺名" value={keyword} onChange={(e) => { setPage(1); setKeyword(e.target.value) }} />
       </Card>

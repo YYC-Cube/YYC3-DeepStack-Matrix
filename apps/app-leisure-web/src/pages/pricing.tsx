@@ -106,7 +106,7 @@ export default function PricingPage(): React.JSX.Element {
           <Card key={r.id} className="p-3 flex items-center gap-3 text-sm">
             <div className="w-40 font-medium">{r.name}</div>
             <div className="opacity-70">房型 {r.roomTypeId}</div>
-            <div className="font-semibold text-[#00d4ff]">¥{r.unitPrice}/时</div>
+            <div className="font-semibold text-primary">¥{r.unitPrice}/时</div>
             {r.daysOfWeek !== null && r.daysOfWeek.length > 0 && (
               <div className="text-xs opacity-70">
                 星期:{r.daysOfWeek.map((d) => DOW.find((x) => x.v === d)?.label ?? d).join('/')}

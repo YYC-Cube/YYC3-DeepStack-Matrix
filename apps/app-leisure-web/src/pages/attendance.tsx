@@ -130,7 +130,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
         <Card className="p-0 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-[#8b9bb4] border-b border-[rgba(0,212,255,0.12)]">
+              <tr className="text-fg-muted border-b border-line">
                 <th className="text-left px-4 py-2">组别</th>
                 <th className="text-left px-4 py-2">主管</th>
                 {cols.map((c) => (
@@ -142,11 +142,11 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
             </thead>
             <tbody>
               {(rows as SummaryRow[] | undefined ?? []).map((r, i) => (
-                <tr key={i} className="border-b border-[rgba(0,212,255,0.06)]">
-                  <td className="px-4 py-2 text-[#e0f0ff]">{r.groupName}</td>
+                <tr key={i} className="border-b border-primary/6">
+                  <td className="px-4 py-2 text-[var(--lm-fg)]">{r.groupName}</td>
                   <td className="px-4 py-2 text-[#a8b8cc]">{r.supervisorName || '—'}</td>
                   {cols.map((c) => (
-                    <td key={String(c)} className={'px-4 py-2 text-right ' + (c === 'total' ? 'text-[#00d4ff] font-medium' : 'text-[#e0f0ff]')}>
+                    <td key={String(c)} className={'px-4 py-2 text-right ' + (c === 'total' ? 'text-primary font-medium' : 'text-[var(--lm-fg)]')}>
                       {String(r[c])}
                     </td>
                   ))}
@@ -154,7 +154,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
               ))}
               {(rows as SummaryRow[] | undefined ?? []).length === 0 && !loading && (
                 <tr>
-                  <td colSpan={12} className="text-center text-[#8b9bb4] py-10">
+                  <td colSpan={12} className="text-center text-fg-muted py-10">
                     该营业日暂无报备数据
                   </td>
                 </tr>
@@ -178,9 +178,9 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
       header: '定位',
       render: (r) =>
         !r.checkinGeoOk ? (
-          <span className="text-[#ffaa00] text-xs">定位不可用</span>
+          <span className="text-warning text-xs">定位不可用</span>
         ) : r.checkinLat !== null ? (
-          <span className="text-xs text-[#8b9bb4]">
+          <span className="text-xs text-fg-muted">
             {Number(r.checkinLat).toFixed(4)}, {Number(r.checkinLng).toFixed(4)}
           </span>
         ) : (
@@ -200,7 +200,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
         ) : r.reviewStatus === 'REJECTED' ? (
           <span className="text-xs text-[#ff6699]">已驳回</span>
         ) : (
-          <span className="text-xs text-[#00ff88]">已通过</span>
+          <span className="text-xs text-success">已通过</span>
         ),
     },
     { key: 'remark', header: '备注', render: (r) => r.remark ?? '—' },
@@ -230,7 +230,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
             <Input className="w-44" placeholder="艺名" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           </>
         )}
-        {view === 'manual' && <p className="text-xs text-[#8b9bb4]">下方列表含全部报备记录(source 列区分补打卡)</p>}
+        {view === 'manual' && <p className="text-xs text-fg-muted">下方列表含全部报备记录(source 列区分补打卡)</p>}
       </Card>
       <DataTable columns={columns} rows={rows as ReportRow[] | undefined} loading={loading} emptyText="该营业日暂无报备" />
 

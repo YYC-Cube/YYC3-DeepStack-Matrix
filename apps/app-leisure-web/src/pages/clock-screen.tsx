@@ -22,7 +22,7 @@ const STATUS_TEXT: Record<string, string> = {
   QUEUED: '排队中', CALLED: '已叫钟', ACCEPTED: '已接钟', DONE: '已完成', CANCELLED: '已取消',
 }
 const STATUS_COLOR: Record<string, string> = {
-  QUEUED: '#ffaa00', CALLED: '#00d4ff', ACCEPTED: '#00ff88', DONE: '#8b9bb4', CANCELLED: '#ff6699',
+  QUEUED: 'var(--lm-warning)', CALLED: 'var(--lm-primary)', ACCEPTED: 'var(--lm-success)', DONE: 'var(--lm-text-muted)', CANCELLED: '#ff6699',
 }
 
 function speak(text: string): void {
@@ -80,7 +80,7 @@ export default function ClockScreenPage(): React.JSX.Element {
       </div>
       <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
         {rows.map((r) => (
-          <Card key={r.id} className="p-3 space-y-1" style={{ borderColor: STATUS_COLOR[r.status] ?? '#8b9bb4' }}>
+          <Card key={r.id} className="p-3 space-y-1" style={{ borderColor: STATUS_COLOR[r.status] ?? 'var(--lm-text-muted)' }}>
             <div className="font-semibold">{r.stageName}</div>
             <div className="text-xs opacity-80">房号 {r.roomNo}</div>
             <div className="text-sm" style={{ color: STATUS_COLOR[r.status] ?? '#fff' }}>

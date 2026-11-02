@@ -261,20 +261,20 @@ export default function BoardPage(): React.JSX.Element {
           </DialogHeader>
           <div className="space-y-2">
             {queue !== null && (
-              <div className="rounded border border-[rgba(0,212,255,0.2)] p-2 text-xs space-y-1">
-                <div className="text-[#00d4ff]">
+              <div className="rounded border border-line p-2 text-xs space-y-1">
+                <div className="text-primary">
                   上钟模式:{MODE_TEXT[queue.mode] ?? queue.mode}
-                  <span className="text-[#8b9bb4] ml-2">轮台队列(已签到·空闲)</span>
+                  <span className="text-fg-muted ml-2">轮台队列(已签到·空闲)</span>
                 </div>
-                {queue.rows.length === 0 && <div className="text-[#8b9bb4]">当前无可派艺人(需当日签到且空闲)</div>}
+                {queue.rows.length === 0 && <div className="text-fg-muted">当前无可派艺人(需当日签到且空闲)</div>}
                 <div className="flex flex-wrap gap-1">
                   {queue.rows.slice(0, 8).map((q) => (
                     <span
                       key={q.artistId}
                       className="px-1.5 py-0.5 rounded border"
                       style={{
-                        borderColor: q.position <= Math.max(pickedArtists.length, 1) ? '#00ff8866' : 'rgba(0,212,255,0.2)',
-                        color: q.position <= Math.max(pickedArtists.length, 1) ? '#00ff88' : '#a8b8cc',
+                        borderColor: q.position <= Math.max(pickedArtists.length, 1) ? 'color-mix(in srgb, var(--lm-success) 40%, transparent)' : 'color-mix(in srgb, var(--lm-primary) 20%, transparent)',
+                        color: q.position <= Math.max(pickedArtists.length, 1) ? 'var(--lm-success)' : '#a8b8cc',
                       }}
                     >
                       #{String(q.position)} {q.stageName ?? String(q.artistId)}({String(q.todayDispatches)}次)
@@ -296,14 +296,14 @@ export default function BoardPage(): React.JSX.Element {
                       }}
                     />
                     {a.stageName ?? a.realName}({a.badgeNo})
-                    {pos !== undefined && <span className="text-[10px] text-[#00d4ff]">轮台#{String(pos)}</span>}
+                    {pos !== undefined && <span className="text-[10px] text-primary">轮台#{String(pos)}</span>}
                   </label>
                 )
               })}
             </div>
             {queue !== null && queue.mode !== 'SELF_PICK' && offOrder().length > 0 && (
               <div className="space-y-1">
-                <div className="text-xs text-[#ffaa00]">
+                <div className="text-xs text-warning">
                   {queue.mode === 'ROTATION' ? '轮台模式:所选越过队列顺序,后端将拒绝(40914)' : '已越过轮台推荐位,将记入主管轮台报表;可填原因'}
                 </div>
                 <Input
@@ -327,49 +327,49 @@ export default function BoardPage(): React.JSX.Element {
           <DialogHeader>
             <DialogTitle>关房结算 · {closeFor?.roomNo ?? ''}</DialogTitle>
           </DialogHeader>
-          {previewLoading && <div className="py-8 text-center text-sm text-[#8b9bb4]">结算单预览加载中…</div>}
+          {previewLoading && <div className="py-8 text-center text-sm text-fg-muted">结算单预览加载中…</div>}
           {!previewLoading && preview !== null && (
             <div className="space-y-3 text-sm">
               {/* 明细:时间费 */}
               <div>
-                <div className="text-xs text-[#8b9bb4] mb-1">
+                <div className="text-xs text-fg-muted mb-1">
                   时间费明细(进行中场次为此刻报价,关房按实际时刻重算
                   {preview.billing.minCharge > 0 ? ' · 最低消费 ¥' + String(preview.billing.minCharge) : ''}
                   {preview.billing.capCharge > 0 ? ' · 封顶 ¥' + String(preview.billing.capCharge) : ''})
                 </div>
-                <div className="border rounded border-[rgba(0,212,255,0.12)] divide-y divide-[rgba(0,212,255,0.06)]">
+                <div className="border rounded border-line divide-y divide-primary/6">
                   {preview.sessions.map((s) => (
                     <div key={s.sessionId} className="flex items-center gap-2 px-2 py-1.5 flex-wrap">
                       <span className="w-24 truncate">{s.stageName ?? '—'}</span>
-                      <span className="text-xs text-[#8b9bb4]">{s.startAt.slice(11, 16)}~{s.endAt !== null ? s.endAt.slice(11, 16) : '进行中'}</span>
+                      <span className="text-xs text-fg-muted">{s.startAt.slice(11, 16)}~{s.endAt !== null ? s.endAt.slice(11, 16) : '进行中'}</span>
                       <span className="text-xs">{String(s.durationMinutes)} 分钟{String(s.billHours ?? 0) !== '0' ? ' → ' + String(s.billHours) + ' 小时' : ''}</span>
-                      <span className="text-xs text-[#8b9bb4]">¥{String(s.unitPrice)}/时{s.priceSlotName !== null ? ' · ' + s.priceSlotName : ''}</span>
-                      {s.minDurationApplied && <span className="text-[10px] text-[#ffaa00]">保底</span>}
-                      <span className="ml-auto font-medium text-[#00d4ff]">¥{String(s.amount)}</span>
+                      <span className="text-xs text-fg-muted">¥{String(s.unitPrice)}/时{s.priceSlotName !== null ? ' · ' + s.priceSlotName : ''}</span>
+                      {s.minDurationApplied && <span className="text-[10px] text-warning">保底</span>}
+                      <span className="ml-auto font-medium text-primary">¥{String(s.amount)}</span>
                     </div>
                   ))}
-                  {preview.sessions.length === 0 && <div className="px-2 py-2 text-xs text-[#8b9bb4]">无上钟时间费</div>}
+                  {preview.sessions.length === 0 && <div className="px-2 py-2 text-xs text-fg-muted">无上钟时间费</div>}
                 </div>
               </div>
               {/* 明细:自点单 */}
               <div>
-                <div className="text-xs text-[#8b9bb4] mb-1">自点单明细(PLACED 视同送达一并结算)</div>
-                <div className="border rounded border-[rgba(0,212,255,0.12)] divide-y divide-[rgba(0,212,255,0.06)]">
+                <div className="text-xs text-fg-muted mb-1">自点单明细(PLACED 视同送达一并结算)</div>
+                <div className="border rounded border-line divide-y divide-primary/6">
                   {preview.orders.map((o) => (
                     <div key={o.orderId} className="flex items-center gap-2 px-2 py-1.5">
                       <span className="w-24 truncate">{o.stageName ?? '—'}</span>
-                      <span className="text-xs text-[#8b9bb4]">{Array.isArray(o.items) ? String(o.items.length) + ' 项' : ''} · {o.status === 'PLACED' ? '未送达' : '已送达'}</span>
+                      <span className="text-xs text-fg-muted">{Array.isArray(o.items) ? String(o.items.length) + ' 项' : ''} · {o.status === 'PLACED' ? '未送达' : '已送达'}</span>
                       <span className="ml-auto font-medium">¥{String(o.totalAmount)}</span>
                     </div>
                   ))}
-                  {preview.orders.length === 0 && <div className="px-2 py-2 text-xs text-[#8b9bb4]">无点单</div>}
+                  {preview.orders.length === 0 && <div className="px-2 py-2 text-xs text-fg-muted">无点单</div>}
                 </div>
               </div>
               {/* 合计 */}
               <div className="flex gap-4 justify-end text-sm">
-                <span>时间费 <b className="text-[#00d4ff]">¥{String(preview.roomFee)}</b></span>
-                <span>点单 <b className="text-[#00d4ff]">¥{String(preview.orderTotal)}</b></span>
-                <span>合计 <b className="text-[#00ff88] text-base">¥{String(preview.totalAmount)}</b></span>
+                <span>时间费 <b className="text-primary">¥{String(preview.roomFee)}</b></span>
+                <span>点单 <b className="text-primary">¥{String(preview.orderTotal)}</b></span>
+                <span>合计 <b className="text-success text-base">¥{String(preview.totalAmount)}</b></span>
               </div>
               {/* 结算方式 */}
               <div>
@@ -400,7 +400,7 @@ export default function BoardPage(): React.JSX.Element {
                     onChange={(e) => { setDeductAmount(e.target.value) }}
                   />
                   {settleType === 'MIXED' && Number(deductAmount) > 0 && (
-                    <div className="text-xs text-[#8b9bb4]">现金应收 ¥{String(Math.max(0, Math.round((preview.totalAmount - Number(deductAmount)) * 100) / 100))}</div>
+                    <div className="text-xs text-fg-muted">现金应收 ¥{String(Math.max(0, Math.round((preview.totalAmount - Number(deductAmount)) * 100) / 100))}</div>
                   )}
                 </div>
               )}

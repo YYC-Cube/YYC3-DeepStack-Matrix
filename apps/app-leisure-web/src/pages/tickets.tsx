@@ -57,16 +57,16 @@ function RulesTab(): React.JSX.Element {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#8b9bb4]">价格/有效期可随时调整;删除仅限无人持有余额的规则</span>
+        <span className="text-sm text-fg-muted">价格/有效期可随时调整;删除仅限无人持有余额的规则</span>
         <Button onClick={() => setForm({ name: '', price: '', validDays: '0', status: '1' })}>新建台票</Button>
       </div>
       <div className="grid gap-2">
         {rows.map((r) => (
           <Card key={r.id} className="p-3 flex items-center gap-3 text-sm flex-wrap">
-            <div className="w-40 font-medium text-[#e0f0ff]">{r.name}</div>
-            <div className="text-[#00d4ff] font-semibold">¥{fmtMoney(r.price)}</div>
-            <div className="text-[#8b9bb4]">{r.validDays > 0 ? '有效期 ' + String(r.validDays) + ' 天' : '长期有效'}</div>
-            <div className={r.status === 1 ? 'text-[#00ff88]' : 'text-[#8b9bb4]'}>{r.status === 1 ? '启用' : '停用'}</div>
+            <div className="w-40 font-medium text-[var(--lm-fg)]">{r.name}</div>
+            <div className="text-primary font-semibold">¥{fmtMoney(r.price)}</div>
+            <div className="text-fg-muted">{r.validDays > 0 ? '有效期 ' + String(r.validDays) + ' 天' : '长期有效'}</div>
+            <div className={r.status === 1 ? 'text-success' : 'text-fg-muted'}>{r.status === 1 ? '启用' : '停用'}</div>
             <div className="ml-auto flex gap-1">
               <Button
                 size="sm"
@@ -224,17 +224,17 @@ function PurchaseTab({ channels }: { channels: Array<{ code: string; label: stri
             {candidates.map((a) => (
               <Card
                 key={a.id}
-                className="p-2 px-3 text-sm cursor-pointer hover:bg-[rgba(0,212,255,0.06)] flex justify-between"
+                className="p-2 px-3 text-sm cursor-pointer hover:bg-primary/6 flex justify-between"
                 onClick={() => void pick(a)}
               >
-                <span className="text-[#e0f0ff]">{a.stageName ?? a.realName}</span>
-                <span className="text-[#8b9bb4]">{a.badgeNo ?? '无腰牌'}</span>
+                <span className="text-[var(--lm-fg)]">{a.stageName ?? a.realName}</span>
+                <span className="text-fg-muted">{a.badgeNo ?? '无腰牌'}</span>
               </Card>
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-between rounded-md border border-[rgba(0,212,255,0.2)] px-3 py-2">
-            <span className="text-sm text-[#e0f0ff]">
+          <div className="flex items-center justify-between rounded-md border border-line px-3 py-2">
+            <span className="text-sm text-[var(--lm-fg)]">
               {artist.stageName ?? artist.realName}({artist.badgeNo ?? '无腰牌'})
             </span>
             <Button variant="ghost" size="sm" onClick={() => { setArtist(null); setBalances([]) }}>
@@ -244,10 +244,10 @@ function PurchaseTab({ channels }: { channels: Array<{ code: string; label: stri
         )}
       </Field>
       {artist !== null && balances.length > 0 && (
-        <div className="text-xs text-[#8b9bb4] space-y-0.5">
+        <div className="text-xs text-fg-muted space-y-0.5">
           {balances.map((b) => (
             <div key={b.ticketRuleId}>
-              {b.name}:<span className="text-[#00ff88]">{String(b.balance)}</span> 张
+              {b.name}:<span className="text-success">{String(b.balance)}</span> 张
               {b.expireAt !== null && <span className="ml-1">(有效至 {b.expireAt.slice(0, 10)})</span>}
             </div>
           ))}
@@ -346,12 +346,12 @@ function TxnTab({ type }: { type: 'BUY' | 'USE' }): React.JSX.Element {
     <div className="space-y-3">
       <div className="flex gap-2 items-center">
         <Input type="date" className="w-40" value={from} onChange={(e) => setFrom(e.target.value)} />
-        <span className="text-[#8b9bb4]">~</span>
+        <span className="text-fg-muted">~</span>
         <Input type="date" className="w-40" value={to} onChange={(e) => setTo(e.target.value)} />
         <Button variant="outline" onClick={() => void load(1)}>
           查询
         </Button>
-        {type === 'BUY' && <span className="text-sm text-[#8b9bb4] ml-2">合计:¥{fmtMoney(totalAmount)}</span>}
+        {type === 'BUY' && <span className="text-sm text-fg-muted ml-2">合计:¥{fmtMoney(totalAmount)}</span>}
       </div>
       <DataTable columns={columns} rows={rows} loading={loading} total={total} page={page} pageSize={20} onPageChange={(p) => void load(p)} />
     </div>

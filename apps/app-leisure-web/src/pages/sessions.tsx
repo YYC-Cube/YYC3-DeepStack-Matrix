@@ -106,7 +106,7 @@ export default function SessionsPage() {
         r.isCross ? (
           <StatusBadge label="串台" color="#ffaa00" />
         ) : (
-          <span className="text-xs text-[#8b9bb4]">—</span>
+          <span className="text-xs text-fg-muted">—</span>
         ),
     },
     {
@@ -125,7 +125,7 @@ export default function SessionsPage() {
             代下钟
           </ConfirmButton>
         ) : (
-          <span className="text-xs text-[#8b9bb4]">已结</span>
+          <span className="text-xs text-fg-muted">已结</span>
         ),
     },
   ]
@@ -138,7 +138,7 @@ export default function SessionsPage() {
       />
       <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">
         <Input type="date" className="w-40" value={from} onChange={(e) => { setPage(1); setFrom(e.target.value) }} />
-        <span className="text-[#8b9bb4]">至</span>
+        <span className="text-fg-muted">至</span>
         <Input type="date" className="w-40" value={to} onChange={(e) => { setPage(1); setTo(e.target.value) }} />
         <div className="flex gap-1">
           {([['all', '全部'], ['onstage', '上钟中'], ['cross', '串台']] as const).map(([v, label]) => (

@@ -131,7 +131,7 @@ export default function BookingsPage(): React.JSX.Element {
             <Button size="sm" variant="ghost" onClick={() => void move(r.id, 'CANCELLED')}>取消</Button>
           </span>
         ) : (
-          <span className="text-xs text-[#8b9bb4]">终态</span>
+          <span className="text-xs text-fg-muted">终态</span>
         ),
     },
   ]
@@ -160,11 +160,11 @@ export default function BookingsPage(): React.JSX.Element {
         <Card className="p-4 space-y-3 max-w-xl mb-3">
           <div className="flex gap-3 flex-wrap">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-[#8b9bb4]">预约到店时间</Label>
+              <Label className="text-xs text-fg-muted">预约到店时间</Label>
               <Input type="datetime-local" value={bookingTime} onChange={(e) => setBookingTime(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-[#8b9bb4]">包厢</Label>
+              <Label className="text-xs text-fg-muted">包厢</Label>
               <select
                 className="border rounded px-2 py-1.5 text-sm bg-transparent w-40"
                 value={roomId}
@@ -182,7 +182,7 @@ export default function BookingsPage(): React.JSX.Element {
           </div>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-[#8b9bb4]">指名艺人(档案)</Label>
+              <Label className="text-xs text-fg-muted">指名艺人(档案)</Label>
               <select
                 className="border rounded px-2 py-1.5 text-sm bg-transparent w-44"
                 value={artistId}
@@ -197,7 +197,7 @@ export default function BookingsPage(): React.JSX.Element {
               </select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-[#8b9bb4]">或口头指名(未建档)</Label>
+              <Label className="text-xs text-fg-muted">或口头指名(未建档)</Label>
               <Input
                 className="w-44"
                 value={artistName}

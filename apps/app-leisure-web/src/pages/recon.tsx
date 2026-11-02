@@ -87,7 +87,7 @@ export default function ReconPage(): React.JSX.Element {
               label={history.gatePassed ? '已达标' : '连续一致 ' + String(history.streak) + '/' + String(history.gateDays) + ' 天'}
               color={history.gatePassed ? '#00ff88' : '#ffaa00'}
             />
-            <span className="text-xs text-[#8b9bb4]">当前营业日 {history.currentBusinessDate}(进行中不计)</span>
+            <span className="text-xs text-fg-muted">当前营业日 {history.currentBusinessDate}(进行中不计)</span>
             <Button variant="outline" className="ml-auto" onClick={() => { void loadHistory() }}>刷新</Button>
           </div>
           <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(14, minmax(0, 1fr))' }}>
@@ -99,8 +99,8 @@ export default function ReconPage(): React.JSX.Element {
                 title={d.businessDate + ' · ' + (OVERALL_TEXT[d.overall] ?? d.overall) + (d.total > 0 ? ' · ' + String(d.matched) + '/' + String(d.total) : '')}
                 onClick={() => { setBd(d.businessDate) }}
               >
-                <div className="text-[10px] text-[#8b9bb4]">{d.businessDate.slice(5)}</div>
-                <div className="text-[10px]" style={{ color: OVERALL_COLOR[d.overall] ?? '#8b9bb4' }}>
+                <div className="text-[10px] text-fg-muted">{d.businessDate.slice(5)}</div>
+                <div className="text-[10px]" style={{ color: OVERALL_COLOR[d.overall] ?? 'var(--lm-text-muted)' }}>
                   {d.complete ? (OVERALL_TEXT[d.overall] ?? d.overall) : '进行中'}
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function ReconPage(): React.JSX.Element {
         <Button variant="outline" onClick={() => { void snapshot() }}>快照自算指标</Button>
         <StatusBadge label={OVERALL_TEXT[overall] ?? overall} color={OVERALL_COLOR[overall] ?? '#8b9bb4'} />
         {selfMetrics !== null && (
-          <span className="text-xs text-[#8b9bb4]">
+          <span className="text-xs text-fg-muted">
             自算:开房 {String(selfMetrics.openCount)} · 时间费 {String(selfMetrics.roomFee)} · 点单 {String(selfMetrics.orderTotal)} · 签到 {String(selfMetrics.checkedIn)}
           </span>
         )}
@@ -138,7 +138,7 @@ export default function ReconPage(): React.JSX.Element {
             <Card key={r.metric} className="p-3 flex items-center gap-3 text-sm">
               <div className="w-24 font-medium">{METRIC_LABEL[r.metric] ?? r.metric}</div>
               <div>本系统 {r.selfValue}</div>
-              <div className={pending ? 'text-[#ffaa00]' : matched ? 'text-[#00ff88]' : 'text-[#ff6666]'}>
+              <div className={pending ? 'text-warning' : matched ? 'text-success' : 'text-[#ff6666]'}>
                 {pending ? '对侧待录' : '对侧 ' + String(r.legacyValue)}
               </div>
               <div className={matched || pending ? '' : 'text-[#ff6666] font-semibold'}>

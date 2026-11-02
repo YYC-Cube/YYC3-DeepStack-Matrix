@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { client, idemKey, toastError } from '@/lib/api'
-import { DataTable, PageHeader, SelectBox, StatusBadge } from '@/components/kit'
+import { DataTable, PageHeader, SelectBox, StatCard, StatusBadge } from '@/components/kit'
 import type { Column } from '@/components/kit'
 import type { ReviewRow, ReviewSummary } from '@yyc3/leisure-core'
 
@@ -198,14 +198,13 @@ export default function ReviewsPage(): React.JSX.Element {
       {/* 统计 */}
       {summary !== null && (
         <div className="grid gap-3 md:grid-cols-[auto_auto_1fr] mb-3">
-          <Card className="p-4">
-            <div className="text-xs text-fg-muted">区间评价数</div>
-            <div className="text-2xl font-semibold text-[var(--lm-fg)]">{String(summary.count)}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-xs text-fg-muted">均分</div>
-            <div className="text-2xl font-semibold text-success">{summary.count > 0 ? summary.avgScore.toFixed(2) : '—'}</div>
-          </Card>
+          <StatCard label="区间评价数" value={summary.count} tone="primary" />
+          <StatCard
+            label="均分"
+            value={summary.count > 0 ? summary.avgScore.toFixed(2) : '—'}
+            tone="success"
+            hint="5 星制"
+          />
           <Card className="p-4 space-y-1">
             <div className="text-xs text-fg-muted mb-1">星级分布</div>
             {([5, 4, 3, 2, 1] as const).map((s) => {

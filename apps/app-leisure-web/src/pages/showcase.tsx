@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Checkbox, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
-import { ConfirmButton, PageHeader, StatusBadge } from '@/components/kit'
+import { ConfirmButton, EmptyState, PageHeader, StatusBadge } from '@/components/kit'
 import type { ShowcaseCastRow } from '@yyc3/leisure-core'
 
 interface RoomLite {
@@ -171,7 +171,9 @@ export default function ShowcasePage(): React.JSX.Element {
                 </Button>
               </div>
             ))}
-            {rows.length === 0 && <div className="text-xs text-fg-muted py-8 text-center">暂无进行中投放</div>}
+            {rows.length === 0 && (
+              <EmptyState title="暂无进行中投放" desc="在左侧勾选艺人并选择目标后点击「投放」" />
+            )}
           </div>
         </Card>
       </div>

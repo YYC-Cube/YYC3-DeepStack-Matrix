@@ -8,7 +8,7 @@ import { Button, Card, Input, Tabs, TabsContent, TabsList, TabsTrigger } from '@
 import { toast } from 'sonner'
 import { client, idemKey, req, toastError } from '@/lib/api'
 import { fmtMoney } from '@/lib/format'
-import { ConfirmButton, DataTable, Field, MoneyText, PageHeader, SelectBox } from '@/components/kit'
+import { ConfirmButton, DataTable, EmptyState, Field, MoneyText, PageHeader, SelectBox } from '@/components/kit'
 import type { Column } from '@/components/kit'
 import type { TicketBalanceRow, TicketRule, TicketTxnRow } from '@yyc3/leisure-core'
 
@@ -98,6 +98,13 @@ function RulesTab(): React.JSX.Element {
             </div>
           </Card>
         ))}
+        {rows.length === 0 && form === null && (
+          <EmptyState
+            title="暂无台票"
+            desc="创建第一种台票后,即可在「台票购买」中销售"
+            action={<Button onClick={() => setForm({ name: '', price: '', validDays: '0', status: '1' })}>新建台票</Button>}
+          />
+        )}
       </div>
       {form !== null && (
         <Card className="p-4 space-y-3 max-w-md">

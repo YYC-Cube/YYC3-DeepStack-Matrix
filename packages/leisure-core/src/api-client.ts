@@ -118,6 +118,18 @@ export interface BillPreview {
   orderTotal: number
   totalAmount: number
   artists: Array<{ artistId: number; stageName: string | null; badgeNo: string | null; feeBalance: number }>
+  /** 在房艺人台票余额(§6.6 台票抵扣并入结算的分配参考;expired 余额已归零) */
+  ticketOptions: Array<{
+    artistId: number
+    stageName: string | null
+    badgeNo: string | null
+    ticketRuleId: number
+    ruleName: string
+    balance: number
+    /** 面值(元/张):抵扣额 = qty × faceValue */
+    faceValue: number
+    expireAt: string | null
+  }>
   billing: {
     feeMode: 'HOURLY' | 'FLAT'
     roundingEnabled: boolean
@@ -125,6 +137,25 @@ export interface BillPreview {
     minCharge: number
     capCharge: number
   }
+}
+
+/** 艺人端「我的订单」(a21:房账+自点单归一视图;scope=ARTIST 强制本人) */
+export interface MeOrdersResult {
+  orders: Array<{
+    id: number
+    /** SELF_ORDER=自点单;ROOM_FEE=本人上场次时间费(已随房账结算) */
+    kind: 'SELF_ORDER' | 'ROOM_FEE'
+    businessDate: string
+    roomNo: string
+    /** SELF_ORDER=点单金额;ROOM_FEE=该场次计费额 */
+    amount: number
+    /** SELF_ORDER: PLACED/DELIVERED/SETTLED/CANCELLED;ROOM_FEE: SETTLED */
+    status: string
+    placedAt: string | null
+    settledAt: string | null
+    items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }> | null
+  }>
+  summary: { orderTotal: number; feeTotal: number; count: number }
 }
 
 /** 双轨对账单日结果(overall: NO_DATA/PENDING_LEGACY/MATCHED/EXPLAINED/OPEN) */
@@ -474,18 +505,21 @@ export class LeisureApiClient {
 
   /* ── 房账(方案甲:开/关房 + 结算单预览 + 关房统一结算) ── */
   roomSessions = {
-    /** 开房:artistIds 进房即上钟;轮台模式(⑧)越序 40914,混合模式可带 overrideReason */
-    open: (p: { roomId: number; artistIds: number[]; overrideReason?: string }, idemKey?: string) =>
+    /** 开房:artistIds 进房即上钟;轮台模式(⑧)越序 40914;撞未超时 BOOKED 预约 40915(可强开,记审计) */
+    open: (p: { roomId: number; artistIds: number[]; overrideReason?: string; ignoreBookingHold?: boolean }, idemKey?: string) =>
       this.post<{ roomSessionId: number; businessDate: string; dispatchMode: string; overridden: number[] }>('/room-sessions/open', p, idemKey),
-    /** 结算单预览(只读;关房弹窗展示明细,金额为此刻报价) */
+    /** 结算单预览(只读;关房弹窗展示明细,金额为此刻报价;含台票余额分配参考) */
     billPreview: (id: number) => this.get<BillPreview>('/room-sessions/' + String(id) + '/bill-preview'),
+    /** 关房统一结算:台费抵扣(ROOM_SETTLE)+ 台票抵扣(USE 只增,qty×面值)后余额按现金收款 */
     close: (p: {
       roomSessionId: number
-      settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
+      settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'
       feeDeductAllocations?: Array<{ artistId: number; amount: number }>
+      /** 台票抵扣分配(§6.6):逐条 canUseTicket 校验,写 USE 流水(refSessionId=该艺人在本场首个场次) */
+      ticketAllocations?: Array<{ artistId: number; ticketRuleId: number; qty: number }>
       remark?: string
     }, idemKey?: string) =>
-      this.post<{ roomFee: number; orderTotal: number; totalAmount: number; settledSessions: number }>(
+      this.post<{ roomFee: number; orderTotal: number; totalAmount: number; settledSessions: number; ticketDeductAmount: number; feeDeductAmount: number }>(
         '/room-sessions/' + String(p.roomSessionId) + '/close',
         p,
         idemKey,
@@ -496,6 +530,12 @@ export class LeisureApiClient {
   rooms = {
     cleaningDone: (roomId: number) => this.post<{ ok: true }>('/rooms/' + String(roomId) + '/cleaning-done', {}),
     bulkCleaningDone: () => this.post<{ updated: number }>('/rooms/bulk-cleaning-done', {}),
+  }
+
+  /* ── 艺人端本人视图(scope=ARTIST 强制本人) ── */
+  me = {
+    /** 我的订单(a21):自点单 + 已随房账结算的本人在场场次时间费 */
+    orders: () => this.get<MeOrdersResult>('/me/orders'),
   }
 
   /* ── 硬件语音盒子(II 期联动层;未配置 VOICE_BOX_URL 时 skipped) ── */
@@ -579,7 +619,7 @@ export class LeisureApiClient {
     /** 艺人端:本人评价 */
     my: () => this.get<{ rows: ReviewRow[]; summary: ReviewSummary }>('/reviews/my'),
   }
-  /* ── 预约(BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定) ── */
+  /* ── 预约(BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定;锁钟期内撞开房 40915) ── */
   bookings = {
     list: (q: { businessDate?: string; status?: BookingStatus; page?: number; pageSize?: number }) =>
       this.get<{ rows: BookingRow[]; total: number; page: number; pageSize: number }>('/bookings', q),
@@ -590,10 +630,14 @@ export class LeisureApiClient {
       artistId?: number
       artistName?: string
       bookingNo?: string
+      /** 押金(元,默认 0;登记口径,收款在线下) */
+      deposit?: number
+      /** 锁钟分钟数(默认 30;bookingTime+holdMinutes 内该房拒绝他人开房 40915) */
+      holdMinutes?: number
     }, idemKey?: string) =>
       this.post<{ id: number; bookingNo: string }>('/bookings', p, idemKey),
     setStatus: (id: number, status: Exclude<BookingStatus, 'BOOKED'>) =>
-      this.post<{ status: BookingStatus }>('/bookings/' + String(id) + '/status', { status }),
+      this.post<{ status: BookingStatus; autoCallId: number | null }>('/bookings/' + String(id) + '/status', { status }),
   }
 
   /** 营业日辅助(客户端预览;最终以服务端响应为准) */

@@ -40,6 +40,8 @@ export const ERR = {
   BOOKING_STATE_INVALID: 40913,
   /** 轮台模式派单越序(艺人设置⑧ ROTATION:须按队列顺序;MIXED 越序须填原因) */
   DISPATCH_ORDER_VIOLATION: 40914,
+  /** 预约锁钟中(包厢存在未超时的 BOOKED 预约;可 ignoreBookingHold 强开,记审计) */
+  BOOKING_ROOM_HELD: 40915,
   /** 房号店内唯一冲突(需求全集 §5.2;04 文档错误码表节选外追加) */
   ROOM_NO_DUPLICATED: 40907,
   APPROVAL_PENDING: 41201,

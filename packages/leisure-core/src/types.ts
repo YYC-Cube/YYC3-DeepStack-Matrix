@@ -357,6 +357,12 @@ export interface ArtistBooking {
   artistId?: number
   artistName?: string // 艺名/腰牌号
   status: BookingStatus
+  /** 押金(元;登记口径) */
+  deposit?: number
+  /** 锁钟截止(bookingTime + holdMinutes;期内该房拒绝他人开房 40915) */
+  holdUntil?: string
+  /** 到店自动叫钟记录 id(ARRIVED 且指名房+艺人时生成) */
+  callId?: number
 }
 
 /* ───────────────────────── 营业日配置 ───────────────────────── */
@@ -383,8 +389,10 @@ export interface RoomSession {
   /** Σ艺人自点单 */
   orderTotal: number
   totalAmount?: number
-  settleType?: 'CASH' | 'FEE_DEDUCT' | 'MIXED'
+  settleType?: 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'
   feeDeductAmount?: number
+  /** 台票抵扣额(§6.6 并入结算:Σ qty×面值;USE 流水只增) */
+  ticketDeductAmount?: number
   artistIds: number[]
 }
 

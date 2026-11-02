@@ -137,9 +137,36 @@ export default function ThemeCustomizerPage() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[440px_1fr] items-start">
-        {/* ── 左列:预设色调 + 语义变量 + 品牌区 ── */}
+      <div className="grid gap-4 lg:grid-cols-[440px_1fr]">
+        {/* ── 左列:品牌区 + 预设色调 + 语义变量 ── */}
         <div className="space-y-4 min-w-0">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Store className="w-4 h-4 text-[#00d4ff]" />
+              <span className="text-sm text-[#e0f0ff]">品牌区</span>
+              <span className="ml-auto text-xs text-[#8b9bb4]">仅本地保存</span>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[#8b9bb4] text-xs">系统名称</Label>
+              <Input
+                value={brand.name}
+                onChange={(e) => setBrand((p) => ({ ...p, name: e.target.value }))}
+                placeholder={DEFAULT_BRAND.name}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[#8b9bb4] text-xs">标语</Label>
+              <Input
+                value={brand.tagline}
+                onChange={(e) => setBrand((p) => ({ ...p, tagline: e.target.value }))}
+                placeholder={DEFAULT_BRAND.tagline}
+              />
+            </div>
+            <Button variant="outline" size="sm" onClick={handleSaveBrand}>
+              保存品牌
+            </Button>
+          </Card>
+
           <Card className="p-4 space-y-2.5">
             <div className="flex items-center gap-2">
               <Palette className="w-4 h-4 text-[#00d4ff]" />
@@ -207,37 +234,10 @@ export default function ThemeCustomizerPage() {
               发光阴影 --lm-glow-sm/md/lg 随预设与主色派生,不单独编辑;半透明值在取色器中按当前背景合成显示。
             </p>
           </Card>
-
-          <Card className="p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Store className="w-4 h-4 text-[#00d4ff]" />
-              <span className="text-sm text-[#e0f0ff]">品牌区</span>
-              <span className="ml-auto text-xs text-[#8b9bb4]">仅本地保存</span>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[#8b9bb4] text-xs">系统名称</Label>
-              <Input
-                value={brand.name}
-                onChange={(e) => setBrand((p) => ({ ...p, name: e.target.value }))}
-                placeholder={DEFAULT_BRAND.name}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[#8b9bb4] text-xs">标语</Label>
-              <Input
-                value={brand.tagline}
-                onChange={(e) => setBrand((p) => ({ ...p, tagline: e.target.value }))}
-                placeholder={DEFAULT_BRAND.tagline}
-              />
-            </div>
-            <Button variant="outline" size="sm" onClick={handleSaveBrand}>
-              保存品牌
-            </Button>
-          </Card>
         </div>
 
-        {/* ── 右列:实时预览(直接消费当前变量) ── */}
-        <Card className="p-4 lg:sticky lg:top-0 min-w-0">
+        {/* ── 右列:实时预览(直接消费当前变量;高度与左列一致) ── */}
+        <Card className="p-4 min-w-0 h-full flex flex-col">
           <div className="flex items-center gap-2 mb-3">
             <Eye className="w-4 h-4 text-[#00d4ff] opacity-60" />
             <span className="text-sm text-[#c0dcf0]">实时预览</span>
@@ -245,7 +245,7 @@ export default function ThemeCustomizerPage() {
           </div>
 
           <div
-            className="rounded-xl overflow-hidden border"
+            className="rounded-xl overflow-hidden border flex-1"
             style={{ background: 'var(--lm-panel)', borderColor: 'var(--lm-border)' }}
           >
             {/* 预览头部:系统名称/标语 */}

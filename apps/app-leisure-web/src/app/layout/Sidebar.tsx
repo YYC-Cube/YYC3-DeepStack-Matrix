@@ -1,8 +1,9 @@
 /**
  * 侧边栏:域分组菜单(需求全集 §3.2 八域)+ 功能码过滤
  * 菜单 → 页面编号(05 文档);II 期项渲染占位角标
+ * 折叠态分组 hover 弹出层:进入 120ms 延迟显示,离开 180ms 防抖收起
  */
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import {
   BarChart3,
@@ -100,6 +101,7 @@ export const MENU: MenuGroup[] = [
     icon: Settings,
     items: [
       { key: 'a26', label: '门店参数(艺人设置)', path: '/settings/artist', perm: 'setting:manage' },
+      { key: 'theme', label: '主题定制', path: '/settings/theme', perm: 'setting:manage' },
       { key: 'rooms', label: '包厢房号管理', path: '/store/rooms', perm: 'setting:manage' },
     ],
   },
@@ -110,11 +112,44 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   const location = useLocation()
   const permCodes = useAuthStore((s) => s.permCodes)
   const [hoverCat, setHoverCat] = useState<string | null>(null)
+  // 弹出层防抖计时器(参照 Cloud-Matrix Sidebar 范式)
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const groups = MENU.filter((g) => g.items.some((i) => permCodes.includes(i.perm)))
+
+  const clearHoverTimer = () => {
+    if (hoverTimerRef.current !== null) {
+      clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
+    }
+  }
+  // 进入分组:清除收起计时,折叠态延迟 120ms 再显示弹出层(滑过不闪)
+  const handleCatEnter = (label: string) => {
+    clearHoverTimer()
+    if (collapsed) {
+      hoverTimerRef.current = setTimeout(() => setHoverCat(label), 120)
+    } else {
+      setHoverCat(label)
+    }
+  }
+  // 离开分组:180ms 防抖后收起(给移入弹出层留缓冲)
+  const handleCatLeave = () => {
+    clearHoverTimer()
+    hoverTimerRef.current = setTimeout(() => setHoverCat(null), 180)
+  }
+  // 悬停移入弹出层本身:取消收起计时,保持可交互
+  const handleFlyoutEnter = () => {
+    clearHoverTimer()
+  }
+  // 路由跳转后收起弹出层
+  useEffect(() => {
+    setHoverCat(null)
+  }, [location.pathname])
+  // 卸载时清理计时器
+  useEffect(() => clearHoverTimer, [])
 
   return (
     <aside
-      className="h-full flex flex-col border-r border-[rgba(0,212,255,0.12)] shrink-0 transition-all"
+      className="h-full flex flex-col border-r border-[rgba(0,212,255,0.12)] shrink-0 transition-[width] duration-200"
       style={{ width: collapsed ? 56 : 216, background: 'rgba(6,14,31,0.7)' }}
     >
       <div className="h-14 flex items-center px-3 border-b border-[rgba(0,212,255,0.12)]">
@@ -134,16 +169,20 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           return (
             <div
               key={g.label}
-              onMouseEnter={() => setHoverCat(g.label)}
-              onMouseLeave={() => setHoverCat(null)}
+              onMouseEnter={() => handleCatEnter(g.label)}
+              onMouseLeave={handleCatLeave}
               className="relative"
             >
-              <div className="px-3 py-1.5 flex items-center gap-2 text-[#8b9bb4]">
+              <div className="px-3 py-1.5 flex items-center gap-2 text-[#8b9bb4] rounded-md transition-colors cursor-default hover:bg-[rgba(0,212,255,0.05)] hover:text-[#e0f0ff]">
                 <g.icon className="w-4 h-4 shrink-0" />
                 {!collapsed && <span className="text-xs truncate">{g.label}</span>}
               </div>
               {collapsed && hoverCat === g.label && (
-                <div className="absolute left-full top-0 z-50 ml-1 py-1 px-1 rounded-lg border border-[rgba(0,212,255,0.2)] bg-[#0a1628] shadow-xl min-w-[160px]">
+                <div
+                  onMouseEnter={handleFlyoutEnter}
+                  onMouseLeave={handleCatLeave}
+                  className="absolute left-full top-0 z-50 ml-1 py-1 px-1 rounded-lg border border-[rgba(0,212,255,0.2)] bg-[#0a1628] shadow-[0_10px_50px_rgba(0,0,0,0.5)] min-w-[160px]"
+                >
                   {items.map((i) => (
                     <div
                       key={i.key}

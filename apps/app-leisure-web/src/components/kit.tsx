@@ -1,8 +1,9 @@
 /**
- * 共享组件套件:DataTable / PageHeader / MoneyText / StatusBadge / Field / ConfirmButton / PagePlaceholder
+ * 共享组件套件:DataTable / PageHeader / MoneyText / StatusBadge / Field / ConfirmButton / PagePlaceholder / EmptyState / StatCard
  * 铁律 8:危险操作二次确认,文案具体化(如「确认扣费 ¥200」)
  */
 import { useEffect, useState, type ReactNode } from 'react'
+import { Inbox } from 'lucide-react'
 import {
   Button,
   Card,
@@ -254,4 +255,50 @@ export function usePolling(fn: () => void, ms: number): void {
     const timer = setInterval(fn, ms)
     return () => clearInterval(timer)
   }, [fn, ms])
+}
+
+/* ── 空态(居中大图标 + 标题 + 弱化描述 + 行动点) ── */
+
+export function EmptyState({ icon, title, desc, action }: {
+  icon?: ReactNode
+  title: string
+  desc?: string
+  action?: ReactNode
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center gap-2 px-6 py-14 rounded-xl border border-[rgba(0,212,255,0.12)] bg-[rgba(6,14,31,0.6)]">
+      <div className="mb-1">{icon ?? <Inbox className="w-12 h-12 text-[#44546e]" />}</div>
+      <div className="text-sm font-medium text-[#e0f0ff]">{title}</div>
+      {desc !== undefined && <div className="text-xs text-[#8b9bb4] max-w-xs">{desc}</div>}
+      {action !== undefined && <div className="mt-2">{action}</div>}
+    </div>
+  )
+}
+
+/* ── 统计卡(tone 色点小标签 + 大数字 + 可选 hint) ── */
+
+const STAT_TONE_COLOR: Record<'primary' | 'success' | 'warning' | 'danger', string> = {
+  primary: '#00d4ff',
+  success: '#00ff88',
+  warning: '#ffaa00',
+  danger: '#ff3366',
+}
+
+export function StatCard({ label, value, tone = 'primary', hint }: {
+  label: string
+  value: ReactNode
+  tone?: 'primary' | 'success' | 'warning' | 'danger'
+  hint?: string
+}) {
+  const color = STAT_TONE_COLOR[tone]
+  return (
+    <div className="rounded-xl border border-[rgba(0,212,255,0.12)] bg-[rgba(6,14,31,0.6)] px-4 py-3">
+      <div className="flex items-center gap-1.5 text-xs text-[#8b9bb4]">
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
+        {label}
+      </div>
+      <div className="text-[1.5rem] leading-8 font-semibold text-[#e0f0ff] mt-1">{value}</div>
+      {hint !== undefined && <div className="text-[11px] text-[#8b9bb4] mt-0.5">{hint}</div>}
+    </div>
+  )
 }

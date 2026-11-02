@@ -1,5 +1,5 @@
 /**
- * 应用布局:Sidebar + 顶栏(用户/安装/登出)+ Outlet + Toaster + 移动断点 BottomNav + ⌘K 命令面板
+ * 应用布局:Sidebar + 顶栏(用户/安装/登出)+ Outlet + Toaster + 移动断点 BottomNav + ⌘K 命令面板 + AI 助手浮窗
  * <768px:@yyc3/ui useIsMobile → 隐藏 Sidebar,底部五 Tab(阶段4)
  */
 import { useState } from 'react'
@@ -12,6 +12,7 @@ import { useIsMobile, usePWAInstall } from '@/lib/pwa'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from '@/components/BottomNav'
 import { CommandPalette } from '@/components/command-palette/CommandPalette'
+import { AIAssistant } from '@/components/ai-assistant/AIAssistant'
 
 /** 安装按钮(可用=一键装;iOS=指引;桌面已装=隐藏) */
 function InstallButton(): React.JSX.Element | null {
@@ -77,6 +78,8 @@ export function AppLayout() {
       </div>
       {isMobile && <BottomNav />}
       <CommandPalette />
+      {/* AI 助手浮窗(抽取包 ai-assistant;未传 onSendMessage 时本地 mock 应答,III 期接推理服务) */}
+      <AIAssistant />
       <Toaster position="top-center" theme="dark" />
     </div>
   )

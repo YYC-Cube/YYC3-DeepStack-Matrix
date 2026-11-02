@@ -49,7 +49,7 @@ interface PresetSeed {
   panel: string
 }
 
-/** 由种子生成完整 20 变量(次要/柔和/强调/边框/焦点/分隔线/发光均按主色透明度派生) */
+/** 由种子生成完整变量集(20 核心变量按主色派生;图表色/字体/圆角继承 tokens 默认) */
 function buildVars(seed: PresetSeed): ThemePreset {
   const p = hexToRgbTriple(seed.primary)
   return {
@@ -57,6 +57,7 @@ function buildVars(seed: PresetSeed): ThemePreset {
     name: seed.name,
     nameEn: seed.nameEn,
     vars: {
+      ...DEFAULT_THEME_VARS,
       '--lm-bg': seed.bg,
       '--lm-fg': seed.fg,
       '--lm-primary': seed.primary,

@@ -37,6 +37,24 @@
   --lm-glow-sm: 0 0 15px rgba(0, 180, 255, 0.05);
   --lm-glow-md: 0 0 30px rgba(0, 180, 255, 0.1);
   --lm-glow-lg: 0 0 40px rgba(0, 180, 255, 0.15);
+
+  /* ═══════════════════════════════════════════════════════════════
+   *  图表色 / 字体 / 圆角(主题定制页 2/3/4 区;与 CHART_COLORS·字体刻度同步)
+   * ═══════════════════════════════════════════════════════════════ */
+  --lm-chart-1: #00d4ff;
+  --lm-chart-2: #00ff88;
+  --lm-chart-3: #ff6600;
+  --lm-chart-4: #aa55ff;
+  --lm-chart-5: #ffdd00;
+  --lm-font-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
+  --lm-font-body: 'Rajdhani', ui-sans-serif, system-ui, sans-serif;
+  --lm-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --lm-radius: 0.75rem;
+}
+
+/* 正文字体走 token(主题页 3 区可换家族) */
+body {
+  font-family: var(--lm-font-body);
 }
 
 /*
@@ -63,4 +81,10 @@
   --shadow-glow-sm: var(--lm-glow-sm);
   --shadow-glow-md: var(--lm-glow-md);
   --shadow-glow-lg: var(--lm-glow-lg);
+  --color-chart-1: var(--lm-chart-1);
+  --color-chart-2: var(--lm-chart-2);
+  --color-chart-3: var(--lm-chart-3);
+  --color-chart-4: var(--lm-chart-4);
+  --color-chart-5: var(--lm-chart-5);
+  --radius-lm: var(--lm-radius);
 }

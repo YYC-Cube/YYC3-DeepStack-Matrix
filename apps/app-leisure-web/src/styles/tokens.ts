@@ -31,6 +31,15 @@ export const LM_TOKENS = {
   glowSm: '0 0 15px rgba(0,180,255,0.05)',
   glowMd: '0 0 30px rgba(0,180,255,0.1)',
   glowLg: '0 0 40px rgba(0,180,255,0.15)',
+  chart1: '#00d4ff',
+  chart2: '#00ff88',
+  chart3: '#ff6600',
+  chart4: '#aa55ff',
+  chart5: '#ffdd00',
+  fontDisplay: "'Orbitron', ui-sans-serif, system-ui, sans-serif",
+  fontBody: "'Rajdhani', ui-sans-serif, system-ui, sans-serif",
+  fontMono: "'JetBrains Mono', ui-monospace, 'SF Mono', monospace",
+  radius: '0.75rem',
 } as const
 
 /** token 键 → CSS 变量名(主题页按名读写 --lm-*) */
@@ -55,6 +64,15 @@ export const LM_CSS_VARS = {
   glowSm: '--lm-glow-sm',
   glowMd: '--lm-glow-md',
   glowLg: '--lm-glow-lg',
+  chart1: '--lm-chart-1',
+  chart2: '--lm-chart-2',
+  chart3: '--lm-chart-3',
+  chart4: '--lm-chart-4',
+  chart5: '--lm-chart-5',
+  fontDisplay: '--lm-font-display',
+  fontBody: '--lm-font-body',
+  fontMono: '--lm-font-mono',
+  radius: '--lm-radius',
 } as const
 
 export type LmTokenKey = keyof typeof LM_TOKENS

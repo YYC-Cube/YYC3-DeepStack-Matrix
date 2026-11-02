@@ -77,3 +77,67 @@ export function hexToRgbTriple(hex: string): string {
   if (p === null) return '0,0,0'
   return `${Math.round(p[0])},${Math.round(p[1])},${Math.round(p[2])}`
 }
+
+/* ═══════════════════════════════════════════════════════════════
+ *  OKLch 亮度调节(主题页 5 区;感知均匀,调亮度不偏色相)
+ *  实现:Björn Ottosson OKLab 标准矩阵(sRGB 线性化 ↔ OKLab ↔ OKLch)
+ * ═══════════════════════════════════════════════════════════════ */
+
+const c1 = 0.8304804463
+const c2 = 0.2104542553
+const c3 = 0.793617785
+const c4 = 0.0040720468
+
+function srgbToLinear(u: number): number {
+  const v = u / 255
+  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+}
+function linearToSrgb(v: number): number {
+  const u = v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055
+  return Math.max(0, Math.min(255, Math.round(u * 255)))
+}
+
+/** hex → OKLch(L 0-1, C 0-0.4, H 0-360);解析失败返回 null */
+export function hexToOklch(hex: string): { l: number; c: number; h: number } | null {
+  const p = parseColor(hex)
+  if (p === null) return null
+  const r = srgbToLinear(p[0])
+  const g = srgbToLinear(p[1])
+  const b = srgbToLinear(p[2])
+  const l0 = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+  const m0 = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+  const s0 = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+  const L = c2 * l0 + c3 * m0 + c4 * s0
+  const a = 1.9779984951 * l0 - 2.428592205 * m0 + 0.4505937099 * s0
+  const bb = 0.0259040371 * l0 + 0.7827717662 * m0 - 0.808675766 * s0
+  const C = Math.sqrt(a * a + bb * bb)
+  let H = (Math.atan2(bb, a) * 180) / Math.PI
+  if (H < 0) H += 360
+  return { l: L, c: C, h: H }
+}
+
+/** OKLch → hex(C/H 原路逆变换) */
+export function oklchToHex(l: number, c: number, h: number): string {
+  const hr = (h * Math.PI) / 180
+  const a = c * Math.cos(hr)
+  const bb = c * Math.sin(hr)
+  const l0 = l + 0.3963377774 * a + 0.2158037573 * bb
+  const m0 = l - 0.1055613458 * a - 0.0638541728 * bb
+  const s0 = l - 0.0894841775 * a - 1.291485548 * bb
+  const L = l0 * l0 * l0
+  const M = m0 * m0 * m0
+  const S = s0 * s0 * s0
+  return rgbToHex(
+    linearToSrgb(4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S),
+    linearToSrgb(-1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S),
+    linearToSrgb(-0.0041960863 * L - 0.7034186147 * M + 1.707614701 * S),
+  )
+}
+
+/** 亮度调节:hex 原色 → OKLch L 增减 dL(-0.3~0.3 建议)→ 回 hex;C/H 保持不偏色 */
+export function adjustLightness(hex: string, dL: number): string {
+  const o = hexToOklch(hex)
+  if (o === null) return hex
+  const l = Math.max(0.05, Math.min(0.98, o.l + dL))
+  return oklchToHex(l, o.c, o.h)
+}

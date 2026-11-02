@@ -13,6 +13,7 @@ import { Sidebar } from './Sidebar'
 import { BottomNav } from '@/components/BottomNav'
 import { CommandPalette } from '@/components/command-palette/CommandPalette'
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant'
+import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 
 /** 安装按钮(可用=一键装;iOS=指引;桌面已装=隐藏) */
 function InstallButton(): React.JSX.Element | null {
@@ -65,10 +66,29 @@ export function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 shrink-0 flex items-center px-5 border-b border-[rgba(0,212,255,0.12)]">
           {!isMobile && <span className="text-sm text-[#8b9bb4]">Web 管理端</span>}
-          {isMobile && <span className="text-sm font-semibold text-[#00d4ff]">LeisureManage</span>}
+          {isMobile && (
+            <button
+              onClick={() => { navigate('/profile') }}
+              className="flex items-center gap-2"
+              title="个人信息"
+            >
+              <YYC3LogoSvg size={28} className="rounded-full" />
+              <span className="text-sm font-semibold text-[#00d4ff]">LeisureManage</span>
+            </button>
+          )}
           <div className="ml-auto flex items-center gap-3">
             <InstallButton />
-            <span className="text-sm text-[#e0f0ff]">{name !== '' ? name : '管理员'}</span>
+            {/* 头像+姓名 → 个人信息页(替代裸姓名展示) */}
+            <button
+              onClick={() => { navigate('/profile') }}
+              className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-[rgba(0,212,255,0.08)] transition-colors"
+              title="个人信息"
+            >
+              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center overflow-hidden shadow-[0_0_10px_rgba(0,180,255,0.3)]">
+                <YYC3LogoSvg size={30} />
+              </span>
+              <span className="text-sm text-[#e0f0ff] max-w-[8rem] truncate">{name !== '' ? name : '管理员'}</span>
+            </button>
             <Button
               variant="ghost"
               size="sm"

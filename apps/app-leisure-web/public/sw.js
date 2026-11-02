@@ -75,6 +75,26 @@ async function networkFirst(request, cacheName, fallback) {
   }
 }
 
+/**
+ * API GET 专用:stale-while-revalidate
+ * 有缓存 → 立即回缓存(页面秒开),后台静默拉新更新缓存;无缓存 → 等网络。
+ * 注意:页面拿到的是上一瞬间的数据;写操作后由前端主动重新拉取/刷新页面。
+ */
+async function apiStaleWhileRevalidate(request, cacheName, fallback) {
+  const cache = await caches.open(cacheName)
+  const cached = await cache.match(request)
+  const network = fetch(request)
+    .then((res) => {
+      if (res.ok) cache.put(request, res.clone())
+      return res
+    })
+    .catch(() => undefined)
+  if (cached !== undefined) return cached
+  const res = await network
+  if (res !== undefined) return res
+  return fallback
+}
+
 function apiOfflineFallback() {
   return new Response(JSON.stringify({ code: -1, msg: '离线模式:网络不可用,请恢复后重试' }), {
     status: 503,
@@ -95,9 +115,9 @@ async function handleFetch(event) {
   if (request.method !== 'GET') return fetch(request)
   if (url.origin !== self.location.origin) return fetch(request)
 
-  // API:GET 网络优先 + 离线信封;写操作直连
+  // API:GET stale-while-revalidate(缓存秒开+后台拉新)+ 离线信封;写操作直连
   if (url.pathname.startsWith('/api/v1/')) {
-    return networkFirst(request, RUNTIME_CACHE, apiOfflineFallback())
+    return apiStaleWhileRevalidate(request, RUNTIME_CACHE, apiOfflineFallback())
   }
 
   // hash 指纹构建产物:缓存优先(不可变)

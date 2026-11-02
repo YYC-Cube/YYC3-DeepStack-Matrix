@@ -326,8 +326,30 @@ export class AuthController {
 
   @Get('me')
   async me(@Req() req: Request): Promise<unknown> {
-    const user = (req as Request & { user?: JwtPayload }).user
-    return user ?? {}
+    const payload = (req as Request & { user?: JwtPayload }).user
+    if (payload === undefined) return {}
+    // 管理端:回库取完整档案(个人信息页;可编辑项仅密码,其余只读展示)
+    if (payload.scope === 'ADMIN') {
+      const u = await this.prisma.adminUser.findUnique({
+        where: { id: payload.sub },
+        include: { role: { select: { name: true } } },
+      })
+      if (u === null || u.status !== 1) throw new UnauthorizedException('账号不存在或已停用')
+      return {
+        sub: u.id,
+        name: u.name,
+        username: u.username,
+        phone: u.phone,
+        storeId: u.storeId,
+        roleName: u.role?.name ?? null,
+        permCodes: payload.permCodes,
+        scope: payload.scope,
+        mustChangePassword: payload.mustChangePassword === true,
+        createdAt: u.createdAt.toISOString(),
+      }
+    }
+    // 艺人端:基础身份
+    return { sub: payload.sub, name: payload.name, scope: payload.scope }
   }
 
   /** 修改密码(管理端;首登必改时唯一放行的写接口)→ 返回新 token */

@@ -58,6 +58,7 @@ const ShowcasePage = sus(lazy(() => import('@/pages/showcase')))
 const BookingsPage = sus(lazy(() => import('@/pages/bookings')))
 const ReviewsPage = sus(lazy(() => import('@/pages/reviews')))
 const ThemeCustomizerPage = sus(lazy(() => import('@/pages/theme-customizer')))
+const ProfilePage = sus(lazy(() => import('@/pages/profile')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -96,6 +97,7 @@ export const router = createHashRouter([
       // 设置域
       { path: 'settings/artist', element: <SettingsArtistPage /> },
       { path: 'settings/theme', element: <ThemeCustomizerPage /> },
+      { path: 'profile', element: <ProfilePage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
       { path: 'rooms/board', element: <BoardPage /> },
       { path: 'clock-screen', element: <ClockScreenPage /> },

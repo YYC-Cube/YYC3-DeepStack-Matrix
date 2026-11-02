@@ -3,9 +3,10 @@
  * 台票走独立页(B7);评价为 III 期占位;数据走 ARTIST scope 端点(强制本人)
  */
 import { useCallback, useState } from 'react'
-import { View, Text, Button } from '@tarojs/components'
+import { View, Text, Button, Image } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
 import Taro from '@tarojs/taro'
+import logoPng from '../../assets/yyc3-logo.png'
 import { loadAuth, myTxns, errText } from '../../lib/api'
 
 interface TxnRow {
@@ -65,7 +66,10 @@ export default function Mine() {
   return (
     <View className="mp-page">
       <View className="mp-card">
-        <Text className="mp-title">{name !== '' ? name : '我的'}</Text>
+        <View className="flex items-center" style={{ gap: '10px' }}>
+          <Image src={logoPng} style={{ width: '36px', height: '36px' }} mode='aspectFit' />
+          <Text className="mp-title">{name !== '' ? name : '我的'}</Text>
+        </View>
         <Text className="mp-muted">台费余额(元)</Text>
         <Text className={'mp-balance' + (balance !== null && balance < 0 ? ' mp-balance-neg' : '')}>
           {balance === null ? '…' : balance.toFixed(2)}

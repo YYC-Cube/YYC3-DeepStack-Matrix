@@ -25,10 +25,12 @@ function isBrowser(): boolean {
 /**
  * 应用主题:逐项 setProperty;未提供的契约变量移除内联值(applyTheme({}) 即整体回到 tokens.css 默认)
  * 仅接受 --lm- 前缀键,防止越权写其他变量
+ * 过渡动画:换肤瞬间给 <html> 挂 lm-theme-anim 类(tokens.css 定义色彩过渡),350ms 后摘除
  */
 export function applyTheme(vars: ThemeVars): void {
   if (!isBrowser()) return
   const el = document.documentElement
+  el.classList.add('lm-theme-anim')
   for (const key of CONTRACT_VARS) {
     const value = vars[key]
     if (typeof value === 'string' && value.trim() !== '') {
@@ -37,6 +39,7 @@ export function applyTheme(vars: ThemeVars): void {
       el.style.removeProperty(key)
     }
   }
+  window.setTimeout(() => el.classList.remove('lm-theme-anim'), 350)
 }
 
 /** 读取已保存主题(JSON 校验 + 仅 --lm- 键);无/损坏返回 null */

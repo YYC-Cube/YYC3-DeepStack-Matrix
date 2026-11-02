@@ -57,6 +57,55 @@ body {
   font-family: var(--lm-font-body);
 }
 
+/* 标题走展示字体(对齐 CP-IM 观感;未装 Orbitron 时回退系统无衬线) */
+h1, h2, h3, h4 {
+  font-family: var(--lm-font-display);
+}
+
+/* 主题切换过渡(applier 换肤瞬间挂 lm-theme-anim,350ms 摘除) */
+html.lm-theme-anim,
+html.lm-theme-anim *,
+html.lm-theme-anim *::before,
+html.lm-theme-anim *::after {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+/* 全站主题化滚动条(--lm-* 驱动) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 212, 255, 0.25) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.25);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.4);
+}
+
+/* 工具类(适配自抽取包 design-system/styles) */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /*
  * Tailwind4 css-first 映射:生成 text-primary / bg-primary / border-line /
  * text-fg-muted / text-success / text-warning / text-destructive /

@@ -88,8 +88,8 @@ export function AppLayout() {
       </div>
       {isMobile && <BottomNav />}
       <CommandPalette />
-      {/* AI 助手浮窗(抽取包 ai-assistant;未传 onSendMessage 时本地 mock 应答,III 期接推理服务) */}
-      <AIAssistant />
+      {/* AI 助手浮窗(可拖拽/可缩放;mock 应答,III 期接推理服务) */}
+      <AIAssistant isMobile={isMobile} />
       <Toaster position="top-center" theme="dark" />
     </div>
   )

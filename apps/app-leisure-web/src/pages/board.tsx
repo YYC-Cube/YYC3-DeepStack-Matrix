@@ -3,6 +3,7 @@
  * 依据:《12-包厢房态模块-构建指导》§5;时间费即台费,关房统一结算(ROOM_SETTLE 逐艺人流水)
  */
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import {
   Button,
   Card,
@@ -50,17 +51,32 @@ interface CloseResult {
 }
 
 const STATUS_TEXT: Record<string, string> = {
-  FREE: '空闲', OCCUPIED: '消费中', CLEANING: '清扫中', MAINTENANCE: '维修中', DISABLED: '停用',
+  FREE: '空闲', OCCUPIED: '消费中', CLEANING: '清扫中', MAINTENANCE: '维修中', DISABLED: '停用', BOOKED: '已预定',
 }
-const STATUS_BG: Record<string, string> = {
-  FREE: '#1f7a4d', OCCUPIED: '#c0392b', CLEANING: '#2478a8', MAINTENANCE: '#7a7a7a', DISABLED: '#555555',
+/** 状态色语义(对齐智慧商家:绿=空房 红=开房 橙=预定 蓝=清扫 灰=维修) */
+const STATUS_COLOR: Record<string, string> = {
+  FREE: '#22b573', OCCUPIED: '#e85d6f', CLEANING: '#3aa0d8', MAINTENANCE: '#9aa0a6', DISABLED: '#6b7280', BOOKED: '#f59e0b',
+}
+
+/** 计时时长格式化:X小时Y分 */
+function elapsedLabel(startAt: string): string {
+  const mins = Math.max(0, Math.floor((Date.now() - new Date(startAt).getTime()) / 60_000))
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  if (h === 0) return `${String(m)} 分钟`
+  return `${String(h)} 小时 ${String(m)} 分`
 }
 
 export default function BoardPage(): React.JSX.Element {
+  const navigate = useNavigate()
   const [rooms, setRooms] = useState<RoomRow[]>([])
   const [artists, setArtists] = useState<ArtistRow[]>([])
   const [openSessions, setOpenSessions] = useState<OpenSessionRow[]>([])
   const [busy, setBusy] = useState(false)
+  /** 今日已预定包厢(预约未到店) */
+  const [bookedRoomIds, setBookedRoomIds] = useState<Set<number>>(new Set())
+  /** 房账当前消费(点单聚合,sessionId → 金额) */
+  const [consumptionMap, setConsumptionMap] = useState<Map<number, number>>(new Map())
 
   // 开房弹窗(含轮台推荐位,艺人设置⑧)
   const [openFor, setOpenFor] = useState<RoomRow | null>(null)
@@ -69,6 +85,30 @@ export default function BoardPage(): React.JSX.Element {
   const [overrideReason, setOverrideReason] = useState('')
 
   const MODE_TEXT: Record<string, string> = { ROTATION: '轮台(须按序)', SELF_PICK: '自选', MIXED: '混合(推荐可越过)' }
+
+  // 预定弹窗(房间卡快捷预定:直接建 BOOKED 预约)
+  const [reserveFor, setReserveFor] = useState<RoomRow | null>(null)
+  const [reserveTime, setReserveTime] = useState('')
+  const [reserveArtist, setReserveArtist] = useState('')
+
+  const createReserve = async (): Promise<void> => {
+    if (reserveFor === null) return
+    setBusy(true)
+    try {
+      await client.bookings.create({
+        roomId: reserveFor.id,
+        artistId: reserveArtist === '' ? undefined : Number(reserveArtist),
+        bookingTime: reserveTime === '' ? undefined : new Date(reserveTime).toISOString(),
+      })
+      toast.success(reserveFor.roomNo + ' 预定成功(BOOKED,到店后转 ARRIVED)')
+      setReserveFor(null)
+      await load()
+    } catch (e) {
+      toastError(e, '预定失败')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const openRoomDialog = async (room: RoomRow): Promise<void> => {
     setOpenFor(room)
@@ -104,14 +144,30 @@ export default function BoardPage(): React.JSX.Element {
 
   const load = useCallback(async (): Promise<void> => {
     try {
-      const [roomsRes, sessionsRes, artistsRes] = await Promise.all([
+      const bd = client.businessDateOf()
+      const [roomsRes, sessionsRes, artistsRes, bookedRes, placedRes, deliveredRes] = await Promise.all([
         req<{ rows: RoomRow[] }>('GET', '/store/rooms?pageSize=100'),
         req<{ rows: OpenSessionRow[] }>('GET', '/room-sessions?status=OPEN'),
         req<{ rows: ArtistRow[] }>('GET', '/artists?pageSize=100'),
+        client.bookings.list({ businessDate: bd, status: 'BOOKED', pageSize: 100 }),
+        req<{ rows: Array<{ sessionId: number; totalAmount: number }> }>('GET', '/self-orders?businessDate=' + bd + '&status=PLACED&pageSize=200'),
+        req<{ rows: Array<{ sessionId: number; totalAmount: number }> }>('GET', '/self-orders?businessDate=' + bd + '&status=DELIVERED&pageSize=200'),
       ])
       setRooms(roomsRes.rows)
       setOpenSessions(sessionsRes.rows)
       setArtists(artistsRes.rows)
+      // 已预定包厢(预约未到店)
+      const bookedSet = new Set<number>()
+      for (const b of bookedRes.rows) {
+        if (b.roomId !== null) bookedSet.add(b.roomId)
+      }
+      setBookedRoomIds(bookedSet)
+      // 房账当前消费(按房账聚合点单)
+      const consumption = new Map<number, number>()
+      for (const row of [...placedRes.rows, ...deliveredRes.rows]) {
+        consumption.set(row.sessionId, (consumption.get(row.sessionId) ?? 0) + Number(row.totalAmount))
+      }
+      setConsumptionMap(consumption)
     } catch (e) {
       toastError(e, '加载失败')
     }
@@ -119,8 +175,11 @@ export default function BoardPage(): React.JSX.Element {
 
   useEffect(() => { void load() }, [load])
 
-  const roomStatus = (room: RoomRow): string =>
-    openSessions.some((s) => s.roomId === room.id) ? 'OCCUPIED' : room.status
+  const roomStatus = (room: RoomRow): string => {
+    if (openSessions.some((s) => s.roomId === room.id)) return 'OCCUPIED'
+    if (room.status === 'FREE' && bookedRoomIds.has(room.id)) return 'BOOKED'
+    return room.status
+  }
 
   const doOpen = async (room: RoomRow, ids: number[]): Promise<void> => {
     if (ids.length === 0) { toast.error('至少绑定一名在场艺人'); return }
@@ -225,33 +284,152 @@ export default function BoardPage(): React.JSX.Element {
         {rooms.map((r) => {
           const st = roomStatus(r)
           const open = openSessions.find((s) => s.roomId === r.id)
-          const canOpen = st === 'FREE'
+          const color = STATUS_COLOR[st] ?? '#44546e'
+          const canOpen = st === 'FREE' || st === 'BOOKED'
           const canClose = st === 'OCCUPIED' && open !== undefined
           const canClean = st === 'CLEANING'
+          const consumption = open !== undefined ? (consumptionMap.get(open.id) ?? 0) : 0
           return (
             <Card
               key={r.id}
-              className="p-3 space-y-1"
-              style={{ background: STATUS_BG[st] ?? '#333', color: '#fff', border: 'none', minHeight: 96 }}
+              className="p-3 space-y-1.5"
+              style={{
+                background: `color-mix(in srgb, ${color} 12%, var(--lm-card))`,
+                border: 'none',
+                borderLeft: `3px solid ${color}`,
+                minHeight: 128,
+              }}
             >
-              <div className="font-semibold">{r.roomNo}</div>
-              <div className="text-xs opacity-80">{r.roomType?.name ?? ''}</div>
-              <div className="text-sm">{st === 'OCCUPIED' ? '消费中' : STATUS_TEXT[st] ?? st}</div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[var(--lm-fg)]">{r.roomNo}</span>
+                <span className="text-xs text-fg-muted">{r.roomType?.name ?? ''}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+                {STATUS_TEXT[st] ?? st}
+              </div>
+
+              {st === 'OCCUPIED' && open !== undefined && (
+                <div className="text-xs text-fg-muted space-y-0.5">
+                  <div>计时消费中 {elapsedLabel(open.startAt)}</div>
+                  <div>
+                    当前消费 <span className="text-[var(--lm-fg)] font-medium">¥{String(consumption)}</span>
+                  </div>
+                </div>
+              )}
+              {st === 'BOOKED' && (
+                <div className="text-xs text-fg-muted">今日有客预约 · 可提前开房备房</div>
+              )}
+
               <div className="flex gap-1 pt-1 flex-wrap">
                 {canOpen && (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { void openRoomDialog(r) }}>开房</Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    disabled={busy}
+                    onClick={() => { void openRoomDialog(r) }}
+                  >
+                    开房
+                  </Button>
                 )}
                 {canClose && (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { void openClose(r, open) }}>关房</Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    disabled={busy}
+                    onClick={() => { void openClose(r, open) }}
+                  >
+                    关房
+                  </Button>
+                )}
+                {(st === 'FREE' || st === 'BOOKED') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => { setReserveFor(r); setReserveTime('') ; setReserveArtist('') }}
+                  >
+                    预定
+                  </Button>
+                )}
+                {st === 'OCCUPIED' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => { navigate('/sessions') }}
+                    title="查看/管理本房在场艺人上下钟"
+                  >
+                    艺人
+                  </Button>
+                )}
+                {st === 'OCCUPIED' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => { toast.info('送花(礼品入房账)随自点单商品上架开放,III 期') }}
+                    title="给本房送花入房账"
+                  >
+                    送花
+                  </Button>
                 )}
                 {canClean && (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => { void cleaningDone(r.id) }}>清扫完成</Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    disabled={busy}
+                    onClick={() => { void cleaningDone(r.id) }}
+                  >
+                    清扫完成
+                  </Button>
                 )}
               </div>
             </Card>
           )
         })}
       </div>
+
+      {/* 预定弹窗:房间快捷预约(BOOKED) */}
+      <Dialog open={reserveFor !== null} onOpenChange={(o) => { if (!o) setReserveFor(null) }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>预定包厢 · {reserveFor?.roomNo ?? ''}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label>到店时间(空=今晚) </Label>
+              <Input type="datetime-local" value={reserveTime} onChange={(e) => { setReserveTime(e.target.value) }} />
+            </div>
+            <div className="space-y-1">
+              <Label>指名艺人(可选)</Label>
+              <select
+                className="w-full h-9 rounded-md bg-[rgba(0,40,80,0.3)] border border-[rgba(0,212,255,0.2)] px-2 text-sm text-[var(--lm-fg)] outline-none focus:border-primary"
+                value={reserveArtist}
+                onChange={(e) => { setReserveArtist(e.target.value) }}
+              >
+                <option value="">不指名</option>
+                {artists.map((a) => (
+                  <option key={a.id} value={String(a.id)}>
+                    {a.stageName ?? a.realName}
+                    {a.badgeNo !== null ? `(${a.badgeNo})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className="text-xs text-fg-muted">
+              创建后包厢显示「已预定」色;客到店在「预约管理」转 ARRIVED,开房即正常计费。
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setReserveFor(null)}>取消</Button>
+            <Button disabled={busy} onClick={() => { void createReserve() }}>确认预定</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* 开房弹窗:绑定在场艺人 */}
       <Dialog open={openFor !== null} onOpenChange={(o) => { if (!o) setOpenFor(null) }}>

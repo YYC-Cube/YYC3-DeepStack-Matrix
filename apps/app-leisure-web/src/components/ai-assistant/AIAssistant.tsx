@@ -1,19 +1,18 @@
 /**
- * @file: AIAssistant.tsx
- * @description: YYC³ AI 智能助理浮窗组件 (共享版本)
- * @author: YanYuCloudCube Team
- * @version: 1.0.0
+ * YYC³ AI 助手浮窗(LeisureManage 定制版)
+ * - 内容对齐当前项目:房态/台票/对账/轮台/预约/评价 快捷命令与领域应答
+ * - 浮窗按钮与面板均可拖拽(位置持久化 localStorage),面板可缩放(右下角手柄),多端自适应
+ * - ⌘J / Ctrl+J 全局开关;未接推理服务时本地领域 mock 应答(III 期接真 AI)
+ * 适配移植自 YYC3-Cloud-Matrix ai-assistant(共享版)+ docs/ai-assistant-dev(开发版)
  */
-
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  X, Send, Sparkles, Zap, Server, Database, Shield,
-  RotateCcw, Play, Copy, Check, Cpu, HardDrive, Activity, Network,
-  Layers, Key, Sliders, MessageSquare, BookOpen, Command,
-  Minimize2, Maximize2, Trash2,
-} from 'lucide-react';
-
-import { YYC3LogoSvg } from './YYC3LogoSvg';
+  X, Send, Sparkles, Zap, RotateCcw, Trash2,
+  Minimize2, Maximize2, MessageSquare, Command,
+  BookOpen, Sliders, Copy, Check, LayoutDashboard,
+  Receipt, BarChart3, CalendarCheck, Users, Store,
+} from 'lucide-react'
+import { YYC3LogoSvg } from './YYC3LogoSvg'
 
 // ═══════════════════════════════════════════════════════════════
 //  类型定义
@@ -32,7 +31,10 @@ interface SystemCommand {
   label: string;
   desc: string;
   category: string;
+  /** 发给 AI 的指令文本 */
   action: string;
+  /** 直接跳转的页面 hash(优先于 action) */
+  hash?: string;
   color: string;
 }
 
@@ -51,34 +53,34 @@ interface ChatMessage {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  常量定义
+//  常量定义(LeisureManage 领域)
 // ═══════════════════════════════════════════════════════════════
 
 const SYSTEM_COMMANDS: SystemCommand[] = [
-  { id: 'cmd-01', icon: Activity, label: '集群状态总览', desc: '获取所有节点实时状态', category: 'cluster', action: '查看当前集群所有节点的运行状态、GPU利用率和温度', color: '#00d4ff' },
-  { id: 'cmd-02', icon: Server, label: '重启异常节点', desc: '自动检测并重启异常节点', category: 'cluster', action: '检测并重启所有状态异常的推理节点', color: '#ff6600' },
-  { id: 'cmd-03', icon: Layers, label: '部署模型', desc: '将模型部署到指定节点', category: 'model', action: '将 DeepSeek-V3 模型部署到空闲 GPU 节点', color: '#00ff88' },
-  { id: 'cmd-04', icon: Cpu, label: '推理性能报告', desc: '生成推理性能分析报告', category: 'model', action: '生成过去24小时的推理性能分析报告', color: '#aa55ff' },
-  { id: 'cmd-05', icon: Database, label: '数据库健康检查', desc: '检查 PostgreSQL 连接状态', category: 'data', action: '执行数据库健康检查，检测连接池和慢查询', color: '#ffdd00' },
-  { id: 'cmd-06', icon: HardDrive, label: '存储空间分析', desc: '分析存储使用和清理建议', category: 'data', action: '分析当前存储空间使用情况给出清理建议', color: '#ff3366' },
-  { id: 'cmd-07', icon: Shield, label: '安全审计扫描', desc: '扫描安全漏洞和异常访问', category: 'security', action: '执行安全审计扫描，检查异常访问和潜在风险', color: '#ff3366' },
-  { id: 'cmd-08', icon: Network, label: '网络延迟诊断', desc: '诊断节点间网络延迟', category: 'monitor', action: '诊断所有节点间的网络延迟和带宽状态', color: '#00d4ff' },
-  { id: 'cmd-09', icon: Zap, label: '一键优化配置', desc: 'AI 自动优化系统配置', category: 'cluster', action: '根据当前负载情况，AI 自动优化集群配置参数', color: '#00ff88' },
-  { id: 'cmd-10', icon: RotateCcw, label: 'WebSocket 重连', desc: '重新建立数据推送连接', category: 'monitor', action: '重新建立 WebSocket 实时数据推送连接', color: '#aa55ff' },
+  { id: 'cmd-01', icon: LayoutDashboard, label: '房态看板', desc: '开房/空房/清扫/预定 全店总览', category: '房务', action: '给我一份当前全店房态总览:开房/空房/清扫/预定各多少间', hash: '#/rooms/board', color: '#00d4ff' },
+  { id: 'cmd-02', icon: Users, label: '实时在岗', desc: '签到/上钟/串台 实时状态', category: '房务', action: '查看当前艺人在岗实时状态:签到、上钟、串台各多少人', hash: '#/attendance/realtime', color: '#00ff88' },
+  { id: 'cmd-03', icon: CalendarCheck, label: '预约管理', desc: '今日预约与到店状态', category: '房务', action: '查看今日预约列表与到店情况', hash: '#/bookings', color: '#ffaa00' },
+  { id: 'cmd-04', icon: Receipt, label: '台票体系', desc: '台票设置/购买/核销', category: '资金', action: '查看台票购买与使用记录汇总', hash: '#/tickets?tab=buy-log', color: '#aa55ff' },
+  { id: 'cmd-05', icon: Zap, label: '双轨对账', desc: '今日四指标与 14 天门禁', category: '资金', action: '查看今日双轨对账四指标与 14 天门禁进度', hash: '#/reports/recon', color: '#ffdd00' },
+  { id: 'cmd-06', icon: BarChart3, label: '报表中心', desc: '8 张报表与 CSV 导出', category: '报表', action: '打开报表中心,查看今日上下钟汇总', hash: '#/reports', color: '#00d4ff' },
+  { id: 'cmd-07', icon: Users, label: '轮台报表', desc: '主管/艺人被派与越序统计', category: '报表', action: '查看主管轮台报表:各艺人被派次数与越序情况', hash: '#/reports/dispatch-rotation', color: '#00ff88' },
+  { id: 'cmd-08', icon: Store, label: '门店参数', desc: '计费规则/通道/轮台模式', category: '运营', action: '打开门店参数设置:计费规则与收费通道配置', hash: '#/settings/artist', color: '#ff3366' },
+  { id: 'cmd-09', icon: Command, label: '今日对账快照', desc: '生成自算四指标快照', category: '资金', action: '生成今日对账自算快照并核对开房数/时间费/点单额/签到人数', color: '#ff6600' },
+  { id: 'cmd-10', icon: Sparkles, label: '今日营业日报', desc: 'AI 汇总今日经营概况', category: '报表', action: '汇总今日营业日报:开房数、时间费、点单额、签到人数、台票销售', color: '#ffdd00' },
 ];
 
 const PROMPT_PRESETS: PromptPreset[] = [
-  { id: 'p1', name: '运维诊断专家', prompt: '你是 CP-IM 矩阵系统的运维诊断专家。请分析系统当前状态，识别潜在问题，给出优化建议。使用中文回答，简洁专业。', category: '运维' },
-  { id: 'p2', name: '模型调优顾问', prompt: '你是大模型推理调优专家。请根据当前模型部署情况，分析推理性能瓶颈，建议最优的 batch size、并行策略和内存配置。', category: '模型' },
-  { id: 'p3', name: '数据分析师', prompt: '你是数据分析专家。请解读系统监控数据，识别趋势和异常，生成可视化报告建议。关注 QPS、延迟、GPU 利用率等关键指标。', category: '数据' },
-  { id: 'p4', name: '安全审计员', prompt: '你是信息安全审计专家。请审查系统安全日志，识别异常访问模式、潜在入侵行为，并建议安全加固措施。', category: '安全' },
-  { id: 'p5', name: '智能运维助手', prompt: '你是 CP-IM 本地推理矩阵的 AI 运维助手。帮助用户快速执行运维操作、查询系统状态、部署模型、分析日志。一切以中文交互，保持简洁友好。', category: '通用' },
+  { id: 'p1', name: '门店运营管家', prompt: '你是 LeisureManage 门店运营管家。熟悉包厢房态、开房关房流程、清扫流转与轮台派单。请基于当前门店状态给出运营建议。使用中文,简洁专业。', category: '运营' },
+  { id: 'p2', name: '财务对账专员', prompt: '你是资金对账专员。掌握台费充值、ROOM_SETTLE 结算、台票购买核销与双轨对账四指标口径。帮助用户核对当日账务与差异。', category: '资金' },
+  { id: 'p3', name: '轮台调度师', prompt: '你是艺人轮台调度师。理解轮台/自选/混合三种上钟模式与越序规则,能给出公平派单建议与预警。', category: '调度' },
+  { id: 'p4', name: '经营数据分析师', prompt: '你是经营数据分析师。基于开房数、时间费、点单额、签到人数、台票销售等指标识别趋势与异常,给出可视化报告建议。', category: '数据' },
+  { id: 'p5', name: 'LeisureManage 助手', prompt: '你是 YYC³ LeisureManage 的 AI 助手,帮助门店管理者快速执行房务/资金/报表操作、查询状态与分析数据。一切以中文交互,保持简洁友好。', category: '通用' },
 ];
 
 const WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: '你好！我是 YYC³ AI 智能助理。\n\n我可以帮你：\n- 📊 查看集群状态和性能报告\n- 🚀 部署和管理推理模型\n- 🔧 执行系统运维操作\n- 🔍 分析日志和诊断问题\n\n请输入指令或点击右侧快捷命令开始操作。',
+  content: '你好!我是 YYC³ AI 助手 🎉\n\n我可以帮你:\n- 🏠 查看房态看板与开房/清扫统计\n- 💰 核对台费/台票/双轨对账\n- 📊 汇总今日营业日报与轮台情况\n- ⚡ 快捷跳转到任意管理页面\n\n请输入指令,或点击「命令」页签使用快捷操作。',
   timestamp: Date.now(),
 };
 
@@ -92,31 +94,101 @@ const generateMessageId = (suffix = ''): string => {
   return `msg-${messageIdCounter}${suffix}`;
 };
 
+/** 领域 mock 应答(未接推理服务时的本地回退;对齐当前项目口径) */
 const generateMockResponse = (userMsg: string): string => {
   const lower = userMsg.toLowerCase();
 
-  if (lower.includes('状态') || lower.includes('总览') || lower.includes('节点')) {
-    return `## 集群状态报告\n\n**时间**: ${new Date().toLocaleString('zh-CN')}\n\n| 节点 | 状态 | GPU | 温度 |\n|------|------|-----|------|\n| GPU-A100-01 | 🟢 正常 | 87% | 68°C |\n| GPU-A100-02 | 🟢 正常 | 92% | 74°C |\n| GPU-A100-03 | 🟡 预警 | 98% | 82°C |\n| GPU-H100-01 | 🟢 正常 | 65% | 55°C |\n\n**建议**: GPU-A100-03 负载过高，建议将部分任务迁移到 GPU-H100-01。`;
+  if (lower.includes('房态') || lower.includes('开房') || lower.includes('空房') || lower.includes('清扫')) {
+    return `## 房态总览(示例口径)\n\n| 状态 | 间数 | 说明 |\n|------|------|------|\n| 🟢 空闲 | 25 | 可直接开房 |\n| 🔴 消费中 | 3 | 计时/点单入房账 |\n| 🔵 清扫中 | 2 | 清扫完成→空闲 |\n| 🟠 已预定 | 0 | 预约未到店 |\n| ⚪ 维修中 | 1 | 不可开房 |\n\n**建议**: 清扫中 2 间预计 15 分钟完成;已预定 0 间,今日预约可提前锁房。\n\n📍 数据以「房态看板」实时页为准。`;
   }
 
-  if (lower.includes('部署') || lower.includes('模型')) {
-    return `## 模型部署方案\n\n**目标模型**: DeepSeek-V3\n**推荐节点**: GPU-H100-03（当前空闲）\n\n**部署步骤**:\n1. 检查节点可用显存 → 80GB 可用 ✅\n2. 加载模型权重 → 预计 3 分钟\n3. 初始化推理引擎 → KV-Cache 预热\n4. 健康检查 → 验证推理准确率\n\n**预计时间**: 5-8 分钟\n**状态**: 等待确认执行`;
+  if (lower.includes('对账') || lower.includes('指标') || lower.includes('门禁')) {
+    return `## 双轨对账(方案甲口径)\n\n| 指标 | 本系统 | 说明 |\n|------|--------|------|\n| 开房数 | room_session 当日总数 | OPEN+CLOSED |\n| 时间费 | Σ上钟时间费 | 计入房账 |\n| 点单额 | Σ 自点单 | 房账挂账 |\n| 签到人数 | CHECKIN 去重艺人 | 仅审核通过 |\n\n**14 天门禁**: 连续 MATCHED ≥14 天即可切换;日切 job 每晚自动快照,次日只需录入对侧 4 个数。\n\n📍 页面:「报表 → 双轨对账」顶部有门禁面板。`;
   }
 
-  if (lower.includes('优化') || lower.includes('配置')) {
-    return `## AI 优化建议\n\n基于当前系统状态分析：\n\n1. **推理并行度**: 建议从 4 提升到 6（当前 GPU 利用率有余量）\n2. **Batch Size**: 从 32 调整为 48（可提升 15% 吞吐）\n3. **KV-Cache**: 建议启用 PagedAttention，预计减少 30% 显存占用\n4. **负载均衡**: 建议切换为加权轮询策略\n\n**预估提升**: 整体推理吞吐提升约 22%`;
+  if (lower.includes('台票') || lower.includes('核销')) {
+    return `## 台票体系\n\n- **余额** = ΣBUY − ΣUSE(过期票已自动归零展示)\n- **购买**: 收费通道须在门店清单内(现金/转账/自定义1-3)\n- **核销**: 上钟抵扣提示后由前台落 USE 流水\n- **流水**: 只增不改,购买/使用双记录可查\n\n📍 页面:「台票体系」四 Tab;艺人端有「我的台票」。`;
   }
 
-  if (lower.includes('安全') || lower.includes('审计')) {
-    return `## 安全审计摘要\n\n**扫描范围**: 全系统\n**扫描时间**: ${new Date().toLocaleString('zh-CN')}\n\n⚠️ **发现 2 项需关注**:\n1. IP 203.0.113.45 尝试非法 Token 访问（已拦截）\n2. 缓存服务响应时间波动（建议监控）\n\n✅ **安全项通过**: API 速率限制、MFA 认证、审计日志\n\n**风险评级**: 低风险 🟢`;
+  if (lower.includes('轮台') || lower.includes('派单') || lower.includes('越序')) {
+    return `## 轮台派单\n\n- **队列口径**: 已签到(审核通过且空闲)艺人,按 被派次数 → 最近被派 → 签到时间 排序\n- **轮台模式**: 越序直接拒绝(40914,提示下一位)\n- **混合模式**: 允许越序但记 overridden,供主管轮台报表考核\n- **报表**: 「报表中心 → 主管轮台报表」可按主管/组别统计\n\n📍 开房弹窗内会显示推荐位(#N)与当日被派次数。`;
   }
 
-  if (lower.includes('数据库') || lower.includes('存储') || lower.includes('postgresql')) {
-    return `## 数据库健康报告\n\n**PostgreSQL** (localhost:5433)\n- 连接状态: 🟢 正常\n- 活跃连接: 24/100\n- 慢查询: 2 条（> 500ms）\n- 存储使用: 12.8TB / 48TB (27%)\n\n**向量数据库**: 5.2TB / 8TB (65%) ⚠️\n\n**建议**: 向量数据库使用率较高，建议计划扩容或清理过期索引。`;
+  if (lower.includes('日报') || lower.includes('营业') || lower.includes('汇总')) {
+    return `## 今日营业日报(示例口径)\n\n- **开房数**: 以房态看板当日房账为准\n- **时间费**: Σ上钟计费(最低消费/封顶已应用)\n- **点单额**: Σ 艺人自点单(PLACED 视同送达)\n- **签到**: 已通过审核的去重艺人数\n\n💡 精确数字以「报表中心」与「双轨对账」页面为准;本条为能力说明。`;
   }
 
-  return `收到您的请求："${userMsg}"\n\n我正在分析系统当前状态...\n\n**系统概览**:\n- 集群运行正常，7/8 节点活跃\n- 当前 QPS: ~3,800，推理延: ~48ms\n- GPU 平均利用率: 82.4%\n\n请问需要我执行具体操作还是查看更多详情？您可以输入具体命令或使用左侧的快捷操作按钮。`;
+  return `收到您的请求:"${userMsg}"\n\n我已接入 LeisureManage 全端能力:\n- 🏠 房态/开房/清扫/预定\n- 💰 台费/台票/对账/报表\n- 👥 在岗状态/轮台/评价\n\n试试点击「命令」页签的快捷操作,或直接告诉我想看什么。`;
 };
+
+// ═══════════════════════════════════════════════════════════════
+//  拖拽/缩放工具
+// ═══════════════════════════════════════════════════════════════
+
+interface AiPanelState {
+  /** 浮窗按钮位置(视口坐标,左上角) */
+  bx: number;
+  by: number;
+  /** 面板位置(视口坐标,左上角) */
+  px: number;
+  py: number;
+  /** 面板尺寸 */
+  pw: number;
+  ph: number;
+}
+
+const PANEL_MIN_W = 360;
+const PANEL_MIN_H = 460;
+const AI_POS_KEY = 'leisure-ai-pos-v1';
+
+const DEFAULT_PANEL: AiPanelState = {
+  bx: 0,
+  by: 0,
+  px: 0,
+  py: 0,
+  pw: 480,
+  ph: 640,
+};
+
+function loadPanelState(viewportW: number, viewportH: number, isMobile: boolean): AiPanelState {
+  const defaults: AiPanelState = isMobile
+    ? { bx: 16, by: viewportH - 80 - 48, px: 0, py: 0, pw: viewportW, ph: viewportH }
+    : { bx: viewportW - 24 - 56, by: viewportH - 24 - 56, px: viewportW - 4 - 480, py: viewportH - 24 - 640, pw: 480, ph: 640 };
+  try {
+    const raw = localStorage.getItem(AI_POS_KEY);
+    if (raw === null) return defaults;
+    const saved = JSON.parse(raw) as Partial<AiPanelState>;
+    const merged = { ...defaults, ...saved };
+    return {
+      bx: Math.min(Math.max(0, merged.bx), Math.max(0, viewportW - 56)),
+      by: Math.min(Math.max(0, merged.by), Math.max(0, viewportH - 56)),
+      px: Math.min(Math.max(0, merged.px), Math.max(0, viewportW - PANEL_MIN_W)),
+      py: Math.min(Math.max(0, merged.py), Math.max(0, viewportH - PANEL_MIN_H)),
+      pw: Math.max(PANEL_MIN_W, merged.pw),
+      ph: Math.max(PANEL_MIN_H, merged.ph),
+    };
+  } catch {
+    return defaults;
+  }
+}
+
+function savePanelState(s: AiPanelState): void {
+  try {
+    localStorage.setItem(AI_POS_KEY, JSON.stringify(s));
+  } catch {
+    /* 存储不可用静默 */
+  }
+}
+
+function clampPanel(s: AiPanelState, vw: number, vh: number): AiPanelState {
+  return {
+    ...s,
+    px: Math.min(Math.max(0, s.px), Math.max(0, vw - PANEL_MIN_W)),
+    py: Math.min(Math.max(0, s.py), Math.max(0, vh - PANEL_MIN_H)),
+    pw: Math.min(s.pw, Math.max(PANEL_MIN_W, vw - 16)),
+    ph: Math.min(s.ph, Math.max(PANEL_MIN_H, vh - 16)),
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  主组件
@@ -151,6 +223,36 @@ export function AIAssistant({
   const [cmdFilter, setCmdFilter] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // 拖拽/缩放状态
+  const [panel, setPanel] = useState<AiPanelState>(() => {
+    const vw = typeof window === 'undefined' ? 1280 : window.innerWidth;
+    const vh = typeof window === 'undefined' ? 800 : window.innerHeight;
+    return loadPanelState(vw, vh, isMobile);
+  });
+  const bubbleDragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number; moved: boolean } | null>(null);
+  const [bubbleDragging, setBubbleDragging] = useState(false);
+  const panelDragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+  const resizeRef = useRef<{ startX: number; startY: number; baseW: number; baseH: number } | null>(null);
+
+  // 视口变化时收拢位置
+  useEffect(() => {
+    const onResize = (): void => setPanel((p) => clampPanel(p, window.innerWidth, window.innerHeight));
+    window.addEventListener('resize', onResize);
+    return () => { window.removeEventListener('resize', onResize); };
+  }, []);
+
+  // ⌘J / Ctrl+J 开关
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        setIsOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); };
+  }, []);
+
   // 滚动到底部
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -176,8 +278,8 @@ export function AIAssistant({
       if (onSendMessage) {
         response = await onSendMessage(content);
       } else {
-        // 模拟延迟
-        await new Promise(r => setTimeout(r, 800 + Math.random() * 1200));
+        // 模拟延迟(确定性伪随机,非加密用途)
+        await new Promise(r => setTimeout(r, 800 + (content.length % 12) * 100));
         response = generateMockResponse(content);
       }
 
@@ -211,6 +313,11 @@ export function AIAssistant({
 
   const executeCommand = (cmd: SystemCommand) => {
     setActiveTab('chat');
+    if (cmd.hash !== undefined) {
+      window.location.hash = cmd.hash;
+      if (!isMobile) setIsOpen(false);
+      return;
+    }
     sendMessage(cmd.action);
   };
 
@@ -243,38 +350,117 @@ export function AIAssistant({
 
   const cmdCategories = [
     { key: 'all', label: '全部' },
-    { key: 'cluster', label: '集群' },
-    { key: 'model', label: '模型' },
-    { key: 'data', label: '数据' },
-    { key: 'security', label: '安全' },
-    { key: 'monitor', label: '监控' },
+    { key: '房务', label: '房务' },
+    { key: '资金', label: '资金' },
+    { key: '报表', label: '报表' },
+    { key: '运营', label: '运营' },
   ];
 
   const filteredCommands = cmdFilter === 'all'
     ? SYSTEM_COMMANDS
     : SYSTEM_COMMANDS.filter(c => c.category === cmdFilter);
 
-  // 面板尺寸
-  const panelClass = isMaximized
-    ? 'fixed inset-4 md:inset-8 z-[60]'
-    : isMobile
-      ? 'fixed inset-0 z-[60]'
-      : 'fixed bottom-20 right-4 w-[480px] h-[640px] z-[60]';
+  // ── 浮窗按钮拖拽 ──
+  const bubbleSize = isMobile ? 48 : 56;
+  const onBubblePointerDown = (e: React.PointerEvent<HTMLDivElement>): void => {
+    if (isMobile) return; // 移动端点击即开,不做拖拽
+    e.currentTarget.setPointerCapture(e.pointerId);
+    bubbleDragRef.current = { startX: e.clientX, startY: e.clientY, baseX: panel.bx, baseY: panel.by, moved: false };
+  };
+  const onBubblePointerMove = (e: React.PointerEvent<HTMLDivElement>): void => {
+    const d = bubbleDragRef.current;
+    if (d === null) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    if (Math.abs(dx) + Math.abs(dy) > 6) d.moved = true;
+    if (d.moved) {
+      setBubbleDragging(true);
+      setPanel((p) => clampPanel(
+        { ...p, bx: d.baseX + dx, by: d.baseY + dy },
+        window.innerWidth,
+        window.innerHeight,
+      ));
+    }
+  };
+  const onBubblePointerUp = (): void => {
+    const d = bubbleDragRef.current;
+    if (d !== null && d.moved) savePanelState(panel);
+    bubbleDragRef.current = null;
+    setTimeout(() => setBubbleDragging(false), 50);
+  };
 
-  // ========== 浮动按钮 ==========
+  // ── 面板拖拽(头部手柄) ──
+  const onPanelHeaderPointerDown = (e: React.PointerEvent<HTMLDivElement>): void => {
+    if (isMobile || isMaximized) return;
+    if ((e.target as HTMLElement).closest('button') !== null) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    panelDragRef.current = { startX: e.clientX, startY: e.clientY, baseX: panel.px, baseY: panel.py };
+  };
+  const onPanelHeaderPointerMove = (e: React.PointerEvent<HTMLDivElement>): void => {
+    const d = panelDragRef.current;
+    if (d === null) return;
+    setPanel((p) => clampPanel(
+      { ...p, px: d.baseX + (e.clientX - d.startX), py: d.baseY + (e.clientY - d.startY) },
+      window.innerWidth,
+      window.innerHeight,
+    ));
+  };
+  const onPanelHeaderPointerUp = (): void => {
+    panelDragRef.current = null;
+    savePanelState(panel);
+  };
+
+  // ── 面板缩放(右下角手柄) ──
+  const onResizePointerDown = (e: React.PointerEvent<HTMLDivElement>): void => {
+    if (isMobile || isMaximized) return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    resizeRef.current = { startX: e.clientX, startY: e.clientY, baseW: panel.pw, baseH: panel.ph };
+  };
+  const onResizePointerMove = (e: React.PointerEvent<HTMLDivElement>): void => {
+    const d = resizeRef.current;
+    if (d === null) return;
+    setPanel((p) => clampPanel(
+      {
+        ...p,
+        pw: Math.max(PANEL_MIN_W, d.baseW + (e.clientX - d.startX)),
+        ph: Math.max(PANEL_MIN_H, d.baseH + (e.clientY - d.startY)),
+      },
+      window.innerWidth,
+      window.innerHeight,
+    ));
+  };
+  const onResizePointerUp = (): void => {
+    resizeRef.current = null;
+    savePanelState(panel);
+  };
+
+  // 面板定位(桌面非最大化:自由位置;最大化:铺满留边;移动端:全屏)
+  const panelStyle: React.CSSProperties = isMobile
+    ? { inset: 0 }
+    : isMaximized
+      ? { inset: 16 }
+      : { left: panel.px, top: panel.py, width: panel.pw, height: panel.ph };
+
+  // ========== 浮动按钮(可拖拽) ==========
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
+      <div
+        className="fixed z-[60] group touch-none select-none"
+        style={{ left: panel.bx, top: panel.by }}
         data-testid="ai-assistant-float-btn"
-        className="fixed z-[60] group"
-        style={{
-          bottom: isMobile ? 80 : 24,
-          right: isMobile ? 16 : 24,
-        }}
       >
-        <div className="relative rounded-2xl bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center shadow-[0_0_30px_rgba(0,180,255,0.4)] hover:shadow-[0_0_40px_rgba(0,180,255,0.6)] transition-all hover:scale-105 active:scale-95"
-          style={{ width: isMobile ? 48 : 56, height: isMobile ? 48 : 56 }}
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label="打开 AI 智能助理"
+          onClick={() => { if (!bubbleDragging) setIsOpen(true); }}
+          onKeyDown={(e) => { if (e.key === 'Enter') setIsOpen(true); }}
+          onPointerDown={onBubblePointerDown}
+          onPointerMove={onBubblePointerMove}
+          onPointerUp={onBubblePointerUp}
+          className="relative rounded-2xl bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center shadow-[0_0_30px_rgba(0,180,255,0.4)] hover:shadow-[0_0_40px_rgba(0,180,255,0.6)] transition-shadow hover:scale-105 active:scale-95 cursor-grab active:cursor-grabbing"
+          style={{ width: bubbleSize, height: bubbleSize }}
         >
           <YYC3LogoSvg size={isMobile ? 32 : 38} />
           {/* Pulse ring */}
@@ -286,29 +472,38 @@ export function AIAssistant({
         </div>
         {/* Tooltip */}
         <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-[rgba(8,25,55,0.95)] border border-[rgba(0,180,255,0.2)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-          <span className="text-[#00d4ff]" style={{ fontSize: '0.72rem' }}>AI 智能助理 (⌘J)</span>
+          <span className="text-[#00d4ff]" style={{ fontSize: '0.72rem' }}>AI 智能助理 (⌘J · 可拖动)</span>
         </div>
-      </button>
+      </div>
     );
   }
 
-  // ========== 主面板 ==========
+  // ========== 主面板(可拖拽/可缩放) ==========
   return (
-    <div className={panelClass}>
+    <div
+      className="fixed z-[60] flex flex-col"
+      style={panelStyle}
+      data-testid="ai-assistant-panel"
+    >
       <div className="w-full h-full rounded-2xl bg-[rgba(8,25,55,0.95)] backdrop-blur-2xl border border-[rgba(0,180,255,0.2)] shadow-[0_0_60px_rgba(0,180,255,0.12)] flex flex-col overflow-hidden">
 
-        {/* ======== 头部 ======== */}
-        <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-[rgba(0,180,255,0.12)] bg-[rgba(0,40,80,0.2)]">
-          <div className="flex items-center gap-3">
+        {/* ======== 头部(拖拽手柄) ======== */}
+        <div
+          className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-[rgba(0,180,255,0.12)] bg-[rgba(0,40,80,0.2)] cursor-grab active:cursor-grabbing touch-none select-none"
+          onPointerDown={onPanelHeaderPointerDown}
+          onPointerMove={onPanelHeaderPointerMove}
+          onPointerUp={onPanelHeaderPointerUp}
+        >
+          <div className="flex items-center gap-3 pointer-events-none">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center shadow-[0_0_15px_rgba(0,180,255,0.3)] overflow-hidden">
               <YYC3LogoSvg size={24} />
             </div>
             <div>
-              <h3 className="text-[#e0f0ff]" style={{ fontSize: '0.9rem' }}>AI 智能助理</h3>
+              <h3 className="text-[#e0f0ff]" style={{ fontSize: '0.9rem' }}>AI 助手 · LeisureManage</h3>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse" />
                 <span className="text-[rgba(0,212,255,0.4)]" style={{ fontSize: '0.62rem' }}>
-                  {modelProvider || '未配置'}
+                  {modelProvider || '未配置'} · 拖动移动
                 </span>
               </div>
             </div>
@@ -381,66 +576,60 @@ export function AIAssistant({
                         : msg.role === 'system'
                           ? 'bg-[rgba(255,221,0,0.08)] border border-[rgba(255,221,0,0.15)] rounded-2xl'
                           : 'bg-[rgba(0,40,80,0.3)] border border-[rgba(0,180,255,0.1)] rounded-2xl rounded-bl-sm'
-                    } px-3.5 py-2.5`}>
+                    } px-3 py-2`}>
                       <div
-                        className={`whitespace-pre-wrap ${
-                          msg.role === 'user' ? 'text-[#e0f0ff]' : msg.role === 'system' ? 'text-[#ffdd00]' : 'text-[#c0dcf0]'
-                        }`}
-                        style={{ fontSize: '0.78rem', lineHeight: '1.6' }}
+                        className="text-[#e0f0ff] whitespace-pre-wrap break-words"
+                        style={{ fontSize: '0.8rem', lineHeight: 1.6 }}
                       >
                         {msg.content}
                       </div>
-                      {/* 复制按钮 */}
-                      {msg.role === 'assistant' && (
+                      {msg.role !== 'system' && (
                         <button
                           onClick={() => copyToClipboard(msg.content, msg.id)}
-                          className="absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-[rgba(0,212,255,0.1)] transition-all"
+                          className={`absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 rounded transition-opacity ${
+                            msg.role === 'user' ? 'hover:bg-[rgba(0,212,255,0.15)]' : 'hover:bg-[rgba(0,180,255,0.15)]'
+                          }`}
+                          title="复制"
                         >
-                          {copiedId === msg.id ? <Check className="w-3 h-3 text-[#00ff88]" /> : <Copy className="w-3 h-3 text-[rgba(0,212,255,0.3)]" />}
+                          {copiedId === msg.id ? <Check className="w-3 h-3 text-[#00ff88]" /> : <Copy className="w-3 h-3 text-[rgba(0,212,255,0.5)]" />}
                         </button>
                       )}
-                      <div className="text-[rgba(0,212,255,0.2)] mt-1" style={{ fontSize: '0.58rem' }}>
-                        {new Date(msg.timestamp).toLocaleTimeString('zh-CN')}
-                      </div>
                     </div>
                   </div>
                 ))}
-
-                {/* 输入指示器 */}
                 {isTyping && (
                   <div className="flex justify-start">
-                    <div className="bg-[rgba(0,40,80,0.3)] border border-[rgba(0,180,255,0.1)] rounded-2xl rounded-bl-sm px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-[#00d4ff] animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <div className="w-2 h-2 rounded-full bg-[#00d4ff] animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <div className="w-2 h-2 rounded-full bg-[#00d4ff] animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
+                    <div className="bg-[rgba(0,40,80,0.3)] border border-[rgba(0,180,255,0.1)] rounded-2xl rounded-bl-sm px-4 py-2 flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-[#00d4ff] animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-[#00d4ff] animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-[#00d4ff] animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 )}
                 <div ref={chatEndRef} />
               </div>
 
-              {/* 输入框 */}
-              <div className="shrink-0 p-3 border-t border-[rgba(0,180,255,0.1)]">
+              {/* 输入区 */}
+              <div className="shrink-0 p-3 border-t border-[rgba(0,180,255,0.08)] bg-[rgba(0,40,80,0.1)]">
                 <div className="flex items-end gap-2">
                   <textarea
                     ref={inputRef}
                     value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
+                    onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="输入指令... (Enter 发送, Shift+Enter 换行)"
+                    placeholder="输入指令,如:查看今日房态…"
                     rows={1}
-                    className="flex-1 px-3 py-2.5 rounded-xl bg-[rgba(0,40,80,0.4)] border border-[rgba(0,180,255,0.15)] text-[#e0f0ff] placeholder-[rgba(0,212,255,0.25)] focus:outline-none focus:border-[rgba(0,212,255,0.4)] resize-none"
-                    style={{ fontSize: '0.8rem', maxHeight: '100px' }}
+                    className="flex-1 resize-none rounded-xl bg-[rgba(0,40,80,0.3)] border border-[rgba(0,180,255,0.15)] px-3 py-2 text-[#e0f0ff] outline-none focus:border-[#00d4ff] transition-colors"
+                    style={{ fontSize: '0.8rem', maxHeight: 96, minHeight: 36 }}
                   />
                   <button
                     onClick={() => sendMessage(inputValue)}
                     disabled={!inputValue.trim() || isTyping}
                     data-testid="ai-assistant-send-btn"
-                    className="p-2.5 rounded-xl bg-gradient-to-r from-[#00d4ff] to-[#0066ff] text-white hover:shadow-[0_0_15px_rgba(0,180,255,0.3)] transition-all disabled:opacity-30 disabled:cursor-not-allowed min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center disabled:opacity-40 hover:opacity-90 transition-opacity"
+                    title="发送"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send size={16} className="text-white" />
                   </button>
                 </div>
               </div>
@@ -449,192 +638,180 @@ export function AIAssistant({
 
           {/* === 命令标签 === */}
           {activeTab === 'commands' && (
-            <div className="flex-1 overflow-auto p-3">
-              <div className="flex items-center gap-1 mb-3 flex-wrap">
+            <div className="flex-1 overflow-auto p-3 space-y-3">
+              <div className="flex gap-1.5 flex-wrap">
                 {cmdCategories.map(cat => (
                   <button
                     key={cat.key}
                     onClick={() => setCmdFilter(cat.key)}
-                    data-testid={`cmd-cat-${cat.key}`}
-                    className={`px-2.5 py-1 rounded-lg transition-all ${
+                    className={`px-2.5 py-1 rounded-lg border text-xs transition-all ${
                       cmdFilter === cat.key
-                        ? 'bg-[rgba(0,212,255,0.12)] text-[#00d4ff] border border-[rgba(0,212,255,0.25)]'
-                        : 'text-[rgba(0,212,255,0.4)] hover:text-[#00d4ff] border border-transparent'
+                        ? 'bg-[rgba(0,212,255,0.12)] border-[rgba(0,212,255,0.3)] text-[#00d4ff]'
+                        : 'border-[rgba(0,180,255,0.15)] text-[rgba(0,212,255,0.5)] hover:text-[#00d4ff]'
                     }`}
-                    style={{ fontSize: '0.68rem' }}
                   >
                     {cat.label}
                   </button>
                 ))}
               </div>
-
               <div className="space-y-2">
-                {filteredCommands.map(cmd => {
-                  const Icon = cmd.icon;
-                  return (
-                    <button
-                      key={cmd.id}
-                      onClick={() => executeCommand(cmd)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-[rgba(0,40,80,0.2)] border border-[rgba(0,180,255,0.08)] hover:border-[rgba(0,180,255,0.25)] hover:bg-[rgba(0,40,80,0.3)] transition-all text-left group"
+                {filteredCommands.map(cmd => (
+                  <button
+                    key={cmd.id}
+                    onClick={() => executeCommand(cmd)}
+                    className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-[rgba(0,40,80,0.08)] hover:bg-[rgba(0,40,80,0.15)] border border-transparent hover:border-[rgba(0,212,255,0.15)] transition-all text-left"
+                  >
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: cmd.color + '18', color: cmd.color }}
                     >
-                      <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: `${cmd.color}12` }}>
-                        <Icon className="w-4 h-4" style={{ color: cmd.color }} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[#e0f0ff] group-hover:text-[#00d4ff] transition-colors" style={{ fontSize: '0.8rem' }}>
-                          {cmd.label}
-                        </p>
-                        <p className="text-[rgba(0,212,255,0.35)] truncate" style={{ fontSize: '0.68rem' }}>
-                          {cmd.desc}
-                        </p>
-                      </div>
-                      <Play className="w-4 h-4 text-[rgba(0,212,255,0.2)] group-hover:text-[#00d4ff] transition-colors shrink-0" />
-                    </button>
-                  );
-                })}
+                      <cmd.icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[#e0f0ff]" style={{ fontSize: '0.8rem' }}>{cmd.label}</div>
+                      <div className="text-[#6bb8d9] truncate" style={{ fontSize: '0.68rem' }}>{cmd.desc}</div>
+                    </div>
+                    {cmd.hash !== undefined && (
+                      <span className="text-[10px] text-[rgba(0,212,255,0.4)] shrink-0">跳转</span>
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
           )}
 
           {/* === 提示词标签 === */}
           {activeTab === 'prompts' && (
-            <div className="flex-1 overflow-auto p-3">
-              <h4 className="text-[#e0f0ff] mb-3" style={{ fontSize: '0.82rem' }}>
-                系统提示词预设
-              </h4>
-              <div className="space-y-2 mb-4">
-                {PROMPT_PRESETS.map(preset => (
-                  <div
-                    key={preset.id}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                      systemPrompt === preset.prompt
-                        ? 'bg-[rgba(0,212,255,0.1)] border-[rgba(0,212,255,0.3)]'
-                        : 'bg-[rgba(0,40,80,0.15)] border-[rgba(0,180,255,0.08)] hover:border-[rgba(0,180,255,0.2)]'
-                    }`}
-                    onClick={() => applyPreset(preset)}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#e0f0ff]" style={{ fontSize: '0.8rem' }}>{preset.name}</span>
-                        <span className="px-1.5 py-0.5 rounded bg-[rgba(0,212,255,0.06)] text-[rgba(0,212,255,0.4)]" style={{ fontSize: '0.58rem' }}>
-                          {preset.category}
-                        </span>
-                      </div>
-                      {systemPrompt === preset.prompt && <Check className="w-4 h-4 text-[#00ff88]" />}
-                    </div>
-                    <p className="text-[rgba(0,212,255,0.35)]" style={{ fontSize: '0.68rem', lineHeight: 1.5 }}>
-                      {preset.prompt.slice(0, 80)}...
-                    </p>
+            <div className="flex-1 overflow-auto p-3 space-y-2">
+              {PROMPT_PRESETS.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => applyPreset(p)}
+                  className={`w-full text-left p-3 rounded-xl border transition-all ${
+                    systemPrompt === p.prompt
+                      ? 'bg-[rgba(0,212,255,0.08)] border-[rgba(0,212,255,0.3)]'
+                      : 'bg-[rgba(0,40,80,0.08)] border-[rgba(0,180,255,0.1)] hover:border-[rgba(0,212,255,0.25)]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#00d4ff] font-medium" style={{ fontSize: '0.8rem' }}>{p.name}</span>
+                    <span className="text-[10px] text-[#6bb8d9] px-1.5 py-0.5 rounded bg-[rgba(0,120,200,0.15)]">{p.category}</span>
+                    {systemPrompt === p.prompt && <Check className="ml-auto w-3.5 h-3.5 text-[#00ff88]" />}
                   </div>
-                ))}
-              </div>
-
-              <h4 className="text-[#e0f0ff] mb-2" style={{ fontSize: '0.82rem' }}>
-                自定义系统提示词
-              </h4>
-              <textarea
-                value={systemPrompt}
-                onChange={e => setSystemPrompt(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-[rgba(0,40,80,0.4)] border border-[rgba(0,180,255,0.15)] text-[#e0f0ff] placeholder-[rgba(0,212,255,0.25)] focus:outline-none focus:border-[rgba(0,212,255,0.4)] resize-none"
-                style={{ fontSize: '0.75rem', lineHeight: 1.6 }}
-                rows={5}
-                placeholder="输入自定义系统提示词..."
-              />
-              <p className="text-[rgba(0,212,255,0.25)] mt-1" style={{ fontSize: '0.62rem' }}>
-                字数: {systemPrompt.length} | 建议控制在 500 字以内
-              </p>
+                  <div className="mt-1 text-[#6bb8d9] line-clamp-2" style={{ fontSize: '0.68rem' }}>{p.prompt}</div>
+                </button>
+              ))}
             </div>
           )}
 
           {/* === 配置标签 === */}
           {activeTab === 'settings' && (
             <div className="flex-1 overflow-auto p-3 space-y-4">
-              <div>
-                <h4 className="text-[#e0f0ff] mb-2 flex items-center gap-2" style={{ fontSize: '0.82rem' }}>
-                  <Key className="w-4 h-4 text-[#ffdd00]" />
-                  API 认证
-                </h4>
+              {/* 模型配置 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-[#00d4ff]" style={{ fontSize: '0.75rem' }}>
+                  <Zap className="w-3.5 h-3.5" /> 模型接入(III 期)
+                </div>
                 <div className="relative">
                   <input
                     type={showApiKey ? 'text' : 'password'}
                     value={apiKey}
-                    onChange={e => console.log('API Key updated:', e.target.value)}
-                    placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
-                    className="w-full px-3 py-2.5 rounded-xl bg-[rgba(0,40,80,0.4)] border border-[rgba(0,180,255,0.15)] text-[#e0f0ff] placeholder-[rgba(0,212,255,0.2)] focus:outline-none focus:border-[rgba(0,212,255,0.4)]"
-                    style={{ fontSize: '0.78rem', fontFamily: 'monospace' }}
+                    onChange={() => {}}
+                    placeholder="API Key(就绪后填写,仅本地)"
+                    className="w-full h-8 px-3 rounded-lg bg-[rgba(0,40,80,0.3)] border border-[rgba(0,180,255,0.15)] text-[#e0f0ff] text-xs outline-none focus:border-[#00d4ff]"
                   />
                   <button
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-[rgba(0,212,255,0.1)]"
+                    className="absolute right-2 top-1.5 text-[10px] text-[#6bb8d9] hover:text-[#00d4ff]"
                   >
-                    <span className="text-[rgba(0,212,255,0.4)]" style={{ fontSize: '0.65rem' }}>
-                      {showApiKey ? '隐藏' : '显示'}
-                    </span>
+                    {showApiKey ? '隐藏' : '显示'}
                   </button>
                 </div>
-                <p className="text-[rgba(0,212,255,0.25)] mt-1" style={{ fontSize: '0.62rem' }}>
-                  {apiKey ? '✅ API Key 已配置' : '⚠️ 未配置 Key，将使用本地模拟模式'}
-                </p>
+                <div className="text-[10px] text-[#6bb8d9]">
+                  当前: {modelProvider} · 推理服务就绪后由主应用注入 Key,浮窗不经手明文
+                </div>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[#e0f0ff] flex items-center gap-2" style={{ fontSize: '0.82rem' }}>
-                    温度 (Temperature)
-                  </h4>
-                  <span className="text-[#00d4ff]" style={{ fontSize: '0.8rem', fontFamily: "'Orbitron', sans-serif" }}>
-                    {temperature.toFixed(2)}
-                  </span>
+              {/* 系统提示词 */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[#00d4ff]" style={{ fontSize: '0.75rem' }}>
+                  <Sparkles className="w-3.5 h-3.5" /> 系统提示词
+                </div>
+                <textarea
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg bg-[rgba(0,40,80,0.3)] border border-[rgba(0,180,255,0.15)] p-2.5 text-[#e0f0ff] text-xs outline-none focus:border-[#00d4ff] resize-none"
+                />
+              </div>
+
+              {/* 温度 */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[#6bb8d9]" style={{ fontSize: '0.72rem' }}>
+                  <span>温度 temperature</span>
+                  <span className="font-mono">{temperature.toFixed(2)}</span>
                 </div>
                 <input
                   type="range"
-                  min="0"
-                  max="2"
-                  step="0.05"
+                  min={0}
+                  max={1}
+                  step={0.05}
                   value={temperature}
-                  onChange={e => setTemperature(Number(e.target.value))}
+                  onChange={(e) => setTemperature(Number(e.target.value))}
                   className="w-full accent-[#00d4ff]"
                 />
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[#e0f0ff] flex items-center gap-2" style={{ fontSize: '0.82rem' }}>
-                    最大 Token 数
-                  </h4>
-                  <span className="text-[#00d4ff]" style={{ fontSize: '0.8rem', fontFamily: "'Orbitron', sans-serif" }}>
-                    {maxTokens}
-                  </span>
+              {/* TopP */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[#6bb8d9]" style={{ fontSize: '0.72rem' }}>
+                  <span>TopP</span>
+                  <span className="font-mono">{_topP.toFixed(2)}</span>
                 </div>
                 <input
                   type="range"
-                  min="256"
-                  max="8192"
-                  step="256"
-                  value={maxTokens}
-                  onChange={e => setMaxTokens(Number(e.target.value))}
-                  className="w-full accent-[#00ff88]"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={_topP}
+                  onChange={(e) => setTopP(Number(e.target.value))}
+                  className="w-full accent-[#00d4ff]"
                 />
               </div>
 
-              <button
-                onClick={() => { setTemperature(0.7); setTopP(0.9); setMaxTokens(2048); }}
-                className="w-full py-2.5 rounded-xl bg-[rgba(0,40,80,0.2)] border border-[rgba(0,180,255,0.1)] text-[rgba(0,212,255,0.5)] hover:text-[#00d4ff] hover:border-[rgba(0,180,255,0.2)] transition-all"
-                style={{ fontSize: '0.78rem' }}
-              >
-                <RotateCcw className="w-3.5 h-3.5 inline mr-2" />
-                恢复默认参数
-              </button>
+              {/* MaxTokens */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[#6bb8d9]" style={{ fontSize: '0.72rem' }}>
+                  <span>最大 Token</span>
+                  <span className="font-mono">{String(maxTokens)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={256}
+                  max={8192}
+                  step={256}
+                  value={maxTokens}
+                  onChange={(e) => setMaxTokens(Number(e.target.value))}
+                  className="w-full accent-[#00d4ff]"
+                />
+              </div>
             </div>
           )}
         </div>
+
+        {/* ======== 缩放手柄(右下角;桌面非最大化) ======== */}
+        {!isMobile && !isMaximized && (
+          <div
+            onPointerDown={onResizePointerDown}
+            onPointerMove={onResizePointerMove}
+            onPointerUp={onResizePointerUp}
+            className="absolute bottom-0 right-0 w-5 h-5 cursor-nwse-resize touch-none"
+            title="拖拽调整大小"
+          >
+            <div className="absolute bottom-1 right-1 w-2.5 h-2.5 border-r-2 border-b-2 border-[rgba(0,212,255,0.4)] rounded-br-md" />
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  导出
-// ═══════════════════════════════════════════════════════════════
-
-export default AIAssistant;

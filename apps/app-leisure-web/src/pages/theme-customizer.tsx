@@ -4,10 +4,11 @@
  * 适配移植自 YYC3-Cloud-Matrix src/app/modules/dev/ThemeCustomizer.tsx
  * 权限:页面不做 @RequirePerm,菜单挂接收尾时统一处理
  */
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Check,
   ChevronDown,
+  Download,
   Eye,
   Frame,
   Palette,
@@ -17,6 +18,7 @@ import {
   Store,
   Sun,
   Type,
+  Upload,
   type LucideIcon,
 } from 'lucide-react'
 import { Button, Card, Input, Label } from '@yyc3/ui'
@@ -145,6 +147,7 @@ export default function ThemeCustomizerPage() {
     loadSavedTheme() === null ? 'base' : 'custom',
   )
   const [brand, setBrand] = useState<BrandConfig>(() => loadBrand())
+  const fileRef = useRef<HTMLInputElement | null>(null)
   // 5 区亮度调节基准:当前预设的主色(切预设即重置基准与滑杆)
   const [basePrimary, setBasePrimary] = useState<string>('#00d4ff')
   const [lightDelta, setLightDelta] = useState<number>(0)
@@ -204,6 +207,58 @@ export default function ThemeCustomizerPage() {
     toast.success('品牌信息已保存(仅本地,不接后端)')
   }
 
+  /** 导出主题:当前变量 + 品牌信息 → JSON 文件下载(采纳自抽取包 ThemeCustomization 导出范式) */
+  function handleExportTheme(): void {
+    const payload = {
+      app: 'leisure-manage',
+      type: 'theme',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      vars,
+      brand,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'leisure-theme-' + new Date().toISOString().slice(0, 10) + '.json'
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('主题已导出为 JSON 文件')
+  }
+
+  /** 导入主题:仅接受 --lm-* 变量(与保存同约束);品牌可选;导入后未保存,点「保存」才持久化 */
+  function handleImportFile(file: File): void {
+    void file
+      .text()
+      .then((text) => {
+        const parsed = JSON.parse(text) as {
+          vars?: Record<string, unknown>
+          brand?: { name?: unknown; tagline?: unknown }
+        }
+        const incoming: Record<string, string> = {}
+        for (const [k, v] of Object.entries(parsed.vars ?? {})) {
+          if (k.startsWith('--lm-') && typeof v === 'string' && v.trim() !== '') {
+            incoming[k] = v
+          }
+        }
+        if (Object.keys(incoming).length === 0) {
+          toast.error('导入失败:文件中没有有效的 --lm-* 主题变量')
+          return
+        }
+        setVars((prev) => ({ ...prev, ...incoming }))
+        const b = parsed.brand
+        if (typeof b === 'object' && b !== null) {
+          setBrand((p) => ({
+            name: typeof b.name === 'string' && b.name !== '' ? b.name : p.name,
+            tagline: typeof b.tagline === 'string' ? b.tagline : p.tagline,
+          }))
+        }
+        toast.success('主题已导入并即时应用;点「保存」才会持久化')
+      })
+      .catch(() => toast.error('导入失败:JSON 解析错误'))
+  }
+
   const activePresetName = THEME_PRESETS.find((p) => p.id === activePreset)?.name ?? '自定义'
 
   return (
@@ -217,10 +272,29 @@ export default function ThemeCustomizerPage() {
               <RotateCcw className="w-4 h-4 mr-1" />
               重置
             </Button>
+            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+              <Upload className="w-4 h-4 mr-1" />
+              导入
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportTheme}>
+              <Download className="w-4 h-4 mr-1" />
+              导出
+            </Button>
             <Button size="sm" onClick={handleSave}>
               <Save className="w-4 h-4 mr-1" />
               保存
             </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f !== undefined) handleImportFile(f)
+                e.target.value = ''
+              }}
+            />
           </>
         }
       />

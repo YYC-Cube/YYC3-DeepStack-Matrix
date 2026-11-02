@@ -48,6 +48,8 @@ interface CloseResult {
   orderTotal: number
   totalAmount: number
   settledSessions: number
+  ticketDeductAmount?: number
+  feeDeductAmount?: number
 }
 
 const STATUS_TEXT: Record<string, string> = {
@@ -83,6 +85,8 @@ export default function BoardPage(): React.JSX.Element {
   const [pickedArtists, setPickedArtists] = useState<number[]>([])
   const [queue, setQueue] = useState<DispatchQueue | null>(null)
   const [overrideReason, setOverrideReason] = useState('')
+  /** 预约锁钟强开(40915 时勾选;审计留痕) */
+  const [ignoreHold, setIgnoreHold] = useState(false)
 
   const MODE_TEXT: Record<string, string> = { ROTATION: '轮台(须按序)', SELF_PICK: '自选', MIXED: '混合(推荐可越过)' }
 
@@ -114,6 +118,7 @@ export default function BoardPage(): React.JSX.Element {
     setOpenFor(room)
     setPickedArtists([])
     setOverrideReason('')
+    setIgnoreHold(false)
     setQueue(null)
     try {
       const q = await client.dispatch.queue()
@@ -137,9 +142,11 @@ export default function BoardPage(): React.JSX.Element {
   const [closeSession, setCloseSession] = useState<OpenSessionRow | null>(null)
   const [preview, setPreview] = useState<BillPreview | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
-  const [settleType, setSettleType] = useState<'CASH' | 'FEE_DEDUCT' | 'MIXED'>('CASH')
+  const [settleType, setSettleType] = useState<'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'>('CASH')
   const [deductArtistId, setDeductArtistId] = useState<number | null>(null)
   const [deductAmount, setDeductAmount] = useState<string>('0')
+  /** 台票抵扣分配:key=artistId:ticketRuleId → qty(§6.6 并入结算) */
+  const [ticketQty, setTicketQty] = useState<Record<string, string>>({})
   const [result, setResult] = useState<CloseResult | null>(null)
 
   const load = useCallback(async (): Promise<void> => {
@@ -189,6 +196,7 @@ export default function BoardPage(): React.JSX.Element {
         roomId: room.id,
         artistIds: ids,
         ...(overrideReason.trim() !== '' ? { overrideReason: overrideReason.trim() } : {}),
+        ...(ignoreHold ? { ignoreBookingHold: true } : {}),
       })
       toast.success(
         room.roomNo + ' 开房成功(进房即上钟)' +
@@ -201,6 +209,17 @@ export default function BoardPage(): React.JSX.Element {
     } catch (e) { toastError(e, '开房失败') } finally { setBusy(false) }
   }
 
+  /** 台票抵扣合计(元):Σ qty × 面值 */
+  const ticketDeduct = (p: BillPreview | null): number => {
+    if (p === null) return 0
+    let sum = 0
+    for (const opt of p.ticketOptions) {
+      const qty = Number(ticketQty[String(opt.artistId) + ':' + String(opt.ticketRuleId)] ?? '0')
+      if (Number.isFinite(qty) && qty > 0) sum += qty * opt.faceValue
+    }
+    return Math.round(sum * 100) / 100
+  }
+
   /** 打开关房弹窗:拉取真后端结算单预览(明细 + 此刻报价) */
   const openClose = async (room: RoomRow, session: OpenSessionRow): Promise<void> => {
     setCloseFor(room)
@@ -210,6 +229,7 @@ export default function BoardPage(): React.JSX.Element {
     setSettleType('CASH')
     setDeductArtistId(null)
     setDeductAmount('0')
+    setTicketQty({})
     setPreviewLoading(true)
     try {
       const p = await client.roomSessions.billPreview(session.id)
@@ -225,6 +245,15 @@ export default function BoardPage(): React.JSX.Element {
   const doClose = async (session: OpenSessionRow): Promise<void> => {
     const needDeduct = settleType === 'FEE_DEDUCT' || settleType === 'MIXED'
     const amount = Number(deductAmount)
+    const allocs = (preview ?? { ticketOptions: [] }).ticketOptions
+      .map((opt) => ({
+        artistId: opt.artistId,
+        ticketRuleId: opt.ticketRuleId,
+        qty: Number(ticketQty[String(opt.artistId) + ':' + String(opt.ticketRuleId)] ?? '0'),
+        faceValue: opt.faceValue,
+        balance: opt.balance,
+      }))
+      .filter((a) => Number.isFinite(a.qty) && a.qty > 0)
     if (needDeduct && deductArtistId === null) {
       toast.error('台费抵扣需选择艺人')
       return
@@ -233,12 +262,29 @@ export default function BoardPage(): React.JSX.Element {
       toast.error('抵扣金额必须大于 0')
       return
     }
-    if (needDeduct && preview !== null && amount > preview.totalAmount + 0.009) {
-      toast.error('抵扣额不得超过结算总额 ¥' + String(preview.totalAmount))
+    if (settleType === 'TICKET' && allocs.length === 0) {
+      toast.error('台票抵扣需至少分配一张台票')
       return
     }
-    if (settleType === 'FEE_DEDUCT' && preview !== null && Math.abs(amount - preview.totalAmount) > 0.009) {
-      toast.error('全额台费抵扣需等于结算总额;部分抵扣请选「现金+抵扣」')
+    for (const a of allocs) {
+      if (!Number.isInteger(a.qty)) { toast.error('台票数量必须为整数'); return }
+      if (a.qty > a.balance) { toast.error('台票数量超过余额(剩余 ' + String(a.balance) + ' 张)'); return }
+    }
+    const tDeduct = ticketDeduct(preview)
+    if (preview !== null && tDeduct + (needDeduct ? amount : 0) > preview.totalAmount + 0.009) {
+      toast.error('抵扣合计(台票+台费)不得超过结算总额 ¥' + String(preview.totalAmount))
+      return
+    }
+    if (needDeduct && preview !== null && amount > preview.totalAmount - tDeduct + 0.009) {
+      toast.error('台费抵扣额不得超过结算总额扣除台票后的余额 ¥' + String(Math.round((preview.totalAmount - tDeduct) * 100) / 100))
+      return
+    }
+    if (allocs.length > 0 && settleType === 'CASH') {
+      toast.error('已填台票抵扣,请选择「台票」或「现金+抵扣」结算方式')
+      return
+    }
+    if (settleType === 'FEE_DEDUCT' && preview !== null && Math.abs(amount - (preview.totalAmount - tDeduct)) > 0.009) {
+      toast.error('全额台费抵扣需等于扣除台票后的总额;部分抵扣请选「现金+抵扣」')
       return
     }
     setBusy(true)
@@ -247,6 +293,7 @@ export default function BoardPage(): React.JSX.Element {
         roomSessionId: session.id,
         settleType,
         feeDeductAllocations: needDeduct ? [{ artistId: deductArtistId ?? 0, amount }] : [],
+        ticketAllocations: allocs.map((a) => ({ artistId: a.artistId, ticketRuleId: a.ticketRuleId, qty: a.qty })),
       })
       setResult(out)
       toast.success(session.roomNo + ' 关房结算完成:合计 ¥' + String(out.totalAmount))
@@ -491,6 +538,12 @@ export default function BoardPage(): React.JSX.Element {
                 />
               </div>
             )}
+            {openFor !== null && bookedRoomIds.has(openFor.id) && (
+              <label className="flex items-center gap-2 text-xs text-warning">
+                <Checkbox checked={ignoreHold} onCheckedChange={(c) => { setIgnoreHold(c === true) }} />
+                本房有预约锁钟中:确认并非该预约到店,忽略锁钟强开(审计留痕);是预约客人请先到「预约管理」转已到店
+              </label>
+            )}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpenFor(null)}>取消</Button>
@@ -552,12 +605,40 @@ export default function BoardPage(): React.JSX.Element {
               {/* 结算方式 */}
               <div>
                 <Label>结算方式</Label>
-                <RadioGroup value={settleType} onValueChange={(v) => { setSettleType(v as 'CASH' | 'FEE_DEDUCT' | 'MIXED') }} className="flex gap-4 pt-1">
+                <RadioGroup value={settleType} onValueChange={(v) => { setSettleType(v as 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET') }} className="flex gap-4 pt-1 flex-wrap">
                   <div className="flex items-center gap-1"><RadioGroupItem value="CASH" id="cash" /><label htmlFor="cash">现金</label></div>
                   <div className="flex items-center gap-1"><RadioGroupItem value="FEE_DEDUCT" id="fee" /><label htmlFor="fee">台费抵扣(全额)</label></div>
+                  <div className="flex items-center gap-1"><RadioGroupItem value="TICKET" id="ticket" /><label htmlFor="ticket">台票抵扣</label></div>
                   <div className="flex items-center gap-1"><RadioGroupItem value="MIXED" id="mixed" /><label htmlFor="mixed">现金+抵扣</label></div>
                 </RadioGroup>
               </div>
+              {/* 台票抵扣分配(§6.6 并入结算;关房时逐张写 USE 流水) */}
+              {preview.ticketOptions.length > 0 && (settleType === 'TICKET' || settleType === 'MIXED') && (
+                <div className="space-y-1">
+                  <Label>台票抵扣分配(余额 × 面值;核销入艺人台票使用记录)</Label>
+                  <div className="border rounded border-line divide-y divide-primary/6">
+                    {preview.ticketOptions.map((opt) => {
+                      const key = String(opt.artistId) + ':' + String(opt.ticketRuleId)
+                      return (
+                        <div key={key} className="flex items-center gap-2 px-2 py-1.5">
+                          <span className="w-20 truncate text-xs">{opt.stageName ?? '—'}</span>
+                          <span className="text-xs text-fg-muted">{opt.ruleName} · 余 {String(opt.balance)} 张 × ¥{String(opt.faceValue)}</span>
+                          <Input
+                            className="ml-auto w-20 h-7 text-xs"
+                            inputMode="numeric"
+                            placeholder="张数"
+                            value={ticketQty[key] ?? ''}
+                            onChange={(e) => { setTicketQty({ ...ticketQty, [key]: e.target.value }) }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {ticketDeduct(preview) > 0 && (
+                    <div className="text-xs text-primary">台票抵扣合计 ¥{String(ticketDeduct(preview))}</div>
+                  )}
+                </div>
+              )}
               {(settleType === 'FEE_DEDUCT' || settleType === 'MIXED') && (
                 <div className="space-y-1">
                   <Label>抵扣艺人(在房:{preview.artists.map((a) => (a.stageName ?? '—') + ' 余额¥' + String(a.feeBalance)).join(' · ')})</Label>
@@ -572,18 +653,18 @@ export default function BoardPage(): React.JSX.Element {
                     ))}
                   </select>
                   <Input
-                    placeholder={settleType === 'FEE_DEDUCT' ? '抵扣金额(须=合计 ¥' + String(preview.totalAmount) + ')' : '抵扣金额(元;剩余按现金收款)'}
+                    placeholder={settleType === 'FEE_DEDUCT' ? '抵扣金额(须=扣除台票后 ¥' + String(Math.round((preview.totalAmount - ticketDeduct(preview)) * 100) / 100) + ')' : '抵扣金额(元;剩余按现金收款)'}
                     inputMode="decimal"
                     value={deductAmount}
                     onChange={(e) => { setDeductAmount(e.target.value) }}
                   />
                   {settleType === 'MIXED' && Number(deductAmount) > 0 && (
-                    <div className="text-xs text-fg-muted">现金应收 ¥{String(Math.max(0, Math.round((preview.totalAmount - Number(deductAmount)) * 100) / 100))}</div>
+                    <div className="text-xs text-fg-muted">现金应收 ¥{String(Math.max(0, Math.round((preview.totalAmount - ticketDeduct(preview) - Number(deductAmount)) * 100) / 100))}</div>
                   )}
                 </div>
               )}
               <div className="text-xs opacity-70">
-                关房后包厢进入「清扫中」;抵扣部分逐艺人生成 ROOM_SETTLE 流水(不可变)。
+                关房后包厢进入「清扫中」;台费抵扣逐艺人生成 ROOM_SETTLE 流水(不可变),台票抵扣逐张写 USE 使用记录(refSessionId=本场首场次)。
               </div>
             </div>
           )}

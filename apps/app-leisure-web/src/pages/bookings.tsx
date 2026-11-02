@@ -1,6 +1,7 @@
 /**
  * 预约管理(实测 PC 列名:预约号/预约时间/包厢/组别/艺人/状态;需求全集 §9)
  * 状态机:BOOKED→ARRIVED(到店)/CANCELLED(取消)/NO_SHOW(未到),终态锁定(40913)
+ * P1:押金登记 · 锁钟期(bookingTime+holdMinutes 内撞开房 40915)· 到店自动叫钟(指名房+艺人)
  */
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Input, Label } from '@yyc3/ui'
@@ -36,6 +37,8 @@ export default function BookingsPage(): React.JSX.Element {
   const [roomId, setRoomId] = useState('')
   const [artistId, setArtistId] = useState('')
   const [artistName, setArtistName] = useState('')
+  const [deposit, setDeposit] = useState('')
+  const [holdMinutes, setHoldMinutes] = useState('30')
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async (p: number): Promise<void> => {
@@ -85,13 +88,17 @@ export default function BookingsPage(): React.JSX.Element {
         ...(roomId !== '' ? { roomId: Number(roomId) } : {}),
         ...(artistId !== '' ? { artistId: Number(artistId) } : {}),
         ...(artistId === '' && artistName.trim() !== '' ? { artistName: artistName.trim() } : {}),
+        ...(deposit !== '' && Number(deposit) > 0 ? { deposit: Number(deposit) } : {}),
+        ...(roomId !== '' && holdMinutes !== '' ? { holdMinutes: Number(holdMinutes) } : {}),
       })
-      toast.success('预约已创建:' + res.bookingNo)
+      toast.success('预约已创建:' + res.bookingNo + (roomId !== '' ? '(锁钟 ' + (holdMinutes === '' ? '30' : holdMinutes) + ' 分钟)' : ''))
       setFormOpen(false)
       setBookingTime('')
       setRoomId('')
       setArtistId('')
       setArtistName('')
+      setDeposit('')
+      setHoldMinutes('30')
       await load(1)
     } catch (e) {
       toastError(e, '创建失败')
@@ -102,8 +109,10 @@ export default function BookingsPage(): React.JSX.Element {
 
   const move = async (id: number, next: 'ARRIVED' | 'CANCELLED' | 'NO_SHOW'): Promise<void> => {
     try {
-      await client.bookings.setStatus(id, next)
-      toast.success('状态已更新:' + STATUS_TEXT[next])
+      const out = await client.bookings.setStatus(id, next)
+      toast.success(
+        '状态已更新:' + STATUS_TEXT[next] + (out.autoCallId !== null ? ' · 已自动叫钟(见钟房队列)' : ''),
+      )
       await load(page)
     } catch (e) {
       toastError(e, '状态流转失败')
@@ -115,6 +124,22 @@ export default function BookingsPage(): React.JSX.Element {
     { key: 'bookingTime', header: '预约时间', render: (r) => (r.bookingTime !== null ? r.bookingTime.slice(5, 16).replace('T', ' ') : '—') },
     { key: 'roomName', header: '包厢', render: (r) => r.roomName ?? '—' },
     { key: 'artistName', header: '艺人', render: (r) => (r.artistName ?? '—') + (r.badgeNo !== null ? '(' + r.badgeNo + ')' : '') },
+    {
+      key: 'hold',
+      header: '锁钟/押金',
+      render: (r) => {
+        if (r.status !== 'BOOKED') return <span className="text-xs text-fg-muted">—</span>
+        const held = r.holdUntil != null && new Date(r.holdUntil).getTime() > Date.now()
+        return (
+          <span className="text-xs">
+            {held
+              ? <span className="text-warning">锁钟至 {r.holdUntil?.slice(11, 16)}</span>
+              : <span className="text-fg-muted">已过锁钟期</span>}
+            {(r.deposit ?? 0) > 0 ? ' · 押金 ¥' + String(r.deposit) : ''}
+          </span>
+        )
+      },
+    },
     {
       key: 'status',
       header: '状态',
@@ -138,7 +163,7 @@ export default function BookingsPage(): React.JSX.Element {
 
   return (
     <div>
-      <PageHeader title="预约管理" desc="预约号自动生成(BK+营业日+序号);BOOKED→到店/取消/未到,终态锁定" />
+      <PageHeader title="预约管理" desc="预约号自动生成(BK+营业日+序号);BOOKED→到店/取消/未到,终态锁定;押金登记·锁钟期内撞开房 40915·到店自动叫钟" />
       <div className="flex gap-2 items-center mb-3 flex-wrap">
         <Input type="date" className="w-40" value={bd} onChange={(e) => setBd(e.target.value)} />
         <select
@@ -205,6 +230,19 @@ export default function BookingsPage(): React.JSX.Element {
                 placeholder="客人指定的名字"
               />
             </div>
+          </div>
+          <div className="flex gap-3 items-end flex-wrap">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs text-fg-muted">押金(元,登记口径)</Label>
+              <Input className="w-32" inputMode="decimal" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="0" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs text-fg-muted">锁钟分钟(指名包厢时;期内拒绝他人开房)</Label>
+              <Input className="w-32" inputMode="numeric" value={holdMinutes} onChange={(e) => setHoldMinutes(e.target.value)} placeholder="30" />
+            </div>
+            <p className="text-xs text-fg-muted flex-1 min-w-48">
+              到店(ARRIVED)且指名房+艺人时自动进叫钟队列;锁钟期过后房间可被他人开房。
+            </p>
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setFormOpen(false)}>取消</Button>

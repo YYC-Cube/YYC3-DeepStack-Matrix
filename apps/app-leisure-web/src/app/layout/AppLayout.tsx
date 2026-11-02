@@ -8,7 +8,7 @@ import { Download, LogOut } from 'lucide-react'
 import { Button, Toaster } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth'
-import { useIsMobile, usePWAInstall } from '@/lib/pwa'
+import { useIsMobile, usePWAInstall, useOnlineStatus } from '@/lib/pwa'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from '@/components/BottomNav'
 import { CommandPalette } from '@/components/command-palette/CommandPalette'
@@ -45,12 +45,22 @@ export function AppLayout() {
   const name = useAuthStore((s) => s.name)
   const logout = useAuthStore((s) => s.logout)
   const isMobile = useIsMobile()
+  const online = useOnlineStatus()
 
   return (
     <div
       className="h-screen w-screen flex overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)' }}
     >
+      {!online && (
+        <div
+          className="fixed bottom-4 left-4 z-[70] flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[rgba(255,170,0,0.4)] bg-[rgba(20,12,4,0.9)] text-xs text-[#ffaa00]"
+          role="status"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-[#ffaa00] animate-pulse" />
+          离线模式 · 展示缓存数据,操作将在联网后可用
+        </div>
+      )}
       {!isMobile && <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 shrink-0 flex items-center px-5 border-b border-[rgba(0,212,255,0.12)]">

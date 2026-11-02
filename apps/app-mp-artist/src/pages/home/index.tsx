@@ -2,8 +2,9 @@
  * 首页(状态卡 + 三入口;未绑定自动引导 B1)
  */
 import { useState } from 'react'
-import { View, Text, Button } from '@tarojs/components'
+import { View, Text, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+import logoPng from '../../assets/yyc3-logo.png'
 import { loadAuth, clearAuth, myToday, myFinish, errText } from '../../lib/api'
 
 interface TodayReport {
@@ -53,7 +54,13 @@ export default function Home() {
   return (
     <View className="mp-page">
       <View className="mp-card">
-        <Text className="mp-title">{name !== '' ? name : '艺人'}</Text>
+        <View className="flex items-center" style={{ gap: '10px' }}>
+          <Image src={logoPng} style={{ width: '40px', height: '40px' }} mode='aspectFit' />
+          <View>
+            <Text className="mp-title">{name !== '' ? name : '艺人'}</Text>
+            <Text className="mp-muted">YYC³ LeisureManage · 艺人端</Text>
+          </View>
+        </View>
         <Text className="mp-status">
           {today === null
             ? '今日未报备'

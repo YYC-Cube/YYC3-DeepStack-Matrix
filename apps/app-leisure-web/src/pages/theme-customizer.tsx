@@ -24,6 +24,7 @@ import {
 import { Button, Card, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/kit'
+import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 import {
   applyTheme,
   DEFAULT_BRAND,
@@ -487,6 +488,7 @@ export default function ThemeCustomizerPage() {
               className="px-4 py-3 flex items-center gap-3 border-b"
               style={{ borderColor: 'var(--lm-border)', boxShadow: 'var(--lm-glow-sm)' }}
             >
+              <YYC3LogoSvg size={36} className="shrink-0" />
               <div className="min-w-0">
                 <div
                   className="text-sm font-semibold truncate"

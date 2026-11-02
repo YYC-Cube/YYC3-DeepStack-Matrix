@@ -12,16 +12,27 @@
   "lang": "zh-CN",
   "icons": [
     {
-      "src": "./icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./yyc3-icons/Web%20App/android-chrome-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-maskable.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./yyc3-icons/Web%20App/android-chrome-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./yyc3-icons/Web%20App/android-chrome-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "./yyc3-icons/macOS/512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

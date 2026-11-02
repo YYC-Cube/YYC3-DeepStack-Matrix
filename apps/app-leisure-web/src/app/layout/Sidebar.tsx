@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@yyc3/ui'
 import { useAuthStore } from '@/stores/auth'
+import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 
 interface MenuItem {
   key: string
@@ -152,7 +153,8 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       className="h-full flex flex-col border-r border-[rgba(0,212,255,0.12)] shrink-0 transition-[width] duration-200"
       style={{ width: collapsed ? 56 : 216, background: 'rgba(6,14,31,0.7)' }}
     >
-      <div className="h-14 flex items-center px-3 border-b border-[rgba(0,212,255,0.12)]">
+      <div className="h-14 flex items-center px-3 border-b border-[rgba(0,212,255,0.12)] gap-2">
+        <YYC3LogoSvg size={collapsed ? 28 : 26} className={collapsed ? 'mx-auto' : ''} />
         {!collapsed && (
           <div className="flex flex-col overflow-hidden">
             <span className="text-sm font-semibold text-[#00d4ff] whitespace-nowrap">YYC³ LeisureManage</span>

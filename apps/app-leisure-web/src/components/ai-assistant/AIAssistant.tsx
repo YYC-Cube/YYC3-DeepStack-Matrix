@@ -13,6 +13,8 @@ import {
   Minimize2, Maximize2, Trash2,
 } from 'lucide-react';
 
+import { YYC3LogoSvg } from './YYC3LogoSvg';
+
 // ═══════════════════════════════════════════════════════════════
 //  类型定义
 // ═══════════════════════════════════════════════════════════════
@@ -274,7 +276,7 @@ export function AIAssistant({
         <div className="relative rounded-2xl bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center shadow-[0_0_30px_rgba(0,180,255,0.4)] hover:shadow-[0_0_40px_rgba(0,180,255,0.6)] transition-all hover:scale-105 active:scale-95"
           style={{ width: isMobile ? 48 : 56, height: isMobile ? 48 : 56 }}
         >
-          <Sparkles size={isMobile ? 24 : 28} className="text-white rounded-md" />
+          <YYC3LogoSvg size={isMobile ? 32 : 38} />
           {/* Pulse ring */}
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] animate-ping opacity-20" />
           {/* Badge */}
@@ -299,7 +301,7 @@ export function AIAssistant({
         <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-[rgba(0,180,255,0.12)] bg-[rgba(0,40,80,0.2)]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center shadow-[0_0_15px_rgba(0,180,255,0.3)] overflow-hidden">
-              <Sparkles size={20} className="text-white" />
+              <YYC3LogoSvg size={24} />
             </div>
             <div>
               <h3 className="text-[#e0f0ff]" style={{ fontSize: '0.9rem' }}>AI 智能助理</h3>

@@ -239,6 +239,46 @@ export function qrcodeVerify(scene: string): Promise<{ valid: boolean; storeId?:
     .catch(translate)
 }
 
+/** a21 我的订单:自点单 + 已随房账结算的本人上场次(scope=ARTIST 强制本人) */
+export function myOrders(): Promise<{
+  orders: Array<{
+    id: number
+    kind: 'SELF_ORDER' | 'ROOM_FEE'
+    businessDate: string
+    roomNo: string
+    amount: number
+    status: string
+    placedAt: string | null
+    settledAt: string | null
+    items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }> | null
+  }>
+  summary: { orderTotal: number; feeTotal: number; count: number }
+}> {
+  return Taro.request({
+    url: API_BASE + '/me/orders',
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) =>
+      envelope<{
+        orders: Array<{
+          id: number
+          kind: 'SELF_ORDER' | 'ROOM_FEE'
+          businessDate: string
+          roomNo: string
+          amount: number
+          status: string
+          placedAt: string | null
+          settledAt: string | null
+          items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }> | null
+        }>
+        summary: { orderTotal: number; feeTotal: number; count: number }
+      }>(res),
+    )
+    .catch(translate)
+}
+
 /** 统一错误文案(401 清态;其余透出后端中文文案) */
 export function errText(e: unknown): string {
   if (e instanceof LeisureError) {

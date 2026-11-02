@@ -99,6 +99,13 @@ export default function Mine() {
       </View>
 
       <View className="mp-card">
+        <Text className="mp-muted">我的订单(a21:点单+上钟费)</Text>
+        <Button className="mp-btn" onClick={() => Taro.navigateTo({ url: '/pages/orders/index' })}>
+          查看我的订单
+        </Button>
+      </View>
+
+      <View className="mp-card">
         <Text className="mp-muted">我的服务评价:III 期开通</Text>
       </View>
 

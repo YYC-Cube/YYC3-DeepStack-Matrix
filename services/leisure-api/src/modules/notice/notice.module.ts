@@ -15,12 +15,15 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
 } from '@nestjs/common'
 import { IsInt, IsOptional, IsString, Length, Max, Min } from 'class-validator'
 import type { Request } from 'express'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+
+const TITLE_SET = ['VP', 'MANAGER_DIRECTOR', 'MANAGER', 'CASHIER', 'FINANCE'] as const
 
 class CreateNoticeDto {
   @IsString()
@@ -34,44 +37,154 @@ class CreateNoticeDto {
   @Min(1)
   @Max(20)
   limit?: number
+  /** 公告条滚动播放次数(0=常驻循环;默认 3) */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(99)
+  playTimes?: number
+  /** 展示时段窗口起(空=立即) */
+  @IsOptional()
+  @IsString()
+  playStart?: string
+  /** 展示时段窗口止(空=永久) */
+  @IsOptional()
+  @IsString()
+  playEnd?: string
+  /** 公告条单轮滚动秒数(10-120;默认 22) */
+  @IsOptional()
+  @IsInt()
+  @Min(10)
+  @Max(120)
+  playSpeed?: number
+  /** 可看职级白名单(逗号分隔;空=全员) */
+  @IsOptional()
+  @IsString()
+  visibleTitles?: string
+  /** 提醒效果(新通告红点+首次弹层;默认 true) */
+  @IsOptional()
+  remind?: boolean
+}
+
+class UpdateNoticeDto {
+  @IsOptional()
+  @IsString()
+  @Length(1, 128)
+  title?: string
+  @IsOptional()
+  @IsString()
+  @Length(1, 2000)
+  body?: string
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(99)
+  playTimes?: number
+  @IsOptional()
+  @IsString()
+  playStart?: string
+  @IsOptional()
+  @IsString()
+  playEnd?: string
+  @IsOptional()
+  @IsInt()
+  @Min(10)
+  @Max(120)
+  playSpeed?: number
+  @IsOptional()
+  @IsString()
+  visibleTitles?: string
+  @IsOptional()
+  remind?: boolean
 }
 
 @Injectable()
 export class NoticeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** 工作台/公告条拉取(任意登录者;最近 20 条未删) */
-  async list(storeId: number, limit = 20): Promise<{ rows: Array<{ id: number; title: string; body: string; publishedBy: number; publisherName: string | null; createdAt: string }> }> {
+  /** 工作台/公告条拉取(任意登录者;按职级白名单/展示窗口过滤;最近 20 条未删) */
+  async list(storeId: number, viewerId: number, viewerScope: 'ADMIN' | 'ARTIST' | undefined, limit = 20): Promise<{ rows: Array<{ id: number; title: string; body: string; publishedBy: number; publisherName: string | null; createdAt: string; playTimes: number; playSpeed: number; remind: boolean }> }> {
+    // 调用者职级:管理端按账号职级;销售端无职级 → 视为 MANAGER
+    let viewerTitle: string | undefined = viewerScope === 'ARTIST' ? 'MANAGER' : undefined
+    if (viewerScope === 'ADMIN') {
+      const u = await this.prisma.adminUser.findUnique({ where: { id: viewerId }, select: { title: true } })
+      viewerTitle = u?.title ?? undefined
+    }
     const rows = await this.prisma.notice.findMany({
       where: { storeId, deletedAt: null },
       orderBy: { id: 'desc' },
       take: Math.min(Math.max(limit, 1), 20),
     })
-    const ids = Array.from(new Set(rows.map((r) => r.publishedBy)))
+    const now = Date.now()
+    const visible = rows.filter((r) => {
+      // 展示时段窗口(空=立即+永久)
+      if (r.playStart !== null && now < r.playStart.getTime()) return false
+      if (r.playEnd !== null && now > r.playEnd.getTime()) return false
+      // 可看职级白名单(空=全员);viewerTitle 空视为 MANAGER(销售经理)
+      if (r.visibleTitles !== null && r.visibleTitles !== '') {
+        const allow = r.visibleTitles.split(',').map((s) => s.trim())
+        return allow.includes(viewerTitle ?? 'MANAGER')
+      }
+      return true
+    })
+    const ids = Array.from(new Set(visible.map((r) => r.publishedBy)))
     const publishers = ids.length > 0
       ? await this.prisma.adminUser.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } })
       : []
     const nameMap = new Map(publishers.map((p) => [p.id, p.name]))
     return {
-      rows: rows.map((r) => ({
+      rows: visible.map((r) => ({
         id: r.id,
         title: r.title,
         body: r.body,
         publishedBy: r.publishedBy,
         publisherName: nameMap.get(r.publishedBy) ?? null,
         createdAt: r.createdAt.toISOString(),
+        playTimes: r.playTimes,
+        playSpeed: r.playSpeed,
+        remind: r.remind,
       })),
     }
   }
 
   async create(storeId: number, body: CreateNoticeDto, operatorId: number): Promise<{ id: number }> {
     const created = await this.prisma.notice.create({
-      data: { storeId, title: body.title, body: body.body, publishedBy: operatorId },
+      data: {
+        storeId,
+        title: body.title,
+        body: body.body,
+        publishedBy: operatorId,
+        ...(body.playTimes !== undefined ? { playTimes: body.playTimes } : {}),
+        ...(body.playStart !== undefined ? { playStart: new Date(body.playStart) } : {}),
+        ...(body.playEnd !== undefined ? { playEnd: new Date(body.playEnd) } : {}),
+        ...(body.playSpeed !== undefined ? { playSpeed: body.playSpeed } : {}),
+        ...(body.visibleTitles !== undefined ? { visibleTitles: body.visibleTitles } : {}),
+        ...(body.remind !== undefined ? { remind: body.remind } : {}),
+      },
     })
     await this.audit(storeId, operatorId, 'NOTICE_CREATE', 'notice', String(created.id), null, {
       title: body.title,
     })
     return { id: created.id }
+  }
+
+  async update(id: number, storeId: number, body: UpdateNoticeDto, operatorId: number): Promise<void> {
+    const before = await this.prisma.notice.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (before === null) throw new NotFoundException('通告不存在')
+    const after = await this.prisma.notice.update({
+      where: { id },
+      data: {
+        ...(body.title !== undefined ? { title: body.title } : {}),
+        ...(body.body !== undefined ? { body: body.body } : {}),
+        ...(body.playTimes !== undefined ? { playTimes: body.playTimes } : {}),
+        ...(body.playStart !== undefined ? { playStart: body.playStart === '' ? null : new Date(body.playStart) } : {}),
+        ...(body.playEnd !== undefined ? { playEnd: body.playEnd === '' ? null : new Date(body.playEnd) } : {}),
+        ...(body.playSpeed !== undefined ? { playSpeed: body.playSpeed } : {}),
+        ...(body.visibleTitles !== undefined ? { visibleTitles: body.visibleTitles === '' ? null : body.visibleTitles } : {}),
+        ...(body.remind !== undefined ? { remind: body.remind } : {}),
+      },
+    })
+    await this.audit(storeId, operatorId, 'NOTICE_UPDATE', 'notice', String(id), before, after)
   }
 
   async remove(id: number, storeId: number, operatorId: number): Promise<void> {
@@ -103,7 +216,7 @@ export class NoticeController {
   @Get()
   async list(@Req() req: Request): Promise<unknown> {
     const user = (req as ReqWithUser).user
-    return this.svc.list(user?.storeId ?? 1)
+    return this.svc.list(user?.storeId ?? 1, user?.sub ?? 0, user?.scope)
   }
 
   @RequirePerm('setting:manage')
@@ -111,6 +224,18 @@ export class NoticeController {
   async create(@Req() req: Request, @Body() body: CreateNoticeDto): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.create(user?.storeId ?? 1, body, user?.sub ?? 0)
+  }
+
+  @RequirePerm('setting:manage')
+  @Put(':id')
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateNoticeDto,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    await this.svc.update(id, user?.storeId ?? 1, body, user?.sub ?? 0)
+    return { updated: true }
   }
 
   @RequirePerm('setting:manage')

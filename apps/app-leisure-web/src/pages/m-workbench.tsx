@@ -32,7 +32,7 @@ import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 import type { ReconListResult } from '@yyc3/leisure-core'
 
 /** 工作通告兜底占位(/notices 无数据时显示) */
-const FALLBACK_announcements: Array<{ date: string; text: string }> = [
+const FALLBACK_announcements: Array<{ id?: number; remind?: boolean; date: string; text: string }> = [
   { date: '系统', text: '欢迎使用 YYC³ LeisureManage 移动工作台 · 工作通告由管理端「工作通告」页发布' },
 ]
 
@@ -80,21 +80,76 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [liveRooms, setLiveRooms] = useState<number>(0)
   const [tab, setTab] = useState('manage')
   const [showNotices, setShowNotices] = useState(false)
-  /** 工作通告(/notices 真数据;空时回退占位) */
+  /** 工作通告(/notices 真数据;含播放配置;空时回退占位) */
   const [announcements, setAnnouncements] = useState(FALLBACK_announcements)
+  /** 公告条速度(秒/轮)与播放次数(0=无限;播完隐藏)——取最新通告配置 */
+  const [marqueeSpeed, setMarqueeSpeed] = useState(22)
+  const [marqueeTimes, setMarqueeTimes] = useState(0)
+  const [marqueeVisible, setMarqueeVisible] = useState(true)
+  /** 提醒效果:新通告(24h 内 remind)首次进入自动弹层一次 */
+  useEffect(() => {
+    try {
+      const seen = JSON.parse(localStorage.getItem('yyc3-notice-seen') ?? '[]') as number[]
+      const fresh = announcements.find(
+        (a) => (a as { id?: number; remind?: boolean }).remind === true &&
+          (a as { id?: number }).id !== undefined &&
+          !seen.includes((a as { id: number }).id),
+      )
+      if (fresh !== undefined) {
+        const id = (fresh as { id: number }).id
+        setShowNotices(true)
+        localStorage.setItem('yyc3-notice-seen', JSON.stringify([...seen, id]))
+      }
+    } catch {
+      /* localStorage 不可用时静默 */
+    }
+  }, [announcements])
 
   useEffect(() => {
     const bd = client.businessDateOf()
     Promise.all([
       client.recon.list(bd).catch(() => null),
       req<{ rows: unknown[] }>('GET', '/room-sessions?status=OPEN').catch(() => null),
-      req<{ rows: Array<{ title: string; body: string; createdAt: string }> }>('GET', '/notices').catch(() => null),
+      req<{
+        rows: Array<{
+          id: number
+          title: string
+          body: string
+          createdAt: string
+          playTimes: number
+          playStart: string | null
+          playEnd: string | null
+          playSpeed: number
+          remind: boolean
+        }>
+      }>('GET', '/notices').catch(() => null),
     ])
       .then(([recon, open, notices]) => {
         if (recon !== null) setMetrics(recon.selfMetrics)
         if (open !== null) setLiveRooms(open.rows.length)
         if (notices !== null && notices.rows.length > 0) {
-          setAnnouncements(notices.rows.map((n) => ({ date: n.createdAt.slice(5, 10), text: n.title !== '' ? n.title + ':' + n.body : n.body })))
+          const now = Date.now()
+          // 展示时段窗口过滤(空=立即+永久)
+          const inWindow = notices.rows.filter((n) => {
+            if (n.playStart !== null && now < new Date(n.playStart).getTime()) return false
+            if (n.playEnd !== null && now > new Date(n.playEnd).getTime()) return false
+            return true
+          })
+          if (inWindow.length > 0) {
+            setAnnouncements(
+              inWindow.map((n) => ({
+                id: n.id,
+                remind: n.remind,
+                date: n.createdAt.slice(5, 10),
+                text: n.title !== '' ? n.title + ':' + n.body : n.body,
+              })),
+            )
+            setMarqueeSpeed(inWindow[0]?.playSpeed ?? 22)
+            setMarqueeTimes(inWindow[0]?.playTimes ?? 0)
+            setMarqueeVisible(true)
+          } else {
+            setAnnouncements([])
+          }
         }
       })
       .catch((e) => toastError(e, '概况加载失败'))
@@ -157,8 +212,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
         </div>
       </div>
 
-      {/* 横向滚动公告条(工作通告;数据源预留,后期接后端) */}
-      {announcements.length > 0 && (
+      {/* 横向滚动公告条(工作通告;速度/次数由最新通告配置;播完隐藏) */}
+      {announcements.length > 0 && marqueeVisible && (
         <div
           className="mx-3 rounded-full overflow-hidden"
           style={{ background: 'color-mix(in srgb, var(--lm-primary) 10%, var(--lm-card))', border: '1px solid color-mix(in srgb, var(--lm-primary) 20%, transparent)' }}
@@ -174,7 +229,11 @@ export default function MWorkbenchPage(): React.JSX.Element {
             <div className="overflow-hidden flex-1">
               <div
                 className="flex whitespace-nowrap text-[11px] text-[var(--lm-fg)] items-center h-8"
-                style={{ animation: 'yyc3-marquee 22s linear infinite', width: 'max-content' }}
+                style={{
+                  animation: `yyc3-marquee ${String(marqueeSpeed)}s linear ${marqueeTimes === 0 ? 'infinite' : String(marqueeTimes)}`,
+                  width: 'max-content',
+                }}
+                onAnimationEnd={() => { if (marqueeTimes > 0) setMarqueeVisible(false) }}
               >
                 {[...announcements, ...announcements].map((a, i) => (
                   <span key={i} className="px-6">{a.date !== '系统' ? `[${a.date}] ` : ''}{a.text}</span>

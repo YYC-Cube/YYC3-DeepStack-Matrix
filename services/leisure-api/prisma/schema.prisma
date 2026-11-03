@@ -596,15 +596,24 @@ model Department {
   @@map("department")
 }
 
-/// 工作通告(工作台通知/公告条数据源;008 #12)
+/// 工作通告(工作台通知/公告条数据源;008 #12;编辑增强 2026-11-04)
 model Notice {
-  id         Int       @id @default(autoincrement())
-  storeId    Int       @map("store_id")
-  title      String    @db.VarChar(128)
-  body       String    @db.VarChar(2000)
-  publishedBy Int      @map("published_by")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  deletedAt  DateTime? @map("deleted_at")
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  title       String    @db.VarChar(128)
+  body        String    @db.VarChar(2000)
+  publishedBy Int       @map("published_by")
+  // 播放配置(编辑增强):公告条滚动次数(0=常驻循环)/展示时段窗口(空=立即永久)/单轮滚动秒数
+  playTimes   Int       @default(3) @map("play_times")
+  playStart   DateTime? @map("play_start")
+  playEnd     DateTime? @map("play_end")
+  playSpeed   Int       @default(22) @map("play_speed")
+  // 可看职级白名单(逗号分隔 VP/MANAGER_DIRECTOR/MANAGER/CASHIER/FINANCE;空=全员)
+  visibleTitles String? @map("visible_titles") @db.VarChar(255)
+  // 提醒效果:新通告工作台红点+首次自动弹层
+  remind      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   @@index([storeId, createdAt])
   @@map("notice")

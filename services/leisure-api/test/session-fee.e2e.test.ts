@@ -315,23 +315,48 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     expect(txns.body.data.rows.some((r) => r.type === 'REVERSE')).toBe(true)
   })
 
-  it('规则解析与禁改(C-03): resolve-rule 带出单价;有场次当日禁改 → 40903', async () => {
-    // 今日已有上钟(前用例产生):改覆盖全房型规则应 40903
-    const levels = await api<Array<{ id: number; name: string }>>('GET', '/store/room-types', undefined, adminToken)
-    void levels
-    const rules = await api<Array<{ id: number; levelId: number; roomTypeIds: number[]; amount: number }>>(
+  it('规则解析与禁改(C-03): 0 元禁存(2026-11-03 裁决);有场次当日禁改 → 40903', async () => {
+    // 0 元禁存:保存校验拒绝(0 元规则命中会静默覆盖档案时薪)
+    const zero = await api<null>(
+      'POST',
+      '/stage-fee-rules',
+      { levelId: 1, roomTypeIds: [1], amount: 0 },
+      adminToken,
+    )
+    expect(zero.http).toBe(400)
+    expect(zero.body.msg).toContain('0.01') // class-validator 默认文案(英文)含阈值
+
+    // 幂等自建覆盖 A01 房型的规则(seed 不再建 0 元占位;复用同 level+房型规则)
+    const rooms = await api<{ rows: Array<{ roomNo: string; roomTypeId: number }> }>(
+      'GET',
+      '/store/rooms?pageSize=50',
+      undefined,
+      adminToken,
+    )
+    const roomTypeA01 = rooms.body.data.rows.find((r) => r.roomNo === 'A01')!.roomTypeId
+    const existing = await api<Array<{ id: number; levelId: number; roomTypeIds: number[]; amount: number }>>(
       'GET',
       '/stage-fee-rules',
       undefined,
       adminToken,
     )
-    expect(rules.body.code).toBe(0)
-    const seedRule = rules.body.data[0]
-    expect(seedRule).toBeDefined()
+    expect(existing.body.code).toBe(0)
+    let rule = existing.body.data.find((r) => r.roomTypeIds.includes(roomTypeA01))
+    if (rule === undefined) {
+      const created = await api<{ id: number }>(
+        'POST',
+        '/stage-fee-rules',
+        { levelId: 1, roomTypeIds: [roomTypeA01], amount: 88 },
+        adminToken,
+      )
+      expect(created.body.code).toBe(0)
+      rule = { id: created.body.data.id, levelId: 1, roomTypeIds: [roomTypeA01], amount: 88 }
+    }
+    // 今日已有上钟(前用例产生):改覆盖该房型规则应 40903
     const blocked = await api<null>(
       'PUT',
-      '/stage-fee-rules/' + String(seedRule.id),
-      { levelId: seedRule.levelId, roomTypeIds: seedRule.roomTypeIds, amount: 99 },
+      '/stage-fee-rules/' + String(rule.id),
+      { levelId: rule.levelId, roomTypeIds: rule.roomTypeIds, amount: 99 },
       adminToken,
     )
     expect(blocked.http).toBe(409)

@@ -66,6 +66,10 @@ export default function FeeRulesPage() {
       toast.error('等级与至少一个包厢类型必选')
       return
     }
+    if (!(num(form.amount) > 0)) {
+      toast.error('计时单价必须大于 0(0 元规则会静默覆盖档案时薪,2026-11-03 裁决禁存)')
+      return
+    }
     setBusy(true)
     try {
       const body = { levelId: Number(form.levelId), roomTypeIds: form.roomTypeIds, amount: num(form.amount) }
@@ -230,8 +234,8 @@ export default function FeeRulesPage() {
                   ))}
                 </div>
               </div>
-              <Field label="计时单价(元/小时)" required>
-                <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+              <Field label="计时单价(元/小时,须大于 0)" required>
+                <Input type="number" min="0.01" step="0.01" placeholder="如 100" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
               </Field>
             </div>
           )}

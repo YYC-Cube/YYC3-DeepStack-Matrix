@@ -55,24 +55,12 @@ async function main() {
     })
   }
 
-  // 台费规则(实测:技师×6房型=0.00 占位,金额由运营改)
+  // 台费规则:不再 seed 0 元占位(2026-11-03 裁决:保存禁 0 元——0 元规则命中会静默覆盖档案时薪)。
+  // 未配置规则 = 计费回退档案计时单价(§6.5);规则由运营在「台费规则」页配置(须 >0)。
   const roomTypes = await prisma.roomType.findMany({
     where: { storeId: store.id },
     orderBy: { sort: 'asc' },
   })
-  const ruleExists = await prisma.stageFeeRule.findFirst({
-    where: { storeId: store.id, levelId: level.id, deletedAt: null },
-  })
-  if (ruleExists === null) {
-    await prisma.stageFeeRule.create({
-      data: {
-        storeId: store.id,
-        levelId: level.id,
-        roomTypeIds: roomTypes.map((r) => r.id),
-        amount: 0,
-      },
-    })
-  }
 
   // 包厢房号样例(需求全集 §5;全合成,禁真实信息)——每房型 2 间,房号店内唯一
   const roomSamples: Array<{ prefix: string; count: number; typeName: string }> = [

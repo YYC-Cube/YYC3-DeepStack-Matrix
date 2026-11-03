@@ -243,11 +243,11 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     expect(bad.body.code).not.toBe(0)
   })
 
-  it('最低消费:设置 88 → 回拨 20 分钟离线上钟 → 台费兜到 88', async () => {
+  it('最低消费:设置 150 → 回拨 20 分钟离线上钟 → 台费兜到 150', async () => {
     const put = await api(
       'PUT',
       '/store-config/artist-settings',
-      { roomBilling: { minCharge: 88, capCharge: 0 } },
+      { roomBilling: { minCharge: 150, capCharge: 0 } },
       adminToken,
     )
     expect(put.body.code).toBe(0)
@@ -256,21 +256,22 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     const off = await api<{ feeAmount: number }>(
       'POST',
       '/sessions/offline',
-      { clientOpId: 'e2e-mincap-' + String(Date.now()), artistId, roomId: await anyRoomId(), startAt: start, endAt: end },
+      { clientOpId: 'e2e-mincap-' + String(Date.now()), artistId, roomId: await a01RoomId(), startAt: start, endAt: end },
       adminToken,
     )
     expect(off.body.code).toBe(0)
-    // 20 分钟进位 1h;槽位价 200 → 40 < 最低消费 88 → 88
-    expect(off.body.data.feeAmount).toBe(88)
+    // 20 分钟进位 1h;2026-11-03 起 seed 不建 0 元规则 → A1001(等级 1)单价回退档案时薪 100
+    // → 1h×100=100 < 最低消费 150 → 兜到 150
+    expect(off.body.data.feeAmount).toBe(150)
     // 归零还原,避免污染其他套件
     await api('PUT', '/store-config/artist-settings', { roomBilling: { minCharge: 0, capCharge: 0 } }, adminToken)
   })
 })
 
-async function anyRoomId(): Promise<number> {
+async function a01RoomId(): Promise<number> {
   const res = await fetch(BASE + '/store/rooms?pageSize=50', {
     headers: { Authorization: 'Bearer ' + adminToken },
   })
-  const json = (await res.json()) as { data: { rows: Array<{ id: number }> } }
-  return json.data.rows[0]!.id
+  const json = (await res.json()) as { data: { rows: Array<{ roomNo: string; id: number }> } }
+  return json.data.rows.find((r) => r.roomNo === 'A01')!.id
 }

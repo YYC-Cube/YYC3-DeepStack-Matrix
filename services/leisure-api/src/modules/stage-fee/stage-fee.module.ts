@@ -55,8 +55,9 @@ class FeeRuleDto {
   @ArrayNotEmpty()
   @IsInt({ each: true })
   roomTypeIds!: number[]
+  /** 禁 0 元(2026-11-03 裁决):0 元规则命中后静默覆盖档案时薪(§6.5 规则优先),历史实测致时薪 100 艺人按 0 计费 */
   @IsNumber()
-  @Min(0)
+  @Min(0.01)
   amount!: number
 }
 

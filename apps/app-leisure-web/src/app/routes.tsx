@@ -34,6 +34,13 @@ function NeedAuth({ children }: { children: React.JSX.Element }): React.JSX.Elem
   return children
 }
 
+/** 首页分流:移动端落地工作台,桌面落档案页(移动工作台批次) */
+function IndexRedirect(): null {
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  window.location.hash = isMobile ? '#/m/workbench' : '#/artists'
+  return null
+}
+
 const LoginPage = sus(lazy(() => import('@/pages/login')))
 const ChangePasswordPage = sus(lazy(() => import('@/pages/change-password')))
 const ArtistsPage = sus(lazy(() => import('@/pages/artists')))
@@ -59,6 +66,8 @@ const BookingsPage = sus(lazy(() => import('@/pages/bookings')))
 const ReviewsPage = sus(lazy(() => import('@/pages/reviews')))
 const ThemeCustomizerPage = sus(lazy(() => import('@/pages/theme-customizer')))
 const ProfilePage = sus(lazy(() => import('@/pages/profile')))
+const MWorkbenchPage = sus(lazy(() => import('@/pages/m-workbench')))
+const MBoardPage = sus(lazy(() => import('@/pages/m-board')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -71,7 +80,10 @@ export const router = createHashRouter([
       </NeedAuth>
     ),
     children: [
-      { index: true, element: <Navigate to="/artists" replace /> },
+      // 移动工作台(mobile-first;桌面亦可访问)
+      { path: 'm/workbench', element: <MWorkbenchPage /> },
+      { path: 'm/board', element: <MBoardPage /> },
+      { index: true, element: <IndexRedirect /> },
       // 档案域
       { path: 'artists', element: <ArtistsPage /> },
       { path: 'artists/levels', element: <TaxonomyPage kind="level" /> },

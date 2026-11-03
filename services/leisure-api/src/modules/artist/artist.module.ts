@@ -54,6 +54,8 @@ function assertRequiredProfileFields(required: string[], body: Record<string, un
 interface ArtistCreateBody {
   // storeId 不在契约内:svc.create 以独立入参接收(控制器做 body→用户默认店兜底)
   groupId?: number
+  /** 专业条线:SELL=销售经理线(默认) RESOURCE=资源经理线 */
+  line?: string
   supervisorName?: string
   levelId?: number
   realName: string
@@ -87,6 +89,10 @@ class ArtistCreateDto {
   @IsOptional()
   @IsInt()
   levelId?: number
+  /** 专业条线(2026-11-04):SELL=销售经理线(默认) RESOURCE=资源经理线 */
+  @IsOptional()
+  @IsIn(['SELL', 'RESOURCE'])
+  line?: string
   @IsOptional()
   @IsString()
   @MaxLength(64)
@@ -179,6 +185,7 @@ export class ArtistService {
     status?: string
     auditStatus?: string
     keyword?: string
+    line?: string
     page?: number
     pageSize?: number
   }): Promise<{ rows: unknown[]; total: number }> {
@@ -190,6 +197,12 @@ export class ArtistService {
       groupId: q.groupId,
       levelId: q.levelId,
       auditStatus: q.auditStatus,
+      // 条线过滤(2026-11-04 资源经理线):line=RESOURCE 只取资源线;SELL/缺省=销售线(存量 NULL 视同 SELL;用 AND 避免与 keyword OR 冲突)
+      ...(q.line === 'RESOURCE'
+        ? { line: 'RESOURCE' }
+        : q.line === 'SELL'
+          ? { AND: [{ OR: [{ line: 'SELL' }, { line: null }] }] }
+          : {}),
       OR:
         q.keyword !== undefined && q.keyword !== ''
           ? [
@@ -240,6 +253,7 @@ export class ArtistService {
       data: {
         storeId,
         groupId: body.groupId,
+        line: body.line ?? 'SELL',
         supervisorName: body.supervisorName,
         levelId: body.levelId,
         realName: body.realName,
@@ -393,6 +407,7 @@ export class ArtistController {
     @Query('levelId') levelId?: string,
     @Query('auditStatus') auditStatus?: string,
     @Query('keyword') keyword?: string,
+    @Query('line') line?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ): Promise<unknown> {
@@ -403,6 +418,7 @@ export class ArtistController {
       levelId: levelId !== undefined ? Number(levelId) : undefined,
       auditStatus,
       keyword,
+      line: line === 'RESOURCE' || line === 'SELL' ? line : undefined,
       page: page !== undefined ? Number(page) : undefined,
       pageSize: pageSize !== undefined ? Number(pageSize) : undefined,
     })

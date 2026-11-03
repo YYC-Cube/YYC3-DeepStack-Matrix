@@ -36,7 +36,7 @@ interface MenuGroup {
 
 export const MENU: MenuGroup[] = [
   {
-    label: '销售经理档案',
+    label: '艺人档案',
     icon: Users,
     items: [
       { key: 'a1', label: '销售经理资料管理', path: '/artists', perm: 'artist:view' },
@@ -45,11 +45,20 @@ export const MENU: MenuGroup[] = [
     ],
   },
   {
+    label: '资源经理档案',
+    icon: Users,
+    items: [
+      { key: 'r1', label: '资源经理资料管理', path: '/artists?line=RESOURCE', perm: 'artist:view' },
+      { key: 'r2', label: '资源经理等级', path: '/artists/levels', perm: 'artist:view' },
+      { key: 'r3', label: '资源经理组别', path: '/artists/groups', perm: 'artist:view' },
+    ],
+  },
+  {
     label: '考勤上钟',
     icon: Clock,
     items: [
       { key: 'a19', label: '实时状态看板', path: '/attendance/realtime', perm: 'attend:summary:view' },
-      { key: 'a20', label: '销售经理上下钟', path: '/sessions', perm: 'session:view' },
+      { key: 'a20', label: '销售经理轮房', path: '/sessions', perm: 'session:view' },
       { key: 'board', label: '房态看板(方案甲)', path: '/rooms/board', perm: 'session:view' },
       { key: 'clock', label: '钟房大屏(语音叫钟)', path: '/clock-screen', perm: 'session:view' },
       { key: 'a16', label: '报备明细', path: '/attendance/reports', perm: 'attend:ledger:view' },

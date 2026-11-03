@@ -187,6 +187,46 @@ describe('calcBillHours', () => {
   })
 })
 
+/* ── WS-01 进位边界 10 用例(伪代码口径逐点钉死;标规升 stable 前置) ── */
+
+describe('WS-01 进位边界(伪代码口径,逐点)', () => {
+  it('边界 1:1 分钟 → 0h(未达 1 小时)', () => {
+    expect(calcBillHours(1)).toBe(0)
+  })
+  it('边界 2:59 分钟 → 0h(remain=59,均不进位前夜)', () => {
+    expect(calcBillHours(59, { thresholdMinutes: 59 })).toBe(0)
+  })
+  it('边界 3:60 分钟整 → 1h(base=1,remain=0)', () => {
+    expect(calcBillHours(60)).toBe(1)
+  })
+  it('边界 4:61 分钟(N=15,remain=1≤15)→ 1h 不进位', () => {
+    expect(calcBillHours(61)).toBe(1)
+  })
+  it('边界 5:74 分钟(N=15,remain=14≤15)→ 1h 不进位', () => {
+    expect(calcBillHours(74)).toBe(1)
+  })
+  it('边界 6:自定义 N=0 → 整分钟即进位(61→2h;60→1h)', () => {
+    expect(calcBillHours(60, { thresholdMinutes: 0 })).toBe(1)
+    expect(calcBillHours(61, { thresholdMinutes: 0 })).toBe(2)
+  })
+  it('边界 7:自定义 N=59 → 59 分钟不进位 / 60 分钟整点 1h / 119 分钟不进位(remain=59≤59)', () => {
+    expect(calcBillHours(59, { thresholdMinutes: 59 })).toBe(0)
+    expect(calcBillHours(60, { thresholdMinutes: 59 })).toBe(1)
+    expect(calcBillHours(119, { thresholdMinutes: 59 })).toBe(1)
+  })
+  it('边界 8:自定义 N=59 → 120 分钟 → 2h(remain=0)', () => {
+    expect(calcBillHours(120, { thresholdMinutes: 59 })).toBe(2)
+  })
+  it('边界 9:关闭进位且 remain>N → 仍向下取整(91 分钟→1h;不因 remain>15 进位)', () => {
+    expect(calcBillHours(91, { enabled: false })).toBe(1)
+    expect(calcBillHours(149, { enabled: false })).toBe(2)
+  })
+  it('边界 10:全天与越天:1440 分钟 → 24h;1441 分钟(N=15,remain=1)→ 24h', () => {
+    expect(calcBillHours(1440)).toBe(24)
+    expect(calcBillHours(1441)).toBe(24)
+  })
+})
+
 /* ── 上钟前置校验(实测档案限制语义) ── */
 
 const baseArtist = {

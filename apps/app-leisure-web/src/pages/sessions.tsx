@@ -1,5 +1,5 @@
 /**
- * A20 销售经理上下钟(检索 + 代下钟):营业日区间/状态/关键词;行含房号·计费小时·单价·金额(§8.3 维度)
+ * A20 销售经理轮房(检索 + 代下钟):营业日区间/状态/关键词;行含房号·计费小时·单价·金额(§8.3 维度)
  * 代下钟 = finish(强制下钟同规计费,§6.6);权限 session:finish
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -56,7 +56,7 @@ export default function SessionsPage() {
       const list = await client.artists.list({ page: 1, pageSize: 200 })
       setArtists(new Map((list.rows as ArtistLite[]).map((a) => [a.id, a])))
     } catch (e) {
-      toastError(e, '上下钟加载失败')
+      toastError(e, '轮房加载失败')
     } finally {
       setLoading(false)
     }
@@ -133,7 +133,7 @@ export default function SessionsPage() {
   return (
     <div>
       <PageHeader
-        title="销售经理上下钟"
+        title="销售经理轮房"
         desc="进位阈值可门店自定义(进行中场次按上钟时快照计);串台独立核算;台费快照不受后续改价影响"
       />
       <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">

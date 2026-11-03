@@ -194,6 +194,60 @@ export class NoticeService {
     await this.audit(storeId, operatorId, 'NOTICE_DELETE', 'notice', String(id), before, null)
   }
 
+  /** 触达上报:同用户同通告幂等(重复上报静默忽略);职级取管理端账号 title */
+  async markRead(noticeId: number, storeId: number, userId: number, scope: 'ADMIN' | 'ARTIST'): Promise<{ recorded: boolean }> {
+    const notice = await this.prisma.notice.findFirst({ where: { id: noticeId, storeId, deletedAt: null } })
+    if (notice === null) throw new NotFoundException('通告不存在')
+    let viewerTitle: string | null = null
+    if (scope === 'ADMIN') {
+      const u = await this.prisma.adminUser.findUnique({ where: { id: userId }, select: { title: true } })
+      viewerTitle = u?.title ?? null
+    } else {
+      viewerTitle = 'MANAGER' // 销售端视同销售经理
+    }
+    const dup = await this.prisma.noticeRead.findFirst({ where: { noticeId, userId } })
+    if (dup !== null) return { recorded: false }
+    await this.prisma.noticeRead.create({
+      data: { storeId, noticeId, userId, viewerScope: scope, viewerTitle },
+    })
+    return { recorded: true }
+  }
+
+  /** 触达统计:已读数/按职级分布/触达率(分母=各职级在职员工数;销售端不计入分母) */
+  async readStats(noticeId: number, storeId: number) {
+    const notice = await this.prisma.notice.findFirst({ where: { id: noticeId, storeId, deletedAt: null } })
+    if (notice === null) throw new NotFoundException('通告不存在')
+    const reads = await this.prisma.noticeRead.findMany({ where: { noticeId, storeId } })
+    const staff = await this.prisma.adminUser.groupBy({
+      by: ['title'],
+      where: { storeId, status: 1, roleId: { not: null } },
+      _count: { _all: true },
+    })
+    const totalByTitle = new Map(staff.map((s) => [s.title ?? 'MANAGER', s._count._all]))
+    const readByTitle: Record<string, number> = {}
+    for (const r of reads) {
+      const key = r.viewerTitle ?? 'MANAGER'
+      readByTitle[key] = (readByTitle[key] ?? 0) + 1
+    }
+    const visibleTitles = notice.visibleTitles !== null && notice.visibleTitles !== ''
+      ? notice.visibleTitles.split(',').map((s) => s.trim())
+      : Array.from(totalByTitle.keys())
+    const byTitle = visibleTitles.map((t) => {
+      const denom = totalByTitle.get(t) ?? 0
+      const read = readByTitle[t] ?? 0
+      return { title: t, titleName: t === 'VP' ? '销售副总' : t === 'MANAGER_DIRECTOR' ? '销售总监' : t === 'MANAGER' ? '销售经理' : t === 'CASHIER' ? '收银员' : '财务', total: denom, read, rate: denom > 0 ? Math.round((read / denom) * 100) : null }
+    })
+    const denomAll = byTitle.reduce((a, b) => a + b.total, 0)
+    const readAll = byTitle.reduce((a, b) => a + b.read, 0)
+    return {
+      noticeId,
+      title: notice.title,
+      readCount: reads.length,
+      byTitle,
+      reachRate: denomAll > 0 ? Math.round((readAll / denomAll) * 100) : null,
+    }
+  }
+
   private async audit(storeId: number, operatorId: number, action: string, targetType: string, targetId: string, before: unknown, after: unknown): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
@@ -244,6 +298,21 @@ export class NoticeController {
     const user = (req as ReqWithUser).user
     await this.svc.remove(id, user?.storeId ?? 1, user?.sub ?? 0)
     return { deleted: true }
+  }
+
+  /** 触达上报(任意登录者;同用户同通告幂等) */
+  @Post(':id/read')
+  async markRead(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.markRead(id, user?.storeId ?? 1, user?.sub ?? 0, user?.scope ?? 'ADMIN')
+  }
+
+  /** 触达统计(谁看过/各职级触达;setting:manage) */
+  @RequirePerm('setting:manage')
+  @Get(':id/stats')
+  async readStats(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.readStats(id, user?.storeId ?? 1)
   }
 }
 

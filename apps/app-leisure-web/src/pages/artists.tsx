@@ -105,6 +105,10 @@ export default function ArtistsPage() {
       if (groupId !== '') q.set('groupId', groupId)
       if (levelId !== '') q.set('levelId', levelId)
       if (auditStatus !== '') q.set('auditStatus', auditStatus)
+      // 条线(资源经理档案页传 RESOURCE;默认销售线视图含存量 NULL)
+      const params = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
+      const line = params.get('line')
+      if (line === 'RESOURCE') q.set('line', 'RESOURCE')
       const res = await req<{ rows: ArtistRow[]; total: number }>('GET', '/artists?' + q.toString())
       setRows(res.rows)
       setTotal(res.total)
@@ -143,6 +147,8 @@ export default function ArtistsPage() {
     }
     setBusy(true)
     try {
+      // 条线:资源经理档案页新建自动 RESOURCE;销售线缺省
+      const urlLine = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('line')
       const body = {
         realName: form.realName,
         stageName: form.stageName === '' ? undefined : form.stageName,
@@ -150,6 +156,7 @@ export default function ArtistsPage() {
         phone: form.phone === '' ? undefined : form.phone,
         badgeNo: form.badgeNo === '' ? undefined : form.badgeNo,
         groupId: form.groupId === '' ? undefined : Number(form.groupId),
+        ...(urlLine === 'RESOURCE' ? { line: 'RESOURCE' } : {}),
         levelId: form.levelId === '' ? undefined : Number(form.levelId),
         supervisorName: form.supervisorName === '' ? undefined : form.supervisorName,
         maxTotalShows: Number(form.maxTotalShows),

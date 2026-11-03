@@ -105,10 +105,30 @@ model ArtistLevel {
   @@map("artist_level")
 }
 
+/// 工作通告阅读记录(触达统计:谁看过/各职级触达率;2026-11-04)
+model NoticeRead {
+  id          Int      @id @default(autoincrement())
+  storeId     Int      @map("store_id")
+  noticeId    Int      @map("notice_id")
+  userId      Int      @map("user_id")
+  // 阅读者维度:ADMIN(按 admin_user.title 记职级)/ARTIST(销售经理)
+  viewerScope String   @map("viewer_scope") @db.VarChar(16)
+  viewerTitle String?  @map("viewer_title") @db.VarChar(32)
+  viewedAt    DateTime @default(now()) @map("viewed_at")
+
+  notice Notice @relation(fields: [noticeId], references: [id])
+
+  @@unique([noticeId, userId])
+  @@index([storeId, noticeId])
+  @@map("notice_read")
+}
+
 model Artist {
   id                  Int       @id @default(autoincrement())
   storeId             Int       @map("store_id")
   groupId             Int?      @map("group_id")
+  // 专业条线:SELL=销售经理线(默认/存量) RESOURCE=资源经理线(2026-11-04 财务分账条线前置)
+  line                String?   @map("line") @db.VarChar(16)
   supervisorName      String?   @map("supervisor_name") @db.VarChar(64)
   levelId             Int?      @map("level_id")
   realName            String    @map("real_name") @db.VarChar(64)
@@ -614,6 +634,8 @@ model Notice {
   remind      Boolean   @default(true)
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
+
+  reads NoticeRead[]
 
   @@index([storeId, createdAt])
   @@map("notice")

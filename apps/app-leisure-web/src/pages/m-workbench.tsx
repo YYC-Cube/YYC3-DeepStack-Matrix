@@ -50,7 +50,7 @@ const ITEM_ICON: Record<string, typeof Gauge> = {
 /** 常用宫格(高频入口;perm 过滤) */
 const QUICK = [
   { key: 'mboard', label: '房态图', path: '/m/board', perm: 'session:view', icon: LayoutGrid },
-  { key: 'sessions', label: '上下钟', path: '/sessions', perm: 'session:view', icon: ClipboardList },
+  { key: 'sessions', label: '轮房', path: '/sessions', perm: 'session:view', icon: ClipboardList },
   { key: 'bookings', label: '预约管理', path: '/bookings', perm: 'booking:view', icon: CalendarClock },
   { key: 'realtime', label: '实时状态', path: '/attendance/realtime', perm: 'attend:summary:view', icon: Radar },
   { key: 'recharge', label: '台费充值', path: '/fees/recharge', perm: 'fee:recharge', icon: BadgeJapaneseYen },

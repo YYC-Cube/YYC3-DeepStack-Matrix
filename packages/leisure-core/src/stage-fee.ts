@@ -1,6 +1,6 @@
 /**
  * YYC3-LeisureManage · 台费计算引擎(单源)
- * 实测依据:台费规则 = 艺人等级 × 包厢类型 → 金额(技师 × 小包/中包/大包/VIP包/西亳厅/外卖房)
+ * 实测依据:台费规则 = 销售经理等级 × 包厢类型 → 金额(技师 × 小包/中包/大包/VIP包/西亳厅/外卖房)
  * 计费模式:FLAT=按场次一口价(预留) · HOURLY=小时计费+进位阈值(需求全集 §6,当前启用)
  * 红线:计费所用的规则与进位阈值在「上钟起表时」快照,后续变更不影响进行中场次
  */
@@ -74,7 +74,7 @@ export interface SessionFeeInput {
   endAt: Date | string
   /** 计费模式;缺省 FLAT(一口价预留;当前主模式为 HOURLY,见需求全集 §6.4) */
   mode?: StageFeeMode
-  /** HOURLY 模式的时薪;FLAT 忽略。缺省回退艺人档案 hourlyRate */
+  /** HOURLY 模式的时薪;FLAT 忽略。缺省回退销售经理档案 hourlyRate */
   hourlyRate?: number
   /** 上钟最低时长(同包厢,分钟);不足时按此时长计(保底) */
   minDurationMinutes?: number
@@ -158,15 +158,15 @@ export interface CanTakeSessionParams {
     Artist,
     'maxTotalShows' | 'maxCrossRooms' | 'firstShowMinMinutes' | 'sameRoomMinMinutes'
   >
-  /** 该艺人当日已完成场次次数(0=尚未上钟) */
+  /** 该销售经理当日已完成场次次数(0=尚未上钟) */
   totalShowsDone: number
   /** 当前进行中(未下钟)的场次列表时长(分钟),用于串台校验 */
   activeCrossDurations: number[]
   /** 本次目标房型是否与当前进行中场次相同 */
   sameRoomAsActive: boolean
-  /** 配置:未签到是否允许上钟打卡(实测 PC「艺人设置」) */
+  /** 配置:未签到是否允许上钟打卡(实测 PC「销售经理设置」) */
   allowStageWithoutCheckin: boolean
-  /** 该艺人当日是否已报备签到 */
+  /** 该销售经理当日是否已报备签到 */
   hasCheckedInToday: boolean
 }
 
@@ -211,7 +211,7 @@ export function assertCanTakeSession(p: CanTakeSessionParams): CanTakeSessionRes
   } else if (p.activeCrossDurations.length > 0) {
     // 有进行中场次且换了包厢 = 串台
     if (p.artist.maxCrossRooms <= 0) {
-      violations.push({ code: ERR.SHOW_LIMIT_REACHED, message: '该艺人不允许串台' })
+      violations.push({ code: ERR.SHOW_LIMIT_REACHED, message: '该销售经理不允许串台' })
     } else if (p.activeCrossDurations.length >= p.artist.maxCrossRooms) {
       violations.push({ code: ERR.SHOW_LIMIT_REACHED, message: '超出允许串台数' })
     }

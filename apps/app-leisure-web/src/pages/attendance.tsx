@@ -24,7 +24,7 @@ interface ReportRow {
   checkinLng: string | null
   source: number
   remark: string | null
-  /** 艺人设置②:APPROVED/PENDING/REJECTED(门店未开审核时恒为 APPROVED) */
+  /** 销售经理设置②:APPROVED/PENDING/REJECTED(门店未开审核时恒为 APPROVED) */
   reviewStatus?: string
 }
 interface SummaryRow {
@@ -80,7 +80,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
     void load()
   }, [load])
 
-  /** 报备审核(艺人设置②):PENDING → 通过/驳回 */
+  /** 报备审核(销售经理设置②):PENDING → 通过/驳回 */
   async function review(id: number, decision: 'APPROVED' | 'REJECTED'): Promise<void> {
     try {
       await req('POST', '/attendance/reports/' + String(id) + '/review', { decision })
@@ -93,7 +93,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
 
   async function submitManual(): Promise<void> {
     if (form === null || form.artistId === '' || form.reason.trim() === '') {
-      toast.error('艺人与补卡原因必填')
+      toast.error('销售经理与补卡原因必填')
       return
     }
     setBusy(true)
@@ -168,7 +168,7 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
 
   /* ── A16 明细 / A18 补打卡 ── */
   const columns: Array<Column<ReportRow>> = [
-    { key: 'artist', header: '艺人', render: (r) => (r.stageName ?? '—') },
+    { key: 'artist', header: '销售经理', render: (r) => (r.stageName ?? '—') },
     { key: 'badge', header: '腰牌号', render: (r) => r.badgeNo ?? '—' },
     { key: 'type', header: '报备类型', render: (r) => TYPE_LABEL[r.type] ?? r.type },
     { key: 'reportTime', header: '报备时间', render: (r) => fmtTime(r.reportTime) },
@@ -241,8 +241,8 @@ export default function AttendancePage({ view }: { view: 'reports' | 'summary' |
           </DialogHeader>
           {form !== null && (
             <div className="flex flex-col gap-3">
-              <Field label="艺人 ID(阶段6 接选择器)" required>
-                <Input type="number" value={form.artistId} onChange={(e) => setForm({ ...form, artistId: e.target.value })} placeholder="艺人 ID" />
+              <Field label="销售经理 ID(阶段6 接选择器)" required>
+                <Input type="number" value={form.artistId} onChange={(e) => setForm({ ...form, artistId: e.target.value })} placeholder="销售经理 ID" />
               </Field>
               <Field label="报备类型" required>
                 <SelectBox value={form.type} onChange={(v) => setForm({ ...form, type: v })} options={REPORT_TYPES.map((t) => ({ value: t.code, label: t.label }))} />

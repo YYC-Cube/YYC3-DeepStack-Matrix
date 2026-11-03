@@ -93,7 +93,7 @@ export default function ReviewsPage(): React.JSX.Element {
   const submit = async (): Promise<void> => {
     const reviewType = fType === '__custom__' ? customType.trim() : fType
     if (artistId === '' || reviewType === '') {
-      toast.error('请选择艺人与评价类型')
+      toast.error('请选择销售经理与评价类型')
       return
     }
     setBusy(true)
@@ -122,7 +122,7 @@ export default function ReviewsPage(): React.JSX.Element {
 
   const columns: Array<Column<ReviewRow>> = [
     { key: 'businessDate', header: '营业日' },
-    { key: 'stageName', header: '艺人', render: (r) => (r.stageName ?? r.realName) + '(' + (r.badgeNo ?? '无腰牌') + ')' },
+    { key: 'stageName', header: '销售经理', render: (r) => (r.stageName ?? r.realName) + '(' + (r.badgeNo ?? '无腰牌') + ')' },
     { key: 'reviewType', header: '类型', render: (r) => <StatusBadge label={r.reviewType ?? '—'} color="#00d4ff" /> },
     { key: 'score', header: '评分', render: (r) => <Stars n={r.score} /> },
     { key: 'content', header: '内容', render: (r) => <span className="text-xs">{r.content ?? '—'}</span> },
@@ -136,7 +136,7 @@ export default function ReviewsPage(): React.JSX.Element {
     <div>
       <PageHeader
         title="服务评价"
-        desc="客人对艺人的服务评价:前台代录/扫码评价落库;只增不改不删,统计按营业日区间"
+        desc="客人对销售经理的服务评价:前台代录/扫码评价落库;只增不改不删,统计按营业日区间"
         actions={<Button onClick={() => setFormOpen(!formOpen)}>{formOpen ? '收起' : '+ 录入评价'}</Button>}
       />
 
@@ -144,7 +144,7 @@ export default function ReviewsPage(): React.JSX.Element {
         <Card className="p-4 space-y-3 max-w-2xl mb-3">
           <div className="flex gap-3 flex-wrap items-end">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-fg-muted">艺人</Label>
+              <Label className="text-xs text-fg-muted">销售经理</Label>
               <select
                 className="border rounded px-2 py-1.5 text-sm bg-transparent w-48"
                 value={artistId}

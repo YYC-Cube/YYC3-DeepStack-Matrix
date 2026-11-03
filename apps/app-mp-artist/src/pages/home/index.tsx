@@ -57,8 +57,8 @@ export default function Home() {
         <View className="flex items-center" style={{ gap: '10px' }}>
           <Image src={logoPng} style={{ width: '40px', height: '40px' }} mode='aspectFit' />
           <View>
-            <Text className="mp-title">{name !== '' ? name : '艺人'}</Text>
-            <Text className="mp-muted">YYC³ LeisureManage · 艺人端</Text>
+            <Text className="mp-title">{name !== '' ? name : '销售经理'}</Text>
+            <Text className="mp-muted">YYC³ LeisureManage · 销售经理端</Text>
           </View>
         </View>
         <Text className="mp-status">
@@ -77,7 +77,7 @@ export default function Home() {
         <Button
           className="mp-btn-outline"
           onClick={() => {
-            // 艺人设置④:门店开放「手动扫码下钟」时可自助下钟(关闭时后端 403 并提示联系前台)
+            // 销售经理设置④:门店开放「手动扫码下钟」时可自助下钟(关闭时后端 403 并提示联系前台)
             Taro.showModal({
               title: '自助下钟',
               content: '确认结束当前进行中的场次?计费按进位规则核算并计入房账。',

@@ -58,12 +58,12 @@ interface ChatMessage {
 
 const SYSTEM_COMMANDS: SystemCommand[] = [
   { id: 'cmd-01', icon: LayoutDashboard, label: '房态看板', desc: '开房/空房/清扫/预定 全店总览', category: '房务', action: '给我一份当前全店房态总览:开房/空房/清扫/预定各多少间', hash: '#/rooms/board', color: '#00d4ff' },
-  { id: 'cmd-02', icon: Users, label: '实时在岗', desc: '签到/上钟/串台 实时状态', category: '房务', action: '查看当前艺人在岗实时状态:签到、上钟、串台各多少人', hash: '#/attendance/realtime', color: '#00ff88' },
+  { id: 'cmd-02', icon: Users, label: '实时在岗', desc: '签到/上钟/串台 实时状态', category: '房务', action: '查看当前销售经理在岗实时状态:签到、上钟、串台各多少人', hash: '#/attendance/realtime', color: '#00ff88' },
   { id: 'cmd-03', icon: CalendarCheck, label: '预约管理', desc: '今日预约与到店状态', category: '房务', action: '查看今日预约列表与到店情况', hash: '#/bookings', color: '#ffaa00' },
   { id: 'cmd-04', icon: Receipt, label: '台票体系', desc: '台票设置/购买/核销', category: '资金', action: '查看台票购买与使用记录汇总', hash: '#/tickets?tab=buy-log', color: '#aa55ff' },
   { id: 'cmd-05', icon: Zap, label: '双轨对账', desc: '今日四指标与 14 天门禁', category: '资金', action: '查看今日双轨对账四指标与 14 天门禁进度', hash: '#/reports/recon', color: '#ffdd00' },
   { id: 'cmd-06', icon: BarChart3, label: '报表中心', desc: '8 张报表与 CSV 导出', category: '报表', action: '打开报表中心,查看今日上下钟汇总', hash: '#/reports', color: '#00d4ff' },
-  { id: 'cmd-07', icon: Users, label: '轮台报表', desc: '主管/艺人被派与越序统计', category: '报表', action: '查看主管轮台报表:各艺人被派次数与越序情况', hash: '#/reports/dispatch-rotation', color: '#00ff88' },
+  { id: 'cmd-07', icon: Users, label: '轮台报表', desc: '主管/销售经理被派与越序统计', category: '报表', action: '查看主管轮台报表:各销售经理被派次数与越序情况', hash: '#/reports/dispatch-rotation', color: '#00ff88' },
   { id: 'cmd-08', icon: Store, label: '门店参数', desc: '计费规则/通道/轮台模式', category: '运营', action: '打开门店参数设置:计费规则与收费通道配置', hash: '#/settings/artist', color: '#ff3366' },
   { id: 'cmd-09', icon: Command, label: '今日对账快照', desc: '生成自算四指标快照', category: '资金', action: '生成今日对账自算快照并核对开房数/时间费/点单额/签到人数', color: '#ff6600' },
   { id: 'cmd-10', icon: Sparkles, label: '今日营业日报', desc: 'AI 汇总今日经营概况', category: '报表', action: '汇总今日营业日报:开房数、时间费、点单额、签到人数、台票销售', color: '#ffdd00' },
@@ -72,7 +72,7 @@ const SYSTEM_COMMANDS: SystemCommand[] = [
 const PROMPT_PRESETS: PromptPreset[] = [
   { id: 'p1', name: '门店运营管家', prompt: '你是 LeisureManage 门店运营管家。熟悉包厢房态、开房关房流程、清扫流转与轮台派单。请基于当前门店状态给出运营建议。使用中文,简洁专业。', category: '运营' },
   { id: 'p2', name: '财务对账专员', prompt: '你是资金对账专员。掌握台费充值、ROOM_SETTLE 结算、台票购买核销与双轨对账四指标口径。帮助用户核对当日账务与差异。', category: '资金' },
-  { id: 'p3', name: '轮台调度师', prompt: '你是艺人轮台调度师。理解轮台/自选/混合三种上钟模式与越序规则,能给出公平派单建议与预警。', category: '调度' },
+  { id: 'p3', name: '轮台调度师', prompt: '你是销售经理轮台调度师。理解轮台/自选/混合三种上钟模式与越序规则,能给出公平派单建议与预警。', category: '调度' },
   { id: 'p4', name: '经营数据分析师', prompt: '你是经营数据分析师。基于开房数、时间费、点单额、签到人数、台票销售等指标识别趋势与异常,给出可视化报告建议。', category: '数据' },
   { id: 'p5', name: 'LeisureManage 助手', prompt: '你是 YYC³ LeisureManage 的 AI 助手,帮助门店管理者快速执行房务/资金/报表操作、查询状态与分析数据。一切以中文交互,保持简洁友好。', category: '通用' },
 ];
@@ -103,19 +103,19 @@ const generateMockResponse = (userMsg: string): string => {
   }
 
   if (lower.includes('对账') || lower.includes('指标') || lower.includes('门禁')) {
-    return `## 双轨对账(方案甲口径)\n\n| 指标 | 本系统 | 说明 |\n|------|--------|------|\n| 开房数 | room_session 当日总数 | OPEN+CLOSED |\n| 时间费 | Σ上钟时间费 | 计入房账 |\n| 点单额 | Σ 自点单 | 房账挂账 |\n| 签到人数 | CHECKIN 去重艺人 | 仅审核通过 |\n\n**14 天门禁**: 连续 MATCHED ≥14 天即可切换;日切 job 每晚自动快照,次日只需录入对侧 4 个数。\n\n📍 页面:「报表 → 双轨对账」顶部有门禁面板。`;
+    return `## 双轨对账(方案甲口径)\n\n| 指标 | 本系统 | 说明 |\n|------|--------|------|\n| 开房数 | room_session 当日总数 | OPEN+CLOSED |\n| 时间费 | Σ上钟时间费 | 计入房账 |\n| 点单额 | Σ 自点单 | 房账挂账 |\n| 签到人数 | CHECKIN 去重销售经理 | 仅审核通过 |\n\n**14 天门禁**: 连续 MATCHED ≥14 天即可切换;日切 job 每晚自动快照,次日只需录入对侧 4 个数。\n\n📍 页面:「报表 → 双轨对账」顶部有门禁面板。`;
   }
 
   if (lower.includes('台票') || lower.includes('核销')) {
-    return `## 台票体系\n\n- **余额** = ΣBUY − ΣUSE(过期票已自动归零展示)\n- **购买**: 收费通道须在门店清单内(现金/转账/自定义1-3)\n- **核销**: 上钟抵扣提示后由前台落 USE 流水\n- **流水**: 只增不改,购买/使用双记录可查\n\n📍 页面:「台票体系」四 Tab;艺人端有「我的台票」。`;
+    return `## 台票体系\n\n- **余额** = ΣBUY − ΣUSE(过期票已自动归零展示)\n- **购买**: 收费通道须在门店清单内(现金/转账/自定义1-3)\n- **核销**: 上钟抵扣提示后由前台落 USE 流水\n- **流水**: 只增不改,购买/使用双记录可查\n\n📍 页面:「台票体系」四 Tab;销售端有「我的台票」。`;
   }
 
   if (lower.includes('轮台') || lower.includes('派单') || lower.includes('越序')) {
-    return `## 轮台派单\n\n- **队列口径**: 已签到(审核通过且空闲)艺人,按 被派次数 → 最近被派 → 签到时间 排序\n- **轮台模式**: 越序直接拒绝(40914,提示下一位)\n- **混合模式**: 允许越序但记 overridden,供主管轮台报表考核\n- **报表**: 「报表中心 → 主管轮台报表」可按主管/组别统计\n\n📍 开房弹窗内会显示推荐位(#N)与当日被派次数。`;
+    return `## 轮台派单\n\n- **队列口径**: 已签到(审核通过且空闲)销售经理,按 被派次数 → 最近被派 → 签到时间 排序\n- **轮台模式**: 越序直接拒绝(40914,提示下一位)\n- **混合模式**: 允许越序但记 overridden,供主管轮台报表考核\n- **报表**: 「报表中心 → 主管轮台报表」可按主管/组别统计\n\n📍 开房弹窗内会显示推荐位(#N)与当日被派次数。`;
   }
 
   if (lower.includes('日报') || lower.includes('营业') || lower.includes('汇总')) {
-    return `## 今日营业日报(示例口径)\n\n- **开房数**: 以房态看板当日房账为准\n- **时间费**: Σ上钟计费(最低消费/封顶已应用)\n- **点单额**: Σ 艺人自点单(PLACED 视同送达)\n- **签到**: 已通过审核的去重艺人数\n\n💡 精确数字以「报表中心」与「双轨对账」页面为准;本条为能力说明。`;
+    return `## 今日营业日报(示例口径)\n\n- **开房数**: 以房态看板当日房账为准\n- **时间费**: Σ上钟计费(最低消费/封顶已应用)\n- **点单额**: Σ 销售经理自点单(PLACED 视同送达)\n- **签到**: 已通过审核的去重销售经理数\n\n💡 精确数字以「报表中心」与「双轨对账」页面为准;本条为能力说明。`;
   }
 
   return `收到您的请求:"${userMsg}"\n\n我已接入 LeisureManage 全端能力:\n- 🏠 房态/开房/清扫/预定\n- 💰 台费/台票/对账/报表\n- 👥 在岗状态/轮台/评价\n\n试试点击「命令」页签的快捷操作,或直接告诉我想看什么。`;

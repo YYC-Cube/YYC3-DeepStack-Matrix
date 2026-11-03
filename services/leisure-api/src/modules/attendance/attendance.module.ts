@@ -38,7 +38,7 @@ function isReportType(v: string): v is ReportType {
   return VALID_REPORT_TYPES.includes(v)
 }
 
-/** 报备开放时段(艺人设置②):HH:mm 窗口,支持跨零点(如 18:00~04:00);任一端为空=全天 */
+/** 报备开放时段(销售经理设置②):HH:mm 窗口,支持跨零点(如 18:00~04:00);任一端为空=全天 */
 function withinOpenWindow(now: Date, from?: string, to?: string): boolean {
   if (from === undefined || from === '' || to === undefined || to === '') return true
   const toMin = (s: string): number => {
@@ -85,7 +85,7 @@ export class AttendanceService {
     const now = new Date()
     const businessDate = resolveBusinessDate(now, { cutTime: await this.storeCut(ctx.storeId) })
     const bdDate = new Date(businessDate)
-    // 艺人设置②:报备开放时段(先于判重——时段外一律不受理)+ 是否需主管审核
+    // 销售经理设置②:报备开放时段(先于判重——时段外一律不受理)+ 是否需主管审核
     const settings = await this.storeConfig.getArtistSettings(ctx.storeId)
     if (!withinOpenWindow(now, settings.reportOpenFrom, settings.reportOpenTo)) {
       throw new ConflictException(
@@ -104,9 +104,9 @@ export class AttendanceService {
       throw new ConflictException('今日已签到')
     }
     const artist = await this.prisma.artist.findUnique({ where: { id: ctx.artistId } })
-    // 艺人不存在/已软删/已停用:显式 404,不落到 FK 冲突的 500
+    // 销售经理不存在/已软删/已停用:显式 404,不落到 FK 冲突的 500
     if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
-      throw new NotFoundException('艺人不存在或已停用')
+      throw new NotFoundException('销售经理不存在或已停用')
     }
     const geoOk = p.lat !== undefined && p.lng !== undefined
     const created = await this.prisma.attendanceReport.create({
@@ -312,7 +312,7 @@ export class AttendanceService {
     }
     const artist = await this.prisma.artist.findUnique({ where: { id: p.artistId } })
     if (artist === null || artist.deletedAt !== null || artist.status !== 1) {
-      throw new NotFoundException('艺人不存在或已停用')
+      throw new NotFoundException('销售经理不存在或已停用')
     }
     const storeId = artist?.storeId ?? operator.storeId ?? 1
     // 补打卡与自助报备同流:门店开启主管审核时进入 PENDING
@@ -335,7 +335,7 @@ export class AttendanceService {
     return { reportId: created.id }
   }
 
-  /** 报备审核(艺人设置②):PENDING → APPROVED/REJECTED;终态不可再改;审计留痕 */
+  /** 报备审核(销售经理设置②):PENDING → APPROVED/REJECTED;终态不可再改;审计留痕 */
   async review(
     id: number,
     decision: 'APPROVED' | 'REJECTED',
@@ -426,7 +426,7 @@ export class AttendanceService {
     return { valid: true, storeId: s, businessDate: bd }
   }
 
-  /** 艺人端:今日最新报备(B2 状态卡;scope=ARTIST,仅本人) */
+  /** 销售端:今日最新报备(B2 状态卡;scope=ARTIST,仅本人) */
   async myToday(artistId: number, storeId: number): Promise<{ businessDate: string; report: unknown | null }> {
     const cut = await this.storeCut(storeId)
     const businessDate = resolveBusinessDate(new Date(), { cutTime: cut })
@@ -525,7 +525,7 @@ export class AttendanceController {
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可扫码签到')
+      throw new UnauthorizedException('仅销售端可扫码签到')
     }
     return this.svc.checkin(body, { artistId: user.sub, storeId: user.storeId ?? 1 })
   }
@@ -537,7 +537,7 @@ export class AttendanceController {
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可扫码签退')
+      throw new UnauthorizedException('仅销售端可扫码签退')
     }
     return this.svc.checkout(body, { artistId: user.sub, storeId: user.storeId ?? 1 })
   }
@@ -567,7 +567,7 @@ export class AttendanceController {
     })
   }
 
-  /** 报备审核(艺人设置②;主管/前台 attend:manual):PENDING → APPROVED/REJECTED */
+  /** 报备审核(销售经理设置②;主管/前台 attend:manual):PENDING → APPROVED/REJECTED */
   @RequirePerm('attend:manual')
   @Post('reports/:id/review')
   async review(
@@ -628,19 +628,19 @@ export class AttendanceController {
     return this.svc.qrcode(user?.storeId ?? 1)
   }
 
-  /** scene 校验(B2 扫码后;管理端或艺人端均可调用) */
+  /** scene 校验(B2 扫码后;管理端或销售端均可调用) */
   @Get('qrcode/verify')
   async verifyScene(@Req() req: Request, @Query('scene') scene: string): Promise<unknown> {
     void (req as ReqWithUser).user
     return this.svc.verifyScene(scene ?? '')
   }
 
-  /** 艺人端:今日最新报备(仅本人;B2 状态卡) */
+  /** 销售端:今日最新报备(仅本人;B2 状态卡) */
   @Get('my-today')
   async myToday(@Req() req: Request): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可查询本人报备')
+      throw new UnauthorizedException('仅销售端可查询本人报备')
     }
     return this.svc.myToday(user.sub, user.storeId ?? 1)
   }

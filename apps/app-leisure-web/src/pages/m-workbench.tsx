@@ -31,9 +31,9 @@ import { MENU } from '@/app/layout/Sidebar'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 import type { ReconListResult } from '@yyc3/leisure-core'
 
-/** 工作通告(预留数据源:后期接后端「制度/工作通告」;当前为系统占位内容) */
-const ANNOUNCEMENTS: Array<{ date: string; text: string }> = [
-  { date: '系统', text: '欢迎使用 YYC³ LeisureManage 移动工作台 · 工作通告/制度功能即将上线' },
+/** 工作通告兜底占位(/notices 无数据时显示) */
+const FALLBACK_announcements: Array<{ date: string; text: string }> = [
+  { date: '系统', text: '欢迎使用 YYC³ LeisureManage 移动工作台 · 工作通告由管理端「工作通告」页发布' },
 ]
 
 /** 分组项图标(按菜单 key 语义映射;未命中回退 Gauge) */
@@ -61,7 +61,7 @@ const QUICK = [
 
 /** 分组 Tab:MENU 域 → 移动四分组(键=域 label;禁双处维护) */
 const TAB_GROUPS: Array<{ key: string; label: string; domains: string[] }> = [
-  { key: 'manage', label: '管理', domains: ['艺人档案', '考勤上钟', '扩展域'] },
+  { key: 'manage', label: '管理', domains: ['销售经理档案', '考勤上钟', '扩展域'] },
   { key: 'fund', label: '资金', domains: ['台费资金', '台票体系'] },
   { key: 'stats', label: '统计', domains: ['报表'] },
   { key: 'more', label: '更多', domains: ['设置'] },
@@ -80,16 +80,22 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [liveRooms, setLiveRooms] = useState<number>(0)
   const [tab, setTab] = useState('manage')
   const [showNotices, setShowNotices] = useState(false)
+  /** 工作通告(/notices 真数据;空时回退占位) */
+  const [announcements, setAnnouncements] = useState(FALLBACK_announcements)
 
   useEffect(() => {
     const bd = client.businessDateOf()
     Promise.all([
       client.recon.list(bd).catch(() => null),
       req<{ rows: unknown[] }>('GET', '/room-sessions?status=OPEN').catch(() => null),
+      req<{ rows: Array<{ title: string; body: string; createdAt: string }> }>('GET', '/notices').catch(() => null),
     ])
-      .then(([recon, open]) => {
+      .then(([recon, open, notices]) => {
         if (recon !== null) setMetrics(recon.selfMetrics)
         if (open !== null) setLiveRooms(open.rows.length)
+        if (notices !== null && notices.rows.length > 0) {
+          setAnnouncements(notices.rows.map((n) => ({ date: n.createdAt.slice(5, 10), text: n.title !== '' ? n.title + ':' + n.body : n.body })))
+        }
       })
       .catch((e) => toastError(e, '概况加载失败'))
   }, [])
@@ -143,7 +149,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
             onClick={() => { setShowNotices(true) }}
           >
             <Bell className="w-4 h-4 text-primary" />
-            {ANNOUNCEMENTS.length > 0 && (
+            {announcements.length > 0 && (
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full" style={{ background: 'var(--lm-warning, #ffaa00)' }} />
             )}
           </button>
@@ -152,7 +158,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
       </div>
 
       {/* 横向滚动公告条(工作通告;数据源预留,后期接后端) */}
-      {ANNOUNCEMENTS.length > 0 && (
+      {announcements.length > 0 && (
         <div
           className="mx-3 rounded-full overflow-hidden"
           style={{ background: 'color-mix(in srgb, var(--lm-primary) 10%, var(--lm-card))', border: '1px solid color-mix(in srgb, var(--lm-primary) 20%, transparent)' }}
@@ -170,7 +176,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
                 className="flex whitespace-nowrap text-[11px] text-[var(--lm-fg)] items-center h-8"
                 style={{ animation: 'yyc3-marquee 22s linear infinite', width: 'max-content' }}
               >
-                {[...ANNOUNCEMENTS, ...ANNOUNCEMENTS].map((a, i) => (
+                {[...announcements, ...announcements].map((a, i) => (
                   <span key={i} className="px-6">{a.date !== '系统' ? `[${a.date}] ` : ''}{a.text}</span>
                 ))}
               </div>
@@ -281,10 +287,10 @@ export default function MWorkbenchPage(): React.JSX.Element {
             <DialogTitle>工作通告</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-            {ANNOUNCEMENTS.length === 0 && (
+            {announcements.length === 0 && (
               <div className="text-sm text-fg-muted py-6 text-center">暂无通告;制度与工作通知发布后在此显示</div>
             )}
-            {ANNOUNCEMENTS.map((a, i) => (
+            {announcements.map((a, i) => (
               <div key={i} className="rounded-lg border border-line p-3">
                 <div className="text-xs text-fg-muted mb-1">{a.date}</div>
                 <div className="text-sm text-[var(--lm-fg)]">{a.text}</div>

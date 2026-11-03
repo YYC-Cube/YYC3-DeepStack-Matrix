@@ -75,7 +75,7 @@ export default function FeeTxnsPage() {
 
   const columns: Array<Column<TxnRow>> = [
     { key: 'businessDate', header: '营业日', render: (r) => r.businessDate.slice(0, 10) },
-    { key: 'artist', header: '艺人', render: (r) => (r.stageName ?? '—') + '(' + (r.badgeNo ?? '—') + ')' },
+    { key: 'artist', header: '销售经理', render: (r) => (r.stageName ?? '—') + '(' + (r.badgeNo ?? '—') + ')' },
     { key: 'type', header: '类型', render: (r) => TXN_TYPE_LABEL[r.type] ?? r.type },
     {
       key: 'amount',

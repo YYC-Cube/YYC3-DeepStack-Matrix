@@ -67,7 +67,7 @@ describe.skipIf(!canRun || adminToken === '')('08 文档 ★ 用例 + 报表', (
     expect(created.body.code).toBe(0)
     artistId = created.body.data.id
     await api('POST', '/artists/' + String(artistId) + '/audit', { auditStatus: 'APPROVED' }, adminToken)
-    // 艺人端登录
+    // 销售经理端登录
     const wx1 = await api<{ status: string; bindToken: string }>('POST', '/auth/wx/login', { code: artistCode })
     await api('POST', '/auth/wx/bind', { bindToken: wx1.body.data.bindToken, badgeNo: badge, storeId: 1 })
     const wx2 = await api<{ status: string; token: string }>('POST', '/auth/wx/login', { code: artistCode })
@@ -133,7 +133,7 @@ describe.skipIf(!canRun || adminToken === '')('08 文档 ★ 用例 + 报表', (
     expect(text).toContain('包厢类型')
   })
 
-  it('导出权限分离:无 report:export 的财务不可导 session 报表?——财务有 report:export,改验纯艺人端 40301', async () => {
+  it('导出权限分离:无 report:export 的财务不可导 session 报表?——财务有 report:export,改验纯销售经理端 40301', async () => {
     const r = await api<null>('GET', '/reports/session/detail?format=csv', undefined, artistToken)
     expect(r.http).toBe(403)
   })

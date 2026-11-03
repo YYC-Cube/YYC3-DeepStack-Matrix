@@ -1,6 +1,6 @@
 /**
  * YYC³ LeisureManage · 领域类型单源
- * 依据:智慧商家 App「艺人管理」25 子模块实测(2026-11-01)
+ * 依据:智慧商家 App「销售管理」25 子模块实测(2026-11-01)
  * 消费端:Web 管理后台 / PWA / Taro 小程序 / 后端(NestJS)——四端同源
  */
 
@@ -84,7 +84,7 @@ export interface AttendanceReport {
   remark?: string
 }
 
-/* ───────────────────────── 艺人档案(实测 94 项表单子集) ───────────────────────── */
+/* ───────────────────────── 销售经理档案(实测 94 项表单子集) ───────────────────────── */
 
 /** 档案审核状态(需求全集 §3):审核通过才对外展示 */
 export const ARTIST_AUDIT_STATUSES = [
@@ -186,7 +186,7 @@ export interface ShowSession {
   roundingMinutes?: number
 }
 
-/* ───────────────────────── 门店艺人设置(需求全集 §7,8 项) ───────────────────────── */
+/* ───────────────────────── 门店销售经理设置(需求全集 §7,8 项) ───────────────────────── */
 
 /** 上钟模式:轮台 / 自选 / 混合 */
 export type StageAssignMode = 'ROTATION' | 'SELF_PICK' | 'MIXED'
@@ -209,18 +209,18 @@ export interface RoomBillingConfig {
   channels?: PayChannelItem[]
 }
 
-/** 艺人设置 8 项(门店级隔离:A 店配置不影响 B 店;配置优先级:门店级 > 全局 env 默认) */
+/** 销售经理设置 8 项(门店级隔离:A 店配置不影响 B 店;配置优先级:门店级 > 全局 env 默认) */
 export interface StoreArtistSettings {
-  /** ① 艺人资料必填项(字段名数组;管控自助绑定与后台新增校验) */
+  /** ① 销售经理资料必填项(字段名数组;管控自助绑定与后台新增校验) */
   requiredProfileFields: string[]
-  /** ② 艺人报备设置:是否需主管审核 */
+  /** ② 销售经理报备设置:是否需主管审核 */
   reportRequireReview: boolean
-  /** ② 艺人报备设置:开放时段(HH:mm;缺省全天) */
+  /** ② 销售经理报备设置:开放时段(HH:mm;缺省全天) */
   reportOpenFrom?: string
   reportOpenTo?: string
-  /** ③ 艺人签到后多久可签退(分钟;防刷考勤) */
+  /** ③ 销售经理签到后多久可签退(分钟;防刷考勤) */
   checkoutMinMinutes: number
-  /** ④ 艺人是否支持手动扫码下钟(关闭=仅前台/后台下钟) */
+  /** ④ 销售经理是否支持手动扫码下钟(关闭=仅前台/后台下钟) */
   allowSelfScanFinish: boolean
   /** ⑤ 未签到是否支持上钟打卡(宽松=可 / 严格=必须先签到报备) */
   allowStageWithoutCheckin: boolean
@@ -230,11 +230,11 @@ export interface StoreArtistSettings {
   ticketPurchaseMaxPerDay?: number
   /** ⑦ 包厢计费规则设置(§6) */
   roomBilling: RoomBillingConfig
-  /** ⑧ 艺人上钟模式(轮台/自选/混合) */
+  /** ⑧ 销售经理上钟模式(轮台/自选/混合) */
   stageAssignMode: StageAssignMode
 }
 
-/** ① 资料必填项可选字段清单(门店在「艺人设置」勾选;后端新增/编辑按此校验)——四端同源 */
+/** ① 资料必填项可选字段清单(门店在「销售经理设置」勾选;后端新增/编辑按此校验)——四端同源 */
 export const ARTIST_PROFILE_FIELDS: ReadonlyArray<{ key: string; label: string }> = [
   { key: 'realName', label: '姓名' },
   { key: 'stageName', label: '艺名' },
@@ -361,7 +361,7 @@ export interface ArtistBooking {
   deposit?: number
   /** 锁钟截止(bookingTime + holdMinutes;期内该房拒绝他人开房 40915) */
   holdUntil?: string
-  /** 到店自动叫钟记录 id(ARRIVED 且指名房+艺人时生成) */
+  /** 到店自动叫钟记录 id(ARRIVED 且指名房+销售经理时生成) */
   callId?: number
 }
 
@@ -386,7 +386,7 @@ export interface RoomSession {
   status: 'OPEN' | 'CLOSED'
   /** Σ上钟时间费(关房结算时汇总;下钟计费计入房账不即扣) */
   roomFee?: number
-  /** Σ艺人自点单 */
+  /** Σ销售经理自点单 */
   orderTotal: number
   totalAmount?: number
   settleType?: 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'
@@ -403,7 +403,7 @@ export interface RoomSessionArtist {
   leftAt?: string
 }
 
-/** 艺人自点单(差异化核心:点单权交给房内艺人) */
+/** 销售经理自点单(差异化核心:点单权交给房内销售经理) */
 export interface SelfOrder {
   id: number
   sessionId: number

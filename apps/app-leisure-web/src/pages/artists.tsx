@@ -1,5 +1,5 @@
 /**
- * A1 艺人资料管理(列表筛选含审核状态)+ A2 添加/编辑表单(需求全集 §3)
+ * A1 销售经理资料管理(列表筛选含审核状态)+ A2 添加/编辑表单(需求全集 §3)
  * 业务规则:审核通过才对外展示;删除有流水禁删(40906 引导停用);腰牌号唯一(40901 含软删档案)
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -289,11 +289,11 @@ export default function ArtistsPage() {
   return (
     <div>
       <PageHeader
-        title="艺人资料管理"
+        title="销售经理资料管理"
         desc="审核通过后才在展示端对外可见(需求全集 §3);腰牌号店内唯一含停用档案"
         actions={
           hasPerm('artist:edit') && (
-            <Button onClick={() => setForm({ ...EMPTY_FORM })}>+ 添加艺人</Button>
+            <Button onClick={() => setForm({ ...EMPTY_FORM })}>+ 添加销售经理</Button>
           )
         }
       />
@@ -336,7 +336,7 @@ export default function ArtistsPage() {
       <Dialog open={form !== null} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{form?.id !== undefined ? '编辑艺人' : '添加艺人'}</DialogTitle>
+            <DialogTitle>{form?.id !== undefined ? '编辑销售经理' : '添加销售经理'}</DialogTitle>
           </DialogHeader>
           {form !== null && (
             <div className="grid grid-cols-2 gap-4">
@@ -442,7 +442,7 @@ function BatchControls({
       />
       <ConfirmButton
         confirmTitle="确认批量设置"
-        confirmDesc="将对勾选艺人应用上述变更,操作逐人留痕审计。"
+        confirmDesc="将对勾选销售经理应用上述变更,操作逐人留痕审计。"
         confirmText="确认应用"
         variant="default"
         onConfirm={() => {

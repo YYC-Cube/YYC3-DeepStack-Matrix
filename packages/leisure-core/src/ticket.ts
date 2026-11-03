@@ -6,7 +6,7 @@
 
 import type { TicketRule, TicketTxn } from './types.js'
 
-/** 艺人当前台票余额(按规则聚合:ΣBUY − ΣUSE − ΣEXPIRE) */
+/** 销售经理当前台票余额(按规则聚合:ΣBUY − ΣUSE − ΣEXPIRE) */
 export function ticketBalance(
   txns: Array<Pick<TicketTxn, 'ticketRuleId' | 'type' | 'qty'>>,
   ruleId?: number,

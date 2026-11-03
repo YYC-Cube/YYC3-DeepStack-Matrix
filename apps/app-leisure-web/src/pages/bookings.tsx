@@ -1,7 +1,7 @@
 /**
- * 预约管理(实测 PC 列名:预约号/预约时间/包厢/组别/艺人/状态;需求全集 §9)
+ * 预约管理(实测 PC 列名:预约号/预约时间/包厢/组别/销售经理/状态;需求全集 §9)
  * 状态机:BOOKED→ARRIVED(到店)/CANCELLED(取消)/NO_SHOW(未到),终态锁定(40913)
- * P1:押金登记 · 锁钟期(bookingTime+holdMinutes 内撞开房 40915)· 到店自动叫钟(指名房+艺人)
+ * P1:押金登记 · 锁钟期(bookingTime+holdMinutes 内撞开房 40915)· 到店自动叫钟(指名房+销售经理)
  */
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Input, Label } from '@yyc3/ui'
@@ -78,7 +78,7 @@ export default function BookingsPage(): React.JSX.Element {
 
   const create = async (): Promise<void> => {
     if (artistId === '' && artistName.trim() === '') {
-      toast.error('请选择艺人或填写指名人')
+      toast.error('请选择销售经理或填写指名人')
       return
     }
     setBusy(true)
@@ -123,7 +123,7 @@ export default function BookingsPage(): React.JSX.Element {
     { key: 'bookingNo', header: '预约号' },
     { key: 'bookingTime', header: '预约时间', render: (r) => (r.bookingTime !== null ? r.bookingTime.slice(5, 16).replace('T', ' ') : '—') },
     { key: 'roomName', header: '包厢', render: (r) => r.roomName ?? '—' },
-    { key: 'artistName', header: '艺人', render: (r) => (r.artistName ?? '—') + (r.badgeNo !== null ? '(' + r.badgeNo + ')' : '') },
+    { key: 'artistName', header: '销售经理', render: (r) => (r.artistName ?? '—') + (r.badgeNo !== null ? '(' + r.badgeNo + ')' : '') },
     {
       key: 'hold',
       header: '锁钟/押金',
@@ -207,7 +207,7 @@ export default function BookingsPage(): React.JSX.Element {
           </div>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-fg-muted">指名艺人(档案)</Label>
+              <Label className="text-xs text-fg-muted">指名销售经理(档案)</Label>
               <select
                 className="border rounded px-2 py-1.5 text-sm bg-transparent w-44"
                 value={artistId}
@@ -241,7 +241,7 @@ export default function BookingsPage(): React.JSX.Element {
               <Input className="w-32" inputMode="numeric" value={holdMinutes} onChange={(e) => setHoldMinutes(e.target.value)} placeholder="30" />
             </div>
             <p className="text-xs text-fg-muted flex-1 min-w-48">
-              到店(ARRIVED)且指名房+艺人时自动进叫钟队列;锁钟期过后房间可被他人开房。
+              到店(ARRIVED)且指名房+销售经理时自动进叫钟队列;锁钟期过后房间可被他人开房。
             </p>
           </div>
           <div className="flex justify-end gap-2">

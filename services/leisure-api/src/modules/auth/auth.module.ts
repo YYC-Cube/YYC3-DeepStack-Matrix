@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, Public, type JwtPayload } from '../../common/guards/jwt.guard.js'
-// Public 注:wx/bind 在艺人尚未持 token 阶段调用,鉴权凭 bindToken 本身(15min 签名),路由须公开
+// Public 注:wx/bind 在销售经理尚未持 token 阶段调用,鉴权凭 bindToken 本身(15min 签名),路由须公开
 import { LeisureError, ERR } from '@yyc3/leisure-core'
 
 /* ── 密码策略(P0-1):8-64 位、含字母与数字、不与旧密相同、不在弱口令清单 ── */
@@ -222,7 +222,7 @@ export class AuthService {
       },
     })
     if (candidate === null) {
-      throw new LeisureError(ERR.NOT_FOUND, '未找到匹配的艺人档案(腰牌号/手机号)')
+      throw new LeisureError(ERR.NOT_FOUND, '未找到匹配的销售经理档案(腰牌号/手机号)')
     }
     await this.prisma.$transaction([
       this.prisma.artist.update({
@@ -351,7 +351,7 @@ export class AuthController {
         createdAt: u.createdAt.toISOString(),
       }
     }
-    // 艺人端:基础身份
+    // 销售端:基础身份
     return { sub: payload.sub, name: payload.name, scope: payload.scope }
   }
 

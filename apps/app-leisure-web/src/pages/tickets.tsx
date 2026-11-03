@@ -189,7 +189,7 @@ function PurchaseTab({ channels }: { channels: Array<{ code: string; label: stri
 
   const submit = async (): Promise<void> => {
     if (artist === null || ruleId === '') {
-      toast.error('请选择艺人与台票')
+      toast.error('请选择销售经理与台票')
       return
     }
     const n = Number(qty)
@@ -211,7 +211,7 @@ function PurchaseTab({ channels }: { channels: Array<{ code: string; label: stri
 
   return (
     <div className="max-w-xl space-y-4">
-      <Field label="选择艺人" required>
+      <Field label="选择销售经理" required>
         {artist === null ? (
           <div className="space-y-2">
             <div className="flex gap-2">
@@ -329,7 +329,7 @@ function TxnTab({ type }: { type: 'BUY' | 'USE' }): React.JSX.Element {
     { key: 'businessDate', header: '营业日' },
     {
       key: 'stageName',
-      header: '艺人',
+      header: '销售经理',
       render: (r) => (r.stageName ?? r.realName) + '(' + (r.badgeNo ?? '无腰牌') + ')',
     },
     { key: 'ruleName', header: '台票' },

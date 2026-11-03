@@ -1,5 +1,5 @@
 /**
- * YYC³ LeisureManage 艺人端小程序 · API 层
+ * YYC³ LeisureManage 销售端小程序 · API 层
  * 单源契约:类型/枚举/错误码 import @yyc3/leisure-core;端点为显式清单(全字面量 URL,逐一可审计)
  * 安全:请求 URL 全部为编译期字面量(协议/主机固定),不存在运行时可变基址
  */
@@ -193,7 +193,7 @@ export function myTxns(p: { businessDateFrom: string; businessDateTo: string }):
     .catch(translate)
 }
 
-/** B2+:艺人自助下钟(艺人设置④ 开关;关闭时后端 403) */
+/** B2+:销售经理自助下钟(销售经理设置④ 开关;关闭时后端 403) */
 export function myFinish(): Promise<{ sessionId: number; feeAmount: number; durationMinutes: number }> {
   return Taro.request({
     url: API_BASE + '/sessions/my/finish',
@@ -206,7 +206,7 @@ export function myFinish(): Promise<{ sessionId: number; feeAmount: number; dura
     .catch(translate)
 }
 
-/** B7:本人台票余额+流水(强制本人;台票四页的艺人端视图) */
+/** B7:本人台票余额+流水(强制本人;台票四页的销售端视图) */
 export function myTickets(p: { businessDateFrom: string; businessDateTo: string }): Promise<{
   balance: {
     rows: Array<{ ticketRuleId: number; name: string; validDays: number; balance: number; expireAt: string | null }>

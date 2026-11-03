@@ -1,9 +1,9 @@
 /**
- * 艺人设置消费面 e2e(①②④):配置不再"只存不用"
+ * 销售经理设置消费面 e2e(①②④):配置不再"只存不用"
  * - ① 资料必填项:见 star-cases(缺手机 400)
- * - ② 报备审核/开放时段:开审核 → 补打卡进 PENDING → 实时不计签到 → 审核通过 → 计签到;时段外艺人端签到 409
+ * - ② 报备审核/开放时段:开审核 → 补打卡进 PENDING → 实时不计签到 → 审核通过 → 计签到;时段外销售端签到 409
  * - ④ 手动扫码下钟:开关关 → 403;开 → 本人进行中场次下钟成功
- * 艺人端 token 走 dev 模式 wx 登录(code 即 openid)+ 腰牌绑定;口令均取环境变量
+ * 销售端 token 走 dev 模式 wx 登录(code 即 openid)+ 腰牌绑定;口令均取环境变量
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -39,7 +39,7 @@ function hhmm(d: Date): string {
   return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')
 }
 
-describe.skipIf(PHONE === undefined || PASSWORD === undefined)('艺人设置消费面(②报备审核/时段 ④扫码下钟)', () => {
+describe.skipIf(PHONE === undefined || PASSWORD === undefined)('销售经理设置消费面(②报备审核/时段 ④扫码下钟)', () => {
   beforeAll(async () => {
     const login = await api<{ accessToken: string }>('POST', '/auth/admin/login', { account: PHONE, password: PASSWORD })
     adminToken = login.body.data.accessToken
@@ -47,7 +47,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('艺人设置消�
     const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>('GET', '/artists?pageSize=50', undefined, adminToken)
     artistId = artists.body.data.rows.find((a) => a.badgeNo === BADGE)!.id
 
-    // 艺人端 token:dev 模式 code 即 openid;首次 NEED_BIND → 以腰牌绑定;其后直接 OK
+    // 销售端 token:dev 模式 code 即 openid;首次 NEED_BIND → 以腰牌绑定;其后直接 OK
     const code = 'e2e-' + BADGE
     const first = await api<{ status: string; token?: string; bindToken?: string }>('POST', '/auth/wx/login', { code })
     if (first.body.data.status === 'NEED_BIND') {
@@ -69,7 +69,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('艺人设置消�
     }, adminToken)
   })
 
-  it('② 开放时段:窗口不含当前时刻 → 艺人端签到 409;全天 → 放行(或已签到 409 今日已签到)', async () => {
+  it('② 开放时段:窗口不含当前时刻 → 销售端签到 409;全天 → 放行(或已签到 409 今日已签到)', async () => {
     const now = new Date()
     const from = new Date(now.getTime() + 2 * 3600_000)
     const to = new Date(now.getTime() + 3 * 3600_000)
@@ -125,7 +125,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('艺人设置消�
     const none = await api('POST', '/sessions/my/finish', {}, artistToken)
     expect(none.http === 404 || none.body.code === 0).toBe(true)
 
-    // 前台为该艺人上钟(需当日已签到:补打卡 CHECKIN,审核已关为 APPROVED;幂等)
+    // 前台为该销售经理上钟(需当日已签到:补打卡 CHECKIN,审核已关为 APPROVED;幂等)
     const reports = await api<{ rows: Array<{ artistId: number }> }>(
       'GET', '/attendance/reports?businessDate=' + today() + '&type=CHECKIN&pageSize=200', undefined, adminToken,
     )

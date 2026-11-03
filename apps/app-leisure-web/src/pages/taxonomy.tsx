@@ -1,5 +1,5 @@
 /**
- * A3 艺人等级 / A4 艺人组别(CRUD;有艺人挂靠禁删)
+ * A3 销售经理等级 / A4 销售经理组别(CRUD;有销售经理挂靠禁删)
  */
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
@@ -70,14 +70,14 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
       await load()
     } catch (e) {
       // 有挂靠 400 由 toastError 展示后端文案
-      toastError(e, '删除失败(可能存在挂靠艺人:' + name + ' 当前 ' + String(count) + ' 人)')
+      toastError(e, '删除失败(可能存在挂靠销售经理:' + name + ' 当前 ' + String(count) + ' 人)')
     }
   }
 
   const columns: Array<Column<TaxRow>> = [
     { key: 'name', header: isGroup ? '组别名称' : '等级名称' },
     ...(isGroup ? [{ key: 'supervisorName', header: '主管', render: (r: TaxRow) => r.supervisorName ?? '—' }] : []),
-    { key: 'artistCount', header: '关联艺人数', render: (r: TaxRow) => String(r.artistCount) },
+    { key: 'artistCount', header: '关联销售经理数', render: (r: TaxRow) => String(r.artistCount) },
     {
       key: 'act',
       header: '操作',
@@ -92,7 +92,7 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
           </Button>
           <ConfirmButton
             confirmTitle="确认删除"
-            confirmDesc={'将删除「' + r.name + '」(当前关联 ' + String(r.artistCount) + ' 名艺人;有挂靠时后端将拒绝)。'}
+            confirmDesc={'将删除「' + r.name + '」(当前关联 ' + String(r.artistCount) + ' 名销售经理;有挂靠时后端将拒绝)。'}
             confirmText="确认删除"
             onConfirm={() => {
               void remove(r.id, r.name, r.artistCount)
@@ -108,7 +108,7 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
   return (
     <div>
       <PageHeader
-        title={isGroup ? '艺人组别' : '艺人等级'}
+        title={isGroup ? '销售经理组别' : '销售经理等级'}
         desc={isGroup ? '分组绑定主管,用于业绩归属与报备汇总' : '等级 × 包厢类型决定台费单价'}
         actions={<Button onClick={() => setForm({ name: '', supervisorName: '' })}>+ 新增{isGroup ? '组别' : '等级'}</Button>}
       />

@@ -87,7 +87,7 @@ export class SessionService {
       where: { id: p.artistId, deletedAt: null, status: 1 },
     })
     if (artist === null) {
-      throw new NotFoundException('艺人不存在或已停用')
+      throw new NotFoundException('销售经理不存在或已停用')
     }
     const store = await db.store.findUnique({ where: { id: artist.storeId } })
     if (store === null) {
@@ -100,7 +100,7 @@ export class SessionService {
     if (room === null) {
       throw new NotFoundException('包厢不存在')
     }
-    // §5.3:维修/停用在上钟选择框不可选(占用允许=多艺人同房/续台场景)
+    // §5.3:维修/停用在上钟选择框不可选(占用允许=多销售经理同房/续台场景)
     if (room.status === 'MAINTENANCE' || room.status === 'DISABLED') {
       throw new BadRequestException('维修/停用包厢不可上钟')
     }
@@ -123,7 +123,7 @@ export class SessionService {
         select: { roomId: true, startAt: true },
       }),
       db.attendanceReport.count({
-        // 仅已通过审核的签到才算「已报备」(艺人设置② 开启审核时 PENDING 不计)
+        // 仅已通过审核的签到才算「已报备」(销售经理设置② 开启审核时 PENDING 不计)
         where: { artistId: artist.id, businessDate: bdDate, type: 'CHECKIN', reviewStatus: 'APPROVED' },
       }),
     ])
@@ -228,7 +228,7 @@ export class SessionService {
   /* ── 下钟(可入事务;transfer 时传入 tx) ── */
   /**
    * 计费报价(只读):关房结算单预览与 finishIn 共用同一算路——
-   * 快照(feeMode/unitPrice/进位)× 艺人保底 × 门店最低消费/封顶;at 缺省=现在
+   * 快照(feeMode/unitPrice/进位)× 销售经理保底 × 门店最低消费/封顶;at 缺省=现在
    */
   async quoteIn(
     db: DbClient,
@@ -248,7 +248,7 @@ export class SessionService {
     }
     const artist = await db.artist.findUnique({ where: { id: session.artistId } })
     if (artist === null) {
-      throw new NotFoundException('艺人不存在')
+      throw new NotFoundException('销售经理不存在')
     }
     const durationMinutes = diffMinutes(session.startAt, at)
     const mode = session.feeMode ?? 'HOURLY'
@@ -474,7 +474,7 @@ export class SessionService {
     return this.finishIn(this.prisma, sessionId, operator)
   }
 
-  /** 艺人端自助下钟(艺人设置④ allowSelfScanFinish):取本人最新进行中场次下钟;开关关闭 → 403 */
+  /** 销售端自助下钟(销售经理设置④ allowSelfScanFinish):取本人最新进行中场次下钟;开关关闭 → 403 */
   async myFinish(artistId: number): Promise<{
     sessionId: number
     feeAmount: number
@@ -482,10 +482,10 @@ export class SessionService {
     billHours: number | undefined
   }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: artistId, deletedAt: null } })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     const settings = await this.storeConfig.getArtistSettings(artist.storeId)
     if (!settings.allowSelfScanFinish) {
-      throw new ForbiddenException('门店未开放艺人自助扫码下钟,请联系前台')
+      throw new ForbiddenException('门店未开放销售经理自助扫码下钟,请联系前台')
     }
     const live = await this.prisma.showSession.findFirst({
       where: { artistId, endAt: null },
@@ -601,12 +601,12 @@ export class SessionController {
     return this.svc.start(body, { sub: user?.sub ?? 0, storeId: user?.storeId })
   }
 
-  /** 艺人端手动扫码下钟(艺人设置④;scope=ARTIST):门店开关关闭 → 403;无进行中场次 → 404 */
+  /** 销售端手动扫码下钟(销售经理设置④;scope=ARTIST):门店开关关闭 → 403;无进行中场次 → 404 */
   @Post('my/finish')
   async myFinish(@Req() req: Request): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可自助下钟')
+      throw new UnauthorizedException('仅销售端可自助下钟')
     }
     return this.svc.myFinish(user.sub)
   }

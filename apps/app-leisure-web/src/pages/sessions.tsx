@@ -1,5 +1,5 @@
 /**
- * A20 艺人上下钟(检索 + 代下钟):营业日区间/状态/关键词;行含房号·计费小时·单价·金额(§8.3 维度)
+ * A20 销售经理上下钟(检索 + 代下钟):营业日区间/状态/关键词;行含房号·计费小时·单价·金额(§8.3 维度)
  * 代下钟 = finish(强制下钟同规计费,§6.6);权限 session:finish
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -52,7 +52,7 @@ export default function SessionsPage() {
       })
       setRows(res.rows as unknown as SessionRow[])
       setTotal(res.total)
-      // 艺人名映射(200/页,足够 MVP;阶段6 换后端 join)
+      // 销售经理名映射(200/页,足够 MVP;阶段6 换后端 join)
       const list = await client.artists.list({ page: 1, pageSize: 200 })
       setArtists(new Map((list.rows as ArtistLite[]).map((a) => [a.id, a])))
     } catch (e) {
@@ -83,7 +83,7 @@ export default function SessionsPage() {
   }
 
   const columns: Array<Column<SessionRow>> = [
-    { key: 'artist', header: '艺人', render: (r) => nameOf(r.artistId) },
+    { key: 'artist', header: '销售经理', render: (r) => nameOf(r.artistId) },
     { key: 'room', header: '包厢', render: (r) => r.roomName ?? '—' },
     { key: 'startAt', header: '上钟时间', render: (r) => fmtTime(r.startAt) },
     { key: 'endAt', header: '下钟时间', render: (r) => fmtTime(r.endAt) },
@@ -133,7 +133,7 @@ export default function SessionsPage() {
   return (
     <div>
       <PageHeader
-        title="艺人上下钟"
+        title="销售经理上下钟"
         desc="进位阈值可门店自定义(进行中场次按上钟时快照计);串台独立核算;台费快照不受后续改价影响"
       />
       <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">

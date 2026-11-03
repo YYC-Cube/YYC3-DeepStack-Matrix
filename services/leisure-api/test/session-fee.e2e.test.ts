@@ -3,7 +3,7 @@
  * 运行条件:服务已启动 + 环境变量凭据:
  *   LEISURE_E2E_PHONE / LEISURE_E2E_PASSWORD(管理员,申请人)
  *   LEISURE_E2E_FINANCE_PHONE(财务,审批人;密码与管理员同值)
- * 覆盖:建档审核→艺人端登录签到→上钟(房号必选/占用流转)→串台→下钟(快照计费+流水)
+ * 覆盖:建档审核→销售端登录签到→上钟(房号必选/占用流转)→串台→下钟(快照计费+流水)
  *       →充值幂等(C-10)→手动扣费直扣(C-07)/审批(C-08 双人防线)→冲正(C-12)→余额对账(C-13)
  * 对齐 08-测试 §3 场次与台费域用例;计费口径测试在 leisure-core 单测(75/76 分钟进位等)
  */
@@ -110,7 +110,7 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     const audit = await api('POST', '/artists/' + String(artistId) + '/audit', { auditStatus: 'APPROVED' }, adminToken)
     expect(audit.body.code).toBe(0)
 
-    // 艺人端登录(dev 骨架:code 即 openid)→ 绑定 → 换 token
+    // 销售端登录(dev 骨架:code 即 openid)→ 绑定 → 换 token
     const wx1 = await api<{ status: string; bindToken: string }>('POST', '/auth/wx/login', { code: artistCode })
     expect(wx1.body.code).toBe(0)
     expect(wx1.body.data.status).toBe('NEED_BIND')
@@ -125,12 +125,12 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     artistToken = wx2.body.data.token
   })
 
-  it('管理端禁止签到(仅艺人端)', async () => {
+  it('管理端禁止签到(仅销售端)', async () => {
     const r = await api('POST', '/attendance/checkin', { reportType: 'CHECKIN' }, adminToken)
     expect(r.http).toBe(401)
   })
 
-  it('艺人扫码签到(B-01)', async () => {
+  it('销售经理扫码签到(B-01)', async () => {
     const r = await api<{ reportId: number; businessDate: string }>(
       'POST',
       '/attendance/checkin',
@@ -174,7 +174,7 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     const me = rt.body.data.artists.find((a) => a.artistId === artistId)
     expect(me?.status).toBe('CROSS')
 
-    // 方案甲基线:下钟前该艺人流水总数(finish 不落流水,应保持不变)
+    // 方案甲基线:下钟前该销售经理流水总数(finish 不落流水,应保持不变)
     const beforeFinish = await api<{ total: number }>(
       'GET',
       '/stage-fee/txns?businessDateFrom=2020-01-01&businessDateTo=2030-01-01&keyword=' + String(badge),
@@ -303,7 +303,7 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     )
     expect(reverseTwice.http).toBe(400)
 
-    // 余额 = Σ流水(C-13):流水汇总接口的 totalAmount(store 全量)≥ 该艺人余额
+    // 余额 = Σ流水(C-13):流水汇总接口的 totalAmount(store 全量)≥ 该销售经理余额
     const txns = await api<{ totalAmount: number; rows: Array<{ type: string }> }>(
       'GET',
       '/stage-fee/txns?businessDateFrom=2020-01-01&businessDateTo=2030-01-01&pageSize=200',
@@ -363,7 +363,7 @@ describe.skipIf(!canRun || adminToken === '' || financeToken === '')('阶段2 �
     expect(blocked.body.code).toBe(40903)
   })
 
-  it('清理:软删测试艺人(无流水不应误判——本用例已有流水 → 40906)', async () => {
+  it('清理:软删测试销售经理(无流水不应误判——本用例已有流水 → 40906)', async () => {
     const del = await api('DELETE', '/artists/' + String(artistId), undefined, adminToken)
     expect(del.http).toBe(409)
     expect(del.body.code).toBe(40906) // 有流水禁删,引导停用(A-03)

@@ -1,9 +1,9 @@
 /**
- * 轮台派单引擎(艺人设置⑧ 上钟模式:ROTATION 轮台 / SELF_PICK 自选 / MIXED 混合)
- * 队列口径(当日,营业日):已签到(审核通过且未签退)且无进行中场次的在岗艺人,
+ * 轮台派单引擎(销售经理设置⑧ 上钟模式:ROTATION 轮台 / SELF_PICK 自选 / MIXED 混合)
+ * 队列口径(当日,营业日):已签到(审核通过且未签退)且无进行中场次的在岗销售经理,
  *   按「当日被派次数 ASC → 最近一次被派时间 ASC(从未被派者优先)→ 签到时间 ASC」排序
  * 模式语义:
- *   ROTATION:开房所选艺人必须恰为队列前 k 位(k=所选人数),否则 40914
+ *   ROTATION:开房所选销售经理必须恰为队列前 k 位(k=所选人数),否则 40914
  *   MIXED   :推荐前 k 位但允许越序(原因选填),日志标 overridden 供公平性考核
  *   SELF_PICK:自由选择,仅记日志
  * 日志 dispatch_log 为「主管轮台报表」唯一数据源(公平性考核)
@@ -49,7 +49,7 @@ export class DispatchService {
     const { str, date } = await this.businessDateOf(storeId)
     const settings = await this.storeConfig.getArtistSettings(storeId)
 
-    // 已签到(APPROVED,未签退)艺人 + 签到时间
+    // 已签到(APPROVED,未签退)销售经理 + 签到时间
     const checkins = await db.attendanceReport.findMany({
       where: { storeId, businessDate: date, type: 'CHECKIN', reviewStatus: 'APPROVED', checkoutTime: null },
       select: { artistId: true, reportTime: true },
@@ -60,7 +60,7 @@ export class DispatchService {
     const candidateIds = Array.from(checkinAt.keys())
     if (candidateIds.length === 0) return { businessDate: str, mode: settings.stageAssignMode, rows: [] }
 
-    // 排除进行中场次艺人 + 排除未审核/停用档案
+    // 排除进行中场次销售经理 + 排除未审核/停用档案
     const live = await db.showSession.findMany({
       where: { storeId, endAt: null, artistId: { in: candidateIds } },
       select: { artistId: true },
@@ -122,7 +122,7 @@ export class DispatchService {
 
     if (mode === 'ROTATION' && offOrder.length > 0) {
       const next = rows.slice(0, k).map((r) => (r.stageName ?? String(r.artistId)) + '(' + (r.badgeNo ?? '') + ')').join('、')
-      throw new LeisureError(ERR.DISPATCH_ORDER_VIOLATION, '轮台模式须按队列顺序派单,下一位应为:' + (next === '' ? '无可派艺人' : next), {
+      throw new LeisureError(ERR.DISPATCH_ORDER_VIOLATION, '轮台模式须按队列顺序派单,下一位应为:' + (next === '' ? '无可派销售经理' : next), {
         next: rows.slice(0, k).map((r) => r.artistId),
       })
     }

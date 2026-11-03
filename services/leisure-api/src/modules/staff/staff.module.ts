@@ -146,6 +146,12 @@ export class StaffService {
       ? await this.prisma.department.findMany({ where: { id: { in: deptIds } }, select: { id: true, name: true } })
       : []
     const deptName = new Map(depts.map((d) => [d.id, d.name]))
+    // 汇报线(直属上级中文名)
+    const managerIds = Array.from(new Set(rows.map((r) => r.managerId).filter((x): x is number => x !== null)))
+    const managers = managerIds.length > 0
+      ? await this.prisma.adminUser.findMany({ where: { id: { in: managerIds } }, select: { id: true, name: true, title: true } })
+      : []
+    const managerName = new Map(managers.map((m) => [m.id, (m.name ?? '') + '(' + (TITLE_LABEL[m.title ?? ''] ?? m.title ?? '—') + ')']))
     return {
       rows: rows.map((r) => ({
         id: r.id,
@@ -156,6 +162,8 @@ export class StaffService {
         departmentName: r.departmentId !== null ? deptName.get(r.departmentId) ?? null : null,
         title: r.title,
         titleName: r.title !== null ? TITLE_LABEL[r.title] ?? r.title : null,
+        managerId: r.managerId,
+        managerName: r.managerId !== null ? managerName.get(r.managerId) ?? null : null,
         status: r.status,
         mustChangePassword: r.mustChangePassword,
         createdAt: r.createdAt.toISOString(),

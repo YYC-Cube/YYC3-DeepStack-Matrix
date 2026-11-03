@@ -1,8 +1,8 @@
 /**
- * 房账全链 e2e(方案甲):开房(进房即上钟)→ 艺人自点单 → 关房 FEE_DEDUCT 结算
+ * 房账全链 e2e(方案甲):开房(进房即上钟)→ 销售经理自点单 → 关房 FEE_DEDUCT 结算
  * → ROOM_SETTLE 流水 + 台费余额扣减 + 房态 CLEANING → 清扫完成 → 空闲
  * 运行:LEISURE_E2E_PHONE=… LEISURE_E2E_PASSWORD=… LEISURE_E2E_FINANCE_PHONE=… vitest run test/room-account.e2e.test.ts
- * 前置:dev 服务运行于 127.0.0.1:3001;种子含 A01/B01 房与已审核艺人
+ * 前置:dev 服务运行于 127.0.0.1:3001;种子含 A01/B01 房与已审核销售经理
  */
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -51,7 +51,7 @@ describe.skipIf(!canRun)('房账全链 e2e(方案甲)', () => {
     adminToken = login.body.data.accessToken
     expect(adminToken).not.toBe('')
 
-    // 取种子艺人(晨曦 A1001,已审核)+ 空闲房 A01
+    // 取种子销售经理(晨曦 A1001,已审核)+ 空闲房 A01
     const artists = await api<{ rows: Array<{ id: number; badgeNo?: string; realName: string }> }>(
       'GET',
       '/artists?pageSize=50',
@@ -112,7 +112,7 @@ describe.skipIf(!canRun)('房账全链 e2e(方案甲)', () => {
     return created.body.data.id
   }
 
-  it('前置:艺人充值 500(现金)建立台费余额', async () => {
+  it('前置:销售经理充值 500(现金)建立台费余额', async () => {
     const out = await api<{ balance: number }>(
       'POST',
       '/stage-fee/recharge',
@@ -150,7 +150,7 @@ describe.skipIf(!canRun)('房账全链 e2e(方案甲)', () => {
     expect(rooms.body.data.rows.find((r) => r.id === roomA01)?.status).toBe('OCCUPIED')
   })
 
-  it('R-02 艺人自点单:下单→送达→计入房账', async () => {
+  it('R-02 销售经理自点单:下单→送达→计入房账', async () => {
     // 建两个在售商品(幂等:已存在则复用)
     const g1id = await ensureGoods('E2E-科罗娜', 65)
     const g2id = await ensureGoods('E2E-果盘', 60)

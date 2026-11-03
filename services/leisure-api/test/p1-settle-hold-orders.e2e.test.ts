@@ -1,9 +1,9 @@
 /**
- * P1 批次 e2e(需求全集 §6.6 台票并入结算 / §12 P1-2 预约锁钟+到店叫钟 / a21 艺人订单):
+ * P1 批次 e2e(需求全集 §6.6 台票并入结算 / §12 P1-2 预约锁钟+到店叫钟 / a21 销售经理订单):
  * ① 台票抵扣并入关房结算:购买 → bill-preview ticketOptions → close TICKET(写 USE 行 refSessionId)
  *    → 超余额 40911 且结算回滚 → 现金兜底
  * ② 预约:押金/锁钟登记 → 锁钟期内开房 40915 → ignoreBookingHold 强开 → 到店(ARRIVED)自动叫钟
- * ③ 艺人订单 /me/orders:自点单 + 上钟费归一视图(ARTIST scope;管理端 token 401)
+ * ③ 销售经理订单 /me/orders:自点单 + 上钟费归一视图(ARTIST scope;管理端 token 401)
  * 运行:LEISURE_E2E_PHONE=… LEISURE_E2E_PASSWORD=… vitest run test/p1-settle-hold-orders.e2e.test.ts
  * 前置:dev 服务运行于 127.0.0.1:3001(最新 leisure-core dist);库已应用 20261103000000 迁移
  */
@@ -90,7 +90,7 @@ async function cleanupRoom(roomId: number): Promise<void> {
   }
 }
 
-describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入结算/预约锁钟叫钟/艺人订单', () => {
+describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入结算/预约锁钟叫钟/销售经理订单', () => {
   beforeAll(async () => {
     const login = await api<{ accessToken: string }>('POST', '/auth/admin/login', {
       phone: PHONE,
@@ -103,7 +103,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入�
     const created = await api<{ id: number }>(
       'POST',
       '/artists',
-      { realName: '测试档案-P1', stageName: 'P1艺人', badgeNo: badge, phone: '137' + String(Date.now()).slice(-8), hourlyRate: 60 },
+      { realName: '测试档案-P1', stageName: 'P1销售经理', badgeNo: badge, phone: '137' + String(Date.now()).slice(-8), hourlyRate: 60 },
       adminToken,
     )
     expect(created.body.code).toBe(0)
@@ -123,7 +123,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入�
       expect(manual.body.code).toBe(0)
     }
 
-    // 艺人端登录(绑定后二次 login 换 token)
+    // 销售经理端登录(绑定后二次 login 换 token)
     const wx1 = await api<{ status: string; bindToken: string }>('POST', '/auth/wx/login', { code: wxCode })
     expect(wx1.body.data.status).toBe('NEED_BIND')
     await api('POST', '/auth/wx/bind', { bindToken: wx1.body.data.bindToken, badgeNo: badge, storeId: 1 })
@@ -168,7 +168,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入�
       )
       expect(order.body.code).toBe(0)
 
-      // 结算单预览:在房艺人台票余额进入分配参考
+      // 结算单预览:在房销售经理台票余额进入分配参考
       const preview = await api<{
         ticketOptions: Array<{ artistId: number; ticketRuleId: number; balance: number; faceValue: number }>
         totalAmount: number
@@ -286,7 +286,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入�
       }
     }
 
-    // 到店自动叫钟:指名房+艺人 ARRIVED → autoCallId + 叫钟队列含该记录
+    // 到店自动叫钟:指名房+销售经理 ARRIVED → autoCallId + 叫钟队列含该记录
     const b2 = await api<{ id: number }>('POST', '/bookings', { roomId, artistId, holdMinutes: 30 }, adminToken)
     expect(b2.body.code).toBe(0)
     const arrived = await api<{ status: string; autoCallId: number | null }>(
@@ -306,12 +306,12 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P1:台票并入�
     expect(calls.body.data.rows.some((c) => c.id === arrived.body.data.autoCallId && c.artistId === artistId)).toBe(true)
   })
 
-  it('③ 艺人订单 /me/orders:自点单+上钟费归一;管理端 token 401', async () => {
-    // 管理端 token → 仅艺人端
+  it('③ 销售经理订单 /me/orders:自点单+上钟费归一;管理端 token 401', async () => {
+    // 管理端 token → 仅销售经理端
     const forbidden = await api<{ code: number }>('GET', '/me/orders', undefined, adminToken)
     expect(forbidden.http).toBe(401)
 
-    // 开房(ARRIVED 不锁钟,pickFreeRoom 避开残留预约)→ 艺人端自点 → 送达 → 关房结算
+    // 开房(ARRIVED 不锁钟,pickFreeRoom 避开残留预约)→ 销售经理端自点 → 送达 → 关房结算
     const roomId = await pickFreeRoom()
     const open = await api<{ roomSessionId: number }>('POST', '/room-sessions/open', { roomId, artistIds: [artistId] }, adminToken)
     expect(open.body.code).toBe(0)

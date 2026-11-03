@@ -29,6 +29,7 @@ import { BookingModule } from './modules/booking/booking.module.js'
 import { ReviewModule } from './modules/review/review.module.js'
 import { DispatchModule } from './modules/dispatch/dispatch.module.js'
 import { StaffModule } from './modules/staff/staff.module.js'
+import { NoticeModule } from './modules/notice/notice.module.js'
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { StaffModule } from './modules/staff/staff.module.js'
     ReviewModule,
     DispatchModule,
     StaffModule,
+    NoticeModule,
   ],
   providers: [
     PrismaService,

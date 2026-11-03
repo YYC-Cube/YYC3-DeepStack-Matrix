@@ -67,7 +67,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     if (!reports.body.data.rows.some((r) => r.artistId === artistId)) {
       await api('POST', '/attendance/manual', { artistId, type: 'CHECKIN', businessDate: today, reason: 'e2e 前置签到' }, adminToken)
     }
-    // A1003 为 seed 中 PENDING(未审核)艺人,用于展示投放门禁反向用例
+    // A1003 为 seed 中 PENDING(未审核)销售经理,用于展示投放门禁反向用例
     pendingArtistId = artists.body.data.rows.find((a) => a.badgeNo === 'A1003')?.id ?? 0
 
     // 规则幂等:同名单查复用,否则建
@@ -141,7 +141,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     expect(txns.body.data.total).toBeGreaterThanOrEqual(1)
   })
 
-  it('展示:投放 → 重复投放去重 → 未审核艺人被拒(§9 规则 4)→ 结束', async () => {
+  it('展示:投放 → 重复投放去重 → 未审核销售经理被拒(§9 规则 4)→ 结束', async () => {
     const first = await api<{ ids: number[]; skipped: number[]; rejected: number[] }>(
       'POST',
       '/showcase/cast',
@@ -160,7 +160,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     expect(dup.body.data.skipped).toHaveLength(1)
 
     if (pendingArtistId !== 0) {
-      // 仅未审核艺人 → 整单拒绝;混投 → 已审核投放、未审核进 rejected
+      // 仅未审核销售经理 → 整单拒绝;混投 → 已审核投放、未审核进 rejected
       const onlyPending = await api('POST', '/showcase/cast', { artistIds: [pendingArtistId] }, adminToken)
       expect(onlyPending.body.code).not.toBe(0)
       const mixed = await api<{ ids: number[]; skipped: number[]; rejected: number[] }>(

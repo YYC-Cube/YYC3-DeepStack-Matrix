@@ -1,5 +1,5 @@
 /**
- * 服务评价模块(III 期起步):客人对艺人的服务评价——前台代录/扫码评价落库,管理端查看与统计
+ * 服务评价模块(III 期起步):客人对销售经理的服务评价——前台代录/扫码评价落库,管理端查看与统计
  * 实测依据:App「服务评价」+ PC 列表(评价类型/评分/内容/评价人);需求全集 §9
  * 红线:评价只增不改不删(与流水同纪律;争议走备注/审计),统计按营业日区间
  */
@@ -164,7 +164,7 @@ export class ReviewService {
 
   async create(storeId: number, body: CreateReviewDto, operatorId: number): Promise<{ id: number }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: body.artistId, storeId, deletedAt: null } })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     const at = body.at !== undefined ? new Date(body.at) : new Date()
     const store = await this.prisma.store.findUnique({ where: { id: storeId } })
     const cut = store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT
@@ -194,10 +194,10 @@ export class ReviewService {
     return { id: created.id }
   }
 
-  /** 艺人端:本人评价(只读;近 100 条 + 均分) */
+  /** 销售端:本人评价(只读;近 100 条 + 均分) */
   async my(artistId: number): Promise<{ rows: unknown[]; summary: ReviewSummary }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: artistId, deletedAt: null } })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     const rows = await this.prisma.artistReview.findMany({
       where: { artistId },
       orderBy: { id: 'desc' },
@@ -267,12 +267,12 @@ export class ReviewController {
     return this.svc.create(user?.storeId ?? 1, body, user?.sub ?? 0)
   }
 
-  /** 艺人端:本人评价(scope=ARTIST) */
+  /** 销售端:本人评价(scope=ARTIST) */
   @Get('my')
   async my(@Req() req: Request): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可查询本人评价')
+      throw new UnauthorizedException('仅销售端可查询本人评价')
     }
     return this.svc.my(user.sub)
   }

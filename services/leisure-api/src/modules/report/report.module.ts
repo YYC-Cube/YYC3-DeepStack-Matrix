@@ -53,7 +53,7 @@ export async function computeSelfMetrics(prisma: PrismaService, storeId: number,
       where: { storeId, businessDate: bd },
       _sum: { orderTotal: true },
     }),
-    // 签到人数:已通过审核的 CHECKIN 去重艺人数(与对侧「签到(人)」口径一致;补打卡重复行不重复计)
+    // 签到人数:已通过审核的 CHECKIN 去重销售经理数(与对侧「签到(人)」口径一致;补打卡重复行不重复计)
     prisma.attendanceReport.findMany({
       where: { storeId, businessDate: bd, type: 'CHECKIN', reviewStatus: 'APPROVED' },
       distinct: ['artistId'],
@@ -362,7 +362,7 @@ export class ReportService {
     }
   }
 
-  /* ── 3. 台费流水汇总(按艺人;§8.3 含包厢维度=涉及包厢聚合列) ── */
+  /* ── 3. 台费流水汇总(按销售经理;§8.3 含包厢维度=涉及包厢聚合列) ── */
   async feeSummary(storeId: number, q: { from: Date; to: Date }, groupId?: number) {
     const txns = await this.prisma.stageFeeTxn.findMany({
       where: { storeId, businessDate: { gte: q.from, lte: q.to }, groupId },
@@ -515,7 +515,7 @@ export class ReportService {
       })
   }
 
-  /* ── 7. 上下钟汇总(按艺人;§8.3 含包厢聚合列) ── */
+  /* ── 7. 上下钟汇总(按销售经理;§8.3 含包厢聚合列) ── */
   async sessionSummary(storeId: number, q: { from: Date; to: Date }, groupId?: number) {
     const byArtist = new Map<number, {
       stageName: string | null
@@ -563,7 +563,7 @@ export class ReportService {
     }))
   }
 
-  /* ── 8. 主管轮台报表:按主管/组别/艺人统计被派次数与按序/越序(公平性考核;数据源 dispatch_log) ── */
+  /* ── 8. 主管轮台报表:按主管/组别/销售经理统计被派次数与按序/越序(公平性考核;数据源 dispatch_log) ── */
   async dispatchRotation(storeId: number, q: { from: Date; to: Date }, groupId?: number): Promise<Array<{
     supervisorName: string
     groupId: number | null
@@ -893,7 +893,7 @@ export class ReportController {
     )
   }
 
-  /* ── 8. 主管轮台报表(需求全集 §8.2 第 8 张;数据源 dispatch_log,艺人设置⑧) ── */
+  /* ── 8. 主管轮台报表(需求全集 §8.2 第 8 张;数据源 dispatch_log,销售经理设置⑧) ── */
   @Get('dispatch-rotation')
   async dispatchRotation(
     @Req() req: Request,

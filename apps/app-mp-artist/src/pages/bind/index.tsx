@@ -65,7 +65,7 @@ export default function Bind() {
   return (
     <View className="mp-page">
       <View className="mp-card">
-        <Text className="mp-title">艺人注册 / 绑定</Text>
+        <Text className="mp-title">销售经理注册 / 绑定</Text>
         <Text className="mp-muted">
           扫描门店「注册二维码」进入本页;绑定后可扫码签到、查看台费流水。
         </Text>

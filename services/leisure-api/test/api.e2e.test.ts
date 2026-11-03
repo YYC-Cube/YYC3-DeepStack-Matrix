@@ -3,7 +3,7 @@
  * 运行条件:服务已启动(pnpm dev / node dist/main.js)+ 本地登录凭据经环境变量提供:
  *   LEISURE_E2E_PHONE / LEISURE_E2E_PASSWORD(凭据不嵌入源码;dev 默认值见 README-DEV)
  * 覆盖:房型/房号 CRUD → 房号唯一 40907 → 房态禁手工 OCCUPIED
- *       → 艺人建档默认 PENDING → 审核流转 → 列表筛选 → 门店参数 8 项读写(env 默认合并)
+ *       → 销售经理建档默认 PENDING → 审核流转 → 列表筛选 → 门店参数 8 项读写(env 默认合并)
  * 运行:LEISURE_E2E_PHONE=… LEISURE_E2E_PASSWORD=… ./node_modules/.bin/vitest run test/api.e2e.test.ts
  */
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -110,7 +110,7 @@ describe.skipIf(!canRun || token === '')('阶段1-B 核心 API e2e', () => {
     expect(r.http).toBe(400)
   })
 
-  it('艺人建档默认 PENDING → 审核 APPROVED → 列表筛选(需求全集 §3)', async () => {
+  it('销售经理建档默认 PENDING → 审核 APPROVED → 列表筛选(需求全集 §3)', async () => {
     // 腰牌号含软删档案全局唯一 → 每次运行取新号,可重复执行
     const badge = 'T' + String(Date.now()).slice(-8)
     const created = await api<{ id: number }>(

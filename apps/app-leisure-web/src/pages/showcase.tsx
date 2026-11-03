@@ -1,6 +1,6 @@
 /**
- * 展示控制台(实测 App 模块;需求全集 §9):在场艺人投放包厢/组别展示屏
- * 投放→进行中(可结束/批量结束);同艺人同目标去重
+ * 展示控制台(实测 App 模块;需求全集 §9):在场销售经理投放包厢/组别展示屏
+ * 投放→进行中(可结束/批量结束);同销售经理同目标去重
  */
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Checkbox, Input } from '@yyc3/ui'
@@ -51,7 +51,7 @@ export default function ShowcasePage(): React.JSX.Element {
 
   const cast = async (): Promise<void> => {
     if (picked.length === 0) {
-      toast.error('请勾选要投放的艺人')
+      toast.error('请勾选要投放的销售经理')
       return
     }
     setBusy(true)
@@ -82,7 +82,7 @@ export default function ShowcasePage(): React.JSX.Element {
 
   return (
     <div>
-      <PageHeader title="展示控制台" desc="把在场艺人投放到包厢/门店展示屏;同艺人同目标去重,可单个或批量结束" />
+      <PageHeader title="展示控制台" desc="把在场销售经理投放到包厢/门店展示屏;同销售经理同目标去重,可单个或批量结束" />
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
         {/* 投放表单 */}
         <Card className="p-4 space-y-3">
@@ -121,7 +121,7 @@ export default function ShowcasePage(): React.JSX.Element {
                 <span className="text-fg-muted text-xs">({a.badgeNo ?? '无腰牌'})</span>
               </label>
             ))}
-            {filtered.length === 0 && <div className="text-xs text-fg-muted py-4 text-center">无匹配艺人</div>}
+            {filtered.length === 0 && <div className="text-xs text-fg-muted py-4 text-center">无匹配销售经理</div>}
           </div>
           <div className="flex justify-between">
             <span className="text-xs text-fg-muted self-center">已选 {String(picked.length)} 人</span>
@@ -172,7 +172,7 @@ export default function ShowcasePage(): React.JSX.Element {
               </div>
             ))}
             {rows.length === 0 && (
-              <EmptyState title="暂无进行中投放" desc="在左侧勾选艺人并选择目标后点击「投放」" />
+              <EmptyState title="暂无进行中投放" desc="在左侧勾选销售经理并选择目标后点击「投放」" />
             )}
           </div>
         </Card>

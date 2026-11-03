@@ -1,6 +1,6 @@
 /**
  * B7 我的台票:按规则余额卡(含有效期)+ 购买/使用流水
- * 数据走 ARTIST scope 端点 /tickets/my(强制本人);购买在门店端,艺人端只读
+ * 数据走 ARTIST scope 端点 /tickets/my(强制本人);购买在门店端,销售经理端只读
  */
 import { useCallback, useState } from 'react'
 import { View, Text } from '@tarojs/components'

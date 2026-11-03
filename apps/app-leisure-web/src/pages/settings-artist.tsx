@@ -1,5 +1,5 @@
 /**
- * A26-lite 门店参数(艺人设置 8 项,需求全集 §7):门店级 > env 默认
+ * A26-lite 门店参数(销售经理设置 8 项,需求全集 §7):门店级 > env 默认
  * 改进位阈值即时生效(进行中场次按上钟快照,§6.4)
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -102,7 +102,7 @@ export default function SettingsArtistPage() {
   return (
     <div>
       <PageHeader
-        title="门店参数(艺人设置)"
+        title="门店参数(销售经理设置)"
         desc="按门店隔离:A 店配置不影响 B 店;优先级:门店级 > 全局 env 默认(需求全集 §7)"
         actions={
           <Button disabled={busy} onClick={() => void save()}>
@@ -112,7 +112,7 @@ export default function SettingsArtistPage() {
       />
       <div className="grid grid-cols-2 gap-4 max-w-4xl">
         <Card className="p-4 flex flex-col gap-3">
-          <p className="text-sm text-primary">① 资料必填项(后台新增艺人按此校验)</p>
+          <p className="text-sm text-primary">① 资料必填项(后台新增销售经理按此校验)</p>
           <div className="grid grid-cols-3 gap-2">
             {ARTIST_PROFILE_FIELDS.map((f) => (
               <label key={f.key} className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
@@ -143,7 +143,7 @@ export default function SettingsArtistPage() {
           <p className="text-sm text-primary">④ 手动扫码下钟</p>
           <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">
             <Checkbox checked={s.allowSelfScanFinish} onCheckedChange={(v) => setS({ ...s, allowSelfScanFinish: v === true })} />
-            艺人端支持扫码下钟(关闭=仅前台/后台下钟)
+            销售端支持扫码下钟(关闭=仅前台/后台下钟)
           </label>
           <p className="text-sm text-primary">⑤ 未签到是否可上钟</p>
           <label className="flex items-center gap-2 text-sm text-[var(--lm-fg)]">

@@ -191,7 +191,7 @@ export default function ProfilePage(): React.JSX.Element {
           />
         </div>
         <p className="text-xs text-fg-muted">
-          档案字段(姓名/手机号/角色)由管理员在「艺人档案 / 角色权限」中维护,个人端不可自改,保证审计链完整。
+          档案字段(姓名/手机号/角色)由管理员在「销售经理档案 / 角色权限」中维护,个人端不可自改,保证审计链完整。
         </p>
       </Card>
 

@@ -20,7 +20,7 @@ const EnvSchema = z.object({
   CHECKOUT_MIN_MINUTES: z.coerce.number().default(60),
   SELF_ORDER_PER_TXN_LIMIT: z.coerce.number().default(500),
   SELF_ORDER_DAILY_LIMIT: z.coerce.number().default(2000),
-  // 计费进位阈值(分钟,默认15;门店级「艺人设置-包厢计费规则」可覆盖,见 store-config 模块)
+  // 计费进位阈值(分钟,默认15;门店级「销售经理设置-包厢计费规则」可覆盖,见 store-config 模块)
   BILL_ROUNDING_MINUTES: z.coerce.number().int().min(0).max(59).default(15),
   // 开放 API 生态预留开关(2026-11-01 v1.1 裁决:原 INTEGRATION_ENABLED 主系统联动废止)
   OPENAPI_ENABLED: z.enum(['true', 'false']).default('false'),

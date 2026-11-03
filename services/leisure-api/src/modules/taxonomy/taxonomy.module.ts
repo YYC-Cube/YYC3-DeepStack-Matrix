@@ -1,7 +1,7 @@
 /**
  * 组别/等级模块:CRUD(04-API §2 /artist-groups /artist-levels)
- * 红线:有艺人挂靠禁删(引导先转移艺人);名称店内唯一;软删
- * 依据:05 文档 A3 艺人等级 / A4 艺人组别 页面接口
+ * 红线:有销售经理挂靠禁删(引导先转移销售经理);名称店内唯一;软删
+ * 依据:05 文档 A3 销售经理等级 / A4 销售经理组别 页面接口
  */
 import {
   BadRequestException,
@@ -89,7 +89,7 @@ export class TaxonomyService {
     if (before === null) throw new NotFoundException('组别不存在')
     const bound = await this.prisma.artist.count({ where: { groupId: id, deletedAt: null } })
     if (bound > 0) {
-      throw new BadRequestException('该组别下仍有艺人,请先转移艺人后再删除')
+      throw new BadRequestException('该组别下仍有销售经理,请先转移销售经理后再删除')
     }
     await this.prisma.artistGroup.update({ where: { id }, data: { deletedAt: new Date() } })
     await this.audit(storeId, operatorId, 'GROUP_DELETE', 'artist_group', String(id), before, null)
@@ -133,7 +133,7 @@ export class TaxonomyService {
     if (before === null) throw new NotFoundException('等级不存在')
     const bound = await this.prisma.artist.count({ where: { levelId: id, deletedAt: null } })
     if (bound > 0) {
-      throw new BadRequestException('该等级下仍有艺人,请先调整艺人等级后再删除')
+      throw new BadRequestException('该等级下仍有销售经理,请先调整销售经理等级后再删除')
     }
     await this.prisma.artistLevel.update({ where: { id }, data: { deletedAt: new Date() } })
     await this.audit(storeId, operatorId, 'LEVEL_DELETE', 'artist_level', String(id), before, null)

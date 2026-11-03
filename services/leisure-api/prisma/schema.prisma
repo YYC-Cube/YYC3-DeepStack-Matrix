@@ -596,6 +596,20 @@ model Department {
   @@map("department")
 }
 
+/// 工作通告(工作台通知/公告条数据源;008 #12)
+model Notice {
+  id         Int       @id @default(autoincrement())
+  storeId    Int       @map("store_id")
+  title      String    @db.VarChar(128)
+  body       String    @db.VarChar(2000)
+  publishedBy Int      @map("published_by")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@index([storeId, createdAt])
+  @@map("notice")
+}
+
 model Role {
   id        Int      @id @default(autoincrement())
   storeId   Int?     @map("store_id")

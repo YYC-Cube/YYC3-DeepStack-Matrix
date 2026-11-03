@@ -44,7 +44,7 @@ export interface ApprovalRow {
   createdAt: string
 }
 
-/** 台票流水行(列表用;含艺人冗余与规则名) */
+/** 台票流水行(列表用;含销售经理冗余与规则名) */
 export interface TicketTxnRow extends Omit<TicketTxn, 'payChannel' | 'refSessionId'> {
   stageName: string | null
   badgeNo: string | null
@@ -118,7 +118,7 @@ export interface BillPreview {
   orderTotal: number
   totalAmount: number
   artists: Array<{ artistId: number; stageName: string | null; badgeNo: string | null; feeBalance: number }>
-  /** 在房艺人台票余额(§6.6 台票抵扣并入结算的分配参考;expired 余额已归零) */
+  /** 在房销售经理台票余额(§6.6 台票抵扣并入结算的分配参考;expired 余额已归零) */
   ticketOptions: Array<{
     artistId: number
     stageName: string | null
@@ -139,7 +139,7 @@ export interface BillPreview {
   }
 }
 
-/** 艺人端「我的订单」(a21:房账+自点单归一视图;scope=ARTIST 强制本人) */
+/** 销售端「我的订单」(a21:房账+自点单归一视图;scope=ARTIST 强制本人) */
 export interface MeOrdersResult {
   orders: Array<{
     id: number
@@ -165,7 +165,7 @@ export interface ReconListResult {
   selfMetrics: { openCount: number; roomFee: number; orderTotal: number; checkedIn: number }
 }
 
-/** 服务评价行(列表用;含艺人冗余) */
+/** 服务评价行(列表用;含销售经理冗余) */
 export interface ReviewRow {
   id: number
   businessDate: string
@@ -205,7 +205,7 @@ export interface VoiceBoxTestResult {
   configured: boolean
 }
 
-/** 轮台队列(艺人设置⑧):当日已签到且空闲的在岗艺人,按被派次数/最近被派/签到时间排序 */
+/** 轮台队列(销售经理设置⑧):当日已签到且空闲的在岗销售经理,按被派次数/最近被派/签到时间排序 */
 export interface DispatchQueue {
   businessDate: string
   mode: 'ROTATION' | 'SELF_PICK' | 'MIXED' | string
@@ -336,7 +336,7 @@ export class FetchTransport implements Transport {
 
 export interface LeisureClientOptions {
   baseUrl: string
-  /** 各端注入:管理端取 JWT;艺人端取微信 session token */
+  /** 各端注入:管理端取 JWT;销售端取微信 session token */
   getToken?: () => string | undefined
   /** 门店上下文(多店预留) */
   getStoreId?: () => number | undefined
@@ -353,7 +353,7 @@ export class LeisureApiClient {
 
   /* ── 考勤 ── */
   attendance = {
-    /** 艺人端扫码签到(类型=报备类型;geo 可空,失败标记 checkinGeoOk=false) */
+    /** 销售端扫码签到(类型=报备类型;geo 可空,失败标记 checkinGeoOk=false) */
     checkin: (p: { reportType: ReportType; lat?: number; lng?: number }) =>
       this.post<{ reportId: number; businessDate: string }>('/attendance/checkin', p),
     checkout: (p: { lat?: number; lng?: number }) =>
@@ -479,16 +479,16 @@ export class LeisureApiClient {
     /** 按规则聚合的余额(含有效期) */
     balance: (artistId: number) =>
       this.get<{ rows: TicketBalanceRow[]; total: number }>('/tickets/balance/' + String(artistId)),
-    /** 艺人端:本人余额+流水 */
+    /** 销售端:本人余额+流水 */
     my: (q: { businessDateFrom: string; businessDateTo: string }) =>
       this.get<{ balance: { rows: TicketBalanceRow[]; total: number }; txns: TicketTxnRow[] }>('/tickets/my', q),
   }
 
-  /* ── 展示控制台(投放在场艺人到包厢/组别展示屏) ── */
+  /* ── 展示控制台(投放在场销售经理到包厢/组别展示屏) ── */
   showcase = {
     list: (q?: { active?: boolean; roomId?: number; groupId?: number }) =>
       this.get<{ rows: ShowcaseCastRow[] }>('/showcase', q),
-    /** 投放:仅审核通过艺人可投(rejected=未审核被拒);同目标去重(skipped) */
+    /** 投放:仅审核通过销售经理可投(rejected=未审核被拒);同目标去重(skipped) */
     cast: (p: { artistIds: number[]; roomId?: number; groupId?: number }, idemKey?: string) =>
       this.post<{ ids: number[]; skipped: number[]; rejected: number[] }>('/showcase/cast', p, idemKey),
     end: (id: number) => this.post<{ ended: true }>('/showcase/' + String(id) + '/end', {}),
@@ -496,7 +496,7 @@ export class LeisureApiClient {
       this.post<{ ended: number }>('/showcase/end-all', p ?? {}),
   }
 
-  /* ── 门店参数(艺人设置 8 项;计费配置含最低消费/封顶/通道清单) ── */
+  /* ── 门店参数(销售经理设置 8 项;计费配置含最低消费/封顶/通道清单) ── */
   storeConfig = {
     get: () => this.get<StoreArtistSettingsView>('/store-config/artist-settings'),
     update: (p: Partial<StoreArtistSettingsUpdate>) =>
@@ -515,7 +515,7 @@ export class LeisureApiClient {
       roomSessionId: number
       settleType: 'CASH' | 'FEE_DEDUCT' | 'MIXED' | 'TICKET'
       feeDeductAllocations?: Array<{ artistId: number; amount: number }>
-      /** 台票抵扣分配(§6.6):逐条 canUseTicket 校验,写 USE 流水(refSessionId=该艺人在本场首个场次) */
+      /** 台票抵扣分配(§6.6):逐条 canUseTicket 校验,写 USE 流水(refSessionId=该销售经理在本场首个场次) */
       ticketAllocations?: Array<{ artistId: number; ticketRuleId: number; qty: number }>
       remark?: string
     }, idemKey?: string) =>
@@ -532,7 +532,7 @@ export class LeisureApiClient {
     bulkCleaningDone: () => this.post<{ updated: number }>('/rooms/bulk-cleaning-done', {}),
   }
 
-  /* ── 艺人端本人视图(scope=ARTIST 强制本人) ── */
+  /* ── 销售端本人视图(scope=ARTIST 强制本人) ── */
   me = {
     /** 我的订单(a21):自点单 + 已随房账结算的本人在场场次时间费 */
     orders: () => this.get<MeOrdersResult>('/me/orders'),
@@ -543,7 +543,7 @@ export class LeisureApiClient {
     test: (text: string) => this.post<VoiceBoxTestResult>('/voice-box/test', { text }),
   }
 
-  /* ── 轮台派单(艺人设置⑧):当日队列与推荐位 ── */
+  /* ── 轮台派单(销售经理设置⑧):当日队列与推荐位 ── */
   dispatch = {
     queue: () => this.get<DispatchQueue>('/dispatch/queue'),
     next: (count = 1) => this.get<DispatchQueue>('/dispatch/next', { count }),
@@ -559,7 +559,7 @@ export class LeisureApiClient {
     history: (days = 14) => this.get<ReconHistory>('/reports/recon/history', { days }),
   }
 
-  /* ── 艺人自点单 ── */
+  /* ── 销售经理自点单 ── */
   selfOrders = {
     place: (p: {
       sessionId: number
@@ -616,7 +616,7 @@ export class LeisureApiClient {
     }) => this.get<{ rows: ReviewRow[]; total: number; summary: ReviewSummary; page: number; pageSize: number }>('/reviews', q),
     create: (p: { artistId: number; reviewType: string; score: number; content?: string; reviewer?: string; at?: string }, idemKey?: string) =>
       this.post<{ id: number }>('/reviews', p, idemKey),
-    /** 艺人端:本人评价 */
+    /** 销售端:本人评价 */
     my: () => this.get<{ rows: ReviewRow[]; summary: ReviewSummary }>('/reviews/my'),
   }
   /* ── 预约(BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定;锁钟期内撞开房 40915) ── */

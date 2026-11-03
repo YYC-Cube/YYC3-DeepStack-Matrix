@@ -71,6 +71,7 @@ const MBoardPage = sus(lazy(() => import('@/pages/m-board')))
 const StaffPage = sus(lazy(() => import('@/pages/staff')))
 const DepartmentsPage = sus(lazy(() => import('@/pages/departments')))
 const RolesPage = sus(lazy(() => import('@/pages/roles')))
+const NoticesPage = sus(lazy(() => import('@/pages/notices')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -116,6 +117,7 @@ export const router = createHashRouter([
       { path: 'staff', element: <StaffPage /> },
       { path: 'staff/departments', element: <DepartmentsPage /> },
       { path: 'staff/roles', element: <RolesPage /> },
+      { path: 'notices', element: <NoticesPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
       { path: 'rooms/board', element: <BoardPage /> },

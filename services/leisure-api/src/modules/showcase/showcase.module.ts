@@ -1,8 +1,8 @@
 /**
- * 展示控制台模块:把在场艺人「投放」到包厢/组别展示屏(实测 App「展示控制台」+ 需求全集 §9)
+ * 展示控制台模块:把在场销售经理「投放」到包厢/组别展示屏(实测 App「展示控制台」+ 需求全集 §9)
  * 模型:showcase_cast(storeId/roomId?/groupId?/artistId/castBy/createdAt/endedAt)
- * - 投放=新建记录(可多艺人批量);结束=写 endedAt(记录保留,便于回看投放时长)
- * - 同一艺人同一目标(房/组)已有进行中投放时去重,不重复落记录
+ * - 投放=新建记录(可多销售经理批量);结束=写 endedAt(记录保留,便于回看投放时长)
+ * - 同一销售经理同一目标(房/组)已有进行中投放时去重,不重复落记录
  */
 import {
   BadRequestException,
@@ -77,15 +77,15 @@ export class ShowcaseService {
       select: { id: true, auditStatus: true },
     })
     if (artists.length !== requested.length) {
-      throw new NotFoundException('部分艺人不存在或不属于本店')
+      throw new NotFoundException('部分销售经理不存在或不属于本店')
     }
-    // 上架管控(需求全集 §9 规则 4):仅审核通过的艺人可对外展示;未审核者返回 rejected 不投放
+    // 上架管控(需求全集 §9 规则 4):仅审核通过的销售经理可对外展示;未审核者返回 rejected 不投放
     const rejected = artists.filter((a) => a.auditStatus !== 'APPROVED').map((a) => a.id)
     const artistIds = artists.filter((a) => a.auditStatus === 'APPROVED').map((a) => a.id)
     if (artistIds.length === 0) {
-      throw new BadRequestException('所选艺人均未审核通过,不可投放展示')
+      throw new BadRequestException('所选销售经理均未审核通过,不可投放展示')
     }
-    // 去重:同艺人同目标进行中投放不重复落记录
+    // 去重:同销售经理同目标进行中投放不重复落记录
     const active = await this.prisma.showcaseCast.findMany({
       where: {
         storeId,

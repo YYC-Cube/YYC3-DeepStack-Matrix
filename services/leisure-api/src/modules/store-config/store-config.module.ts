@@ -1,5 +1,5 @@
 /**
- * 门店参数模块:艺人设置 8 项(需求全集 §7)· 按门店隔离 · 配置优先级:门店级 > 全局 env 默认
+ * 门店参数模块:销售经理设置 8 项(需求全集 §7)· 按门店隔离 · 配置优先级:门店级 > 全局 env 默认
  * 存储模型:store_config 每店每配置键一行(configValue JSON);读时与 env 默认合并
  * 计费阈值/签退时限/未签到上钟三项的 env 默认在 config/env.ts;其余项在代码内置默认
  */
@@ -84,7 +84,7 @@ class ArtistSettingsDto {
 
 /* ── Service ── */
 
-/** 艺人设置合并视图(门店行 > env/内置默认;形态对齐 leisure-core StoreArtistSettings) */
+/** 销售经理设置合并视图(门店行 > env/内置默认;形态对齐 leisure-core StoreArtistSettings) */
 export interface ArtistSettingsView {
   requiredProfileFields: string[]
   reportRequireReview: boolean
@@ -226,7 +226,7 @@ export class StoreConfigService {
     }
     const settings = await this.getArtistSettings(storeId)
     if (!settings.roomBilling.channels.some((c) => c.code === normalized)) {
-      throw new BadRequestException('收费通道不在门店清单内(请到艺人设置·计费配置中维护)')
+      throw new BadRequestException('收费通道不在门店清单内(请到销售经理设置·计费配置中维护)')
     }
     return normalized
   }

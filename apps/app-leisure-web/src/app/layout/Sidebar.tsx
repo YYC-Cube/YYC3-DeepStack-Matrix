@@ -107,6 +107,7 @@ export const MENU: MenuGroup[] = [
       { key: 'staff', label: '员工信息', path: '/staff', perm: 'setting:manage' },
       { key: 'departments', label: '部门管理', path: '/staff/departments', perm: 'setting:manage' },
       { key: 'roles', label: '权限管理', path: '/staff/roles', perm: 'setting:manage' },
+      { key: 'notices', label: '工作通告', path: '/notices', perm: 'setting:manage' },
     ],
   },
 ]

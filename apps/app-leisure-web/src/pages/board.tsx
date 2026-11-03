@@ -1,6 +1,6 @@
 /**
- * 包厢房态看板(方案甲):四色卡片看板 + 开房(绑在场艺人) + 关房统一结算单
- * 依据:《12-包厢房态模块-构建指导》§5;时间费即台费,关房统一结算(ROOM_SETTLE 逐艺人流水)
+ * 包厢房态看板(方案甲):四色卡片看板 + 开房(绑在场销售经理) + 关房统一结算单
+ * 依据:《12-包厢房态模块-构建指导》§5;时间费即台费,关房统一结算(ROOM_SETTLE 逐销售经理流水)
  * 开房/关房弹窗为共享组件 room-ops(与移动房态图 m-board 共用;禁复制实现)
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -134,7 +134,7 @@ export default function BoardPage(): React.JSX.Element {
 
   return (
     <div className="p-4 space-y-3">
-      <PageHeader title="包厢房态看板(方案甲)" desc="开房绑定在场艺人 · 关房统一结算(时间费即台费 + 点单);移动端请用「工作台 → 房态图」" />
+      <PageHeader title="包厢房态看板(方案甲)" desc="开房绑定在场销售经理 · 关房统一结算(时间费即台费 + 点单);移动端请用「工作台 → 房态图」" />
       <div className="flex gap-2">
         <Button variant="outline" onClick={() => { void load() }}>刷新</Button>
         <Button variant="outline" disabled={busy} onClick={() => { void bulkCleaning() }}>一键清扫完成</Button>
@@ -207,9 +207,9 @@ export default function BoardPage(): React.JSX.Element {
                     variant="outline"
                     className="h-7 px-2 text-xs"
                     onClick={() => { navigate('/sessions') }}
-                    title="查看/管理本房在场艺人上下钟"
+                    title="查看/管理本房在场销售经理上下钟"
                   >
-                    艺人
+                    销售经理
                   </Button>
                 )}
                 {st === 'OCCUPIED' && (
@@ -246,7 +246,7 @@ export default function BoardPage(): React.JSX.Element {
               <Input type="datetime-local" value={reserveTime} onChange={(e) => { setReserveTime(e.target.value) }} />
             </div>
             <div className="space-y-1">
-              <Label>指名艺人(可选)</Label>
+              <Label>指名销售经理(可选)</Label>
               <select
                 className="w-full h-9 rounded-md bg-[rgba(0,40,80,0.3)] border border-[rgba(0,212,255,0.2)] px-2 text-sm text-[var(--lm-fg)] outline-none focus:border-primary"
                 value={reserveArtist}

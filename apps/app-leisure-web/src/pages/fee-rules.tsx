@@ -111,7 +111,7 @@ export default function FeeRulesPage() {
   }, [levels, roomTypes, rules])
 
   const columns: Array<Column<RuleRow>> = [
-    { key: 'level', header: '艺人等级', render: (r) => levelName(r.levelId) },
+    { key: 'level', header: '销售经理等级', render: (r) => levelName(r.levelId) },
     { key: 'rooms', header: '适用包厢类型', render: (r) => r.roomTypeIds.map(roomName).join(' / ') },
     { key: 'amount', header: '计时单价(元/小时)', render: (r) => fmtMoney(r.amount) },
     {
@@ -201,7 +201,7 @@ export default function FeeRulesPage() {
           </DialogHeader>
           {form !== null && (
             <div className="flex flex-col gap-4">
-              <Field label="艺人等级" required>
+              <Field label="销售经理等级" required>
                 <select
                   className="w-full h-9 rounded-md bg-card border border-line px-3 text-sm text-[var(--lm-fg)]"
                   value={form.levelId}

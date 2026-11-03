@@ -5,7 +5,7 @@
  * - ticket_txn 只增不改不删(与台费流水同纪律);余额 = ΣBUY − ΣUSE(leisure-core ticketBalance)
  * - 购买金额/可核销判定一律 import @yyc3/leisure-core(calcPurchaseAmount/canUseTicket),禁止本地复制
  * - 收费通道走门店清单(现金/转账/自定义1-3,后台可编辑;StoreConfigService.assertPayChannel)
- * - 每日购买上限/购买开关来自「艺人设置 ⑥ 台票购买」
+ * - 每日购买上限/购买开关来自「销售经理设置 ⑥ 台票购买」
  */
 import {
   BadRequestException,
@@ -175,7 +175,7 @@ export class TicketService {
     await this.audit(storeId, operatorId, 'TICKET_RULE_UPDATE', 'ticket_rule', String(id), before, after)
   }
 
-  /** 软删;仍有艺人持有该票余额时禁删(避免余额失去规则锚点) */
+  /** 软删;仍有销售经理持有该票余额时禁删(避免余额失去规则锚点) */
   async deleteRule(id: number, storeId: number, operatorId: number): Promise<void> {
     const before = await this.prisma.ticketRule.findFirst({ where: { id, storeId, deletedAt: null } })
     if (before === null) throw new NotFoundException('台票规则不存在')
@@ -188,7 +188,7 @@ export class TicketService {
       id,
     )
     if (outstanding > 0) {
-      throw new BadRequestException('仍有艺人持有该台票余额,不可删除(可改为停用)')
+      throw new BadRequestException('仍有销售经理持有该台票余额,不可删除(可改为停用)')
     }
     await this.prisma.ticketRule.update({ where: { id }, data: { deletedAt: new Date() } })
     await this.audit(storeId, operatorId, 'TICKET_RULE_DELETE', 'ticket_rule', String(id), before, null)
@@ -201,13 +201,13 @@ export class TicketService {
     operator: { sub: number; storeId?: number },
   ): Promise<{ txnId: number; amount: number; balance: number }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: p.artistId, deletedAt: null } })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     if (operator.storeId !== undefined && operator.storeId !== artist.storeId) {
-      throw new NotFoundException('艺人不存在')
+      throw new NotFoundException('销售经理不存在')
     }
     const settings = await this.storeConfig.getArtistSettings(artist.storeId)
     if (!settings.ticketPurchaseEnabled) {
-      throw new BadRequestException('门店已关闭台票购买(艺人设置 ⑥)')
+      throw new BadRequestException('门店已关闭台票购买(销售经理设置 ⑥)')
     }
     const rule = await this.prisma.ticketRule.findFirst({
       where: { id: p.ticketRuleId, storeId: artist.storeId, deletedAt: null, status: 1 },
@@ -216,7 +216,7 @@ export class TicketService {
     const payChannel = await this.storeConfig.assertPayChannel(artist.storeId, p.payChannel)
     const businessDate = await this.businessDateOf(artist.storeId)
 
-    // 每日购买上限(张;艺人设置 ⑥ maxPerDay;未配置=不限)
+    // 每日购买上限(张;销售经理设置 ⑥ maxPerDay;未配置=不限)
     const maxPerDay = settings.ticketPurchaseMaxPerDay
     if (maxPerDay !== undefined && maxPerDay > 0) {
       const agg = await this.prisma.ticketTxn.aggregate({
@@ -255,9 +255,9 @@ export class TicketService {
     operator: { sub: number; storeId?: number },
   ): Promise<{ txnId: number; balance: number }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: p.artistId, deletedAt: null } })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     if (operator.storeId !== undefined && operator.storeId !== artist.storeId) {
-      throw new NotFoundException('艺人不存在')
+      throw new NotFoundException('销售经理不存在')
     }
     // 规则停用仍允许消耗既有余额(停用只拦新购)
     const rule = await this.prisma.ticketRule.findFirst({
@@ -291,7 +291,7 @@ export class TicketService {
         where: { id: p.refSessionId, storeId: artist.storeId, artistId: artist.id },
         select: { id: true },
       })
-      if (session === null) throw new NotFoundException('关联场次不存在或不属于该艺人')
+      if (session === null) throw new NotFoundException('关联场次不存在或不属于该销售经理')
     }
 
     const businessDate = await this.businessDateOf(artist.storeId)
@@ -390,7 +390,7 @@ export class TicketService {
   }> {
     const artist = await this.prisma.artist.findFirst({ where: { id: artistId, deletedAt: null } })
     if (artist === null || (storeId !== undefined && artist.storeId !== storeId)) {
-      throw new NotFoundException('艺人不存在')
+      throw new NotFoundException('销售经理不存在')
     }
     const txnRows = await this.prisma.ticketTxn.findMany({
       where: { artistId },
@@ -425,10 +425,10 @@ export class TicketService {
     return { rows, total: rows.reduce((acc, r) => acc + r.balance, 0) }
   }
 
-  /** 艺人端:本人余额 + 流水(scope=ARTIST) */
+  /** 销售端:本人余额 + 流水(scope=ARTIST) */
   async my(artistId: number, q: { businessDateFrom: string; businessDateTo: string }): Promise<unknown> {
     const artist = await this.prisma.artist.findFirst({ where: { id: artistId, deletedAt: null } })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     const balance = await this.balance(artistId)
     const txns = await this.listTxns(artist.storeId, {
       artistId,
@@ -572,7 +572,7 @@ export class TicketController {
     return this.svc.balance(artistId, user?.storeId)
   }
 
-  /** 艺人端:本人台票余额+流水(scope=ARTIST) */
+  /** 销售端:本人台票余额+流水(scope=ARTIST) */
   @Get('my')
   async my(
     @Req() req: Request,
@@ -581,7 +581,7 @@ export class TicketController {
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可查询本人台票')
+      throw new UnauthorizedException('仅销售端可查询本人台票')
     }
     return this.svc.my(user.sub, { businessDateFrom, businessDateTo })
   }

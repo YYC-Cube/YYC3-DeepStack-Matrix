@@ -74,7 +74,7 @@ export default function RealtimePage() {
         ))}
       </div>
       {(data?.artists ?? []).length === 0 && (
-        <Card className="p-10 text-center text-fg-muted">暂无在册艺人</Card>
+        <Card className="p-10 text-center text-fg-muted">暂无在册销售经理</Card>
       )}
     </div>
   )

@@ -21,12 +21,12 @@ interface ReportDef {
 const REPORTS: ReportDef[] = [
   { key: 'deduct', path: '/reports/stage-fee/deduct-detail', title: '台费扣款明细', perm: 'fee:ledger:view', roomDims: true, desc: '单条扣费记录 · 含包厢房号/类型(§8.3)' },
   { key: 'recharge', path: '/reports/stage-fee/recharge', title: '台费充值', perm: 'fee:ledger:view', roomDims: false, desc: '充值台账 · 渠道/时间' },
-  { key: 'feesum', path: '/reports/stage-fee/summary', title: '台费流水汇总', perm: 'fee:ledger:view', roomDims: true, desc: '按艺人充扣冲净额 · 涉及包厢(§8.3)' },
+  { key: 'feesum', path: '/reports/stage-fee/summary', title: '台费流水汇总', perm: 'fee:ledger:view', roomDims: true, desc: '按销售经理充扣冲净额 · 涉及包厢(§8.3)' },
   { key: 'adetail', path: '/reports/attendance/detail', title: '报备明细', perm: 'attend:ledger:view', roomDims: false, desc: '逐笔原始报备' },
   { key: 'asum', path: '/reports/attendance/summary', title: '报备汇总', perm: 'attend:summary:view', roomDims: false, desc: '组别×主管矩阵(单营业日)' },
   { key: 'sdetail', path: '/reports/session/detail', title: '上下钟明细', perm: 'session:view', roomDims: true, desc: '房号/类型/计费小时/单价(§8.3)' },
-  { key: 'ssum', path: '/reports/session/summary', title: '上下钟汇总', perm: 'session:view', roomDims: true, desc: '按艺人次数/时长/台费 · 涉及包厢(§8.3)' },
-  { key: 'rotation', path: '/reports/dispatch-rotation', title: '主管轮台报表', perm: 'session:view', roomDims: false, desc: '主管/组别/艺人被派次数 · 按序/越序(艺人设置⑧ 公平性考核)' },
+  { key: 'ssum', path: '/reports/session/summary', title: '上下钟汇总', perm: 'session:view', roomDims: true, desc: '按销售经理次数/时长/台费 · 涉及包厢(§8.3)' },
+  { key: 'rotation', path: '/reports/dispatch-rotation', title: '主管轮台报表', perm: 'session:view', roomDims: false, desc: '主管/组别/销售经理被派次数 · 按序/越序(销售经理设置⑧ 公平性考核)' },
   { key: 'ticket-purchase', path: '/reports/tickets/purchase', title: '台票购买明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/金额/收费通道(§8.2 补齐)' },
   { key: 'ticket-use', path: '/reports/tickets/use', title: '台票使用明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/关联场次(§8.2 补齐)' },
 ]

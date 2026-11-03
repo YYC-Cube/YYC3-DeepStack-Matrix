@@ -1,5 +1,5 @@
 /**
- * 艺人设置⑧ 上钟模式 · 轮台派单引擎 e2e:
+ * 销售经理设置⑧ 上钟模式 · 轮台派单引擎 e2e:
  * - ROTATION:越序开房 40914(带下一位提示)→ 按序开房成功 → 被派者离开队列
  * - MIXED:越序允许(原因选填)→ 日志 overridden → 主管轮台报表可见(JSON + CSV)
  * 前置:A1001/A1002 当日已签到且空闲(关闭遗留 OPEN 房账);结束还原 MIXED
@@ -59,11 +59,11 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('⑧ 轮台派单
     adminToken = login.body.data.accessToken
     expect(adminToken).not.toBe('')
 
-    // 关闭遗留 OPEN 房账(其他套件残留),让艺人回到队列
+    // 关闭遗留 OPEN 房账(其他套件残留),让销售经理回到队列
     const open = await api<{ rows: Array<{ id: number; roomId: number }> }>('GET', '/room-sessions?status=OPEN', undefined, adminToken)
     for (const rs of open.body.data.rows) await closeAndClean(rs.id, rs.roomId)
 
-    // 两名已审核艺人当日签到(幂等)
+    // 两名已审核销售经理当日签到(幂等)
     const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>('GET', '/artists?pageSize=50', undefined, adminToken)
     const reports = await api<{ rows: Array<{ artistId: number }> }>(
       'GET', '/attendance/reports?businessDate=' + today() + '&type=CHECKIN&pageSize=200', undefined, adminToken,

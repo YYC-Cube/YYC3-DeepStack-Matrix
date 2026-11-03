@@ -17,6 +17,8 @@ interface StaffRow {
   departmentName: string | null
   title: string | null
   titleName: string | null
+  managerId: number | null
+  managerName: string | null
   status: number
   mustChangePassword: boolean
   createdAt: string
@@ -128,6 +130,7 @@ export default function StaffPage(): React.JSX.Element {
     { key: 'roleName', header: '角色', render: (r) => r.roleName ?? '—' },
     { key: 'departmentName', header: '部门', render: (r) => r.departmentName ?? '—' },
     { key: 'titleName', header: '职级', render: (r) => r.titleName ?? '—' },
+    { key: 'managerName', header: '直属上级', render: (r) => r.managerName ?? '—' },
     {
       key: 'status',
       header: '状态',

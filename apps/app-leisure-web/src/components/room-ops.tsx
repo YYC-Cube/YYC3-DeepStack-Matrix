@@ -1,6 +1,6 @@
 /**
  * 房账操作共享组件(桌面看板 board.tsx 与移动房态图 m-board.tsx 共用;禁复制实现)
- * RoomOpenDialog:开房弹窗(轮台队列+艺人多选+越序原因+预约锁钟强开)
+ * RoomOpenDialog:开房弹窗(轮台队列+销售经理多选+越序原因+预约锁钟强开)
  * RoomCloseDialog:关房结算弹窗(结算单预览+现金/台费/台票/混合+台票分配,§6.6 并入结算)
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -95,7 +95,7 @@ export function RoomOpenDialog(props: {
   const doOpen = async (): Promise<void> => {
     if (room === null) return
     if (pickedArtists.length === 0) {
-      toast.error('至少绑定一名在场艺人')
+      toast.error('至少绑定一名在场销售经理')
       return
     }
     setBusy(true)
@@ -132,7 +132,7 @@ export function RoomOpenDialog(props: {
                 上钟模式:{MODE_TEXT[queue.mode] ?? queue.mode}
                 <span className="text-fg-muted ml-2">轮台队列(已签到·空闲)</span>
               </div>
-              {queue.rows.length === 0 && <div className="text-fg-muted">当前无可派艺人(需当日签到且空闲)</div>}
+              {queue.rows.length === 0 && <div className="text-fg-muted">当前无可派销售经理(需当日签到且空闲)</div>}
               <div className="flex flex-wrap gap-1">
                 {queue.rows.slice(0, 8).map((q) => (
                   <span
@@ -149,7 +149,7 @@ export function RoomOpenDialog(props: {
               </div>
             </div>
           )}
-          <Label>绑定在场艺人(进房即上钟,计费入本房账)</Label>
+          <Label>绑定在场销售经理(进房即上钟,计费入本房账)</Label>
           <div className="max-h-56 overflow-y-auto space-y-1">
             {artists.filter((a) => a.badgeNo !== null).map((a) => {
               const pos = queue?.rows.find((q) => q.artistId === a.id)?.position
@@ -251,7 +251,7 @@ export function RoomCloseDialog(props: {
         balance: opt.balance,
       }))
       .filter((a) => Number.isFinite(a.qty) && a.qty > 0)
-    if (needDeduct && deductArtistId === null) { toast.error('台费抵扣需选择艺人'); return }
+    if (needDeduct && deductArtistId === null) { toast.error('台费抵扣需选择销售经理'); return }
     if (needDeduct && (!Number.isFinite(amount) || amount <= 0)) { toast.error('抵扣金额必须大于 0'); return }
     if (settleType === 'TICKET' && allocs.length === 0) { toast.error('台票抵扣需至少分配一张台票'); return }
     for (const a of allocs) {
@@ -351,7 +351,7 @@ export function RoomCloseDialog(props: {
             </div>
             {preview.ticketOptions.length > 0 && (settleType === 'TICKET' || settleType === 'MIXED') && (
               <div className="space-y-1">
-                <Label>台票抵扣分配(余额 × 面值;核销入艺人台票使用记录)</Label>
+                <Label>台票抵扣分配(余额 × 面值;核销入销售经理台票使用记录)</Label>
                 <div className="border rounded border-line divide-y divide-primary/6">
                   {preview.ticketOptions.map((opt) => {
                     const key = String(opt.artistId) + ':' + String(opt.ticketRuleId)
@@ -375,7 +375,7 @@ export function RoomCloseDialog(props: {
             )}
             {(settleType === 'FEE_DEDUCT' || settleType === 'MIXED') && (
               <div className="space-y-1">
-                <Label>抵扣艺人(在房:{preview.artists.map((a) => (a.stageName ?? '—') + ' 余额¥' + String(a.feeBalance)).join(' · ')})</Label>
+                <Label>抵扣销售经理(在房:{preview.artists.map((a) => (a.stageName ?? '—') + ' 余额¥' + String(a.feeBalance)).join(' · ')})</Label>
                 <select
                   className="w-full border rounded px-2 py-1 text-sm"
                   value={deductArtistId ?? ''}
@@ -398,7 +398,7 @@ export function RoomCloseDialog(props: {
               </div>
             )}
             <div className="text-xs opacity-70">
-              关房后包厢进入「清扫中」;台费抵扣逐艺人生成 ROOM_SETTLE 流水(不可变),台票抵扣逐张写 USE 使用记录(refSessionId=本场首场次)。
+              关房后包厢进入「清扫中」;台费抵扣逐销售经理生成 ROOM_SETTLE 流水(不可变),台票抵扣逐张写 USE 使用记录(refSessionId=本场首场次)。
             </div>
           </div>
         )}

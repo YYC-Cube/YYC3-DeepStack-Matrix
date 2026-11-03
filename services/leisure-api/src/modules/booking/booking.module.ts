@@ -1,8 +1,8 @@
 /**
- * 预约管理模块:客人预约艺人/包厢(实测 PC「预约管理」列名:预约号/预约时间/包厢/组别/艺人/状态)
+ * 预约管理模块:客人预约销售经理/包厢(实测 PC「预约管理」列名:预约号/预约时间/包厢/组别/销售经理/状态)
  * 模型:artist_booking(storeId+bookingNo 唯一;status BOOKED→ARRIVED/CANCELLED/NO_SHOW,终态锁定)
  * - 预约号自动生成 BK{yyyymmdd}-{序号};押金登记口径;锁钟期=bookingTime+holdMinutes(期内撞开房 40915)
- * - 到店(ARRIVED)且指名房+艺人 → 自动建叫钟(QUEUED,复用 RoomService.createCall;callId 回写)
+ * - 到店(ARRIVED)且指名房+销售经理 → 自动建叫钟(QUEUED,复用 RoomService.createCall;callId 回写)
  */
 import {
   BadRequestException,
@@ -54,7 +54,7 @@ class CreateBookingDto {
   @IsOptional()
   @IsInt()
   artistId?: number
-  /** 未建档艺人/口头指名时的名字(artistId 存在时以档案艺名为准) */
+  /** 未建档销售经理/口头指名时的名字(artistId 存在时以档案艺名为准) */
   @IsOptional()
   @IsString()
   @Length(1, 64)
@@ -155,7 +155,7 @@ export class BookingService {
     let artistName: string | null = body.artistName ?? null
     if (body.artistId !== undefined) {
       const artist = await this.prisma.artist.findFirst({ where: { id: body.artistId, storeId, deletedAt: null } })
-      if (artist === null) throw new NotFoundException('艺人不存在')
+      if (artist === null) throw new NotFoundException('销售经理不存在')
       artistName = artist.stageName ?? artist.realName
     }
     if (body.groupId !== undefined) {
@@ -218,7 +218,7 @@ export class BookingService {
     }
     const after = await this.prisma.artistBooking.update({ where: { id }, data: { status } })
 
-    // 到店自动叫钟(P1):指名房+艺人的预约到店 → 自动进叫钟队列(QUEUED,前台大屏/语音接管)
+    // 到店自动叫钟(P1):指名房+销售经理的预约到店 → 自动进叫钟队列(QUEUED,前台大屏/语音接管)
     let autoCallId: number | null = null
     if (status === 'ARRIVED' && before.roomId !== null && before.artistId !== null) {
       const call = await this.roomService.createCall(

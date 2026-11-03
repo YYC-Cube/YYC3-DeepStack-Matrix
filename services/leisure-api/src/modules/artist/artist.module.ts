@@ -1,5 +1,5 @@
 /**
- * 艺人档案模块:CRUD/批量设置/软删(有流水禁删 40906)/腰牌号唯一(40901)
+ * 销售经理档案模块:CRUD/批量设置/软删(有流水禁删 40906)/腰牌号唯一(40901)
  * 计算与校验一律走 @yyc3/leisure-core(本模块主要做 IO/事务/审计)
  */
 import {
@@ -36,7 +36,7 @@ import { ARTIST_PROFILE_FIELDS, ERR, LeisureError } from '@yyc3/leisure-core'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 import { StoreConfigService } from '../store-config/store-config.module.js'
 
-/** ① 资料必填项(艺人设置):按门店配置校验 body 中各字段非空;返回缺失字段中文名 */
+/** ① 资料必填项(销售经理设置):按门店配置校验 body 中各字段非空;返回缺失字段中文名 */
 function assertRequiredProfileFields(required: string[], body: Record<string, unknown>): void {
   const missing: string[] = []
   for (const key of required) {
@@ -222,7 +222,7 @@ export class ArtistService {
     if (body.realName === undefined || body.realName === '') {
       throw new BadRequestException('realName 必填')
     }
-    // ① 资料必填项(门店配置;艺人设置①)——后台新增按配置校验
+    // ① 资料必填项(门店配置;销售经理设置①)——后台新增按配置校验
     const settings = await this.storeConfig.getArtistSettings(storeId)
     assertRequiredProfileFields(settings.requiredProfileFields, body as unknown as Record<string, unknown>)
     if (body.badgeNo !== undefined && body.badgeNo !== '') {
@@ -270,7 +270,7 @@ export class ArtistService {
     ])
     if (fee + ticket + session > 0) {
       // 40906(04-API §10):有流水禁删,引导停用——业务码入响应体供四端判断
-      throw new LeisureError(ERR.ARTIST_HAS_TXN_NO_DELETE, '该艺人存在业务流水,请使用停用')
+      throw new LeisureError(ERR.ARTIST_HAS_TXN_NO_DELETE, '该销售经理存在业务流水,请使用停用')
     }
     const before = await this.prisma.artist.findUnique({ where: { id } })
     await this.prisma.artist.update({ where: { id }, data: { deletedAt: new Date() } })
@@ -308,7 +308,7 @@ export class ArtistService {
   async update(id: number, body: ArtistCreateBody, operatorId: number): Promise<void> {
     const before = await this.prisma.artist.findFirst({ where: { id, deletedAt: null } })
     if (before === null) {
-      throw new BadRequestException('艺人不存在或已删除')
+      throw new BadRequestException('销售经理不存在或已删除')
     }
     if (body.badgeNo !== undefined && body.badgeNo !== '' && body.badgeNo !== before.badgeNo) {
       const dup = await this.prisma.artist.findFirst({
@@ -352,7 +352,7 @@ export class ArtistService {
       where: { id, deletedAt: null },
     })
     if (before === null) {
-      throw new BadRequestException('艺人不存在或已删除')
+      throw new BadRequestException('销售经理不存在或已删除')
     }
     await this.prisma.artist.update({ where: { id }, data: { auditStatus } })
     await this.audit(operatorId, 'ARTIST_AUDIT', 'artist', String(id), before, {

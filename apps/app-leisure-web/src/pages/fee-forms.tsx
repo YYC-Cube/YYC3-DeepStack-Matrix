@@ -100,7 +100,7 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
 
   async function submit(): Promise<void> {
     if (artist === null) {
-      toast.error('请先选择艺人')
+      toast.error('请先选择销售经理')
       return
     }
     const n = Number(amount)
@@ -153,7 +153,7 @@ export default function FeeFormPage({ mode }: { mode: 'recharge' | 'deduct' }) {
         }
       />
       <Card className="p-6 max-w-xl flex flex-col gap-5">
-        <Field label="选择艺人(搜索:艺名/腰牌号)" required>
+        <Field label="选择销售经理(搜索:艺名/腰牌号)" required>
           {artist === null ? (
             <ArtistPicker onPick={(a) => void pickBalance(a)} />
           ) : (

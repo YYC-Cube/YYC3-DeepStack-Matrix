@@ -4,7 +4,7 @@
  * - 台费流水只增不改不删;更正走 REVERSE 反向流水(DB 层 REVOKE 见 docker/mysql-init/02-accounts.sql)
  * - 手动扣费备注必填;金额 ≥ 阈值(默认 500)生成审批单(PENDING 不落流水,审批通过才落账)
  * - 余额 = Σ流水(leisure-core sumFeeBalance);允许负数=对齐实测「未收款」(ALLOW_NEGATIVE_BALANCE)
- * 依据:04-API §4 + 08-测试 C-01~C-15 + 需求全集 §8.3(流水冗余艺人/组别/包厢字段)
+ * 依据:04-API §4 + 08-测试 C-01~C-15 + 需求全集 §8.3(流水冗余销售经理/组别/包厢字段)
  */
 import {
   BadRequestException,
@@ -55,7 +55,7 @@ class FeeRuleDto {
   @ArrayNotEmpty()
   @IsInt({ each: true })
   roomTypeIds!: number[]
-  /** 禁 0 元(2026-11-03 裁决):0 元规则命中后静默覆盖档案时薪(§6.5 规则优先),历史实测致时薪 100 艺人按 0 计费 */
+  /** 禁 0 元(2026-11-03 裁决):0 元规则命中后静默覆盖档案时薪(§6.5 规则优先),历史实测致时薪 100 销售经理按 0 计费 */
   @IsNumber()
   @Min(0.01)
   amount!: number
@@ -163,7 +163,7 @@ export class StageFeeService {
     const level = await this.prisma.artistLevel.findFirst({
       where: { id: levelId, storeId, deletedAt: null },
     })
-    if (level === null) throw new NotFoundException('艺人等级不存在')
+    if (level === null) throw new NotFoundException('销售经理等级不存在')
   }
 
   private async assertRoomTypesExist(storeId: number, roomTypeIds: number[]): Promise<void> {
@@ -184,7 +184,7 @@ export class StageFeeService {
     const artist = await this.prisma.artist.findFirst({
       where: { id: p.artistId, deletedAt: null },
     })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     // 收费通道:现金/转账/自定义1-3(门店清单内,后台可编辑);在线支付(抖音预下单+回调)II 期
     const payChannel = await this.storeConfig.assertPayChannel(artist.storeId, p.payChannel)
     const store = await this.prisma.store.findUnique({ where: { id: artist.storeId } })
@@ -218,7 +218,7 @@ export class StageFeeService {
     const artist = await this.prisma.artist.findFirst({
       where: { id: p.artistId, deletedAt: null },
     })
-    if (artist === null) throw new NotFoundException('艺人不存在')
+    if (artist === null) throw new NotFoundException('销售经理不存在')
     const store = await this.prisma.store.findUnique({ where: { id: artist.storeId } })
     const cut = store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT
     const businessDate = new Date(resolveBusinessDate(new Date(), { cutTime: cut }))
@@ -321,7 +321,7 @@ export class StageFeeService {
     return sumFeeBalance(txns.map((t) => ({ amount: Number(t.amount) })))
   }
 
-  /** 艺人端:本人余额+流水(B4 我的流水;scope=ARTIST,强制本人,防水平越权) */
+  /** 销售端:本人余额+流水(B4 我的流水;scope=ARTIST,强制本人,防水平越权) */
   async my(artistId: number, q: { businessDateFrom: string; businessDateTo: string }): Promise<{
     balance: number
     rows: Array<{ id: number; type: string; amount: string; remark: string | null; refType: string | null; createdAt: Date }>
@@ -600,7 +600,7 @@ export class StageFeeController {
     return this.svc.balance(artistId)
   }
 
-  /** 艺人端:本人余额+流水(B4;scope=ARTIST) */
+  /** 销售端:本人余额+流水(B4;scope=ARTIST) */
   @Get('my')
   async my(
     @Req() req: Request,
@@ -609,7 +609,7 @@ export class StageFeeController {
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     if (user === undefined || user.scope !== 'ARTIST') {
-      throw new UnauthorizedException('仅艺人端可查询本人流水')
+      throw new UnauthorizedException('仅销售端可查询本人流水')
     }
     return this.svc.my(user.sub, { businessDateFrom, businessDateTo })
   }

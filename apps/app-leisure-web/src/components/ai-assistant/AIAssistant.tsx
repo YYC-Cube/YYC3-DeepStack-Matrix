@@ -369,7 +369,7 @@ export function AIAssistant({
   // ── 浮窗按钮拖拽 ──
   const bubbleSize = isMobile ? 48 : 56;
   const onBubblePointerDown = (e: React.PointerEvent<HTMLDivElement>): void => {
-    if (isMobile) return; // 移动端点击即开,不做拖拽
+    // 移动端同样可拖拽(pointer events 覆盖触摸);点击 vs 拖拽由 moved 区分(onClick 处已判)
     e.currentTarget.setPointerCapture(e.pointerId);
     bubbleDragRef.current = { startX: e.clientX, startY: e.clientY, baseX: panel.bx, baseY: panel.by, moved: false };
   };

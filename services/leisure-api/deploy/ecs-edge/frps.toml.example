@@ -1,0 +1,29 @@
+bindAddr = "0.0.0.0"
+bindPort = 7001
+
+auth.method = "token"
+auth.token = "REPLACE_WITH_FRPS_TOKEN_真值见本机600密钥文件_不入仓"
+
+webServer.addr = "127.0.0.1"
+webServer.port = 7500
+webServer.user = "yyc3"
+webServer.password = "w5tZWTKfgQnwfwhj5MJ7x3maWJa3vlVN"
+
+vhostHTTPPort = 18080
+vhostHTTPSPort = 4443
+
+transport.tls.certFile = "/etc/letsencrypt/live/api.0379.world/fullchain.pem"
+transport.tls.keyFile = "/etc/letsencrypt/live/api.0379.world/privkey.pem"
+
+allowPorts = [
+  { start = 8800, end = 8810 },
+  { start = 6000, end = 6010 },
+  { start = 6006, end = 6006 },
+  { start = 10086, end = 10086 },
+  { start = 63200, end = 63210 },
+  { start = 8989, end = 8999 }
+]
+
+log.to = "/frps/logs/frps.log"
+log.level = "info"
+log.maxDays = 7

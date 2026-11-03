@@ -1,0 +1,109 @@
+http:
+  middlewares:
+    rate-limit:
+      rateLimit:
+        average: 20
+        burst: 10
+    security-headers:
+      headers:
+        customFrameOptionsValue: "SAMEORIGIN"
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "camera=(), microphone=(), geolocation=()"
+  routers:
+    gateway-api-primary:
+      entryPoints:
+      - websecure
+      rule: Host(`api.0379.world`)
+      service: gateway-api
+      middlewares:
+      - rate-limit
+      - security-headers
+      tls:
+        certResolver: letsencrypt
+    gateway-api-backup:
+      entryPoints:
+      - websecure
+      rule: Host(`api.0379.email`)
+      service: gateway-api
+      middlewares:
+      - rate-limit
+      - security-headers
+      tls:
+        certResolver: letsencrypt
+    grafana:
+      entryPoints:
+      - websecure
+      rule: Host(`grafana.0379.world`)
+      service: grafana
+      middlewares:
+      - rate-limit
+      - security-headers
+      tls:
+        certResolver: letsencrypt
+    prometheus:
+      entryPoints:
+      - websecure
+      rule: Host(`prometheus.0379.world`)
+      service: prometheus
+      middlewares:
+      - rate-limit
+      - security-headers
+      tls:
+        certResolver: letsencrypt
+
+    yyc3-console:
+      entryPoints:
+      - websecure
+      rule: Host(`api.0379.world`) && PathPrefix(`/console`)
+      service: yyc3-console
+      middlewares:
+      - security-headers
+    nas-music-api:
+      entryPoints:
+      - websecure
+      rule: Host(`music.0379.world`)
+      service: nas-music-api
+      middlewares:
+      - rate-limit
+      - security-headers
+      tls:
+        certResolver: letsencrypt
+
+    leisure-web:
+      entryPoints:
+      - websecure
+      rule: "Host(`lm.0379.world`) || Host(`lm.0379.pro`)"
+      service: leisure-edge
+      middlewares:
+      - rate-limit
+      - security-headers
+      tls:
+        certResolver: letsencrypt
+  services:
+    gateway-api:
+      loadBalancer:
+        servers:
+        - url: http://127.0.0.1:8800
+    grafana:
+      loadBalancer:
+        servers:
+        - url: http://100.65.172.88:3000   # [2026-10-29] NAS yyc3-grafana 经 Tailscale（原 localhost:3000 后端已死）
+    prometheus:
+      loadBalancer:
+        servers:
+        - url: http://100.65.172.88:9090   # [2026-10-29] NAS yyc3-prometheus 经 Tailscale（原 localhost 后端不存在）
+
+    yyc3-console:
+      loadBalancer:
+        servers:
+        - url: http://127.0.0.1:3100
+    nas-music-api:
+      loadBalancer:
+        servers:
+        - url: http://100.65.172.88:8081
+    leisure-edge:
+      loadBalancer:
+        servers:
+        - url: "http://127.0.0.1:8070"

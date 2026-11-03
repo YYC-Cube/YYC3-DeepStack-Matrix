@@ -68,6 +68,9 @@ const ThemeCustomizerPage = sus(lazy(() => import('@/pages/theme-customizer')))
 const ProfilePage = sus(lazy(() => import('@/pages/profile')))
 const MWorkbenchPage = sus(lazy(() => import('@/pages/m-workbench')))
 const MBoardPage = sus(lazy(() => import('@/pages/m-board')))
+const StaffPage = sus(lazy(() => import('@/pages/staff')))
+const DepartmentsPage = sus(lazy(() => import('@/pages/departments')))
+const RolesPage = sus(lazy(() => import('@/pages/roles')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -109,6 +112,10 @@ export const router = createHashRouter([
       // 设置域
       { path: 'settings/artist', element: <SettingsArtistPage /> },
       { path: 'settings/theme', element: <ThemeCustomizerPage /> },
+      // 员工管理(组织架构批次)
+      { path: 'staff', element: <StaffPage /> },
+      { path: 'staff/departments', element: <DepartmentsPage /> },
+      { path: 'staff/roles', element: <RolesPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
       { path: 'rooms/board', element: <BoardPage /> },

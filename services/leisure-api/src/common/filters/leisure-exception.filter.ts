@@ -16,6 +16,7 @@ import { LeisureError } from '@yyc3/leisure-core'
 const CODE_TO_HTTP: Record<number, number> = {
   40001: 401,
   40301: 403,
+  40302: 403,
   40401: 404,
   40901: 409,
   40902: 409,

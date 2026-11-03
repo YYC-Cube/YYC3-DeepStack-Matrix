@@ -27,6 +27,8 @@ const REPORTS: ReportDef[] = [
   { key: 'sdetail', path: '/reports/session/detail', title: '上下钟明细', perm: 'session:view', roomDims: true, desc: '房号/类型/计费小时/单价(§8.3)' },
   { key: 'ssum', path: '/reports/session/summary', title: '上下钟汇总', perm: 'session:view', roomDims: true, desc: '按艺人次数/时长/台费 · 涉及包厢(§8.3)' },
   { key: 'rotation', path: '/reports/dispatch-rotation', title: '主管轮台报表', perm: 'session:view', roomDims: false, desc: '主管/组别/艺人被派次数 · 按序/越序(艺人设置⑧ 公平性考核)' },
+  { key: 'ticket-purchase', path: '/reports/tickets/purchase', title: '台票购买明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/金额/收费通道(§8.2 补齐)' },
+  { key: 'ticket-use', path: '/reports/tickets/use', title: '台票使用明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/关联场次(§8.2 补齐)' },
 ]
 
 interface Preview {
@@ -62,15 +64,15 @@ export default function ReportCenterPage() {
     }
   }, [from, to, summaryDay])
 
-  /** CSV 下载:blob + a[download](带 Authorization) */
-  const download = useCallback(async (r: ReportDef): Promise<void> => {
+  /** 报表下载:blob + a[download](带 Authorization;xlsx 真格式/CSV 双通道) */
+  const download = useCallback(async (r: ReportDef, fmt: 'csv' | 'xlsx'): Promise<void> => {
     setBusy(r.key + '-dl')
     try {
       const isDaily = r.key === 'asum'
       const q = new URLSearchParams(
         isDaily
-          ? { businessDate: summaryDay, format: 'csv' }
-          : { businessDateFrom: from, businessDateTo: to, format: 'csv' },
+          ? { businessDate: summaryDay, format: fmt }
+          : { businessDateFrom: from, businessDateTo: to, format: fmt },
       )
       const token = useAuthStore.getState().token ?? ''
       const res = await fetch('/api/v1' + r.path + '?' + q.toString(), {
@@ -84,10 +86,10 @@ export default function ReportCenterPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = r.key + '.csv'
+      a.download = r.key + '.' + fmt
       a.click()
       URL.revokeObjectURL(url)
-      toast.success(r.title + ' 已导出(CSV,Excel 可直开)')
+      toast.success(r.title + ' 已导出(' + fmt.toUpperCase() + ')')
     } catch {
       toast.error('导出失败')
     } finally {
@@ -99,7 +101,7 @@ export default function ReportCenterPage() {
     <div>
       <PageHeader
         title="报表中心"
-        desc="8 张(4 张含包厢房号/类型维度,主管轮台已补,需求全集 §8.3/§8.2);CSV 导出带 BOM,Excel 直开;xlsx 真格式 II 期"
+        desc="10 张(§8.2/§8.3 全量:台费 4+报备 2+上下钟 2+轮台 1+台票 2);导出 xlsx 真格式 + CSV 双通道,Excel 直开"
       />
       <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <span className="text-xs text-fg-muted w-16">区间</span>
@@ -124,8 +126,11 @@ export default function ReportCenterPage() {
               <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => void openPreview(r)}>
                 {busy === r.key ? '查询中…' : '预览'}
               </Button>
-              <Button variant="outline" size="sm" className="text-primary" disabled={busy !== ''} onClick={() => void download(r)}>
-                {busy === r.key + '-dl' ? '导出中…' : '导出 CSV'}
+              <Button size="sm" className="text-primary" disabled={busy !== ''} onClick={() => void download(r, 'xlsx')}>
+                {busy === r.key + '-dl' ? '导出中…' : '导出 xlsx'}
+              </Button>
+              <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => void download(r, 'csv')}>
+                CSV
               </Button>
             </div>
           </Card>

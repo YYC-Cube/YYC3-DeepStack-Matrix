@@ -566,11 +566,34 @@ model AdminUser {
   // 登录防爆破:连错 5 次锁 15 分钟(42901);成功登录即复位
   failedLoginCount Int       @default(0) @map("failed_login_count")
   lockedUntil      DateTime? @map("locked_until")
+  // 员工管理(2026-11-03 组织架构批次):部门/职级/直属上级
+  departmentId Int?     @map("department_id")
+  // 职级:VP=销售副总(管理职) MANAGER_DIRECTOR=销售总监(管理职) MANAGER=销售经理 CASHIER=收银 FINANCE=财务
+  title        String?  @db.VarChar(32)
+  managerId    Int?     @map("manager_id")
   createdAt    DateTime @default(now()) @map("created_at")
 
-  role Role? @relation(fields: [roleId], references: [id])
+  role       Role?       @relation(fields: [roleId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
 
   @@map("admin_user")
+}
+
+/// 部门(员工管理/组织架构;两级树:parentId 空=部门,非空=小组)
+model Department {
+  id        Int       @id @default(autoincrement())
+  storeId   Int       @map("store_id")
+  name      String    @db.VarChar(64)
+  parentId  Int?      @map("parent_id")
+  // 部门主管(指向 admin_user;可空)
+  headUserId Int?     @map("head_user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  users AdminUser[]
+
+  @@unique([storeId, name, parentId])
+  @@map("department")
 }
 
 model Role {

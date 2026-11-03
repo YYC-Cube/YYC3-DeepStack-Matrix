@@ -36,12 +36,12 @@ interface MenuGroup {
 
 export const MENU: MenuGroup[] = [
   {
-    label: '艺人档案',
+    label: '销售经理档案',
     icon: Users,
     items: [
-      { key: 'a1', label: '艺人资料管理', path: '/artists', perm: 'artist:view' },
-      { key: 'a3', label: '艺人等级', path: '/artists/levels', perm: 'artist:view' },
-      { key: 'a4', label: '艺人组别', path: '/artists/groups', perm: 'artist:view' },
+      { key: 'a1', label: '销售经理资料管理', path: '/artists', perm: 'artist:view' },
+      { key: 'a3', label: '销售经理等级', path: '/artists/levels', perm: 'artist:view' },
+      { key: 'a4', label: '销售经理组别', path: '/artists/groups', perm: 'artist:view' },
     ],
   },
   {
@@ -49,7 +49,7 @@ export const MENU: MenuGroup[] = [
     icon: Clock,
     items: [
       { key: 'a19', label: '实时状态看板', path: '/attendance/realtime', perm: 'attend:summary:view' },
-      { key: 'a20', label: '艺人上下钟', path: '/sessions', perm: 'session:view' },
+      { key: 'a20', label: '销售经理上下钟', path: '/sessions', perm: 'session:view' },
       { key: 'board', label: '房态看板(方案甲)', path: '/rooms/board', perm: 'session:view' },
       { key: 'clock', label: '钟房大屏(语音叫钟)', path: '/clock-screen', perm: 'session:view' },
       { key: 'a16', label: '报备明细', path: '/attendance/reports', perm: 'attend:ledger:view' },
@@ -91,7 +91,7 @@ export const MENU: MenuGroup[] = [
     label: '扩展域',
     icon: LayoutDashboard,
     items: [
-      { key: 'a21', label: '艺人订单(艺人端 H5 已上线)', path: '/todo/a21', perm: 'order:view', badge: 'II' },
+      { key: 'a21', label: '销售经理订单(销售端 H5 已上线)', path: '/todo/a21', perm: 'order:view', badge: 'II' },
       { key: 'a22', label: '展示控制台', path: '/showcase', perm: 'showcase:view' },
       { key: 'a23', label: '服务评价', path: '/reviews', perm: 'review:view' },
       { key: 'a24', label: '预约管理', path: '/bookings', perm: 'booking:view' },
@@ -101,9 +101,12 @@ export const MENU: MenuGroup[] = [
     label: '设置',
     icon: Settings,
     items: [
-      { key: 'a26', label: '门店参数(艺人设置)', path: '/settings/artist', perm: 'setting:manage' },
+      { key: 'a26', label: '门店参数(销售设置)', path: '/settings/artist', perm: 'setting:manage' },
       { key: 'theme', label: '主题定制', path: '/settings/theme', perm: 'setting:manage' },
       { key: 'rooms', label: '包厢房号管理', path: '/store/rooms', perm: 'setting:manage' },
+      { key: 'staff', label: '员工信息', path: '/staff', perm: 'setting:manage' },
+      { key: 'departments', label: '部门管理', path: '/staff/departments', perm: 'setting:manage' },
+      { key: 'roles', label: '权限管理', path: '/staff/roles', perm: 'setting:manage' },
     ],
   },
 ]
@@ -158,7 +161,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         {!collapsed && (
           <div className="flex flex-col overflow-hidden">
             <span className="text-sm font-semibold text-[#00d4ff] whitespace-nowrap">YYC³ LeisureManage</span>
-            <span className="text-[10px] text-[#8b9bb4] whitespace-nowrap">艺人管理系统</span>
+            <span className="text-[10px] text-[#8b9bb4] whitespace-nowrap">销售管理系统</span>
           </div>
         )}
         <Button variant="ghost" size="icon" className="ml-auto w-8 h-8" onClick={onToggle}>

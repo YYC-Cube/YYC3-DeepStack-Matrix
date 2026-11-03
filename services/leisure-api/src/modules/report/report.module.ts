@@ -20,6 +20,7 @@ import { resolveBusinessDate, shiftBusinessDate, REPORT_TYPES } from '@yyc3/leis
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { toXlsx } from '../../common/utils/xlsx.js'
 
 const MAX_RANGE_DAYS = 92
 const RECON_METRICS = ['openCount', 'roomFee', 'orderTotal', 'checkedIn'] as const
@@ -307,6 +308,58 @@ export class ReportService {
       payChannel: t.payChannel === 'CASH' ? '现金' : (t.payChannel ?? '—'),
       createdAt: t.createdAt,
     }))
+  }
+
+  /* ── 9/10. 台票购买/使用明细(§8.2 补齐;含规则名/渠道/关联场次) ── */
+  async ticketPurchaseReport(storeId: number, q: { from: Date; to: Date }) {
+    const txns = await this.prisma.ticketTxn.findMany({
+      where: { storeId, businessDate: { gte: q.from, lte: q.to }, type: 'BUY' },
+      orderBy: { id: 'asc' },
+      include: { artist: { select: { stageName: true, badgeNo: true } } },
+    })
+    const ruleIds = Array.from(new Set(txns.map((t) => t.ticketRuleId)))
+    const rules = ruleIds.length > 0
+      ? await this.prisma.ticketRule.findMany({ where: { id: { in: ruleIds } }, select: { id: true, name: true } })
+      : []
+    const ruleName = new Map(rules.map((r) => [r.id, r.name]))
+    return {
+      rows: txns.map((t) => ({
+        businessDate: t.businessDate,
+        stageName: t.artist.stageName,
+        badgeNo: t.artist.badgeNo,
+        ruleName: ruleName.get(t.ticketRuleId) ?? String(t.ticketRuleId),
+        qty: t.qty,
+        amount: Number(t.amount),
+        payChannel: t.payChannel ?? '—',
+        operatorId: t.operatorId,
+        createdAt: t.createdAt,
+      })),
+    }
+  }
+
+  async ticketUseReport(storeId: number, q: { from: Date; to: Date }) {
+    const txns = await this.prisma.ticketTxn.findMany({
+      where: { storeId, businessDate: { gte: q.from, lte: q.to }, type: 'USE' },
+      orderBy: { id: 'asc' },
+      include: { artist: { select: { stageName: true, badgeNo: true } } },
+    })
+    const ruleIds = Array.from(new Set(txns.map((t) => t.ticketRuleId)))
+    const rules = ruleIds.length > 0
+      ? await this.prisma.ticketRule.findMany({ where: { id: { in: ruleIds } }, select: { id: true, name: true } })
+      : []
+    const ruleName = new Map(rules.map((r) => [r.id, r.name]))
+    return {
+      rows: txns.map((t) => ({
+        businessDate: t.businessDate,
+        stageName: t.artist.stageName,
+        badgeNo: t.artist.badgeNo,
+        ruleName: ruleName.get(t.ticketRuleId) ?? String(t.ticketRuleId),
+        qty: t.qty,
+        refSessionId: t.refSessionId,
+        operatorId: t.operatorId,
+        createdAt: t.createdAt,
+      })),
+    }
   }
 
   /* ── 3. 台费流水汇总(按艺人;§8.3 含包厢维度=涉及包厢聚合列) ── */
@@ -636,12 +689,19 @@ export class ReportController {
     const storeId = user?.storeId ?? 1
     const range = this.svc.normRange(q.businessDateFrom, q.businessDateTo)
     const groupId = q.groupId !== undefined && q.groupId !== '' ? Number(q.groupId) : undefined
-    if (q.format === 'csv') {
+    if (q.format === 'csv' || q.format === 'xlsx') {
       const data = await handler(storeId, range, groupId, q.type)
-      const csv = toCsv(headers, pickRows(data))
-      res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-      res.setHeader('Content-Disposition', 'attachment; filename=' + name + '-' + range.fromStr + '_' + range.toStr + '.csv')
-      res.send(csv)
+      if (q.format === 'csv') {
+        const csv = toCsv(headers, pickRows(data))
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+        res.setHeader('Content-Disposition', 'attachment; filename=' + name + '-' + range.fromStr + '_' + range.toStr + '.csv')
+        res.send(csv)
+        return
+      }
+      const buf = toXlsx([{ name, rows: [headers, ...pickRows(data)] }])
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      res.setHeader('Content-Disposition', 'attachment; filename=' + name + '-' + range.fromStr + '_' + range.toStr + '.xlsx')
+      res.send(buf)
       return
     }
     void permView
@@ -664,6 +724,48 @@ export class ReportController {
       this.svc.deductDetail(s, r, g),
       ['营业日', '艺名', '腰牌号', '金额', '包厢房号', '包厢类型', '关联场次', '时间'],
       (d) => (d as Awaited<ReturnType<ReportService['deductDetail']>>).map((r) => [r.businessDate, r.stageName, r.badgeNo, r.amount, r.roomName, r.roomTypeName, r.refSessionId, r.createdAt]),
+      req,
+    )
+  }
+
+  /** 9. 台票购买明细(§8.2 补齐;json/csv/xlsx) */
+  @RequirePerm('ticket:ledger:view')
+  @Get('tickets/purchase')
+  async ticketPurchase(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('businessDateFrom') from?: string,
+    @Query('businessDateTo') to?: string,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    await this.send(res, 'ticket:ledger:view', 'ticket-purchase', { format, businessDateFrom: from, businessDateTo: to }, (s, r) =>
+      this.svc.ticketPurchaseReport(s, r),
+      ['营业日', '艺名', '腰牌号', '票种', '数量', '金额', '收费通道', '操作员', '时间'],
+      (d) =>
+        (d as Awaited<ReturnType<ReportService['ticketPurchaseReport']>>).rows.map((r) => [
+          r.businessDate, r.stageName, r.badgeNo, r.ruleName, r.qty, r.amount, r.payChannel, r.operatorId, r.createdAt,
+        ]),
+      req,
+    )
+  }
+
+  /** 10. 台票使用明细(§8.2 补齐;json/csv/xlsx) */
+  @RequirePerm('ticket:ledger:view')
+  @Get('tickets/use')
+  async ticketUse(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('businessDateFrom') from?: string,
+    @Query('businessDateTo') to?: string,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    await this.send(res, 'ticket:ledger:view', 'ticket-use', { format, businessDateFrom: from, businessDateTo: to }, (s, r) =>
+      this.svc.ticketUseReport(s, r),
+      ['营业日', '艺名', '腰牌号', '票种', '数量', '关联场次', '操作员', '时间'],
+      (d) =>
+        (d as Awaited<ReturnType<ReportService['ticketUseReport']>>).rows.map((r) => [
+          r.businessDate, r.stageName, r.badgeNo, r.ruleName, r.qty, r.refSessionId, r.operatorId, r.createdAt,
+        ]),
       req,
     )
   }

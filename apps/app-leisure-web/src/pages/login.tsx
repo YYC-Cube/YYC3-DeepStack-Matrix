@@ -71,7 +71,7 @@ export default function Login() {
       <Card className="w-[380px] p-8 flex flex-col gap-5">
         <div className="text-center">
           <h1 className="text-lg font-semibold text-primary">YYC³ LeisureManage</h1>
-          <p className="text-xs text-fg-muted mt-1">艺人管理系统 · Web 管理端</p>
+          <p className="text-xs text-fg-muted mt-1">销售管理系统 · Web 管理端</p>
         </div>
         <div className="flex flex-col gap-2">
           <label className="text-xs text-fg-muted">账号(用户名或手机号)</label>

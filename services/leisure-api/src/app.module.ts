@@ -28,6 +28,7 @@ import { ShowcaseModule } from './modules/showcase/showcase.module.js'
 import { BookingModule } from './modules/booking/booking.module.js'
 import { ReviewModule } from './modules/review/review.module.js'
 import { DispatchModule } from './modules/dispatch/dispatch.module.js'
+import { StaffModule } from './modules/staff/staff.module.js'
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { DispatchModule } from './modules/dispatch/dispatch.module.js'
     BookingModule,
     ReviewModule,
     DispatchModule,
+    StaffModule,
   ],
   providers: [
     PrismaService,

@@ -14,6 +14,7 @@ import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import type { Request } from 'express'
 import { ERR, LeisureError } from '@yyc3/leisure-core'
+import { PrismaService } from '../../prisma/prisma.service.js'
 
 export interface JwtPayload {
   sub: number
@@ -43,10 +44,32 @@ export const Public = () => SetMetadata(PUBLIC_KEY, true)
 
 @Injectable()
 export class JwtGuard implements CanActivate {
+  /** 角色功能码 30s 缓存(权限变更 ≤30s 生效;避免每请求查库) */
+  private static permCache = new Map<number, { codes: string[]; ts: number }>()
+  private static readonly PERM_CACHE_TTL_MS = 30_000
+
   constructor(
     private readonly jwt: JwtService,
     private readonly reflector: Reflector,
+    private readonly prisma: PrismaService,
   ) {}
+
+  /** 实时功能码:优先角色现值(30s 缓存),取不到回退 JWT 快照 */
+  private async effectivePermCodes(payload: JwtPayload): Promise<string[]> {
+    if (payload.scope !== 'ADMIN') return payload.permCodes
+    const now = Date.now()
+    const cached = JwtGuard.permCache.get(payload.sub)
+    if (cached !== undefined && now - cached.ts < JwtGuard.PERM_CACHE_TTL_MS) return cached.codes
+    const user = await this.prisma.adminUser.findUnique({
+      where: { id: payload.sub },
+      select: { status: true, role: { select: { permCodes: true } } },
+    })
+    // 账号被停用:即时失效(即使 JWT 未过期)
+    if (user === null || user.status !== 1) return []
+    const codes = Array.isArray(user.role?.permCodes) ? (user.role!.permCodes as string[]) : payload.permCodes
+    JwtGuard.permCache.set(payload.sub, { codes, ts: now })
+    return codes
+  }
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest<Request>()
@@ -81,7 +104,7 @@ export class JwtGuard implements CanActivate {
 
     // 功能码校验(类/方法元数据合并)
     // 标注了 @RequirePerm 的路由=管理端接口:scope 非 ADMIN 一律拒绝
-    // (否则艺人端 token 可绕过功能码直调管理接口);ADMIN 再比对功能码
+    // (否则销售端 token 可绕过功能码直调管理接口);ADMIN 再比对实时功能码
     const required =
       this.reflector.getAllAndOverride<string[] | undefined>(PERM_KEY, [
         ctx.getHandler(),
@@ -91,7 +114,7 @@ export class JwtGuard implements CanActivate {
       if (payload.scope !== 'ADMIN') {
         throw new ForbiddenException('admin scope required')
       }
-      const owned = new Set(payload.permCodes)
+      const owned = new Set(await this.effectivePermCodes(payload))
       const missing = required.filter((p) => !owned.has(p))
       if (missing.length > 0) {
         throw new ForbiddenException('missing perm: ' + missing.join(','))
@@ -100,3 +123,4 @@ export class JwtGuard implements CanActivate {
     return true
   }
 }
+

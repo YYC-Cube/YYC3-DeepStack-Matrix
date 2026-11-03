@@ -1,4 +1,4 @@
-# YYC³ LeisureManage 艺人端小程序 · 开发速查(README-DEV)
+# YYC³ LeisureManage 销售端小程序 · 开发速查(README-DEV)
 
 > 阶段5 交付:Taro4 + React + TS;B1 注册绑定 / B2 扫码签到签退 / B4 我的流水;领域枚举/错误码 import @yyc3/leisure-core。
 

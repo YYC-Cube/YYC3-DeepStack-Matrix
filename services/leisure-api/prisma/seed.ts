@@ -94,7 +94,7 @@ async function main() {
     }
   }
 
-  // 艺人设置 8 项默认值(需求全集 §7;门店级可改;env 默认在 store-config 服务合并)
+  // 销售经理设置 8 项默认值(需求全集 §7;门店级可改;env 默认在 store-config 服务合并)
   const configDefaults: Array<{ key: string; value: object | string[] | number | boolean | string }> = [
     { key: 'required_profile_fields', value: ['realName', 'phone'] },
     { key: 'report_settings', value: { requireReview: false } },
@@ -113,7 +113,7 @@ async function main() {
     })
   }
 
-  // 合成艺人样例(禁真实个人信息;姓名/手机号均为虚构)——覆盖审核三态
+  // 合成销售经理样例(禁真实个人信息;姓名/手机号均为虚构)——覆盖审核三态
   const artistSamples = [
     { realName: '测试档案-晨曦', stageName: '晨曦', badgeNo: 'A1001', phone: '13900000001', hourlyRate: 100, auditStatus: 'APPROVED' },
     { realName: '测试档案-雨露', stageName: '雨露', badgeNo: 'A1002', phone: '13900000002', hourlyRate: 120, auditStatus: 'APPROVED' },

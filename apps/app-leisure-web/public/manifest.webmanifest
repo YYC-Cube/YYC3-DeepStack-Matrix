@@ -1,7 +1,7 @@
 {
-  "name": "YYC³ LeisureManage · 艺人管理",
+  "name": "YYC³ LeisureManage · 销售管理",
   "short_name": "LeisureManage",
-  "description": "YYC3-LeisureManage 独立运营多门店艺人管理系统 · Web 管理端/PWA(收银/主管)",
+  "description": "YYC3-LeisureManage 独立运营多门店销售管理系统 · Web 管理端/PWA(收银/主管)",
   "id": "/",
   "start_url": "./",
   "scope": "./",

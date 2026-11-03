@@ -16,7 +16,7 @@
 - [x] NAS 首次镜像构建:`yyc3-leisure-api:1.0.0-rc.1`(eb950499818c;pnpm install 57s @npmmirror;Docker Compose v5.1.2)
 - [x] 容器起 + 冒烟:`yyc3-leisure-api`/`yyc3-leisure-redis` **healthy**;`listening on :3001 (env prod, cors 2 origins)`;auth/me 401;正式账号登录 `mustChangePassword=true`、业务接口 40302;日切 job 已在生产库物化昨日汇总(证明 API→主库 Tailscale+scram 连通)
 - [x] **公网网关已通(2026-11-02)**:两域名 443(api 401/web 200/h5 200,Let's Encrypt 双域 SAN 证书);链路 Traefik→edge nginx→frp 8801→NAS(见 §6)
-- [ ] Owner 首登改密(改 `13103790379`/`13103790380` 默认口令)· 删除 seed 示例艺人(可选)· 盒子/微信正式凭据
+- [ ] Owner 首登改密(改 `13103790379`/`13103790380` 默认口令)· 删除 seed 示例销售经理(可选)· 盒子/微信正式凭据
 
 ## 1. 代码快照(本机执行;代码与部署分离)
 
@@ -75,7 +75,7 @@ docker save yyc3-leisure-api:1.0.0-rc.1 -o yyc3-leisure-api-1.0.0-rc.1.tar   # �
 ## 6. 网关与域名(2026-11-02 实测已通)
 
 - **拓扑**:边缘 `yyc3-33`(阿里云 ECS 39.97.53.176,**Traefik v3 file-provider 终止 TLS**)→ 边缘 nginx 容器 `yyc3-leisure-edge`(127.0.0.1:8070,静态+API 分流)→ **frp 隧道**(NAS `yyc3-leisure-frpc` → ECS frps **8801**)→ NAS API 3001
-- 域名:`lm.0379.world`(主)/`lm.0379.pro`(别名)——同一张 Let's Encrypt 证书双域 SAN(自动签发);`/` Web 管理端 · `/m/` 艺人端 H5 · `/api/v1` API
+- 域名:`lm.0379.world`(主)/`lm.0379.pro`(别名)——同一张 Let's Encrypt 证书双域 SAN(自动签发);`/` Web 管理端 · `/m/` 销售经理端 H5 · `/api/v1` API
 - ECS 侧资产:`/root/yyc3-leisure-edge/`(compose+nginx.conf+web/+h5/);Traefik 路由在 `/root/0379-world/traefik/dynamic.yml`(追加 `leisure-web` 路由,原文件自动留 bak)
 - NAS 侧:`frpc.toml`(token 只存 NAS 600 文件,不入仓库)+ compose `frpc` 服务
 - CORS_ORIGINS=两域名;H5 `TARO_APP_API_BASE=https://lm.0379.pro/api/v1` 编译期内联(CORS 预检 204 实测)
@@ -90,5 +90,5 @@ docker save yyc3-leisure-api:1.0.0-rc.1 -o yyc3-leisure-api-1.0.0-rc.1.tar   # �
 ## 8. 已知边界(如实)
 
 - NAS 镜像**首次构建仍在进行/待验证**(§4);pnpm `--filter` 在 TOS 环境如遇 lockfile 解析问题按退化方案
-- seed 含 3 个示例艺人档案(晨曦/雨露/星辰,均未审核)——生产不需要可在「艺人资料管理」软删
+- seed 含 3 个示例销售经理档案(晨曦/雨露/星辰,均未审核)——生产不需要可在「销售经理资料管理」软删
 - 消息推送矩阵/CRM 等 P1/P2 见 15 号审核文档 §五

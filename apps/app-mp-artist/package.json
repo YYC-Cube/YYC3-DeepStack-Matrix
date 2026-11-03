@@ -2,7 +2,7 @@
   "name": "@yyc3/app-mp-artist",
   "version": "0.1.0",
   "private": true,
-  "description": "YYC³ LeisureManage 艺人端小程序(Taro4 + React + TS)· 领域逻辑 import @yyc3/leisure-core",
+  "description": "YYC³ LeisureManage 销售端小程序(Taro4 + React + TS)· 领域逻辑 import @yyc3/leisure-core",
   "author": "YanYuCloudCube Team <admin@0379.email>",
   "license": "MIT",
   "templateInfo": {

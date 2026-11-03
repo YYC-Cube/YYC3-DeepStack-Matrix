@@ -2,7 +2,7 @@
 
 > **原则（密钥纪律）**：真值只存 `~/.yyc3-keybackup/leisure-prod.env`（600，本机生成）；仓库与示例文件只有占位。
 > **生成方式**：`bash services/leisure-api/scripts/gen-prod-secrets.sh`（openssl 强随机；已执行，见 §三）。
-> **域名**：`lm.0379.pro`（Web 管理端）/ `lm.0379.world`（艺人端 H5）→ 边缘网关 `39.97.53.176`（ICP 备案见 §六）。
+> **域名**：`lm.0379.pro`（Web 管理端）/ `lm.0379.world`（销售经理端 H5）→ 边缘网关 `39.97.53.176`（ICP 备案见 §六）。
 > **拓扑**：边缘网关(公网) → NAS `yyc3-45`(100.65.172.88, 内网 192.168.3.45) Docker 层 API 容器 → **PostgreSQL 15 主库（本机 192.168.3.22:5433，NAS 备库只读）**。
 
 ---
@@ -39,7 +39,7 @@ ssh YYC3@100.65.172.88 'chmod 600 /Volume3/docker/yyc3-leisure-api/.env.producti
 | `SCENE_HMAC_KEY` | ✅ | 报备现场屏二维码 scene 签名（HMAC-SHA256），64 字符随机 |
 | `CORS_ORIGINS` | ✅ | `https://lm.0379.pro,https://lm.0379.world`（与网关域名严格一致；prod 缺失即拒启） |
 | `SWAGGER_ENABLED` | ✅ | `false`（生产默认关；排障临时开，办完即关） |
-| `BUSINESS_DAY_CUT` 等 8 项业务默认 | ✅ | 与门店口径一致；门店级「艺人设置」可覆盖 |
+| `BUSINESS_DAY_CUT` 等 8 项业务默认 | ✅ | 与门店口径一致；门店级「销售经理设置」可覆盖 |
 | `VOICE_BOX_URL` | 可空 | 盒子私网地址模板 `http://<盒内网IP>/tts?text={text}`；留空=仅大屏 Web Speech |
 | `VOICE_BOX_TIMEOUT_MS` | ✅ | 3000 |
 | `WX_APPID` / `WX_SECRET` | 上线前 | 微信小程序正式凭据；未填时 wx 登录为 dev 骨架（生产必须填） |

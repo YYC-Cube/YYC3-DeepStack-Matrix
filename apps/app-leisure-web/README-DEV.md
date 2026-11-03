@@ -26,15 +26,15 @@ cd apps/app-leisure-web
 
 | 域 | 页面 | 路由 | 说明 |
 |---|---|---|---|
-| 档案 | A1 艺人资料管理 | `#/artists` | 筛选含审核状态(§3);添加/编辑(A2 全字段表单,PUT 全量语义);审核流转;批量设置 |
-| 档案 | A3 等级 / A4 组别 | `#/artists/levels` `#/artists/groups` | CRUD;有艺人挂靠禁删 |
+| 档案 | A1 销售经理资料管理 | `#/artists` | 筛选含审核状态(§3);添加/编辑(A2 全字段表单,PUT 全量语义);审核流转;批量设置 |
+| 档案 | A3 等级 / A4 组别 | `#/artists/levels` `#/artists/groups` | CRUD;有销售经理挂靠禁删 |
 | 考勤 | A19 实时看板 | `#/attendance/realtime` | 统计卡+名单,10s 轮询 |
 | 考勤 | A16 报备明细 / A17 汇总矩阵 / A18 补打卡 | `#/attendance/reports` `#/attendance/summary` `#/attendance/manual` |  |
-| 场次 | A20 艺人上下钟 | `#/sessions` | 代下钟(快照计费);串台标记;计费小时/单价/金额列(§8.3 维度) |
+| 场次 | A20 销售经理上下钟 | `#/sessions` | 代下钟(快照计费);串台标记;计费小时/单价/金额列(§8.3 维度) |
 | 台费 | A5 台费规则 | `#/fees/rules` | 等级×房型矩阵+列表;40903 禁改提示 |
 | 台费 | A7 充值 / A8 手动扣费 | `#/fees/recharge` `#/fees/deduct` | 幂等键防重;备注必填;≥阈值转审批(202+41201 引导文案) |
 | 台费 | A9-A11 流水三查 | `#/fees/txns/RECHARGE|SESSION_DEDUCT|MANUAL_DEDUCT` | 汇总卡;冲正(反向流水) |
-| 设置 | 门店参数(艺人设置 8 项) | `#/settings/artist` | 计费阈值等即时生效;进行中场次按快照 |
+| 设置 | 门店参数(销售经理设置 8 项) | `#/settings/artist` | 计费阈值等即时生效;进行中场次按快照 |
 | 设置 | 包厢房号管理 | `#/store/rooms` | 40907 唯一;房态流转;手工置占用被拒 |
 | 现场屏 | A15 报备现场屏 | `#/attendance/screen` | 全屏二维码(scene 60s 轮换防截屏)+ 实时签到流 + requestFullscreen;WX 凭据就绪后自动显示真小程序码(阶段5) |
 | II 期+ | A6/A12-A14 台票域、A21-A25 | `#/todo/:key` | 占位页,标注里程碑归属 |

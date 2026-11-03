@@ -1,7 +1,7 @@
 # @yyc3/leisure-core
 
-> YYC³ LeisureManage 领域单源包 · Web 管理后台 / PWA / Taro 艺人小程序 / 后端 四端共同依赖
-> 依据:智慧商家 App「艺人管理」25 子模块实测(2026-11-01)
+> YYC³ LeisureManage 领域单源包 · Web 管理后台 / PWA / Taro 销售经理小程序 / 后端 四端共同依赖
+> 依据:智慧商家 App「销售经理管理」25 子模块实测(2026-11-01)
 
 ## 能力
 
@@ -27,7 +27,7 @@ const client = new LeisureApiClient(new FetchTransport({ baseUrl: '/api/v1', get
 })
 ```
 
-### Taro 艺人小程序
+### Taro 销售经理小程序
 
 ```ts
 import Taro from '@tarojs/taro'

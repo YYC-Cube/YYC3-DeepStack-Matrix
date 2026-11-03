@@ -1,7 +1,7 @@
 # YYC³ LeisureAPI · 开发速查(README-DEV)
 
-> **MVP 六阶段全部完成**(阶段1 骨架/1-B 补缺/2 场次资金/3-4 Web 管理端+PWA/5 艺人小程序/6 报表+联调)。
-> 模块:auth · artist(审核状态)· attendance(含现场屏 scene HMAC)· store(房型+房号)· store-config(艺人设置8项)· session(上下钟·串台·转包厢)· stage-fee(规则·充值·扣费·冲正·余额·艺人自查)· approval(双人审批)· taxonomy(等级组别)· **report(7 张 MVP)** · 日切 job。台票/订单评价/预约/展示/支付渠道为 II 期。
+> **MVP 六阶段全部完成**(阶段1 骨架/1-B 补缺/2 场次资金/3-4 Web 管理端+PWA/5 销售经理小程序/6 报表+联调)。
+> 模块:auth · artist(审核状态)· attendance(含现场屏 scene HMAC)· store(房型+房号)· store-config(销售经理设置8项)· session(上下钟·串台·转包厢)· stage-fee(规则·充值·扣费·冲正·余额·销售经理自查)· approval(双人审批)· taxonomy(等级组别)· **report(7 张 MVP)** · 日切 job。台票/订单评价/预约/展示/支付渠道为 II 期。
 
 ## 一键起停(阶段6)
 
@@ -71,13 +71,13 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | POST | /api/v1/auth/admin/login | 管理端登录 → accessToken/refreshToken/permCodes |
-| POST | /api/v1/auth/wx/login | 艺人端 code 登录(未配 WX_APPID 时 code 即 openid,仅 dev) |
+| POST | /api/v1/auth/wx/login | 销售经理端 code 登录(未配 WX_APPID 时 code 即 openid,仅 dev) |
 | POST | /api/v1/auth/wx/bind | bindToken+腰牌号/手机号绑定;跨店→转移工单 |
 | GET | /api/v1/artists | 列表(组别/等级/关键词/分页) |
 | POST | /api/v1/artists | 新建(腰牌号唯一 40901) |
 | DELETE | /api/v1/artists/:id | 软删(有流水 40906) |
 | PUT | /api/v1/artists/batch | 批量设置(等级/组别/状态) |
-| POST | /api/v1/attendance/checkin | 艺人扫码签到(geo 可空) |
+| POST | /api/v1/attendance/checkin | 销售经理扫码签到(geo 可空) |
 | POST | /api/v1/attendance/checkout | 签退(<60 分钟 40905) |
 | GET | /api/v1/attendance/reports | 明细 |
 | GET | /api/v1/attendance/summary | 汇总矩阵(10 列) |
@@ -88,7 +88,7 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 | PUT | /api/v1/store/rooms/:id/status | 房态流转 FREE/MAINTENANCE/DISABLED(OCCUPIED 由上下钟驱动,手工置 400) |
 | POST | /api/v1/artists/:id/audit | 档案审核流转 APPROVED/REJECTED(§3;默认建档 PENDING;`artist:edit`) |
 | GET | /api/v1/artists?auditStatus= | 档案列表按审核态筛选(PENDING/REJECTED/APPROVED) |
-| GET/PUT | /api/v1/store-config/artist-settings | 艺人设置 8 项读写(门店级 > env 默认;`setting:manage`) |
+| GET/PUT | /api/v1/store-config/artist-settings | 销售经理设置 8 项读写(门店级 > env 默认;`setting:manage`) |
 | POST | /api/v1/sessions/start | 上钟:{artistId, roomId 必选};前置校验(40904/400)+ 单价/阈值/模式快照;房态→OCCUPIED(`session:view`) |
 | POST | /api/v1/sessions/:id/finish | 下钟:按快照计费(HOURLY 先保底再进位 / FLAT 一口价);落 SESSION_DEDUCT;末场离房→FREE(`session:finish`) |
 | POST | /api/v1/sessions/:id/cross | 串台:并行新开一场独立核算(§6.6;maxCrossRooms 拦 40904) |
@@ -108,7 +108,7 @@ pnpm dev                       # http://localhost:3001/api/v1(docs: /docs)
 
 ```bash
 bash scripts/demo-core-chain.sh
-# 建艺人→审核→签到→上钟→串台→下钟→充值→手动扣费(直扣+审批)→冲正→余额对账,12 步全链路
+# 建销售经理→审核→签到→上钟→串台→下钟→充值→手动扣费(直扣+审批)→冲正→余额对账,12 步全链路
 ```
 
 ### 资金红线落点(铁律 2)

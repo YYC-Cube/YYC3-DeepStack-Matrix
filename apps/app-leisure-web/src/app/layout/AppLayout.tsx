@@ -78,28 +78,32 @@ export function AppLayout() {
           )}
           <div className="ml-auto flex items-center gap-3">
             <InstallButton />
-            {/* 头像+姓名 → 个人信息页(替代裸姓名展示) */}
-            <button
-              onClick={() => { navigate('/profile') }}
-              className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-[rgba(0,212,255,0.08)] transition-colors"
-              title="个人信息"
-            >
-              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center overflow-hidden shadow-[0_0_10px_rgba(0,180,255,0.3)]">
-                <YYC3LogoSvg size={30} />
-              </span>
-              <span className="text-sm text-[#e0f0ff] max-w-[8rem] truncate">{name !== '' ? name : '管理员'}</span>
-            </button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                logout()
-                navigate('/login')
-              }}
-            >
-              <LogOut className="w-4 h-4 mr-1" />
-              退出
-            </Button>
+            {/* 头像+姓名 → 个人信息页(桌面);移动端头像/退出迁「我的」页(BottomNav) */}
+            {!isMobile && (
+              <>
+                <button
+                  onClick={() => { navigate('/profile') }}
+                  className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-[rgba(0,212,255,0.08)] transition-colors"
+                  title="个人信息"
+                >
+                  <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center overflow-hidden shadow-[0_0_10px_rgba(0,180,255,0.3)]">
+                    <YYC3LogoSvg size={30} />
+                  </span>
+                  <span className="text-sm text-[#e0f0ff] max-w-[8rem] truncate">{name !== '' ? name : '管理员'}</span>
+                </button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    logout()
+                    navigate('/login')
+                  }}
+                >
+                  <LogOut className="w-4 h-4 mr-1" />
+                  退出
+                </Button>
+              </>
+            )}
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-5 pb-20 md:pb-5">

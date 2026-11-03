@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Button, Card, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
-import { KeyRound, ShieldCheck, Store, UserCircle2, CalendarDays, BadgeCheck } from 'lucide-react'
+import { KeyRound, ShieldCheck, Store, UserCircle2, CalendarDays, BadgeCheck, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 import { PageHeader } from '@/components/kit'
@@ -138,7 +138,7 @@ export default function ProfilePage(): React.JSX.Element {
         desc="账号档案与安全设置;带 🔒 的为系统只读项(全端同步,不可在此修改)"
       />
 
-      {/* 身份卡:头像(品牌,全端一致) + 姓名 + 角色 */}
+      {/* 身份卡:头像(品牌,全端一致) + 姓名 + 角色 + 退出(移动端退出口:顶栏已迁此) */}
       <Card className="p-5 flex items-center gap-4">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00d4ff] to-[#7b2ff7] flex items-center justify-center shadow-[0_0_20px_rgba(0,180,255,0.3)] overflow-hidden shrink-0">
           <YYC3LogoSvg size={52} />
@@ -158,6 +158,18 @@ export default function ProfilePage(): React.JSX.Element {
             头像为 YYC³ 品牌标识(全端统一);账号安全请定期修改密码
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto shrink-0 text-warning"
+          onClick={() => {
+            logout()
+            navigate('/login')
+          }}
+        >
+          <LogOut className="w-4 h-4 mr-1" />
+          退出登录
+        </Button>
       </Card>
 
       {/* 档案(只读) */}

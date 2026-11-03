@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router'
 import {
   BadgeJapaneseYen,
   BarChart3,
+  Bell,
   CalendarClock,
   ClipboardList,
   Gauge,
@@ -18,14 +19,22 @@ import {
   Radar,
   Receipt,
   Settings,
+  Sparkles,
   Ticket,
   UserRound,
   Users,
 } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@yyc3/ui'
 import { client, req, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { MENU } from '@/app/layout/Sidebar'
+import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 import type { ReconListResult } from '@yyc3/leisure-core'
+
+/** 工作通告(预留数据源:后期接后端「制度/工作通告」;当前为系统占位内容) */
+const ANNOUNCEMENTS: Array<{ date: string; text: string }> = [
+  { date: '系统', text: '欢迎使用 YYC³ LeisureManage 移动工作台 · 工作通告/制度功能即将上线' },
+]
 
 /** 分组项图标(按菜单 key 语义映射;未命中回退 Gauge) */
 const ITEM_ICON: Record<string, typeof Gauge> = {
@@ -70,6 +79,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [metrics, setMetrics] = useState<ReconListResult['selfMetrics'] | null>(null)
   const [liveRooms, setLiveRooms] = useState<number>(0)
   const [tab, setTab] = useState('manage')
+  const [showNotices, setShowNotices] = useState(false)
 
   useEffect(() => {
     const bd = client.businessDateOf()
@@ -111,11 +121,63 @@ export default function MWorkbenchPage(): React.JSX.Element {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: 'var(--lm-bg, #060e1f)' }}>
-      {/* 顶部:品牌 + 营业日(AppLayout 顶栏已有操作者/退出,不重复) */}
+      {/* 顶部:logo + 品牌 + AI 入口 + 通知(AppLayout 顶栏已有操作者/退出,不重复) */}
       <div className="px-4 pt-5 pb-2 flex items-center gap-2">
+        <YYC3LogoSvg size={22} className="rounded-md" />
         <span className="text-[var(--lm-fg)] font-semibold tracking-wide text-base">YYC³ 工作台</span>
-        <span className="ml-auto text-xs text-fg-muted">{client.businessDateOf()}</span>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            aria-label="AI 助手"
+            title="AI 助手"
+            className="w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ background: 'color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
+            onClick={() => { window.dispatchEvent(new Event('yyc3-ai-toggle')) }}
+          >
+            <Sparkles className="w-4 h-4 text-primary" />
+          </button>
+          <button
+            aria-label="工作通告"
+            title="工作通告"
+            className="w-8 h-8 rounded-full flex items-center justify-center relative"
+            style={{ background: 'color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
+            onClick={() => { setShowNotices(true) }}
+          >
+            <Bell className="w-4 h-4 text-primary" />
+            {ANNOUNCEMENTS.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full" style={{ background: 'var(--lm-warning, #ffaa00)' }} />
+            )}
+          </button>
+          <span className="text-xs text-fg-muted">{client.businessDateOf()}</span>
+        </div>
       </div>
+
+      {/* 横向滚动公告条(工作通告;数据源预留,后期接后端) */}
+      {ANNOUNCEMENTS.length > 0 && (
+        <div
+          className="mx-3 rounded-full overflow-hidden"
+          style={{ background: 'color-mix(in srgb, var(--lm-primary) 10%, var(--lm-card))', border: '1px solid color-mix(in srgb, var(--lm-primary) 20%, transparent)' }}
+        >
+          <style>{`@keyframes yyc3-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
+          <div className="flex items-center h-8">
+            <span
+              className="px-2 text-[11px] shrink-0 flex items-center gap-1"
+              style={{ color: 'var(--lm-primary)', borderRight: '1px solid color-mix(in srgb, var(--lm-primary) 25%, transparent)' }}
+            >
+              <Bell className="w-3 h-3" /> 通告
+            </span>
+            <div className="overflow-hidden flex-1">
+              <div
+                className="flex whitespace-nowrap text-[11px] text-[var(--lm-fg)] items-center h-8"
+                style={{ animation: 'yyc3-marquee 22s linear infinite', width: 'max-content' }}
+              >
+                {[...ANNOUNCEMENTS, ...ANNOUNCEMENTS].map((a, i) => (
+                  <span key={i} className="px-6">{a.date !== '系统' ? `[${a.date}] ` : ''}{a.text}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 今日概况(点击进报表中心) */}
       <div
@@ -211,6 +273,27 @@ export default function MWorkbenchPage(): React.JSX.Element {
 
       {/* 底部留白由 BottomNav 补;页脚品牌 */}
       <div className="text-center text-[10px] text-fg-muted pt-6 pb-2">YYC³ LeisureManage · 移动工作台</div>
+
+      {/* 工作通告弹层(预留:后期接后端制度/工作通告) */}
+      <Dialog open={showNotices} onOpenChange={(o) => { setShowNotices(o) }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>工作通告</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+            {ANNOUNCEMENTS.length === 0 && (
+              <div className="text-sm text-fg-muted py-6 text-center">暂无通告;制度与工作通知发布后在此显示</div>
+            )}
+            {ANNOUNCEMENTS.map((a, i) => (
+              <div key={i} className="rounded-lg border border-line p-3">
+                <div className="text-xs text-fg-muted mb-1">{a.date}</div>
+                <div className="text-sm text-[var(--lm-fg)]">{a.text}</div>
+              </div>
+            ))}
+            <div className="text-[10px] text-fg-muted pt-1">制度/工作通告内容管理即将上线(后台发布 → 全端推送此处)</div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

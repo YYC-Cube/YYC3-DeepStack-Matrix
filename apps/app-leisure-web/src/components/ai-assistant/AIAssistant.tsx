@@ -152,7 +152,7 @@ const DEFAULT_PANEL: AiPanelState = {
 
 function loadPanelState(viewportW: number, viewportH: number, isMobile: boolean): AiPanelState {
   const defaults: AiPanelState = isMobile
-    ? { bx: 16, by: viewportH - 80 - 48, px: 0, py: 0, pw: viewportW, ph: viewportH }
+    ? { bx: viewportW - 16 - 48, by: viewportH - 56 - 12 - 48, px: 0, py: 0, pw: viewportW, ph: viewportH }
     : { bx: viewportW - 24 - 56, by: viewportH - 24 - 56, px: viewportW - 4 - 480, py: viewportH - 24 - 640, pw: 480, ph: 640 };
   try {
     const raw = localStorage.getItem(AI_POS_KEY);
@@ -238,6 +238,12 @@ export function AIAssistant({
   useEffect(() => {
     const onResize = (): void => setPanel((p) => clampPanel(p, window.innerWidth, window.innerHeight));
     window.addEventListener('resize', onResize);
+    // 工作台等外部入口:window.dispatchEvent(new Event('yyc3-ai-toggle')) 切换浮窗
+    const onToggle = (): void => setIsOpen((o) => !o);
+    window.addEventListener('yyc3-ai-toggle', onToggle);
+    return () => {
+      window.removeEventListener('yyc3-ai-toggle', onToggle);
+    };
     return () => { window.removeEventListener('resize', onResize); };
   }, []);
 

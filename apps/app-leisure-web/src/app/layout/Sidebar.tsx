@@ -83,7 +83,7 @@ export const MENU: MenuGroup[] = [
     label: '报表',
     icon: BarChart3,
     items: [
-      { key: 'a25', label: '报表中心(7 张)', path: '/reports', perm: 'fee:ledger:view' },
+      { key: 'a25', label: '报表中心', path: '/reports', perm: 'fee:ledger:view' },
       { key: 'recon', label: '双轨对账(P0 门禁)', path: '/reports/recon', perm: 'report:export' },
     ],
   },
@@ -91,7 +91,7 @@ export const MENU: MenuGroup[] = [
     label: '扩展域',
     icon: LayoutDashboard,
     items: [
-      { key: 'a21', label: '艺人订单', path: '/todo/a21', perm: 'order:view', badge: 'II' },
+      { key: 'a21', label: '艺人订单(艺人端 H5 已上线)', path: '/todo/a21', perm: 'order:view', badge: 'II' },
       { key: 'a22', label: '展示控制台', path: '/showcase', perm: 'showcase:view' },
       { key: 'a23', label: '服务评价', path: '/reviews', perm: 'review:view' },
       { key: 'a24', label: '预约管理', path: '/bookings', perm: 'booking:view' },

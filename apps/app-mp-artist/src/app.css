@@ -49,3 +49,61 @@ page {
   padding: 16rpx 20rpx;
   color: #e0f0ff;
 }
+
+/* ── 流水/订单行(mine·tickets·orders 三页共用;H5 端 Text 为行内,须显式纵排) ── */
+.mp-txn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid rgba(0, 212, 255, 0.08);
+}
+
+.mp-txn-row:last-child {
+  border-bottom: none;
+}
+
+.mp-txn-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.mp-txn-type {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e0f0ff;
+}
+
+.mp-txn-amt-pos {
+  color: #00ff88;
+  font-weight: 600;
+}
+
+.mp-txn-amt-neg {
+  color: #ff3366;
+  font-weight: 600;
+}
+
+.mp-balance {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #00ff88;
+}
+
+.mp-balance-neg {
+  color: #ff3366;
+}
+
+.mp-warn {
+  color: #ffaa00;
+  font-size: 24rpx;
+}
+
+.mp-msg {
+  color: #ff6699;
+  font-size: 24rpx;
+}

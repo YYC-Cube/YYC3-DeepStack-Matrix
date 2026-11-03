@@ -98,8 +98,8 @@ export default function ReportCenterPage() {
   return (
     <div>
       <PageHeader
-        title="报表中心(7 张 MVP)"
-        desc="4 张含包厢房号/类型维度(需求全集 §8.3);CSV 导出带 BOM,Excel 直开;xlsx 真格式 II 期"
+        title="报表中心"
+        desc="8 张(4 张含包厢房号/类型维度,主管轮台已补,需求全集 §8.3/§8.2);CSV 导出带 BOM,Excel 直开;xlsx 真格式 II 期"
       />
       <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <span className="text-xs text-fg-muted w-16">区间</span>

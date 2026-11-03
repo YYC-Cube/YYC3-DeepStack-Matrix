@@ -4,7 +4,7 @@
  * 安全:请求 URL 全部为编译期字面量(协议/主机固定),不存在运行时可变基址
  */
 import Taro from '@tarojs/taro'
-import { LeisureError, type ReportType } from '@yyc3/leisure-core'
+import { LeisureError, type MeOrdersResult, type ReportType } from '@yyc3/leisure-core'
 
 /** 基础地址(常量):H5 dev 直连后端(CORS 已开);小程序 dev 工具勾选「不校验合法域名」 */
 // API 基址:defineConstants 编译期内联(config/index.ts;TARO_APP_API_BASE 可覆盖,缺省本机 dev)
@@ -239,43 +239,15 @@ export function qrcodeVerify(scene: string): Promise<{ valid: boolean; storeId?:
     .catch(translate)
 }
 
-/** a21 我的订单:自点单 + 已随房账结算的本人上场次(scope=ARTIST 强制本人) */
-export function myOrders(): Promise<{
-  orders: Array<{
-    id: number
-    kind: 'SELF_ORDER' | 'ROOM_FEE'
-    businessDate: string
-    roomNo: string
-    amount: number
-    status: string
-    placedAt: string | null
-    settledAt: string | null
-    items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }> | null
-  }>
-  summary: { orderTotal: number; feeTotal: number; count: number }
-}> {
+/** a21 我的订单:自点单 + 已随房账结算的本人上场次(scope=ARTIST 强制本人;类型单源 MeOrdersResult) */
+export function myOrders(): Promise<MeOrdersResult> {
   return Taro.request({
     url: API_BASE + '/me/orders',
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,
   })
-    .then((res) =>
-      envelope<{
-        orders: Array<{
-          id: number
-          kind: 'SELF_ORDER' | 'ROOM_FEE'
-          businessDate: string
-          roomNo: string
-          amount: number
-          status: string
-          placedAt: string | null
-          settledAt: string | null
-          items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }> | null
-        }>
-        summary: { orderTotal: number; feeTotal: number; count: number }
-      }>(res),
-    )
+    .then((res) => envelope<MeOrdersResult>(res))
     .catch(translate)
 }
 

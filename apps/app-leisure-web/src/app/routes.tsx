@@ -68,6 +68,13 @@ const ThemeCustomizerPage = sus(lazy(() => import('@/pages/theme-customizer')))
 const ProfilePage = sus(lazy(() => import('@/pages/profile')))
 const MWorkbenchPage = sus(lazy(() => import('@/pages/m-workbench')))
 const MBoardPage = sus(lazy(() => import('@/pages/m-board')))
+const MChatPage = sus(lazy(() => import('@/pages/m-chat')))
+const MFeedbackPage = sus(lazy(() => import('@/pages/m-feedback')))
+const MStatsAttendancePage = sus(lazy(() => import('@/pages/m-stats-attendance')))
+const MStatsCollectionPage = sus(lazy(() => import('@/pages/m-stats-collection')))
+const MStatsBookingRankPage = sus(lazy(() => import('@/pages/m-stats-booking-rank')))
+const MStatsReviewsPage = sus(lazy(() => import('@/pages/m-stats-reviews')))
+const MStatsTransferPage = sus(lazy(() => import('@/pages/m-stats-transfer')))
 const StaffPage = sus(lazy(() => import('@/pages/staff')))
 const DepartmentsPage = sus(lazy(() => import('@/pages/departments')))
 const RolesPage = sus(lazy(() => import('@/pages/roles')))
@@ -90,6 +97,13 @@ export const router = createHashRouter([
       // 移动工作台(mobile-first;桌面亦可访问)
       { path: 'm/workbench', element: <MWorkbenchPage /> },
       { path: 'm/board', element: <MBoardPage /> },
+      { path: 'm/chat', element: <MChatPage /> },
+      { path: 'm/feedback', element: <MFeedbackPage /> },
+      { path: 'm/stats/attendance', element: <MStatsAttendancePage /> },
+      { path: 'm/stats/collection', element: <MStatsCollectionPage /> },
+      { path: 'm/stats/booking-rank', element: <MStatsBookingRankPage /> },
+      { path: 'm/stats/reviews', element: <MStatsReviewsPage /> },
+      { path: 'm/stats/transfer', element: <MStatsTransferPage /> },
       { index: true, element: <IndexRedirect /> },
       // 档案域
       { path: 'artists', element: <ArtistsPage /> },

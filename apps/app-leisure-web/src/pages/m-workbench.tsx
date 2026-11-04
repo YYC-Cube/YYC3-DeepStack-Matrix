@@ -76,6 +76,21 @@ const MORE_EXTRAS = [
   { key: 'theme', label: '主题定制', path: '/settings/theme', perm: 'setting:manage', icon: PieChart },
 ] as const
 
+/** 移动专属仪表/功能项(2026-11-04 精致化批:图表化零明细;按组挂载) */
+const GROUP_EXTRAS: Record<string, Array<{ key: string; label: string; path: string; perm: string; icon: typeof Gauge }>> = {
+  stats: [
+    { key: 'st-att', label: '出勤仪表', path: '/m/stats/attendance', perm: 'attend:summary:view', icon: Radar },
+    { key: 'st-col', label: '收款仪表', path: '/m/stats/collection', perm: 'fee:ledger:view', icon: BadgeJapaneseYen },
+    { key: 'st-rank', label: '业绩仪表', path: '/m/stats/booking-rank', perm: 'session:view', icon: BarChart3 },
+    { key: 'st-rev', label: '评价仪表', path: '/m/stats/reviews', perm: 'review:view', icon: Sparkles },
+    { key: 'st-tra', label: '转销售统计', path: '/m/stats/transfer', perm: 'resource:view', icon: Users },
+  ],
+  fund: [
+    { key: 'chat', label: '沟通', path: '/m/chat', perm: '*', icon: Receipt },
+    { key: 'fb', label: '功能定制', path: '/m/feedback', perm: '*', icon: Settings },
+  ],
+}
+
 export default function MWorkbenchPage(): React.JSX.Element {
   const navigate = useNavigate()
   const permCodes = useAuthStore((s) => s.permCodes)
@@ -177,6 +192,9 @@ export default function MWorkbenchPage(): React.JSX.Element {
           ...MENU.filter((m) => g.domains.includes(m.label)).flatMap((m) =>
             m.items.filter((it) => permCodes.includes(it.perm)).map((it) => ({ key: it.key, label: it.label, path: it.path, badge: it.badge })),
           ),
+          ...(GROUP_EXTRAS[g.key] ?? [])
+            .filter((x) => x.perm === '*' || permCodes.includes(x.perm))
+            .map((x) => ({ key: x.key, label: x.label, path: x.path, badge: undefined })),
           ...(g.key === 'more'
             ? MORE_EXTRAS.filter((x) => x.perm === '*' || permCodes.includes(x.perm)).map((x) => ({ key: x.key, label: x.label, path: x.path, badge: undefined }))
             : []),

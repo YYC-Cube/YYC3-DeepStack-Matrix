@@ -976,3 +976,52 @@ model Goods {
   @@unique([storeId, name, deletedAt])
   @@map("goods")
 }
+/// 功能定制回馈(Owner 指令 2026-11-04:无关模块收进定制申请→回馈消息→拟定;产品需求收集通道)
+model Feedback {
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  module      String    @db.VarChar(32) // 申请定制的模块名(如 票务汇总/今日版号)
+  title       String    @db.VarChar(128)
+  detail      String    @db.VarChar(2000)
+  photoKeys   Json?     @map("photo_keys") // 截图 dataURL 数组(≤300KB/张)
+  status      String    @default("OPEN") @db.VarChar(16) // OPEN/PLANNED/DONE/REJECTED
+  reply       String?   @db.VarChar(2000) // Owner 回复(拟定结果)
+  applicantId Int       @map("applicant_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  decidedAt   DateTime? @map("decided_at")
+
+  @@index([storeId, status])
+  @@map("feedback")
+}
+
+/// 沟通群(最小闭环:全员店群+组别动态群;成员=组内在场销售经理动态计算,免维护成员表)
+model ChatGroup {
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  name        String    @db.VarChar(64)
+  groupId     Int?      @map("group_id") // 绑 artist_group=动态成员群;空=店群(全员)
+  line        String?   @db.VarChar(16)
+  createdById Int       @map("created_by_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  messages    ChatMessage[]
+
+  @@index([storeId])
+  @@map("chat_group")
+}
+
+model ChatMessage {
+  id          Int      @id @default(autoincrement())
+  storeId     Int      @map("store_id")
+  chatGroupId Int      @map("chat_group_id")
+  senderScope String   @map("sender_scope") @db.VarChar(16) // ARTIST/ADMIN
+  senderId    Int      @map("sender_id")
+  senderName  String   @map("sender_name") @db.VarChar(64)
+  content     String   @db.VarChar(2000)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  chatGroup ChatGroup @relation(fields: [chatGroupId], references: [id])
+
+  @@index([chatGroupId, id])
+  @@map("chat_message")
+}

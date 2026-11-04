@@ -416,6 +416,33 @@ export class ArtistService {
     return { approvalId: created.id }
   }
 
+  /** 转销售统计仪表数据(三状态计数+最近 5 条) */
+  async transferStats(storeId: number) {
+    const rows = await this.prisma.approval.findMany({
+      where: { storeId, bizType: 'RESOURCE_TO_SELL' },
+      orderBy: { id: 'desc' },
+      take: 200,
+    })
+    const by = { PENDING: 0, APPROVED: 0, REJECTED: 0 }
+    for (const r of rows) {
+      const k = r.status as keyof typeof by
+      if (k in by) by[k]++
+    }
+    return {
+      counts: by,
+      recent: rows.slice(0, 5).map((r) => {
+        const p = r.bizPayload as { artistName?: string; badgeNo?: string }
+        return {
+          id: r.id,
+          name: p.artistName ?? '',
+          badgeNo: p.badgeNo ?? '',
+          status: r.status,
+          at: r.createdAt.toISOString().slice(0, 10),
+        }
+      }),
+    }
+  }
+
   private async audit(
     operatorId: number,
     action: string,
@@ -532,6 +559,14 @@ export class ArtistController {
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.requestTransferToSell(id, body.reason ?? '', user?.storeId ?? 1, user?.sub ?? 0)
+  }
+
+  /** 转销售统计(移动仪表:申请/通过/驳回计数+最近 5 条;数据源=approval bizType=RESOURCE_TO_SELL) */
+  @RequirePerm('resource:view')
+  @Get('transfer-stats')
+  async transferStats(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.transferStats(user?.storeId ?? 1)
   }
 
   @RequirePerm('artist:batch')

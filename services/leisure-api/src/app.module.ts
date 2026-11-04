@@ -30,6 +30,7 @@ import { ReviewModule } from './modules/review/review.module.js'
 import { DispatchModule } from './modules/dispatch/dispatch.module.js'
 import { StaffModule } from './modules/staff/staff.module.js'
 import { NoticeModule } from './modules/notice/notice.module.js'
+import { CommModule } from './modules/comm/comm.module.js'
 import { SplitHandoverModule } from './modules/split/split-handover.module.js'
 
 @Module({
@@ -53,6 +54,7 @@ import { SplitHandoverModule } from './modules/split/split-handover.module.js'
     DispatchModule,
     StaffModule,
     NoticeModule,
+    CommModule,
     SplitHandoverModule,
   ],
   providers: [

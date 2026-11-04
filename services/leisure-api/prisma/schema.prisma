@@ -123,6 +123,140 @@ model NoticeRead {
   @@map("notice_read")
 }
 
+// ─────────────── 财务分账(17 号闭环规划;III-B S1) ───────────────
+
+/// 分账方案(类目×周期;状态机 DRAFT→ACTIVE→ARCHIVED)
+model SplitPlan {
+  id            Int       @id @default(autoincrement())
+  storeId       Int       @map("store_id")
+  name          String    @db.VarChar(64)
+  // 类目:SESSION 上钟业绩 / ROOM 房账消费 / ORDER 自点单 / TICKET 台票销售 / RECHARGE 充值业绩 / MANUAL 手动调整
+  category      String    @db.VarChar(16)
+  periodType    String    @default("MONTHLY") @map("period_type") @db.VarChar(16) // DAILY/WEEKLY/MONTHLY
+  status        String    @default("DRAFT") @db.VarChar(16) // DRAFT/ACTIVE/ARCHIVED
+  effectiveFrom DateTime? @map("effective_from")
+  effectiveTo   DateTime? @map("effective_to")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  rules   SplitRule[]
+  entries SplitEntry[]
+
+  @@index([storeId, status])
+  @@map("split_plan")
+}
+
+/// 分账规则项(岗位/条线 × 计算方式 × 支付方式 × 奖惩正负)
+model SplitRule {
+  id          Int       @id @default(autoincrement())
+  planId      Int       @map("plan_id")
+  // 适用维度:匹配条件(空=全员);三者可组合
+  applyTitle  String?   @map("apply_title") @db.VarChar(32)
+  applyLine   String?   @map("apply_line") @db.VarChar(16)
+  applyDepartmentId Int? @map("apply_department_id")
+  // 计算方式:PERCENT 比例 / FIXED 固定金额 / TIERED 阶梯(tierJson)
+  calcType    String    @map("calc_type") @db.VarChar(16)
+  percent     Decimal?  @db.Decimal(6, 2)
+  fixedAmount Decimal?  @map("fixed_amount") @db.Decimal(12, 2)
+  tierJson    Json?     @map("tier_json") // [{min,max,percent}]
+  // 奖惩:REWARD 奖励(正) PENALTY 惩罚(负)
+  rewardType  String    @default("REWARD") @map("reward_type") @db.VarChar(16)
+  // 支付方式:CASH/TRANSFER/BANK/OFFSET(冲抵台费)
+  payMethod   String    @default("CASH") @map("pay_method") @db.VarChar(16)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  plan   SplitPlan   @relation(fields: [planId], references: [id])
+  entries SplitEntry[]
+
+  @@index([planId])
+  @@map("split_rule")
+}
+
+/// 分账计提记录(只增;冲正=反向条目;基数快照留痕)
+model SplitEntry {
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  planId      Int       @map("plan_id")
+  ruleId      Int       @map("rule_id")
+  businessDate DateTime @map("business_date") @db.Date
+  // 分账对象:ARTIST(销售/资源经理)或 ADMIN(岗位)
+  targetScope String    @map("target_scope") @db.VarChar(16)
+  targetId    Int       @map("target_id")
+  targetName  String    @map("target_name") @db.VarChar(64)
+  baseAmount  Decimal   @map("base_amount") @db.Decimal(12, 2)
+  amount      Decimal   @db.Decimal(12, 2) // 正=奖励 负=奖惩/冲正
+  // ACCRUED 计提 → CONFIRMED 复核 → PAID 已支付;REVERSED 冲正
+  status      String    @default("ACCRUED") @db.VarChar(16)
+  payMethod   String?   @map("pay_method") @db.VarChar(16)
+  payRef      String?   @map("pay_ref") @db.VarChar(64)
+  refType     String?   @map("ref_type") @db.VarChar(16)
+  refId       Int?
+  settlementId Int?     @map("settlement_id")
+  operatorId  Int       @map("operator_id")
+  remark      String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  plan   SplitPlan        @relation(fields: [planId], references: [id])
+  rule   SplitRule        @relation(fields: [ruleId], references: [id])
+  settlement SplitSettlement? @relation(fields: [settlementId], references: [id])
+
+  @@index([storeId, businessDate])
+  @@index([planId, status])
+  @@map("split_entry")
+}
+
+model SplitSettlement {
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  // 结算对象
+  targetScope String    @map("target_scope") @db.VarChar(16)
+  targetId    Int       @map("target_id")
+  targetName  String    @map("target_name") @db.VarChar(64)
+  periodFrom  DateTime  @map("period_from") @db.Date
+  periodTo    DateTime  @map("period_to") @db.Date
+  amount      Decimal   @db.Decimal(12, 2)
+  entryCount  Int       @map("entry_count")
+  payMethod   String    @map("pay_method") @db.VarChar(16)
+  // CONFIRMED 复核 → PAID 已支付
+  status      String    @default("CONFIRMED") @db.VarChar(16)
+  confirmedBy Int       @map("confirmed_by")
+  paidAt      DateTime? @map("paid_at")
+  payRef      String?   @map("pay_ref") @db.VarChar(64)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  entries SplitEntry[]
+
+  @@index([storeId, createdAt])
+  @@map("split_settlement")
+}
+
+/// 分账结算单(按对象+周期汇总计提;复核→支付)
+// ─────────────── 交接班对账(008 #3;III-B) ───────────────
+
+/// 交接班快照(当班金额四合计+未结订单;生成→接班确认)
+model ShiftHandover {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  businessDate DateTime  @map("business_date") @db.Date
+  shiftName    String    @map("shift_name") @db.VarChar(32) // 如 早班/晚班
+  handedBy     Int       @map("handed_by")
+  // 金额快照(生成时冻结;JSON 留扩展)
+  rechargeTotal Decimal  @map("recharge_total") @db.Decimal(12, 2)
+  deductTotal   Decimal  @map("deduct_total") @db.Decimal(12, 2)
+  settleTotal   Decimal  @map("settle_total") @db.Decimal(12, 2)
+  orderTotal    Decimal  @map("order_total") @db.Decimal(12, 2)
+  openOrders    Int      @map("open_orders")
+  summaryJson   Json?    @map("summary_json")
+  // OPEN 生成 → CONFIRMED 接班人确认
+  status       String    @default("OPEN") @db.VarChar(16)
+  takenBy      Int?      @map("taken_by")
+  confirmedAt  DateTime? @map("confirmed_at")
+  remark       String?   @db.VarChar(255)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@index([storeId, businessDate])
+  @@map("shift_handover")
+}
+
 model Artist {
   id                  Int       @id @default(autoincrement())
   storeId             Int       @map("store_id")

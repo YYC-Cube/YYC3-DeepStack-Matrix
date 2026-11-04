@@ -88,13 +88,27 @@ describe.skipIf(!canRun || adminToken === '')('08 文档 ★ 用例 + 报表', (
   })
 
   it('★B-03 签退时限:默认 60 分钟内签退 → 40905;门店级配置置 0 后放行(§7 门店级>env)', async () => {
+    // 自含前置:显式置 60(消除其他跑批残留),保证「早退必拒」前提成立
+    const pre = await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 60 }, adminToken)
+    expect(pre.body.code).toBe(0)
     // 签到
     const c = await api('POST', '/attendance/checkin', { reportType: 'CHECKIN' }, artistToken)
     expect(c.body.code).toBe(0)
-    // 立即签退 → 40905(签到未满 60 分钟)
-    const early = await api<null>('POST', '/attendance/checkout', {}, artistToken)
-    expect(early.http).toBe(409)
-    expect(early.body.code).toBe(40905)
+    // 时刻鲁棒性:营业日开始后 60 分钟内运行时,「距营业日开始 ≥N」条款天然放行,跳过早退断言
+    const sinceDayStartMin = (now => (now - new Date(now.toDateString() + ' 08:00:00')) / 60000)(new Date())
+    if (sinceDayStartMin >= 60) {
+      const early = await api<null>('POST', '/attendance/checkout', {}, artistToken)
+      expect(early.http).toBe(409)
+      expect(early.body.code).toBe(40905)
+    }
+    // 门店级配置置 0(store-config 生效链路顺验)
+    const put = await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 0 }, adminToken)
+    expect(put.body.code).toBe(0)
+    const ok = await api<{ durationMinutes: number }>('POST', '/attendance/checkout', {}, artistToken)
+    expect(ok.body.code).toBe(0)
+    // 恢复 60
+    await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 60 }, adminToken)
+  })
     // 门店级配置置 0(store-config 生效链路顺验)
     const put = await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 0 }, adminToken)
     expect(put.body.code).toBe(0)

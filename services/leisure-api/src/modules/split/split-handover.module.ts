@@ -26,6 +26,7 @@ import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 import { toXlsx } from '../../common/utils/xlsx.js'
+import { parseCsvTable } from '../../common/utils/csv-parse.js'
 
 const CATEGORIES = ['SESSION', 'ROOM', 'ORDER', 'TICKET', 'RECHARGE', 'MANUAL'] as const
 const CALC_TYPES = ['PERCENT', 'FIXED', 'TIERED'] as const
@@ -148,13 +149,36 @@ export class SplitService {
       orderBy: { id: 'desc' },
       include: { rules: true, _count: { select: { entries: true } } },
     })
-    // 实际计提净额(全状态合计;冲正反向条目天然抵扣;17 号 S3+ 预算对比分母)
-    const actualAgg = await this.prisma.splitEntry.groupBy({
-      by: ['planId'],
-      where: { storeId },
-      _sum: { amount: true },
-    })
-    const actualByPlan = new Map(actualAgg.map((g) => [g.planId, Math.round(Number(g._sum.amount ?? 0) * 100) / 100]))
+    // 实际计提净额(深化-3:按方案周期滚动窗口——MONTHLY=本月始/WEEKLY=本周始/DAILY=当日始;
+    // 冲正反向条目天然抵扣;窗口随时间自动前移,无需任何"重置"动作。本地时区自然日口径)
+    const now = new Date()
+    const pad = (n: number): string => String(n).padStart(2, '0')
+    const isoLocal = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate())
+    const dayStart = new Date(isoLocal)
+    const monthStart = new Date(isoLocal.slice(0, 8) + '01')
+    const dow = now.getDay()
+    const weekStart = new Date(dayStart.getTime() - ((dow + 6) % 7) * 86_400_000)
+    const periodStartFor = (t: string): Date =>
+      t === 'DAILY' ? dayStart : t === 'WEEKLY' ? weekStart : monthStart
+    // 周期窗口聚合(按 periodType 去重后逐窗口查询,窗口数 ≤3 避免 N+1)
+    const windows = new Map<string, Date>()
+    for (const r of rows) {
+      const ps = periodStartFor(r.periodType)
+      windows.set(r.periodType, ps)
+    }
+    const actualByPlan = new Map<number, number>()
+    for (const [ptype, ps] of windows) {
+      const agg = await this.prisma.splitEntry.groupBy({
+        by: ['planId'],
+        where: { storeId, businessDate: { gte: ps } },
+        _sum: { amount: true },
+      })
+      for (const g of agg) {
+        if (rows.some((r) => r.id === g.planId && r.periodType === ptype)) {
+          actualByPlan.set(g.planId, Math.round(Number(g._sum.amount ?? 0) * 100) / 100)
+        }
+      }
+    }
     return {
       rows: rows.map((r) => ({
         id: r.id,
@@ -164,6 +188,7 @@ export class SplitService {
         status: r.status,
         budgetAmount: r.budgetAmount !== null ? Number(r.budgetAmount) : null,
         actualAmount: actualByPlan.get(r.id) ?? 0,
+        periodStart: periodStartFor(r.periodType).toISOString().slice(0, 10),
         effectiveFrom: r.effectiveFrom?.toISOString() ?? null,
         effectiveTo: r.effectiveTo?.toISOString() ?? null,
         rules: r.rules.map((x) => ({
@@ -595,14 +620,14 @@ export class SplitService {
         entryCount: r.entryCount,
         payMethod: r.payMethod,
         status: r.status,
+        payRef: r.payRef ?? '',
         paidAt: r.paidAt?.toISOString() ?? null,
       })),
     }
   }
 
   /** 结算单明细(17 号 S3-b:单张结算单头+条目行;xlsx/csv 导出用) */
-  async settlementDetail(id: number, storeId: number) {
-    const r = await this.prisma.splitSettlement.findFirst({
+  async settlementDetail(id: number, storeId: number) {    const r = await this.prisma.splitSettlement.findFirst({
       where: { id, storeId },
       include: {
         entries: { include: { plan: { select: { name: true, category: true } } } },
@@ -633,6 +658,65 @@ export class SplitService {
         status: e.status,
       })),
     }
+  }
+
+  /**
+   * 批量凭证导入(S4-1):CSV 两列[结算单号,凭证号],首行表头跳过;单号支持 "12"/"#12"
+   * 仅回写 CONFIRMED/PAID 状态单;审计留痕;返回逐行结果(成功/跳过+原因)
+   */
+  async importRefs(
+    storeId: number,
+    csvText: string,
+    operatorId: number,
+  ): Promise<{ updated: number; rows: Array<{ id: number | null; payRef: string; ok: boolean; reason: string }> }> {
+    const table = parseCsvTable(csvText)
+    const out: Array<{ id: number | null; payRef: string; ok: boolean; reason: string }> = []
+    let updated = 0
+    for (let i = 0; i < table.length; i++) {
+      const cells = table[i] ?? []
+      // 首行表头(含「结算单号」字样)跳过;空行跳过
+      const c0 = (cells[0] ?? '').trim()
+      const c1 = (cells[1] ?? '').trim()
+      if (i === 0 && (c0.includes('结算单号') || c0.includes('单号'))) continue
+      if (c0 === '' && c1 === '') continue
+      const id = Number(c0.replace(/^#/, ''))
+      if (!Number.isInteger(id) || id <= 0) {
+        out.push({ id: null, payRef: c1, ok: false, reason: '行 ' + String(i + 1) + ':单号无效' })
+        continue
+      }
+      if (c1 === '') {
+        out.push({ id, payRef: '', ok: false, reason: '行 ' + String(i + 1) + ':凭证号为空' })
+        continue
+      }
+      if (c1.length > 64) {
+        out.push({ id, payRef: c1, ok: false, reason: '行 ' + String(i + 1) + ':凭证号超 64 字' })
+        continue
+      }
+      const r = await this.prisma.splitSettlement.findFirst({ where: { id, storeId } })
+      if (r === null) {
+        out.push({ id, payRef: c1, ok: false, reason: '行 ' + String(i + 1) + ':结算单不存在' })
+        continue
+      }
+      if (r.status !== 'CONFIRMED' && r.status !== 'PAID') {
+        out.push({ id, payRef: c1, ok: false, reason: '行 ' + String(i + 1) + ':状态 ' + r.status + ' 不可回写凭证' })
+        continue
+      }
+      const after = await this.prisma.splitSettlement.update({ where: { id }, data: { payRef: c1 } })
+      await this.prisma.auditLog.create({
+        data: {
+          storeId,
+          actorId: operatorId,
+          action: 'SPLIT_REF_IMPORT',
+          targetType: 'split_settlement',
+          targetId: String(id),
+          beforeJson: { payRef: r.payRef } as object,
+          afterJson: { payRef: after.payRef } as object,
+        },
+      })
+      updated++
+      out.push({ id, payRef: c1, ok: true, reason: 'ok' })
+    }
+    return { updated, rows: out }
   }
 
   /** 销售端「我的分成」(ARTIST 强制本人):本人计提条目+按状态净汇总 */
@@ -836,6 +920,11 @@ export class HandoverService {
         openOrders: r.openOrders,
         status: r.status,
         confirmCode: r.confirmCode ?? '',
+        confirmCodeExpired:
+          r.status === 'OPEN' &&
+          r.confirmCode !== null &&
+          r.confirmCode !== '' &&
+          Date.now() - r.createdAt.getTime() > env().HANDOVER_CODE_TTL_HOURS * 3_600_000,
         takenBy: r.takenBy,
         confirmedAt: r.confirmedAt?.toISOString() ?? null,
         remark: r.remark,
@@ -847,6 +936,14 @@ export class HandoverService {
     const before = await this.prisma.shiftHandover.findFirst({ where: { id, storeId } })
     if (before === null) throw new NotFoundException('交接单不存在')
     if (before.status !== 'OPEN') throw new BadRequestException('交接单非 OPEN 态')
+    // 接班码 TTL(深化-2):超期作废,须重新生成快照
+    const ttlHours = env().HANDOVER_CODE_TTL_HOURS
+    if (before.confirmCode !== null && before.confirmCode !== '') {
+      const ageH = (Date.now() - before.createdAt.getTime()) / 3_600_000
+      if (ageH > ttlHours) {
+        throw new BadRequestException('接班码已超期(' + String(ttlHours) + ' 小时作废),请重新生成交接班快照')
+      }
+    }
     // 接班码校验(深化-b):生成单带码则确认必须提供且一致(扫码枪扫打印单/输入均可)
     if (before.confirmCode !== null && before.confirmCode !== '' && confirmCode !== before.confirmCode) {
       throw new BadRequestException('接班码不匹配,请向交班人核对后重试')
@@ -1128,6 +1225,24 @@ export class SplitController {
       return
     }
     res.json({ code: 0, msg: 'ok', data: { rows } })
+  }
+
+  /** 批量凭证导入(S4-1):CSV 两列[单号,凭证号];base64 JSON 传输(免 multipart 依赖) */
+  @RequirePerm('setting:manage')
+  @Post('settlements/import-refs')
+  async importRefs(
+    @Req() req: Request,
+    @Body() body: { contentBase64?: string },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    if (body.contentBase64 === undefined || body.contentBase64 === '') {
+      throw new BadRequestException('缺少 contentBase64')
+    }
+    const raw = Buffer.from(body.contentBase64, 'base64')
+    if (raw.length === 0) throw new BadRequestException('文件内容为空')
+    if (raw.length > 2 * 1024 * 1024) throw new BadRequestException('文件超过 2MB 上限')
+    const text = raw.toString('utf8')
+    return this.svc.importRefs(user?.storeId ?? 1, text, user?.sub ?? 0)
   }
 
   /** 结算单明细导出(17 号 S3-b:xlsx/csv,单张结算单头+条目行) */

@@ -190,6 +190,30 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
               '分账三向不平:已复核/已付 ' + String(splitConfirmed + splitPaid) +
               ' vs 结算单合计 ' + String(splitSettled) + '(差 ' + String(splitDiff) + ')',
             )
+            // 深化-1:按对象聚合已复核/已付条目 vs 结算单,差值绝对值 top3 附表
+            const entryByTarget = await this.prisma.splitEntry.groupBy({
+              by: ['targetName'],
+              where: { storeId, businessDate: targetDate, status: { in: ['CONFIRMED', 'PAID'] } },
+              _sum: { amount: true },
+            })
+            const settleByTarget = await this.prisma.splitSettlement.groupBy({
+              by: ['targetName'],
+              where: { storeId, createdAt: { gte: new Date(targetDate + 'T00:00:00'), lte: new Date(targetDate + 'T23:59:59') } },
+              _sum: { amount: true },
+            })
+            const settleMap = new Map(settleByTarget.map((g) => [g.targetName, Number(g._sum.amount ?? 0)]))
+            const names = new Set<string>([...entryByTarget.map((g) => g.targetName), ...settleMap.keys()])
+            const diffs: Array<{ name: string; diff: number }> = []
+            for (const name of names) {
+              const e = Number(entryByTarget.find((g) => g.targetName === name)?._sum.amount ?? 0)
+              const s = settleMap.get(name) ?? 0
+              const d = Math.round((e - s) * 100) / 100
+              if (Math.round(d * 100) !== 0) diffs.push({ name: name ?? '(空)', diff: d })
+            }
+            diffs.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+            for (const d of diffs.slice(0, 3)) {
+              parts.push('差异条目:' + d.name + ' ' + String(d.diff))
+            }
           }
           await this.prisma.notice.create({
             data: {

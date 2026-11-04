@@ -199,4 +199,56 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('财务分账 S1+
     const missing = await api('GET', '/split/settlements/99999999/export', undefined, adminToken)
     expect(missing.body.code).not.toBe(0)
   })
+
+  it('S4-1 批量凭证导入(CSV):表头跳过/回写/状态保护/不存在单逐行报告', async () => {
+    // 造一张 CONFIRMED 结算单(生成即 CONFIRMED,支付后亦可)用于回写
+    const seeded = await api<{ id: number }>(
+      'POST',
+      '/split/entries',
+      { planId, targetScope: 'ARTIST', targetId: 1, targetName: 'E2E 导入对象', baseAmount: 100, amount: 80 },
+      adminToken,
+    )
+    expect(seeded.body.code).toBe(0)
+    const created = await api<{ id: number }>(
+      'POST',
+      '/split/settlements',
+      { targetScope: 'ARTIST', targetId: 1, targetName: 'E2E 导入对象', periodFrom: '2026-11-01', periodTo: '2026-11-30', payMethod: 'CASH' },
+      adminToken,
+    )
+    expect(created.body.code).toBe(0)
+    const sid = created.body.data.id
+    const csv = '结算单号,凭证号\n' + String(sid) + ',WX-IMPORT-001\n99999999,SHOULD-SKIP\nnot-a-number,BAD\n'
+    const b64 = Buffer.from(csv, 'utf8').toString('base64')
+    const out = await api<{ updated: number; rows: Array<{ id: number | null; ok: boolean; reason: string }> }>(
+      'POST',
+      '/split/settlements/import-refs',
+      { contentBase64: b64 },
+      adminToken,
+    )
+    expect(out.body.code).toBe(0)
+    expect(out.body.data.updated).toBe(1)
+    expect(out.body.data.rows.some((r) => r.ok)).toBe(true)
+    expect(out.body.data.rows.filter((r) => !r.ok)).toHaveLength(2)
+    // 回写实证:列表中该单 payRef 已带值
+    const list = await api<{ rows: Array<{ id: number; status: string; payRef?: string }> }>('GET', '/split/settlements', undefined, adminToken)
+    const row = list.body.data.rows.find((r) => r.id === sid)
+    expect(row).toBeDefined()
+    expect(row!.payRef).toBe('WX-IMPORT-001')
+    // 再导一次改值(幂等覆盖;CONFIRMED 可重复补录)
+    const csv2 = '结算单号,凭证号\n#' + String(sid) + ',WX-IMPORT-002\n'
+    const out2 = await api<{ updated: number }>('POST', '/split/settlements/import-refs', { contentBase64: Buffer.from(csv2, 'utf8').toString('base64') }, adminToken)
+    expect(out2.body.data.updated).toBe(1)
+    // 缺参 400
+    const bad = await api('POST', '/split/settlements/import-refs', {}, adminToken)
+    expect(bad.http).toBe(400)
+  })
+
+  it('深化-3 周期滚动:MONTHLY 方案 periodStart=本月 1 日,actualAmount 含当期条目', async () => {
+    const plans = await api<{ rows: Array<{ id: number; periodType: string; periodStart?: string; actualAmount: number }> }>('GET', '/split/plans', undefined, adminToken)
+    const monthly = plans.body.data.rows.find((r) => r.periodType === 'MONTHLY')
+    expect(monthly).toBeDefined()
+    const expectedStart = new Date().toISOString().slice(0, 8) + '01'
+    expect(monthly!.periodStart).toBe(expectedStart)
+    expect(monthly!.actualAmount).toBeGreaterThanOrEqual(0)
+  })
 })

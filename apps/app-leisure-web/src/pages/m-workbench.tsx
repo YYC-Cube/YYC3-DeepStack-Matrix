@@ -81,6 +81,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const permCodes = useAuthStore((s) => s.permCodes)
   const [metrics, setMetrics] = useState<ReconListResult['selfMetrics'] | null>(null)
   const [liveRooms, setLiveRooms] = useState<number>(0)
+  /** 分账月报卡(S4-3:三向对账三数;仅 setting:manage 拉取) */
+  const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> } | null>(null)
   const [tab, setTab] = useState('manage')
   const [showNotices, setShowNotices] = useState(false)
   /** 工作通告(/notices 真数据;含播放配置;空时回退占位) */
@@ -107,6 +109,14 @@ export default function MWorkbenchPage(): React.JSX.Element {
       /* localStorage 不可用时静默 */
     }
   }, [announcements])
+
+  // 分账月报(S4-3):setting:manage 权限才拉;失败静默(卡片不渲染)
+  useEffect(() => {
+    if (!permCodes.includes('setting:manage')) return
+    void req<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> }>('GET', '/split/balance')
+      .then((r) => setSplitCard(r))
+      .catch(() => undefined)
+  }, [permCodes])
 
   useEffect(() => {
     const bd = client.businessDateOf()
@@ -286,6 +296,42 @@ export default function MWorkbenchPage(): React.JSX.Element {
           ))}
         </div>
       </div>
+
+      {/* 分账月报(S4-3:本月计提净额/结算中/已付+平衡徽标;点击进 /split) */}
+      {splitCard !== null && (
+        <div
+          className="mx-3 mt-3 rounded-2xl p-3 cursor-pointer"
+          style={{ background: 'var(--lm-card)', border: '1px solid color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
+          onClick={() => { navigate('/split') }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-[var(--lm-fg)]">分账月报</span>
+            <span
+              className="text-[10px] px-1.5 py-0.5 rounded-full"
+              style={{
+                color: splitCard.balanced ? '#00cc88' : '#ff5555',
+                background: splitCard.balanced ? 'rgba(0,204,136,0.12)' : 'rgba(255,85,85,0.12)',
+              }}
+            >
+              {splitCard.balanced ? '三向平衡' : '存在差异'}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 rounded-xl py-2.5" style={{ background: 'var(--lm-bg)' }}>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-base font-bold tabular-nums text-[var(--lm-fg)]">¥{String(Math.round(splitCard.entryNet * 100) / 100)}</span>
+              <span className="text-[11px] text-fg-muted">计提净额</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-base font-bold tabular-nums text-[var(--lm-fg)]">¥{String(Math.round((splitCard.byStatus?.ACCRUED ?? 0) * 100) / 100)}</span>
+              <span className="text-[11px] text-fg-muted">待结算</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-base font-bold tabular-nums text-[var(--lm-fg)]">¥{String(Math.round(splitCard.settledSum * 100) / 100)}</span>
+              <span className="text-[11px] text-fg-muted">已入结算</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 常用宫格 */}
       <div className="mx-3 mt-3 rounded-2xl p-3" style={{ background: 'var(--lm-card)' }}>

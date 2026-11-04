@@ -71,10 +71,20 @@ export default function SplitPage(): React.JSX.Element {
   const [settlements, setSettlements] = useState<SettlementRow[]>()
   const [pending, setPending] = useState<PendingRow[]>()
   const [balance, setBalance] = useState<BalanceInfo | null>(null)
-  const [form, setForm] = useState<{ name: string; category: string; percent: string; budget: string } | null>(null)
+  const [form, setForm] = useState<{
+    name: string
+    category: string
+    calcType: string
+    percent: string
+    fixedAmount: string
+    tiers: Array<{ min: string; max: string; percent: string }>
+    budget: string
+  } | null>(null)
   const [manual, setManual] = useState<{ targetScope: string; targetId: string; targetName: string; baseAmount: string; amount: string } | null>(null)
   const [settleForm, setSettleForm] = useState<{ targetScope: string; targetId: string; targetName: string; periodFrom: string; periodTo: string; payMethod: string } | null>(null)
   const [payForm, setPayForm] = useState<{ id: number; targetName: string; amount: number; payMethod: string; payRef: string } | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
+  const [importResult, setImportResult] = useState<{ updated: number; rows: Array<{ id: number | null; payRef: string; ok: boolean; reason: string }> } | null>(null)
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async (): Promise<void> => {
@@ -104,16 +114,60 @@ export default function SplitPage(): React.JSX.Element {
       toast.error('方案名称必填')
       return
     }
+    const base = { payMethod: 'CASH', rewardType: 'REWARD' }
+    if (form.calcType === 'TIERED') {
+      const tiers = form.tiers.filter((t) => t.percent.trim() !== '')
+      if (tiers.length === 0) {
+        toast.error('阶梯规则至少一行(填比例)')
+        return
+      }
+    }
+    const rule: Record<string, unknown> =
+      form.calcType === 'TIERED'
+        ? {
+            calcType: 'TIERED',
+            ...base,
+            tierJson: form.tiers
+              .filter((t) => t.percent.trim() !== '')
+              .map((t) => ({ min: t.min.trim() === '' ? null : Number(t.min), max: t.max.trim() === '' ? null : Number(t.max), percent: Number(t.percent) })),
+          }
+        : form.calcType === 'FIXED'
+          ? { calcType: 'FIXED', ...base, fixedAmount: Number(form.fixedAmount) || 0 }
+          : { calcType: 'PERCENT', ...base, percent: Number(form.percent) || 0 }
     setBusy(true)
     try {
       await req('POST', '/split/plans', {
         name: form.name.trim(),
         category: form.category,
         ...(form.budget.trim() !== '' ? { budgetAmount: Number(form.budget) } : {}),
-        rules: [{ calcType: 'PERCENT', percent: Number(form.percent) || 0, payMethod: 'CASH', rewardType: 'REWARD' }],
+        rules: [rule],
       })
       toast.success('方案已创建(DRAFT,激活后可计提)')
       setForm(null)
+      await load()
+    } catch (e) {
+      toastError(e)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function importRefs(file: File): Promise<void> {
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      toast.error('请选择 CSV 文件(Excel/WPS 另存为「CSV UTF-8」)')
+      return
+    }
+    setBusy(true)
+    try {
+      const text = await file.text()
+      const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(text)))
+      const out = await req<{ updated: number; rows: Array<{ id: number | null; payRef: string; ok: boolean; reason: string }> }>(
+        'POST',
+        '/split/settlements/import-refs',
+        { contentBase64: b64 },
+      )
+      setImportResult(out)
+      toast.success('导入完成:更新 ' + String(out.updated) + ' 条')
       await load()
     } catch (e) {
       toastError(e)
@@ -223,7 +277,10 @@ export default function SplitPage(): React.JSX.Element {
         title="财务分账"
         desc="17 号闭环规划:方案(类目×周期×规则×预算)→ 计提(只增,基数快照)→ 结算单(复核→支付→导出);冲正=反向条目;三向对账挂日切"
         actions={
-          <Button onClick={() => setForm({ name: '', category: 'SESSION', percent: '20', budget: '' })}>+ 新建方案(上钟业绩·比例)</Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setForm({ name: '', category: 'SESSION', calcType: 'PERCENT', percent: '20', fixedAmount: '', tiers: [{ min: '', max: '', percent: '' }], budget: '' })}>+ 新建方案</Button>
+            <Button variant="outline" onClick={() => { setImportOpen(true); setImportResult(null) }}>批量导入凭证(CSV)</Button>
+          </div>
         }
       />
 
@@ -456,6 +513,111 @@ export default function SplitPage(): React.JSX.Element {
       </Card>
 
       {/* 支付确认弹窗 */}
+      {/* 新建方案(含 S4-2 阶梯规则 UI 化) */}
+      <Dialog open={form !== null} onOpenChange={(o) => { if (!o) setForm(null) }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>新建分账方案</DialogTitle>
+          </DialogHeader>
+          {form !== null && (
+            <div className="space-y-3">
+              <Field label="方案名称" required>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="如:销售经理月度提成" />
+              </Field>
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="类目">
+                  <SelectBox
+                    value={form.category}
+                    onChange={(v) => setForm({ ...form, category: v })}
+                    options={[
+                      { value: 'SESSION', label: '上钟业绩' },
+                      { value: 'ROOM', label: '房账消费' },
+                      { value: 'ORDER', label: '自点单' },
+                      { value: 'TICKET', label: '台票销售' },
+                      { value: 'RECHARGE', label: '充值业绩' },
+                      { value: 'MANUAL', label: '手动调整' },
+                    ]}
+                  />
+                </Field>
+                <Field label="计算方式">
+                  <SelectBox
+                    value={form.calcType}
+                    onChange={(v) => setForm({ ...form, calcType: v })}
+                    options={[{ value: 'PERCENT', label: '比例 %' }, { value: 'FIXED', label: '固定金额' }, { value: 'TIERED', label: '阶梯' }]}
+                  />
+                </Field>
+              </div>
+              {form.calcType === 'PERCENT' && (
+                <Field label="比例(%)">
+                  <Input inputMode="decimal" value={form.percent} onChange={(e) => setForm({ ...form, percent: e.target.value })} />
+                </Field>
+              )}
+              {form.calcType === 'FIXED' && (
+                <Field label="固定金额(元/期)">
+                  <Input inputMode="decimal" value={form.fixedAmount} onChange={(e) => setForm({ ...form, fixedAmount: e.target.value })} />
+                </Field>
+              )}
+              {form.calcType === 'TIERED' && (
+                <div className="space-y-1.5">
+                  <div className="text-xs text-fg-muted">阶梯表(基数区间×比例;min/max 留空=不设界,命中首个满足区间)</div>
+                  {form.tiers.map((t, i) => (
+                    <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-1.5 items-center">
+                      <Input placeholder="基数≥" inputMode="decimal" value={t.min} onChange={(e) => setForm({ ...form, tiers: form.tiers.map((x, j) => j === i ? { ...x, min: e.target.value } : x) })} />
+                      <Input placeholder="基数<" inputMode="decimal" value={t.max} onChange={(e) => setForm({ ...form, tiers: form.tiers.map((x, j) => j === i ? { ...x, max: e.target.value } : x) })} />
+                      <Input placeholder="比例%" inputMode="decimal" value={t.percent} onChange={(e) => setForm({ ...form, tiers: form.tiers.map((x, j) => j === i ? { ...x, percent: e.target.value } : x) })} />
+                      <Button variant="ghost" size="sm" onClick={() => setForm({ ...form, tiers: form.tiers.filter((_, j) => j !== i) })}>删</Button>
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={() => setForm({ ...form, tiers: [...form.tiers, { min: '', max: '', percent: '' }] })}>+ 加一行</Button>
+                </div>
+              )}
+              <Field label="计划期预算(可选;达成率=实际/预算)">
+                <Input inputMode="decimal" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} placeholder="如 5000" />
+              </Field>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setForm(null)}>取消</Button>
+            <Button disabled={busy} onClick={() => { void savePlan() }}>创建</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 批量凭证导入(S4-1;CSV UTF-8 两列[结算单号,凭证号]) */}
+      <Dialog open={importOpen} onOpenChange={(o) => { if (!o) { setImportOpen(false); setImportResult(null) } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>批量导入支付凭证(CSV)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-fg-muted">
+              Excel/WPS 另存为「CSV UTF-8」;两列:<code>结算单号,凭证号</code>(首行表头自动跳过;单号可带 #)。
+              仅回写 CONFIRMED/PAID 状态单,全部留审计。
+            </p>
+            <Input
+              type="file"
+              accept=".csv,text/csv"
+              disabled={busy}
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f !== undefined) void importRefs(f)
+              }}
+            />
+            {importResult !== null && (
+              <div className="max-h-48 overflow-auto rounded border border-line text-xs space-y-1 p-2">
+                <div className="font-medium">更新 {String(importResult.updated)} 条</div>
+                {importResult.rows.filter((r) => !r.ok).map((r, i) => (
+                  <div key={i} className="text-error">#{String(r.id ?? '?')} {r.reason}</div>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setImportOpen(false); setImportResult(null) }}>关闭</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={payForm !== null} onOpenChange={(o) => { if (!o) setPayForm(null) }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>

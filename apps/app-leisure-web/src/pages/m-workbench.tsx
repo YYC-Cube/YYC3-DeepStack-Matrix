@@ -201,7 +201,19 @@ export default function MWorkbenchPage(): React.JSX.Element {
             title="工作通告"
             className="w-8 h-8 rounded-full flex items-center justify-center relative"
             style={{ background: 'color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
-            onClick={() => { setShowNotices(true) }}
+            onClick={() => {
+              setShowNotices(true)
+              // 触达上报:可见通告逐条 POST read(幂等;fire-and-forget)
+              const token = useAuthStore.getState().token ?? ''
+              for (const a of announcements) {
+                if (a.id !== undefined) {
+                  void fetch('/api/v1/notices/' + String(a.id) + '/read', {
+                    method: 'POST',
+                    headers: { Authorization: 'Bearer ' + token },
+                  }).catch(() => undefined)
+                }
+              }
+            }}
           >
             <Bell className="w-4 h-4 text-primary" />
             {announcements.length > 0 && (

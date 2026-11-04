@@ -91,18 +91,22 @@ export default function HandoverPage(): React.JSX.Element {
     {
       key: 'act',
       header: '操作',
-      render: (r) =>
-        r.status === 'OPEN' ? (
-          <ConfirmButton
-            confirmTitle="确认交接"
-            confirmDesc="确认后本班次快照冻结归档,金额以快照为准。"
-            onConfirm={() => { void confirm(r.id) }}
-          >
-            接班确认
-          </ConfirmButton>
-        ) : (
-          <span className="text-xs text-fg-muted">已确认</span>
-        ),
+      render: (r) => (
+        <div className="flex gap-1.5">
+          {r.status === 'OPEN' && (
+            <ConfirmButton
+              confirmTitle="确认交接"
+              confirmDesc="确认后本班次快照冻结归档,金额以快照为准。"
+              onConfirm={() => { void confirm(r.id) }}
+            >
+              接班确认
+            </ConfirmButton>
+          )}
+          <Button variant="outline" size="sm" onClick={() => { window.open('#/handover/' + String(r.id) + '/print', '_blank') }}>
+            打印
+          </Button>
+        </div>
+      ),
     },
   ]
 

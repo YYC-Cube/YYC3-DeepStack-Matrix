@@ -239,6 +239,23 @@ export function qrcodeVerify(scene: string): Promise<{ valid: boolean; storeId?:
     .catch(translate)
 }
 
+/** S2 我的分成(GET /split/my;ARTIST scope 强制本人;仅计提净额) */
+export function mySplit(): Promise<{ total: number; rows: Array<{ id: number; businessDate: string; baseAmount: number; amount: number; status: string; payMethod: string | null; remark: string | null }> }> {
+  return Taro.request({
+    url: API_BASE + '/split/my',
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) =>
+      envelope<{
+        total: number
+        rows: Array<{ id: number; businessDate: string; baseAmount: number; amount: number; status: string; payMethod: string | null; remark: string | null }>
+      }>(res),
+    )
+    .catch(translate)
+}
+
 /** a21 我的订单:自点单 + 已随房账结算的本人上场次(scope=ARTIST 强制本人;类型单源 MeOrdersResult) */
 export function myOrders(): Promise<MeOrdersResult> {
   return Taro.request({

@@ -64,7 +64,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('⑧ 轮台派单
     for (const rs of open.body.data.rows) await closeAndClean(rs.id, rs.roomId)
 
     // 两名已审核销售经理当日签到(幂等)
-    const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>('GET', '/artists?pageSize=50', undefined, adminToken)
+    const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>('GET', '/artists?keyword=A100&pageSize=50', undefined, adminToken)
     const reports = await api<{ rows: Array<{ artistId: number }> }>(
       'GET', '/attendance/reports?businessDate=' + today() + '&type=CHECKIN&pageSize=200', undefined, adminToken,
     )

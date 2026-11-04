@@ -60,7 +60,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('P0 缺失回补(
     roomTypeId = target!.roomTypeId
     const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>(
       'GET',
-      '/artists?pageSize=50',
+      '/artists?keyword=A1001&pageSize=50',
       undefined,
       adminToken,
     )

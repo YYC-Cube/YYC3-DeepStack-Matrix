@@ -44,7 +44,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('销售经理设�
     const login = await api<{ accessToken: string }>('POST', '/auth/admin/login', { account: PHONE, password: PASSWORD })
     adminToken = login.body.data.accessToken
     expect(adminToken).not.toBe('')
-    const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>('GET', '/artists?pageSize=50', undefined, adminToken)
+    const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>('GET', '/artists?keyword=' + BADGE + '&pageSize=50', undefined, adminToken)
     artistId = artists.body.data.rows.find((a) => a.badgeNo === BADGE)!.id
 
     // 销售端 token:dev 模式 code 即 openid;首次 NEED_BIND → 以腰牌绑定;其后直接 OK

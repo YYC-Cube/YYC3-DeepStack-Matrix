@@ -626,12 +626,15 @@ export class SplitService {
     })
     const settledSum = Math.round(Number(settlements._sum.amount ?? 0) * 100) / 100
     const entryNet = Math.round(((byStatus['ACCRUED']?.amount ?? 0) + (byStatus['CONFIRMED']?.amount ?? 0) + (byStatus['PAID']?.amount ?? 0) + (byStatus['REVERSED']?.amount ?? 0)) * 100) / 100
+    // 正式校验口径:已入结算(CONFIRMED+PAID)与结算单合计一致
+    const balanced = Math.abs((byStatus['CONFIRMED']?.amount ?? 0) + (byStatus['PAID']?.amount ?? 0) - settledSum) < 0.01
     return {
       byStatus,
       settledSum,
       settlementCount: settlements._count ?? 0,
       entryNet,
       diff: Math.round((entryNet - settledSum) * 100) / 100,
+      balanced,
       note: 'diff=未入结算的 ACCRUED 净额(正常待结算);PENDING 待双人复核',
     }
   }

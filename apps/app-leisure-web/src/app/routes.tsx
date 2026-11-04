@@ -74,6 +74,7 @@ const RolesPage = sus(lazy(() => import('@/pages/roles')))
 const NoticesPage = sus(lazy(() => import('@/pages/notices')))
 const SplitPage = sus(lazy(() => import('@/pages/split')))
 const HandoverPage = sus(lazy(() => import('@/pages/handover')))
+const HandoverPrintPage = sus(lazy(() => import('@/pages/handover-print')))
 
 export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
@@ -122,6 +123,7 @@ export const router = createHashRouter([
       { path: 'notices', element: <NoticesPage /> },
       { path: 'split', element: <SplitPage /> },
       { path: 'handover', element: <HandoverPage /> },
+      { path: 'handover/:id/print', element: <HandoverPrintPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
       { path: 'rooms/board', element: <BoardPage /> },

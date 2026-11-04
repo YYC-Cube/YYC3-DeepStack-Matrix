@@ -156,18 +156,21 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
       })
       const splitSettled = Math.round(Number(splitSettleAgg._sum.amount ?? 0) * 100) / 100
       const splitDiff = Math.round((splitEntryNet - splitSettled) * 100) / 100
+      // 正式校验口径:已入结算部分(CONFIRMED+PAID)必须与结算单合计一致;ACCRUED 未入结算是正常待结算
+      const splitBalanced =
+        Math.round((splitConfirmed + splitPaid - splitSettled) * 100) === 0
 
       await this.prisma.jobRunLog.create({
         data: {
           jobName: 'day-cut-summary',
           businessDate: targetDate,
-          status: balanced ? 'OK' : 'OK_WITH_DIFF',
+          status: balanced && splitBalanced ? 'OK' : balanced ? 'OK_SPLIT_DIFF' : 'OK_WITH_DIFF',
           stats: {
             storeId,
             storeName,
             metrics,
             txnSumCheck: { netTotal, balanced },
-            splitCheck: { entryNet: splitEntryNet, settled: splitSettled, diff: splitDiff },
+            splitCheck: { entryNet: splitEntryNet, settled: splitSettled, diff: splitDiff, balanced: splitBalanced },
           },
           startedAt,
           finishedAt: new Date(),

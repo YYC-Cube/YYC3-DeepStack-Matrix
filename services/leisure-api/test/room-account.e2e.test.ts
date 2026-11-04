@@ -51,10 +51,10 @@ describe.skipIf(!canRun)('房账全链 e2e(方案甲)', () => {
     adminToken = login.body.data.accessToken
     expect(adminToken).not.toBe('')
 
-    // 取种子销售经理(晨曦 A1001,已审核)+ 空闲房 A01
+    // 取种子销售经理(晨曦 A1001,已审核)+ 空闲房 A01;定向 keyword 防 e2e 档案堆积翻页
     const artists = await api<{ rows: Array<{ id: number; badgeNo?: string; realName: string }> }>(
       'GET',
-      '/artists?pageSize=50',
+      '/artists?keyword=A1001&pageSize=50',
       undefined,
       adminToken,
     )

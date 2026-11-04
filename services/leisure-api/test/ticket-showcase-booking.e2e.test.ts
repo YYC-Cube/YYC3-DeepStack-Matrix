@@ -51,7 +51,7 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('台票/展示/�
     expect(adminToken).not.toBe('')
     const artists = await api<{ rows: Array<{ id: number; badgeNo?: string }> }>(
       'GET',
-      '/artists?pageSize=50',
+      '/artists?keyword=A1001&pageSize=50',
       undefined,
       adminToken,
     )

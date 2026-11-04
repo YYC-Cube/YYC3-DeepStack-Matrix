@@ -19,6 +19,9 @@ interface NoticeRow {
   playTimes: number
   playSpeed: number
   remind: boolean
+  /** 触达统计(S2;GET /notices/:id/stats) */
+  reachRate: number | null
+  readCount: number | null
 }
 
 interface FormState {
@@ -58,7 +61,27 @@ export default function NoticesPage(): React.JSX.Element {
   const load = useCallback(async (): Promise<void> => {
     try {
       const res = await req<{ rows: NoticeRow[] }>('GET', '/notices')
-      setRows(res.rows)
+      // 触达统计(S2):逐条拉取已读数/触达率(数据端点已就绪;行内徽标展示)
+      const withStats = await Promise.all(
+        res.rows.map(async (r) => {
+          try {
+            const s = await req<{ readCount: number; byTitle: Array<{ read: number; total: number }> }>(
+              'GET',
+              '/notices/' + String(r.id) + '/stats',
+            )
+            const denom = s.byTitle.reduce((a, b) => a + b.total, 0)
+            const read = s.byTitle.reduce((a, b) => a + b.read, 0)
+            return {
+              ...r,
+              readCount: s.readCount,
+              reachRate: denom > 0 ? Math.round((read / denom) * 100) : null,
+            }
+          } catch {
+            return { ...r, readCount: null, reachRate: null }
+          }
+        }),
+      )
+      setRows(withStats)
     } catch (e) {
       toastError(e, '通告加载失败')
     }
@@ -140,6 +163,18 @@ export default function NoticesPage(): React.JSX.Element {
           <Card key={r.id} className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-medium text-[var(--lm-fg)]">{r.title}</span>
+              {r.reachRate !== null && r.reachRate !== undefined && (
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded-full border"
+                  style={{
+                    color: r.reachRate >= 80 ? '#00ff88' : r.reachRate >= 40 ? '#ffaa00' : '#ff6699',
+                    borderColor: 'currentColor',
+                  }}
+                  title={'触达率 ' + String(r.reachRate) + '% · 已读 ' + String(r.readCount ?? 0) + ' 人'}
+                >
+                  触达 {String(r.reachRate)}%
+                </span>
+              )}
               <span className="text-xs text-fg-muted ml-auto">
                 {r.publisherName ?? String(r.publishedBy)} · {r.createdAt.slice(0, 16).replace('T', ' ')}
               </span>

@@ -109,14 +109,6 @@ describe.skipIf(!canRun || adminToken === '')('08 文档 ★ 用例 + 报表', (
     // 恢复 60
     await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 60 }, adminToken)
   })
-    // 门店级配置置 0(store-config 生效链路顺验)
-    const put = await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 0 }, adminToken)
-    expect(put.body.code).toBe(0)
-    const ok = await api<{ durationMinutes: number }>('POST', '/attendance/checkout', {}, artistToken)
-    expect(ok.body.code).toBe(0)
-    // 恢复 60
-    await api('PUT', '/store-config/artist-settings', { checkoutMinMinutes: 60 }, adminToken)
-  })
 
   it('★C-15 营业日口径:my-today 返回 businessDate 且 08:00 日切字符串格式', async () => {
     const r = await api<{ businessDate: string }>('GET', '/attendance/my-today', undefined, artistToken)

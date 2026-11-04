@@ -5,6 +5,7 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/tickets/index',
     'pages/orders/index',
+    'pages/earnings/index',
     'pages/bind/index',
   ],
   window: {

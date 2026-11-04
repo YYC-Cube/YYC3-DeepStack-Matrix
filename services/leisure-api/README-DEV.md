@@ -45,10 +45,10 @@ docker compose -f docker-compose.dev.yml up -d
 cp .env.example .env          # .env 默认用受限运行时账号 leisure_app(流水/审计表只增)
 pnpm prisma:generate
 # 迁移需 DDL,临时切换 migrate 账号(leisure):
-DATABASE_URL=mysql://leisure:leisure-dev-only@127.0.0.1:3307/leisure \
+DATABASE_URL=postgresql://leisure:leisure-dev-only@127.0.0.1:5434/leisure \
   pnpm prisma:migrate --name xxx
-# 应用账号授权:全新数据卷由 docker/mysql-init/02-accounts.sql 自动;既有卷执行:
-#   docker exec -i leisure-mysql mysql -uroot -p < scripts/apply-prod-grants.sql
+# 应用账号授权:全新数据卷由 bootstrap 默认权限自动;既有卷执行:
+#   psql "$DATABASE_URL_OWNER" -f scripts/apply-pg-grants.sql
 pnpm db:seed
 
 # 5) 起服务
@@ -113,7 +113,7 @@ bash scripts/demo-core-chain.sh
 
 ### 资金红线落点(铁律 2)
 
-- DB 层:`stage_fee_txn / ticket_txn / audit_log / wechat_bind_log` 对运行时账号 `leisure_app` **只授 SELECT+INSERT**(02-accounts.sql / apply-prod-grants.sql);验证:`docker exec leisure-mysql mysql -uleisure_app -p … -e "UPDATE stage_fee_txn SET amount=0 WHERE id=1"` → ERROR 1142
+- DB 层:`stage_fee_txn / ticket_txn / audit_log` 对运行时账号 `leisure_app` **只增**(apply-pg-grants.sql REVOKE UPDATE/DELETE);验证:`psql "$DATABASE_URL" -c "UPDATE stage_fee_txn SET amount=0 WHERE id=1"` → ERROR(权限不足)
 - 应用层:流水只 create 不 update/delete;更正走 REVERSE;金额精度 2 位;资金写接口幂等键 24h 回放(快照落库后才返回响应)
 - 日切 job:进程内 60s 轮询物化上一营业日 daily_summary(幂等可重跑,BullMQ 就绪后平移);痕迹在 job_run_log
 

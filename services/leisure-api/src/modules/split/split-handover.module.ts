@@ -16,13 +16,15 @@ import {
   Post,
   Query,
   Req,
+  Res,
   BadRequestException,
 } from '@nestjs/common'
 import { IsArray, IsIn, IsInt, IsOptional, IsString, Length, Min, Max, IsNumber } from 'class-validator'
-import type { Request } from 'express'
+import type { Request, Response } from 'express'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { toXlsx } from '../../common/utils/xlsx.js'
 
 const CATEGORIES = ['SESSION', 'ROOM', 'ORDER', 'TICKET', 'RECHARGE', 'MANUAL'] as const
 const CALC_TYPES = ['PERCENT', 'FIXED', 'TIERED'] as const
@@ -117,6 +119,10 @@ class HandoverDto {
   @IsOptional()
   @IsInt()
   takenBy?: number
+  /** 跨日班次归属营业日(可选;缺省=当日营业日口径) */
+  @IsOptional()
+  @IsString()
+  businessDate?: string
   @IsOptional()
   @IsString()
   remark?: string
@@ -578,6 +584,29 @@ export class SplitService {
     }
   }
 
+  /** 销售端「我的分成」(ARTIST 强制本人):本人计提条目+按状态净汇总 */
+  async myEarnings(storeId: number, scope: 'ADMIN' | 'ARTIST' | undefined, userId: number) {
+    if (scope !== 'ARTIST') throw new (await import('@nestjs/common')).UnauthorizedException('仅销售端')
+    const rows = await this.prisma.splitEntry.findMany({
+      where: { storeId, targetScope: 'ARTIST', targetId: userId },
+      orderBy: { id: 'desc' },
+      take: 100,
+    })
+    const total = Math.round(rows.filter((r) => r.status !== 'REVERSED' && r.status !== 'REJECTED').reduce((a, e) => a + Number(e.amount), 0) * 100) / 100
+    return {
+      total,
+      rows: rows.map((r) => ({
+        id: r.id,
+        businessDate: r.businessDate.toISOString().slice(0, 10),
+        baseAmount: Number(r.baseAmount),
+        amount: Number(r.amount),
+        status: r.status,
+        payMethod: r.payMethod,
+        remark: r.remark,
+      })),
+    }
+  }
+
   /** 三向对账(计提↔结算↔支付):状态金额分布+平衡差 */
   async splitBalance(storeId: number) {
     const group = await this.prisma.splitEntry.groupBy({
@@ -595,8 +624,6 @@ export class SplitService {
       _sum: { amount: true },
       _count: { _all: true },
     })
-    const accrued = byStatus['ACCRUED'] ?? { amount: 0, count: 0 }
-    const pending = byStatus['PENDING'] ?? { amount: 0, count: 0 }
     const settledSum = Math.round(Number(settlements._sum.amount ?? 0) * 100) / 100
     const entryNet = Math.round(((byStatus['ACCRUED']?.amount ?? 0) + (byStatus['CONFIRMED']?.amount ?? 0) + (byStatus['PAID']?.amount ?? 0) + (byStatus['REVERSED']?.amount ?? 0)) * 100) / 100
     return {
@@ -605,9 +632,51 @@ export class SplitService {
       settlementCount: settlements._count ?? 0,
       entryNet,
       diff: Math.round((entryNet - settledSum) * 100) / 100,
-      pendingReview: pending,
       note: 'diff=未入结算的 ACCRUED 净额(正常待结算);PENDING 待双人复核',
     }
+  }
+
+  /** 报表:分账计提明细(11 张)/结算汇总(12 张)数据源;json/csv/xlsx */
+  async entriesReport(storeId: number, q: { from: Date; to: Date }) {
+    const rows = await this.prisma.splitEntry.findMany({
+      where: { storeId, businessDate: { gte: q.from, lte: q.to }, status: { not: 'REJECTED' } },
+      orderBy: { id: 'asc' },
+    })
+    const planIds = Array.from(new Set(rows.map((r) => r.planId)))
+    const plans = planIds.length > 0
+      ? await this.prisma.splitPlan.findMany({ where: { id: { in: planIds } }, select: { id: true, name: true, category: true } })
+      : []
+    const planMap = new Map(plans.map((p) => [p.id, p]))
+    return rows.map((r) => ({
+      businessDate: r.businessDate,
+      planName: planMap.get(r.planId)?.name ?? String(r.planId),
+      category: planMap.get(r.planId)?.category ?? 'MANUAL',
+      targetScope: r.targetScope,
+      targetName: r.targetName,
+      baseAmount: Number(r.baseAmount),
+      amount: Number(r.amount),
+      status: r.status,
+      payMethod: r.payMethod ?? '—',
+      createdAt: r.createdAt,
+    }))
+  }
+
+  async settlementsReport(storeId: number, q: { from: Date; to: Date }) {
+    const rows = await this.prisma.splitSettlement.findMany({
+      where: { storeId, createdAt: { gte: q.from, lte: q.to } },
+      orderBy: { id: 'asc' },
+    })
+    return rows.map((r) => ({
+      businessDate: r.createdAt,
+      targetScope: r.targetScope,
+      targetName: r.targetName,
+      periodFrom: r.periodFrom,
+      periodTo: r.periodTo,
+      amount: Number(r.amount),
+      entryCount: r.entryCount,
+      payMethod: r.payMethod,
+      status: r.status,
+    }))
   }
 
   private async audit(storeId: number, operatorId: number, action: string, targetType: string, targetId: string, before: unknown, after: unknown): Promise<void> {
@@ -631,9 +700,10 @@ export class SplitService {
 export class HandoverService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** 生成交接班快照:当班四合计(充值/扣费/结算/点单)+未结订单数(生成时冻结);可指定接班人 */
-  async create(storeId: number, body: { shiftName: string; takenBy?: number; remark?: string }, operatorId: number) {
-    const bd = await this.businessDate(storeId)
+  /** 生成交接班快照:当班四合计(充值/扣费/结算/点单)+未结订单数(生成时冻结);可指定接班人与跨日归属营业日 */
+  async create(storeId: number, body: { shiftName: string; takenBy?: number; businessDate?: string; remark?: string }, operatorId: number) {
+    // 跨日班次归属细化:显式指定归属营业日优先;缺省按门店日切口径(如晚班跨零点归属次营业日可显式传)
+    const bd = body.businessDate !== undefined && body.businessDate !== '' ? body.businessDate : await this.businessDate(storeId)
     const bdDate = new Date(bd)
     const sumFee = async (type: string): Promise<number> => {
       const r = await this.prisma.stageFeeTxn.aggregate({ where: { storeId, businessDate: bdDate, type }, _sum: { amount: true } })
@@ -915,6 +985,89 @@ export class SplitController {
     return this.svc.splitBalance(user?.storeId ?? 1)
   }
 
+  /** 销售端「我的分成」只读(ARTIST scope 强制本人;无守卫,scope 校验在 svc) */
+  @Get('my')
+  async myEarnings(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.myEarnings(user?.storeId ?? 1, user?.scope, user?.sub ?? 0)
+  }
+
+  /** 报表(第 11 张):分账计提明细 json/csv/xlsx */
+  @RequirePerm('setting:manage')
+  @Get('report/entries')
+  async entriesReport(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('businessDateFrom') from?: string,
+    @Query('businessDateTo') to?: string,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    const user = (req as ReqWithUser).user
+    const range = {
+      from: new Date(from !== undefined && from !== '' ? from : new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10)),
+      to: new Date(to !== undefined && to !== '' ? to + 'T23:59:59' : new Date().toISOString().slice(0, 10) + 'T23:59:59'),
+    }
+    const rows = await this.svc.entriesReport(user?.storeId ?? 1, range)
+    if (format === 'csv' || format === 'xlsx') {
+      const headers = ['营业日', '方案', '类目', '对象类型', '对象', '基数', '计提额', '状态', '支付方式']
+      if (format === 'csv') {
+        const esc = (v: unknown): string => {
+          const s = String(v ?? '')
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+        }
+        const csv = '\uFEFF' + [headers.join(','), ...rows.map((r) => [r.businessDate.toISOString().slice(0, 10), r.planName, r.category, r.targetScope, r.targetName, r.baseAmount, r.amount, r.status, r.payMethod].map(esc).join(','))].join('\r\n')
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+        res.setHeader('Content-Disposition', 'attachment; filename=split-entries.csv')
+        res.send(csv)
+        return
+      }
+      const buf = toXlsx([{ name: '分账计提明细', rows: [headers, ...rows.map((r) => [r.businessDate.toISOString().slice(0, 10), r.planName, r.category, r.targetScope, r.targetName, r.baseAmount, r.amount, r.status, r.payMethod])] }])
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      res.setHeader('Content-Disposition', 'attachment; filename=split-entries.xlsx')
+      res.send(buf)
+      return
+    }
+    res.json({ code: 0, msg: 'ok', data: { rows } })
+  }
+
+  /** 报表(第 12 张):分账结算汇总 json/csv/xlsx */
+  @RequirePerm('setting:manage')
+  @Get('report/settlements')
+  async settlementsReportEndpoint(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('businessDateFrom') from?: string,
+    @Query('businessDateTo') to?: string,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    const user = (req as ReqWithUser).user
+    const range = {
+      from: new Date(from !== undefined && from !== '' ? from : new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10)),
+      to: new Date(to !== undefined && to !== '' ? to + 'T23:59:59' : new Date().toISOString().slice(0, 10) + 'T23:59:59'),
+    }
+    const rows = await this.svc.settlementsReport(user?.storeId ?? 1, range)
+    if (format === 'csv' || format === 'xlsx') {
+      const headers = ['生成时间', '对象类型', '对象', '周期起', '周期止', '金额', '条目数', '支付方式', '状态']
+      if (format === 'csv') {
+        const esc = (v: unknown): string => {
+          const s = String(v ?? '')
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+        }
+        const csv = '\uFEFF' + [headers.join(','), ...rows.map((r) => [r.businessDate.toISOString().slice(0, 10), r.targetScope, r.targetName, r.periodFrom.toISOString().slice(0, 10), r.periodTo.toISOString().slice(0, 10), r.amount, r.entryCount, r.payMethod, r.status].map(esc).join(','))].join('\r\n')
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+        res.setHeader('Content-Disposition', 'attachment; filename=split-settlements.csv')
+        res.send(csv)
+        return
+      }
+      const buf = toXlsx([{ name: '分账结算汇总', rows: [headers, ...rows.map((r) => [r.businessDate.toISOString().slice(0, 10), r.targetScope, r.targetName, r.periodFrom.toISOString().slice(0, 10), r.periodTo.toISOString().slice(0, 10), r.amount, r.entryCount, r.payMethod, r.status])] }])
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      res.setHeader('Content-Disposition', 'attachment; filename=split-settlements.xlsx')
+      res.send(buf)
+      return
+    }
+    res.json({ code: 0, msg: 'ok', data: { rows } })
+  }
+
   @RequirePerm('setting:manage')
   @Post('settlements/:id/pay')
   async pay(
@@ -936,7 +1089,16 @@ export class HandoverController {
   @Post()
   async create(@Req() req: Request, @Body() body: HandoverDto): Promise<unknown> {
     const user = (req as ReqWithUser).user
-    return this.svc.create(user?.storeId ?? 1, body, user?.sub ?? 0)
+    return this.svc.create(
+      user?.storeId ?? 1,
+      {
+        shiftName: body.shiftName,
+        takenBy: body.takenBy,
+        businessDate: body.businessDate,
+        remark: body.remark,
+      },
+      user?.sub ?? 0,
+    )
   }
 
   @Get()

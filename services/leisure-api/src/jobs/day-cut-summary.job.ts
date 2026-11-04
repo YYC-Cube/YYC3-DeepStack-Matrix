@@ -137,17 +137,46 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
         update: { metrics },
         create: { storeId, businessDate: targetDate, metrics },
       })
+      // 分账三向平衡(17 号;S2 挂接):按状态计提净额 vs 结算单合计,差额=未入结算 ACCRUED
+      const splitGroup = await this.prisma.splitEntry.groupBy({
+        by: ['status'],
+        where: { storeId, businessDate: targetDate },
+        _sum: { amount: true },
+      })
+      const splitBy: Record<string, number> = {}
+      for (const g of splitGroup) splitBy[g.status] = Number(g._sum.amount ?? 0)
+      const splitAccrued = splitBy['ACCRUED'] ?? 0
+      const splitConfirmed = splitBy['CONFIRMED'] ?? 0
+      const splitPaid = splitBy['PAID'] ?? 0
+      const splitReversed = splitBy['REVERSED'] ?? 0
+      const splitEntryNet = Math.round((splitAccrued + splitConfirmed + splitPaid + splitReversed) * 100) / 100
+      const splitSettleAgg = await this.prisma.splitSettlement.aggregate({
+        where: { storeId, createdAt: { gte: new Date(targetDate + 'T00:00:00'), lte: new Date(targetDate + 'T23:59:59') } },
+        _sum: { amount: true },
+      })
+      const splitSettled = Math.round(Number(splitSettleAgg._sum.amount ?? 0) * 100) / 100
+      const splitDiff = Math.round((splitEntryNet - splitSettled) * 100) / 100
+
       await this.prisma.jobRunLog.create({
         data: {
           jobName: 'day-cut-summary',
           businessDate: targetDate,
           status: balanced ? 'OK' : 'OK_WITH_DIFF',
-          stats: { storeId, storeName, metrics, txnSumCheck: { netTotal, balanced } },
+          stats: {
+            storeId,
+            storeName,
+            metrics,
+            txnSumCheck: { netTotal, balanced },
+            splitCheck: { entryNet: splitEntryNet, settled: splitSettled, diff: splitDiff },
+          },
           startedAt,
           finishedAt: new Date(),
         },
       })
-      this.logger.log('daily summary materialized: store=' + storeName + ' bd=' + target)
+      this.logger.log(
+        'daily summary materialized: store=' + storeName + ' bd=' + target +
+        ' split(entryNet=' + String(splitEntryNet) + ' settled=' + String(splitSettled) + ' diff=' + String(splitDiff) + ')',
+      )
     } catch (err) {
       await this.prisma.jobRunLog.create({
         data: {

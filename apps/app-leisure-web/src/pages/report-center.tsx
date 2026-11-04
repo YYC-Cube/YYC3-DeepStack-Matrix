@@ -29,6 +29,8 @@ const REPORTS: ReportDef[] = [
   { key: 'rotation', path: '/reports/dispatch-rotation', title: '主管轮台报表', perm: 'session:view', roomDims: false, desc: '主管/组别/销售经理被派次数 · 按序/越序(销售经理设置⑧ 公平性考核)' },
   { key: 'ticket-purchase', path: '/reports/tickets/purchase', title: '台票购买明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/金额/收费通道(§8.2 补齐)' },
   { key: 'ticket-use', path: '/reports/tickets/use', title: '台票使用明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/关联场次(§8.2 补齐)' },
+  { key: 'split-entries', path: '/split/report/entries', title: '分账计提明细', perm: 'setting:manage', roomDims: false, desc: '分账对象/方案/类目/金额/状态(17 号 S2)' },
+  { key: 'split-settlements', path: '/split/report/settlements', title: '分账结算汇总', perm: 'setting:manage', roomDims: false, desc: '结算单/对象/周期/支付方式/状态(17 号 S2)' },
 ]
 
 interface Preview {
@@ -101,7 +103,7 @@ export default function ReportCenterPage() {
     <div>
       <PageHeader
         title="报表中心"
-        desc="10 张(§8.2/§8.3 全量:台费 4+报备 2+上下钟 2+轮台 1+台票 2);导出 xlsx 真格式 + CSV 双通道,Excel 直开"
+        desc="12 张(§8.2/§8.3 全量:台费 4+报备 2+上下钟 2+轮台 1+台票 2+分账 2);导出 xlsx 真格式 + CSV 双通道,Excel 直开"
       />
       <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
         <span className="text-xs text-fg-muted w-16">区间</span>

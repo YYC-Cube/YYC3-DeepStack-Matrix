@@ -23,9 +23,15 @@ interface HandoverRow {
   remark: string | null
 }
 
+interface FormState {
+  shiftName: string
+  businessDate: string
+  remark: string
+}
+
 export default function HandoverPage(): React.JSX.Element {
   const [rows, setRows] = useState<HandoverRow[]>()
-  const [form, setForm] = useState<{ shiftName: string; remark: string } | null>(null)
+  const [form, setForm] = useState<FormState | null>(null)
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async (): Promise<void> => {
@@ -48,7 +54,11 @@ export default function HandoverPage(): React.JSX.Element {
     }
     setBusy(true)
     try {
-      await req('POST', '/handover', { shiftName: form.shiftName.trim(), remark: form.remark === '' ? undefined : form.remark })
+      await req('POST', '/handover', {
+        shiftName: form.shiftName.trim(),
+        ...(form.businessDate !== '' ? { businessDate: form.businessDate } : {}),
+        remark: form.remark === '' ? undefined : form.remark,
+      })
       toast.success('交接班快照已生成')
       setForm(null)
       await load()
@@ -100,8 +110,13 @@ export default function HandoverPage(): React.JSX.Element {
     <div>
       <PageHeader
         title="交接班对账"
-        desc="当班金额四合计快照(充值/扣费/关房结算/点单)+未结订单数;生成时冻结,接班确认后归档(008 #3)"
-        actions={<Button onClick={() => setForm({ shiftName: '', remark: '' })}>+ 生成交接班单</Button>}
+        desc="当班金额四合计快照(充值/扣费/关房结算/点单)+未结订单数;生成时冻结,接班确认后归档;支持跨日班次归属与导出打印(008 #3)"
+        actions={
+          <div className="flex gap-2">
+            <Button onClick={() => setForm({ shiftName: '', businessDate: '', remark: '' })}>+ 生成交接班单</Button>
+            <Button variant="outline" onClick={() => { window.open('/api/v1/handover/export?format=csv', '_blank') }}>导出 CSV</Button>
+          </div>
+        }
       />
       <DataTable columns={columns} rows={rows} loading={rows === undefined} total={rows?.length ?? 0} page={1} pageSize={100} />
 
@@ -115,11 +130,14 @@ export default function HandoverPage(): React.JSX.Element {
               <Field label="班次名称" required>
                 <Input value={form.shiftName} onChange={(e) => setForm({ ...form, shiftName: e.target.value })} placeholder="如:晚班 A 组" />
               </Field>
+              <Field label="归属营业日(跨日班次可选;空=当日口径)">
+                <Input type="date" value={form.businessDate} onChange={(e) => setForm({ ...form, businessDate: e.target.value })} />
+              </Field>
               <Field label="备注">
                 <Input value={form.remark} onChange={(e) => setForm({ ...form, remark: e.target.value })} />
               </Field>
               <p className="text-xs text-fg-muted">
-                生成时冻结当班营业日四项金额合计与未结订单数;后续流水不影响本单。
+                生成时冻结归属营业日四项金额合计与未结订单数;后续流水不影响本单。跨零点晚班请显式选归属营业日。
               </p>
             </div>
           )}

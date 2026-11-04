@@ -145,6 +145,8 @@ async function main() {
   // 角色 + 管理员(默认密码,首次登录后必须修改)
   const permCodes = [
     'artist:view', 'artist:edit', 'artist:delete', 'artist:transfer', 'artist:batch',
+    // 资源经理档案独立板块(2026-11-04 Owner 裁决:与销售经理档案分开授权,不一键双控)
+    'resource:view',
     'level:manage', 'group:manage', 'feerule:manage', 'ticketrule:manage',
     'room:manage',
     'fee:recharge', 'fee:manual', 'fee:ledger:view', 'fee:ledger:export',

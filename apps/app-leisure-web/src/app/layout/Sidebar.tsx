@@ -36,7 +36,7 @@ interface MenuGroup {
 
 export const MENU: MenuGroup[] = [
   {
-    label: '艺人档案',
+    label: '销售经理档案',
     icon: Users,
     items: [
       { key: 'a1', label: '销售经理资料管理', path: '/artists', perm: 'artist:view' },
@@ -45,12 +45,13 @@ export const MENU: MenuGroup[] = [
     ],
   },
   {
+    // 独立板块(2026-11-04 Owner 裁决:与销售经理档案分开授权;resource:view 独立功能码,不一键双控)
     label: '资源经理档案',
     icon: Users,
     items: [
-      { key: 'r1', label: '资源经理资料管理', path: '/artists?line=RESOURCE', perm: 'artist:view' },
-      { key: 'r2', label: '资源经理等级', path: '/artists/levels', perm: 'artist:view' },
-      { key: 'r3', label: '资源经理组别', path: '/artists/groups', perm: 'artist:view' },
+      { key: 'r1', label: '资源经理资料管理', path: '/resource/artists?line=RESOURCE', perm: 'resource:view' },
+      { key: 'r2', label: '资源经理等级', path: '/resource/levels', perm: 'resource:view' },
+      { key: 'r3', label: '资源经理组别', path: '/resource/groups', perm: 'resource:view' },
     ],
   },
   {

@@ -384,7 +384,7 @@ export default function SplitPage(): React.JSX.Element {
               <SelectBox
                 value={manual.targetScope}
                 onChange={(v) => setManual({ ...manual, targetScope: v })}
-                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }]}
+                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }]}
               />
             </Field>
             <Field label="对象 ID">
@@ -441,7 +441,7 @@ export default function SplitPage(): React.JSX.Element {
               <SelectBox
                 value={settleForm.targetScope}
                 onChange={(v) => setSettleForm({ ...settleForm, targetScope: v })}
-                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }]}
+                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }]}
               />
             </Field>
             <Field label="对象 ID">

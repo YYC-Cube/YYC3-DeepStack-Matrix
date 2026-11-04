@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth'
 import { ConfirmButton, DataTable, Field, PageHeader, type Column } from '@/components/kit'
 
 interface TaxRow {
@@ -17,6 +18,9 @@ interface TaxRow {
 export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
   const isGroup = kind === 'group'
   const path = isGroup ? '/artist-groups' : '/artist-levels'
+  // 写操作权限(2026-11-04 权限全覆盖核对:可操作项进权限码;查看仍沿 artist:view/板块入口码)
+  const permCodes = useAuthStore((s) => s.permCodes)
+  const canManage = permCodes.includes(isGroup ? 'group:manage' : 'level:manage')
   const [rows, setRows] = useState<TaxRow[]>()
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState<{ id?: number; name: string; supervisorName: string } | null>(null)
@@ -83,23 +87,28 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
       header: '操作',
       render: (r: TaxRow) => (
         <div className="flex gap-1.5">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setForm({ id: r.id, name: r.name, supervisorName: r.supervisorName ?? '' })}
-          >
-            修改
-          </Button>
-          <ConfirmButton
-            confirmTitle="确认删除"
-            confirmDesc={'将删除「' + r.name + '」(当前关联 ' + String(r.artistCount) + ' 名销售经理;有挂靠时后端将拒绝)。'}
-            confirmText="确认删除"
-            onConfirm={() => {
-              void remove(r.id, r.name, r.artistCount)
-            }}
-          >
-            删除
-          </ConfirmButton>
+          {canManage && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setForm({ id: r.id, name: r.name, supervisorName: r.supervisorName ?? '' })}
+            >
+              修改
+            </Button>
+          )}
+          {canManage && (
+            <ConfirmButton
+              confirmTitle="确认删除"
+              confirmDesc={'将删除「' + r.name + '」(当前关联 ' + String(r.artistCount) + ' 名销售经理;有挂靠时后端将拒绝)。'}
+              confirmText="确认删除"
+              onConfirm={() => {
+                void remove(r.id, r.name, r.artistCount)
+              }}
+            >
+              删除
+            </ConfirmButton>
+          )}
+          {!canManage && <span className="text-xs text-fg-muted">—</span>}
         </div>
       ),
     },
@@ -110,7 +119,7 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
       <PageHeader
         title={isGroup ? '销售经理组别' : '销售经理等级'}
         desc={isGroup ? '分组绑定主管,用于业绩归属与报备汇总' : '等级 × 包厢类型决定台费单价'}
-        actions={<Button onClick={() => setForm({ name: '', supervisorName: '' })}>+ 新增{isGroup ? '组别' : '等级'}</Button>}
+        actions={canManage ? <Button onClick={() => setForm({ name: '', supervisorName: '' })}>+ 新增{isGroup ? '组别' : '等级'}</Button> : undefined}
       />
       <Card className="p-4 mb-3 text-xs text-fg-muted">
         seed 参照:组别「江海龙」(主管同名) · 等级「技师」——名称店内唯一,软删可恢复

@@ -19,11 +19,12 @@ interface RoleRow {
 /** 功能码域分组(06 号文档功能码表) */
 const PERM_DOMAINS: Array<{ label: string; perms: Array<{ code: string; label: string }> }> = [
   { label: '档案', perms: [
-    { code: 'artist:view', label: '查看' },
-    { code: 'artist:edit', label: '编辑' },
-    { code: 'artist:delete', label: '删除' },
-    { code: 'artist:transfer', label: '转移' },
-    { code: 'artist:batch', label: '批量' },
+    { code: 'artist:view', label: '销售档案查看' },
+    { code: 'artist:edit', label: '销售档案编辑' },
+    { code: 'artist:delete', label: '销售档案删除' },
+    { code: 'artist:transfer', label: '销售档案转移' },
+    { code: 'artist:batch', label: '销售档案批量' },
+    { code: 'resource:view', label: '资源档案板块(查看+入口)' },
   ] },
   { label: '配置', perms: [
     { code: 'level:manage', label: '等级管理' },

@@ -251,4 +251,50 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('财务分账 S1+
     expect(monthly!.periodStart).toBe(expectedStart)
     expect(monthly!.actualAmount).toBeGreaterThanOrEqual(0)
   })
+
+  it('分账目标三维(岗位/部门/人员):DEPARTMENT 手动条目+结算单;OFFSET 部门拒', async () => {
+    // 部门手动奖惩
+    const deptEntry = await api<{ id: number }>(
+      'POST',
+      '/split/entries',
+      { planId, targetScope: 'DEPARTMENT', targetId: 1, targetName: 'E2E-销售一部', baseAmount: 1000, amount: 150, remark: '部门团队激励' },
+      adminToken,
+    )
+    if (deptEntry.body.code !== 0) console.log('deptEntry fail:', JSON.stringify(deptEntry.body).slice(0, 200), 'planId=', String(planId))
+    expect(deptEntry.body.code).toBe(0)
+    // 部门结算单(CONFIRMED)
+    const deptSettle = await api<{ id: number }>(
+      'POST',
+      '/split/settlements',
+      { targetScope: 'DEPARTMENT', targetId: 1, targetName: 'E2E-销售一部', periodFrom: '2026-11-01', periodTo: '2026-11-30', payMethod: 'CASH' },
+      adminToken,
+    )
+    expect(deptSettle.body.code).toBe(0)
+    // OFFSET 部门支付拒绝(台费账户仅销售经理):先补一笔新 DEPARTMENT 条目供第二张单吃
+    const deptEntry2 = await api<{ id: number }>(
+      'POST',
+      '/split/entries',
+      { planId, targetScope: 'DEPARTMENT', targetId: 1, targetName: 'E2E-销售一部', baseAmount: 500, amount: 60, remark: '部门激励二' },
+      adminToken,
+    )
+    expect(deptEntry2.body.code).toBe(0)
+    const offsetSettle = await api<{ id: number }>(
+      'POST',
+      '/split/settlements',
+      { targetScope: 'DEPARTMENT', targetId: 1, targetName: 'E2E-销售一部', periodFrom: '2026-11-01', periodTo: '2026-11-30', payMethod: 'OFFSET' },
+      adminToken,
+    )
+    expect(offsetSettle.body.code).toBe(0)
+    const denied = await api('POST', '/split/settlements/' + String(offsetSettle.body.data.id) + '/pay', { payRef: 'X' }, adminToken)
+    expect(denied.http).toBe(400)
+    expect(denied.body.msg).toContain('OFFSET')
+    // 非法 targetScope 400(class-validator whitelist)
+    const bad = await api(
+      'POST',
+      '/split/entries',
+      { planId, targetScope: 'ROOM', targetId: 1, targetName: '非法', baseAmount: 1, amount: 1 },
+      adminToken,
+    )
+    expect(bad.http).toBe(400)
+  })
 })

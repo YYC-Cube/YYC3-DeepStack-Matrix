@@ -21,6 +21,7 @@ import {
 import { IsArray, IsIn, IsInt, IsOptional, IsString, Length, Min, Max, IsNumber } from 'class-validator'
 import type { Request } from 'express'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { env } from '../../config/env.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 const CATEGORIES = ['SESSION', 'ROOM', 'ORDER', 'TICKET', 'RECHARGE', 'MANUAL'] as const
@@ -112,6 +113,10 @@ class SettlementDto {
 class HandoverDto {
   @IsString()
   shiftName!: string
+  /** 接班人(可指定;空=确认时操作人) */
+  @IsOptional()
+  @IsInt()
+  takenBy?: number
   @IsOptional()
   @IsString()
   remark?: string
@@ -290,12 +295,16 @@ export class SplitService {
 
   /* ── 手动奖惩 ── */
 
-  async createManualEntry(storeId: number, body: ManualEntryDto, operatorId: number): Promise<{ id: number }> {
+  async createManualEntry(storeId: number, body: ManualEntryDto, operatorId: number): Promise<{ id: number; status: string }> {
     const plan = await this.prisma.splitPlan.findFirst({ where: { id: body.planId, storeId, status: 'ACTIVE' } })
     if (plan === null) throw new NotFoundException('ACTIVE 方案不存在')
     const rules = await this.prisma.splitRule.findMany({ where: { planId: plan.id } })
     const rule = rules[0]
     if (rule === undefined) throw new BadRequestException('方案无规则项,不可手动计提')
+    // S2 审批联动:|amount| ≥ 阈值(env MANUAL_DEDUCT_THRESHOLD)→ PENDING(双人复核,申请人不可自批)
+    const threshold = Number(env().MANUAL_DEDUCT_THRESHOLD ?? 500)
+    const needsApproval = Math.abs(body.amount) >= threshold
+    const status = needsApproval ? 'PENDING' : 'ACCRUED'
     const entry = await this.prisma.splitEntry.create({
       data: {
         storeId,
@@ -307,7 +316,7 @@ export class SplitService {
         targetName: body.targetName,
         baseAmount: body.baseAmount,
         amount: body.amount,
-        status: 'ACCRUED',
+        status,
         payMethod: body.payMethod ?? rule.payMethod,
         refType: 'MANUAL',
         operatorId,
@@ -317,8 +326,43 @@ export class SplitService {
     await this.audit(storeId, operatorId, 'SPLIT_ENTRY_MANUAL', 'split_entry', String(entry.id), null, {
       targetId: body.targetId,
       amount: body.amount,
+      status,
     })
-    return { id: entry.id }
+    return { id: entry.id, status }
+  }
+
+  /** S2 双人复核:复核人 ≠ 制单人;APPROVE→ACCRUED / REJECT→REJECTED(终态,不进结算) */
+  async decideEntry(id: number, storeId: number, operatorId: number, approve: boolean, remark: string): Promise<void> {
+    const before = await this.prisma.splitEntry.findUnique({ where: { id } })
+    if (before === null || before.storeId !== storeId) throw new NotFoundException('计提记录不存在')
+    if (before.status !== 'PENDING') throw new BadRequestException('仅 PENDING 态可复核')
+    if (before.operatorId === operatorId) throw new BadRequestException('复核人不可为制单人(双人复核)')
+    const after = await this.prisma.splitEntry.update({
+      where: { id },
+      data: { status: approve ? 'ACCRUED' : 'REJECTED', remark: (before.remark ? before.remark + ' · ' : '') + '复核:' + (approve ? '通过' : '驳回') + '(by ' + String(operatorId) + ')' },
+    })
+    await this.audit(storeId, operatorId, approve ? 'SPLIT_ENTRY_APPROVE' : 'SPLIT_ENTRY_REJECT', 'split_entry', String(id), before, after)
+  }
+
+  /** PENDING 列表(待我复核=非本人制单) */
+  async listPending(storeId: number, operatorId: number) {
+    const rows = await this.prisma.splitEntry.findMany({
+      where: { storeId, status: 'PENDING', operatorId: { not: operatorId } },
+      orderBy: { id: 'desc' },
+      take: 100,
+    })
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        planId: r.planId,
+        targetScope: r.targetScope,
+        targetId: r.targetId,
+        targetName: r.targetName,
+        baseAmount: Number(r.baseAmount),
+        amount: Number(r.amount),
+        remark: r.remark,
+      })),
+    }
   }
 
   /** 冲正:反向条目(只增纪律) */
@@ -429,6 +473,30 @@ export class SplitService {
     const before = await this.prisma.splitSettlement.findFirst({ where: { id, storeId } })
     if (before === null) throw new NotFoundException('结算单不存在')
     if (before.status === 'PAID') throw new BadRequestException('已支付')
+    // OFFSET 台费冲抵(仅 ARTIST 对象):生成只增流水(MANUAL_DEDUCT 负额,refType=split_settlement)
+    if (before.payMethod === 'OFFSET') {
+      if (before.targetScope !== 'ARTIST') {
+        throw new BadRequestException('OFFSET 冲抵仅支持销售经理/资源经理(台费账户)')
+      }
+      const artist = await this.prisma.artist.findUnique({ where: { id: before.targetId } })
+      if (artist === null) throw new NotFoundException('对象档案不存在')
+      await this.prisma.stageFeeTxn.create({
+        data: {
+          storeId,
+          businessDate: new Date(),
+          artistId: before.targetId,
+          stageName: artist.stageName,
+          badgeNo: artist.badgeNo,
+          groupId: artist.groupId,
+          type: 'MANUAL_DEDUCT',
+          amount: -Number(before.amount),
+          refType: 'split_settlement',
+          refId: before.id,
+          remark: '分账结算 OFFSET 冲抵(结算单 ' + String(before.id) + ')',
+          operatorId,
+        },
+      })
+    }
     const after = await this.prisma.splitSettlement.update({
       where: { id },
       data: { status: 'PAID', paidAt: new Date(), payRef },
@@ -438,6 +506,53 @@ export class SplitService {
       data: { status: 'PAID' },
     })
     await this.audit(storeId, operatorId, 'SPLIT_SETTLEMENT_PAY', 'split_settlement', String(id), before, after)
+  }
+
+  /** S2 结算报表(人/期/类目聚合):按对象与方案类目汇总 CONFIRMED+PAID */
+  async settlementReport(storeId: number, from: Date, to: Date) {
+    const rows = await this.prisma.splitSettlement.findMany({
+      where: { storeId, createdAt: { gte: from, lte: to } },
+      orderBy: { id: 'desc' },
+      take: 500,
+    })
+    const entries = await this.prisma.splitEntry.findMany({
+      where: { storeId, settlementId: { not: null } },
+      select: { settlementId: true, planId: true, amount: true },
+    })
+    const plans = await this.prisma.splitPlan.findMany({ where: { storeId }, select: { id: true, category: true } })
+    const catMap = new Map(plans.map((p) => [p.id, p.category]))
+    const byTarget = new Map<string, { targetName: string; amount: number; count: number }>()
+    const byCategory = new Map<string, { category: string; amount: number; count: number }>()
+    for (const r of rows) {
+      const tk = r.targetScope + ':' + String(r.targetId)
+      const t = byTarget.get(tk) ?? { targetName: r.targetName, amount: 0, count: 0 }
+      t.amount += Number(r.amount)
+      t.count += 1
+      byTarget.set(tk, t)
+    }
+    const entryBySettlement = new Map<number, { planId: number; amount: number }[]>()
+    for (const e of entries) {
+      if (e.settlementId === null) continue
+      const list = entryBySettlement.get(e.settlementId) ?? []
+      list.push({ planId: e.planId, amount: Number(e.amount) })
+      entryBySettlement.set(e.settlementId, list)
+    }
+    for (const r of rows) {
+      for (const e of entryBySettlement.get(r.id) ?? []) {
+        const cat = catMap.get(e.planId) ?? 'MANUAL'
+        const c = byCategory.get(cat) ?? { category: cat, amount: 0, count: 0 }
+        c.amount += e.amount
+        c.count += 1
+        byCategory.set(cat, c)
+      }
+    }
+    return {
+      from: from.toISOString().slice(0, 10),
+      to: to.toISOString().slice(0, 10),
+      total: Math.round(rows.reduce((a, r) => a + Number(r.amount), 0) * 100) / 100,
+      byTarget: Array.from(byTarget.values()).map((t) => ({ ...t, amount: Math.round(t.amount * 100) / 100 })),
+      byCategory: Array.from(byCategory.values()).map((c) => ({ ...c, amount: Math.round(c.amount * 100) / 100 })),
+    }
   }
 
   async listSettlements(storeId: number) {
@@ -463,6 +578,38 @@ export class SplitService {
     }
   }
 
+  /** 三向对账(计提↔结算↔支付):状态金额分布+平衡差 */
+  async splitBalance(storeId: number) {
+    const group = await this.prisma.splitEntry.groupBy({
+      by: ['status'],
+      where: { storeId },
+      _sum: { amount: true },
+      _count: { _all: true },
+    })
+    const byStatus: Record<string, { amount: number; count: number }> = {}
+    for (const g of group) {
+      byStatus[g.status] = { amount: Number(g._sum.amount ?? 0), count: g._count._all }
+    }
+    const settlements = await this.prisma.splitSettlement.aggregate({
+      where: { storeId, status: { in: ['CONFIRMED', 'PAID'] } },
+      _sum: { amount: true },
+      _count: { _all: true },
+    })
+    const accrued = byStatus['ACCRUED'] ?? { amount: 0, count: 0 }
+    const pending = byStatus['PENDING'] ?? { amount: 0, count: 0 }
+    const settledSum = Math.round(Number(settlements._sum.amount ?? 0) * 100) / 100
+    const entryNet = Math.round(((byStatus['ACCRUED']?.amount ?? 0) + (byStatus['CONFIRMED']?.amount ?? 0) + (byStatus['PAID']?.amount ?? 0) + (byStatus['REVERSED']?.amount ?? 0)) * 100) / 100
+    return {
+      byStatus,
+      settledSum,
+      settlementCount: settlements._count ?? 0,
+      entryNet,
+      diff: Math.round((entryNet - settledSum) * 100) / 100,
+      pendingReview: pending,
+      note: 'diff=未入结算的 ACCRUED 净额(正常待结算);PENDING 待双人复核',
+    }
+  }
+
   private async audit(storeId: number, operatorId: number, action: string, targetType: string, targetId: string, before: unknown, after: unknown): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
@@ -484,8 +631,8 @@ export class SplitService {
 export class HandoverService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** 生成交接班快照:当班四合计(充值/扣费/结算/点单)+未结订单数(生成时冻结) */
-  async create(storeId: number, body: { shiftName: string; remark?: string }, operatorId: number) {
+  /** 生成交接班快照:当班四合计(充值/扣费/结算/点单)+未结订单数(生成时冻结);可指定接班人 */
+  async create(storeId: number, body: { shiftName: string; takenBy?: number; remark?: string }, operatorId: number) {
     const bd = await this.businessDate(storeId)
     const bdDate = new Date(bd)
     const sumFee = async (type: string): Promise<number> => {
@@ -509,6 +656,7 @@ export class HandoverService {
         businessDate: bdDate,
         shiftName: body.shiftName,
         handedBy: operatorId,
+        takenBy: body.takenBy ?? null,
         rechargeTotal,
         deductTotal,
         settleTotal,
@@ -571,9 +719,11 @@ export class HandoverService {
     const before = await this.prisma.shiftHandover.findFirst({ where: { id, storeId } })
     if (before === null) throw new NotFoundException('交接单不存在')
     if (before.status !== 'OPEN') throw new BadRequestException('交接单非 OPEN 态')
+    // 接班人:生成时已指定者优先,否则取确认操作人
+    const taker = before.takenBy ?? takenBy
     const after = await this.prisma.shiftHandover.update({
       where: { id },
-      data: { status: 'CONFIRMED', takenBy, confirmedAt: new Date() },
+      data: { status: 'CONFIRMED', takenBy: taker, confirmedAt: new Date() },
     })
     await this.prisma.auditLog.create({
       data: {
@@ -586,6 +736,28 @@ export class HandoverService {
         afterJson: after as object,
       },
     })
+  }
+
+  /** 交接单导出(CSV BOM;打印/归档) */
+  async exportCsv(id: number, storeId: number): Promise<string> {
+    const r = await this.prisma.shiftHandover.findFirst({ where: { id, storeId } })
+    if (r === null) throw new NotFoundException('交接单不存在')
+    const esc = (v: string | number): string => {
+      const s = String(v ?? '')
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+    }
+    const lines = [
+      '项目,数值',
+      '营业日,' + r.businessDate.toISOString().slice(0, 10),
+      '班次,' + esc(r.shiftName),
+      '充值合计,' + String(r.rechargeTotal),
+      '扣费合计,' + String(r.deductTotal),
+      '关房结算合计,' + String(r.settleTotal),
+      '点单合计,' + String(r.orderTotal),
+      '未结订单数,' + String(r.openOrders),
+      '状态,' + r.status,
+    ]
+    return '\uFEFF' + lines.join('\r\n')
   }
 
   private async businessDate(storeId: number): Promise<string> {
@@ -703,6 +875,47 @@ export class SplitController {
   }
 
   @RequirePerm('setting:manage')
+  @Get('settlements/report')
+  async settlementReport(
+    @Req() req: Request,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    const to2 = to !== undefined && to !== '' ? to : new Date().toISOString().slice(0, 10)
+    const from2 = from !== undefined && from !== '' ? from : new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10)
+    return this.svc.settlementReport(user?.storeId ?? 1, new Date(from2), new Date(to2 + 'T23:59:59'))
+  }
+
+  /** S2 双人复核:APPROVE/REJECT(复核人≠制单人) */
+  @RequirePerm('setting:manage')
+  @Post('entries/:id/decide')
+  async decide(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { approve: boolean; remark?: string },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    await this.svc.decideEntry(id, user?.storeId ?? 1, user?.sub ?? 0, body.approve === true, body.remark ?? '')
+    return { decided: true }
+  }
+
+  @RequirePerm('setting:manage')
+  @Get('pending')
+  async pending(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.listPending(user?.storeId ?? 1, user?.sub ?? 0)
+  }
+
+  /** 三向对账(计提↔结算↔支付平衡) */
+  @RequirePerm('setting:manage')
+  @Get('balance')
+  async balance(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.splitBalance(user?.storeId ?? 1)
+  }
+
+  @RequirePerm('setting:manage')
   @Post('settlements/:id/pay')
   async pay(
     @Req() req: Request,
@@ -738,6 +951,17 @@ export class HandoverController {
     const user = (req as ReqWithUser).user
     await this.svc.confirm(id, user?.storeId ?? 1, user?.sub ?? 0)
     return { confirmed: true }
+  }
+
+  /** 交接单导出(CSV BOM;打印/归档) */
+  @RequirePerm('setting:manage')
+  @Get(':id/export')
+  async exportCsv(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<string> {
+    const user = (req as ReqWithUser).user
+    return this.svc.exportCsv(id, user?.storeId ?? 1)
   }
 }
 

@@ -130,8 +130,8 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('财务分账 S1+
     expect(list.body.data.rows.find((r) => r.id === created.body.data.id)?.status).toBe('PAID')
   })
 
-  it('交接班:生成快照(四合计)→ 接班确认(CONFIRMED)', async () => {
-    const created = await api<{ id: number; rechargeTotal: number; openOrders: number }>(
+  it('交接班:生成快照(四合计)→ 无码/错码拒 → 接班码确认(CONFIRMED)', async () => {
+    const created = await api<{ id: number; rechargeTotal: number; openOrders: number; confirmCode: string }>(
       'POST',
       '/handover',
       { shiftName: 'E2E-晚班' },
@@ -139,9 +139,64 @@ describe.skipIf(PHONE === undefined || PASSWORD === undefined)('财务分账 S1+
     )
     expect(created.body.code).toBe(0)
     expect(created.body.data.rechargeTotal).toBeGreaterThanOrEqual(0)
-    const confirmed = await api('POST', '/handover/' + String(created.body.data.id) + '/confirm', {}, adminToken)
+    // 深化-b:接班码 6 位返回;无码/错码 400;对码通过
+    const code = created.body.data.confirmCode
+    expect(code).toMatch(/^\d{6}$/)
+    const noCode = await api('POST', '/handover/' + String(created.body.data.id) + '/confirm', {}, adminToken)
+    expect(noCode.http).toBe(400)
+    const wrongCode = await api('POST', '/handover/' + String(created.body.data.id) + '/confirm', { confirmCode: '000000' === code ? '111111' : '000000' }, adminToken)
+    expect(wrongCode.http).toBe(400)
+    const confirmed = await api('POST', '/handover/' + String(created.body.data.id) + '/confirm', { confirmCode: code }, adminToken)
     expect(confirmed.body.code).toBe(0)
-    const list = await api<{ rows: Array<{ id: number; status: string }> }>('GET', '/handover', undefined, adminToken)
+    const list = await api<{ rows: Array<{ id: number; status: string; confirmCode: string }> }>('GET', '/handover', undefined, adminToken)
     expect(list.body.data.rows.find((r) => r.id === created.body.data.id)?.status).toBe('CONFIRMED')
+  })
+
+  it('S3-a 预算对比:建预算方案 → listPlans 返回 budget/actual 达成口径', async () => {
+    const created = await api<{ id: number }>(
+      'POST',
+      '/split/plans',
+      {
+        name: 'E2E-预算对比-' + runSeed,
+        category: 'MANUAL',
+        periodType: 'MONTHLY',
+        budgetAmount: 1000,
+        rules: [{ calcType: 'PERCENT', percent: 10, payMethod: 'CASH', rewardType: 'REWARD' }],
+      },
+      adminToken,
+    )
+    expect(created.body.code).toBe(0)
+    const activated = await api('POST', '/split/plans/' + String(created.body.data.id) + '/activate', {}, adminToken)
+    expect(activated.body.code).toBe(0)
+    // 造一笔 300 计提 → actual=300(该方案口径),budget=1000 → 前端达成率 30%
+    const entry = await api('POST', '/split/entries', { planId: created.body.data.id, targetScope: 'ADMIN', targetId: 1, targetName: 'E2E 预算对象', baseAmount: 300, amount: 300 }, adminToken)
+    expect(entry.body.code).toBe(0)
+    const plans = await api<{ rows: Array<{ id: number; budgetAmount: number | null; actualAmount: number }> }>('GET', '/split/plans', undefined, adminToken)
+    const row = plans.body.data.rows.find((r) => r.id === created.body.data.id)
+    expect(row).toBeDefined()
+    expect(row!.budgetAmount).toBe(1000)
+    expect(row!.actualAmount).toBeGreaterThanOrEqual(300)
+  })
+
+  it('S3-b 结算单明细导出:xlsx(ZIP 头)与 csv(BOM)双格式', async () => {
+    const list = await api<{ rows: Array<{ id: number }> }>('GET', '/split/settlements', undefined, adminToken)
+    expect(list.body.data.rows.length).toBeGreaterThanOrEqual(1)
+    const sid = list.body.data.rows[0]!.id
+    for (const fmt of ['xlsx', 'csv']) {
+      const res = await fetch(BASE + '/split/settlements/' + String(sid) + '/export?format=' + fmt, {
+        headers: { Authorization: 'Bearer ' + adminToken },
+      })
+      expect(res.status).toBe(200)
+      const buf = new Uint8Array(await res.arrayBuffer())
+      if (fmt === 'xlsx') {
+        // ZIP local header 'PK\x03\x04'
+        expect([buf[0], buf[1], buf[2], buf[3]]).toEqual([0x50, 0x4b, 0x03, 0x04])
+      } else {
+        expect([buf[0], buf[1], buf[2]]).toEqual([0xef, 0xbb, 0xbf])
+        expect(new TextDecoder('utf-8').decode(buf)).toContain('结算单')
+      }
+    }
+    const missing = await api('GET', '/split/settlements/99999999/export', undefined, adminToken)
+    expect(missing.body.code).not.toBe(0)
   })
 })

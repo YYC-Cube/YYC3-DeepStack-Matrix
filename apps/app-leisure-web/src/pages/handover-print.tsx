@@ -18,6 +18,7 @@ interface HandoverRow {
   orderTotal: number
   openOrders: number
   status: string
+  confirmCode: string
   takenBy: number | null
   confirmedAt: string | null
   remark: string | null
@@ -79,6 +80,12 @@ export default function HandoverPrintPage(): React.JSX.Element {
             <div className="border-t border-gray-400 pt-2">接班人签字</div>
           </div>
         </div>
+        {row.status === 'OPEN' && row.confirmCode !== '' && (
+          <div className="border-t border-gray-200 pt-3 mt-2 text-center">
+            <span className="text-xs text-gray-600 mr-3">接班码(系统确认时录入)</span>
+            <span className="font-mono text-xl font-bold tracking-[0.5em]">{row.confirmCode}</span>
+          </div>
+        )}
       </div>
 
       <p className="text-[10px] text-gray-400 mt-3 text-center">

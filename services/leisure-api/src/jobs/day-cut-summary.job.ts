@@ -176,6 +176,34 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
           finishedAt: new Date(),
         },
       })
+      // 对账差异告警(008 #5 深化-c):不平衡时自动发管理职级通告;幂等=同营业日同标题不重复
+      if (!balanced || !splitBalanced) {
+        const alertTitle = '日切对账差异告警(' + targetDate + ')'
+        const dup = await this.prisma.notice.findFirst({
+          where: { storeId, title: alertTitle, deletedAt: null },
+        })
+        if (dup === null) {
+          const parts: string[] = []
+          if (!balanced) parts.push('台费流水净额与明细校验差异:净额 ' + String(netTotal))
+          if (!splitBalanced) {
+            parts.push(
+              '分账三向不平:已复核/已付 ' + String(splitConfirmed + splitPaid) +
+              ' vs 结算单合计 ' + String(splitSettled) + '(差 ' + String(splitDiff) + ')',
+            )
+          }
+          await this.prisma.notice.create({
+            data: {
+              storeId,
+              title: alertTitle,
+              body: parts.join(';') + '。请财务核对日切 job_run_log(stats.txnSumCheck/splitCheck)后处置;本通告由日切 job 自动生成。',
+              publishedBy: 0,
+              visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+              remind: true,
+            },
+          })
+          this.logger.warn('recon diff alert notice created: bd=' + targetDate + ' splitBalanced=' + String(splitBalanced))
+        }
+      }
       this.logger.log(
         'daily summary materialized: store=' + storeName + ' bd=' + target +
         ' split(entryNet=' + String(splitEntryNet) + ' settled=' + String(splitSettled) + ' diff=' + String(splitDiff) + ')',

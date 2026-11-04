@@ -21,6 +21,7 @@ import {
 } from '@nestjs/common'
 import { IsArray, IsIn, IsInt, IsOptional, IsString, Length, Min, Max, IsNumber } from 'class-validator'
 import type { Request, Response } from 'express'
+import { randomInt } from 'node:crypto'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { env } from '../../config/env.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
@@ -69,6 +70,11 @@ class PlanDto {
   @IsOptional()
   @IsIn(['DAILY', 'WEEKLY', 'MONTHLY'])
   periodType?: string
+  /** 计划期预算(17 号 S3+:空=不设预算;与实际计提额对比出达成率) */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  budgetAmount?: number
   @IsOptional()
   rules?: RuleDto[]
 }
@@ -142,6 +148,13 @@ export class SplitService {
       orderBy: { id: 'desc' },
       include: { rules: true, _count: { select: { entries: true } } },
     })
+    // 实际计提净额(全状态合计;冲正反向条目天然抵扣;17 号 S3+ 预算对比分母)
+    const actualAgg = await this.prisma.splitEntry.groupBy({
+      by: ['planId'],
+      where: { storeId },
+      _sum: { amount: true },
+    })
+    const actualByPlan = new Map(actualAgg.map((g) => [g.planId, Math.round(Number(g._sum.amount ?? 0) * 100) / 100]))
     return {
       rows: rows.map((r) => ({
         id: r.id,
@@ -149,6 +162,8 @@ export class SplitService {
         category: r.category,
         periodType: r.periodType,
         status: r.status,
+        budgetAmount: r.budgetAmount !== null ? Number(r.budgetAmount) : null,
+        actualAmount: actualByPlan.get(r.id) ?? 0,
         effectiveFrom: r.effectiveFrom?.toISOString() ?? null,
         effectiveTo: r.effectiveTo?.toISOString() ?? null,
         rules: r.rules.map((x) => ({
@@ -173,6 +188,7 @@ export class SplitService {
         name: body.name,
         category: body.category,
         periodType: body.periodType ?? 'MONTHLY',
+        budgetAmount: body.budgetAmount ?? null,
         status: 'DRAFT',
         rules: {
           create: (body.rules ?? []).map((r) => ({
@@ -584,6 +600,41 @@ export class SplitService {
     }
   }
 
+  /** 结算单明细(17 号 S3-b:单张结算单头+条目行;xlsx/csv 导出用) */
+  async settlementDetail(id: number, storeId: number) {
+    const r = await this.prisma.splitSettlement.findFirst({
+      where: { id, storeId },
+      include: {
+        entries: { include: { plan: { select: { name: true, category: true } } } },
+      },
+    })
+    if (r === null) throw new NotFoundException('结算单不存在')
+    return {
+      head: {
+        id: r.id,
+        targetScope: r.targetScope,
+        targetName: r.targetName,
+        periodFrom: r.periodFrom.toISOString().slice(0, 10),
+        periodTo: r.periodTo.toISOString().slice(0, 10),
+        amount: Number(r.amount),
+        entryCount: r.entryCount,
+        payMethod: r.payMethod,
+        status: r.status,
+        payRef: r.payRef ?? '',
+        createdAt: r.createdAt.toISOString().slice(0, 10),
+      },
+      rows: r.entries.map((e) => ({
+        businessDate: e.businessDate.toISOString().slice(0, 10),
+        planName: e.plan.name,
+        category: e.plan.category,
+        targetName: e.targetName,
+        baseAmount: Number(e.baseAmount),
+        amount: Number(e.amount),
+        status: e.status,
+      })),
+    }
+  }
+
   /** 销售端「我的分成」(ARTIST 强制本人):本人计提条目+按状态净汇总 */
   async myEarnings(storeId: number, scope: 'ADMIN' | 'ARTIST' | undefined, userId: number) {
     if (scope !== 'ARTIST') throw new (await import('@nestjs/common')).UnauthorizedException('仅销售端')
@@ -729,6 +780,8 @@ export class HandoverService {
         businessDate: bdDate,
         shiftName: body.shiftName,
         handedBy: operatorId,
+        // 接班码(深化-b:6 位数字;确认时必须提供,防误触/口头授权错认)
+        confirmCode: String(randomInt(0, 1_000_000)).padStart(6, '0'),
         takenBy: body.takenBy ?? null,
         rechargeTotal,
         deductTotal,
@@ -757,6 +810,7 @@ export class HandoverService {
       settleTotal,
       orderTotal,
       openOrders,
+      confirmCode: created.confirmCode ?? '',
     }
   }
 
@@ -781,6 +835,7 @@ export class HandoverService {
         orderTotal: Number(r.orderTotal),
         openOrders: r.openOrders,
         status: r.status,
+        confirmCode: r.confirmCode ?? '',
         takenBy: r.takenBy,
         confirmedAt: r.confirmedAt?.toISOString() ?? null,
         remark: r.remark,
@@ -788,10 +843,14 @@ export class HandoverService {
     }
   }
 
-  async confirm(id: number, storeId: number, takenBy: number): Promise<void> {
+  async confirm(id: number, storeId: number, takenBy: number, confirmCode?: string): Promise<void> {
     const before = await this.prisma.shiftHandover.findFirst({ where: { id, storeId } })
     if (before === null) throw new NotFoundException('交接单不存在')
     if (before.status !== 'OPEN') throw new BadRequestException('交接单非 OPEN 态')
+    // 接班码校验(深化-b):生成单带码则确认必须提供且一致(扫码枪扫打印单/输入均可)
+    if (before.confirmCode !== null && before.confirmCode !== '' && confirmCode !== before.confirmCode) {
+      throw new BadRequestException('接班码不匹配,请向交班人核对后重试')
+    }
     // 接班人:生成时已指定者优先,否则取确认操作人
     const taker = before.takenBy ?? takenBy
     const after = await this.prisma.shiftHandover.update({
@@ -1071,6 +1130,43 @@ export class SplitController {
     res.json({ code: 0, msg: 'ok', data: { rows } })
   }
 
+  /** 结算单明细导出(17 号 S3-b:xlsx/csv,单张结算单头+条目行) */
+  @RequirePerm('setting:manage')
+  @Get('settlements/:id/export')
+  async settlementExport(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id', ParseIntPipe) id: number,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    const user = (req as ReqWithUser).user
+    const d = await this.svc.settlementDetail(id, user?.storeId ?? 1)
+    const rows = [
+      ['结算单 #' + String(d.head.id), '', '', '', ''],
+      ['对象', d.head.targetName, '周期', d.head.periodFrom + '~' + d.head.periodTo, ''],
+      ['金额', String(d.head.amount), '条目数', String(d.head.entryCount), ''],
+      ['支付方式', d.head.payMethod, '状态', d.head.status, '凭证号', d.head.payRef],
+      [],
+      ['营业日', '方案', '类目', '基数', '计提额', '状态'],
+      ...d.rows.map((r) => [r.businessDate, r.planName, r.category, String(r.baseAmount), String(r.amount), r.status]),
+    ]
+    if (format === 'csv') {
+      const esc = (v: unknown): string => {
+        const s = String(v ?? '')
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+      }
+      const csv = '\uFEFF' + rows.map((r) => r.map(esc).join(',')).join('\r\n')
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+      res.setHeader('Content-Disposition', 'attachment; filename=split-settlement-' + String(d.head.id) + '.csv')
+      res.send(csv)
+      return
+    }
+    const buf = toXlsx([{ name: '结算单明细', rows }])
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', 'attachment; filename=split-settlement-' + String(d.head.id) + '.xlsx')
+    res.send(buf)
+  }
+
   @RequirePerm('setting:manage')
   @Post('settlements/:id/pay')
   async pay(
@@ -1112,9 +1208,13 @@ export class HandoverController {
 
   @RequirePerm('setting:manage')
   @Post(':id/confirm')
-  async confirm(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+  async confirm(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { confirmCode?: string },
+  ): Promise<unknown> {
     const user = (req as ReqWithUser).user
-    await this.svc.confirm(id, user?.storeId ?? 1, user?.sub ?? 0)
+    await this.svc.confirm(id, user?.storeId ?? 1, user?.sub ?? 0, body.confirmCode)
     return { confirmed: true }
   }
 

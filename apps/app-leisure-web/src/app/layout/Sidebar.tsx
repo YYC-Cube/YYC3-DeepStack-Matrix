@@ -78,6 +78,9 @@ export const MENU: MenuGroup[] = [
       { key: 'a9', label: '充值记录', path: '/fees/txns/RECHARGE', perm: 'fee:ledger:view' },
       { key: 'a10', label: '扣费记录', path: '/fees/txns/ROOM_SETTLE', perm: 'fee:ledger:view' },
       { key: 'a11', label: '手动扣费记录', path: '/fees/txns/MANUAL_DEDUCT', perm: 'fee:ledger:view' },
+      // 财务分账/交接班归资金域(深化-a:移动工作台「资金」分组自动跟随;单源 MENU)
+      { key: 'split', label: '财务分账', path: '/split', perm: 'setting:manage' },
+      { key: 'handover', label: '交接班对账', path: '/handover', perm: 'setting:manage' },
     ],
   },
   {
@@ -117,8 +120,6 @@ export const MENU: MenuGroup[] = [
       { key: 'departments', label: '部门管理', path: '/staff/departments', perm: 'setting:manage' },
       { key: 'roles', label: '权限管理', path: '/staff/roles', perm: 'setting:manage' },
       { key: 'notices', label: '工作通告', path: '/notices', perm: 'setting:manage' },
-      { key: 'split', label: '财务分账', path: '/split', perm: 'setting:manage' },
-      { key: 'handover', label: '交接班对账', path: '/handover', perm: 'setting:manage' },
     ],
   },
 ]

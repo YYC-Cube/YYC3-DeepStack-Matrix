@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
-import { ConfirmButton, DataTable, Field, PageHeader, StatusBadge, type Column } from '@/components/kit'
+import { DataTable, Field, PageHeader, StatusBadge, type Column } from '@/components/kit'
 
 interface HandoverRow {
   id: number
@@ -18,6 +18,7 @@ interface HandoverRow {
   orderTotal: number
   openOrders: number
   status: string
+  confirmCode: string
   takenBy: number | null
   confirmedAt: string | null
   remark: string | null
@@ -33,6 +34,8 @@ export default function HandoverPage(): React.JSX.Element {
   const [rows, setRows] = useState<HandoverRow[]>()
   const [form, setForm] = useState<FormState | null>(null)
   const [busy, setBusy] = useState(false)
+  /** 接班确认(深化-b:须输入交班单接班码;防误触/口头授权错认) */
+  const [confirming, setConfirming] = useState<{ id: number; shiftName: string; code: string } | null>(null)
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -54,12 +57,12 @@ export default function HandoverPage(): React.JSX.Element {
     }
     setBusy(true)
     try {
-      await req('POST', '/handover', {
+      const out = await req<{ id: number; confirmCode: string }>('POST', '/handover', {
         shiftName: form.shiftName.trim(),
         ...(form.businessDate !== '' ? { businessDate: form.businessDate } : {}),
         remark: form.remark === '' ? undefined : form.remark,
       })
-      toast.success('交接班快照已生成')
+      toast.success('交接班快照已生成 · 接班码 ' + (out.confirmCode ?? '') + '(请交予接班人)')
       setForm(null)
       await load()
     } catch (e) {
@@ -69,13 +72,18 @@ export default function HandoverPage(): React.JSX.Element {
     }
   }
 
-  async function confirm(id: number): Promise<void> {
+  async function confirm(): Promise<void> {
+    if (confirming === null) return
+    setBusy(true)
     try {
-      await req('POST', '/handover/' + String(id) + '/confirm')
+      await req('POST', '/handover/' + String(confirming.id) + '/confirm', { confirmCode: confirming.code.trim() })
       toast.success('已确认交接')
+      setConfirming(null)
       await load()
     } catch (e) {
       toastError(e)
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -87,6 +95,7 @@ export default function HandoverPage(): React.JSX.Element {
     { key: 'settleTotal', header: '关房结算', render: (r) => '¥' + String(r.settleTotal) },
     { key: 'orderTotal', header: '点单', render: (r) => '¥' + String(r.orderTotal) },
     { key: 'openOrders', header: '未结订单', render: (r) => String(r.openOrders) },
+    { key: 'confirmCode', header: '接班码', render: (r) => r.status === 'OPEN' && r.confirmCode !== '' ? <span className="font-mono tracking-widest">{r.confirmCode}</span> : <span className="text-xs text-fg-muted">—</span> },
     { key: 'status', header: '状态', render: (r) => <StatusBadge label={r.status} color={r.status === 'CONFIRMED' ? '#00ff88' : '#ffaa00'} /> },
     {
       key: 'act',
@@ -94,13 +103,9 @@ export default function HandoverPage(): React.JSX.Element {
       render: (r) => (
         <div className="flex gap-1.5">
           {r.status === 'OPEN' && (
-            <ConfirmButton
-              confirmTitle="确认交接"
-              confirmDesc="确认后本班次快照冻结归档,金额以快照为准。"
-              onConfirm={() => { void confirm(r.id) }}
-            >
+            <Button size="sm" onClick={() => setConfirming({ id: r.id, shiftName: r.shiftName, code: '' })}>
               接班确认
-            </ConfirmButton>
+            </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => { window.open('#/handover/' + String(r.id) + '/print', '_blank') }}>
             打印
@@ -148,6 +153,36 @@ export default function HandoverPage(): React.JSX.Element {
           <DialogFooter>
             <Button variant="outline" onClick={() => setForm(null)}>取消</Button>
             <Button disabled={busy} onClick={() => { void create() }}>生成</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 接班确认(深化-b:须输入交班单接班码;打印单同码可扫码枪录入) */}
+      <Dialog open={confirming !== null} onOpenChange={(o) => { if (!o) setConfirming(null) }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>接班确认 · {confirming?.shiftName ?? ''}</DialogTitle>
+          </DialogHeader>
+          {confirming !== null && (
+            <div className="space-y-3">
+              <Field label="接班码" required>
+                <Input
+                  value={confirming.code}
+                  inputMode="numeric"
+                  maxLength={6}
+                  className="font-mono tracking-[0.4em] text-lg text-center"
+                  onChange={(e) => setConfirming({ ...confirming, code: e.target.value.replace(/\D/g, '') })}
+                  placeholder="向交班人索取 6 位码"
+                />
+              </Field>
+              <p className="text-xs text-fg-muted">
+                确认后本班次快照冻结归档,金额以快照为准。接班码与交班单打印版一致,可经扫码枪录入。
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirming(null)}>取消</Button>
+            <Button disabled={busy || confirming?.code.length !== 6} onClick={() => { void confirm() }}>确认交接</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

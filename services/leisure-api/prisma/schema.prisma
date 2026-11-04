@@ -134,6 +134,8 @@ model SplitPlan {
   category      String    @db.VarChar(16)
   periodType    String    @default("MONTHLY") @map("period_type") @db.VarChar(16) // DAILY/WEEKLY/MONTHLY
   status        String    @default("DRAFT") @db.VarChar(16) // DRAFT/ACTIVE/ARCHIVED
+  // 计划期预算(17 号 S3+:预算 vs 实际对比;空=不设预算)
+  budgetAmount Decimal?  @map("budget_amount") @db.Decimal(12, 2)
   effectiveFrom DateTime? @map("effective_from")
   effectiveTo   DateTime? @map("effective_to")
   createdAt     DateTime  @default(now()) @map("created_at")
@@ -246,8 +248,9 @@ model ShiftHandover {
   orderTotal    Decimal  @map("order_total") @db.Decimal(12, 2)
   openOrders    Int      @map("open_orders")
   summaryJson   Json?    @map("summary_json")
-  // OPEN 生成 → CONFIRMED 接班人确认
+  // OPEN 生成 → CONFIRMED 接班人确认(接班码校验:创建时生成 6 位码,确认须提供)
   status       String    @default("OPEN") @db.VarChar(16)
+  confirmCode  String?   @map("confirm_code") @db.VarChar(8)
   takenBy      Int?      @map("taken_by")
   confirmedAt  DateTime? @map("confirmed_at")
   remark       String?   @db.VarChar(255)

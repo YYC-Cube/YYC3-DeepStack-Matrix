@@ -16,9 +16,10 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common'
-import { IsOptional, IsString, Length, MaxLength } from 'class-validator'
+import { IsIn, IsOptional, IsString, Length, MaxLength } from 'class-validator'
 import type { Request } from 'express'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
@@ -33,12 +34,19 @@ class GroupDto {
   @IsString()
   @MaxLength(64)
   supervisorName?: string
+  /** 条线(资源经理板块新建传 RESOURCE;缺省=销售线视图,存量 NULL 视同 SELL) */
+  @IsOptional()
+  @IsIn(['RESOURCE', 'SELL'])
+  line?: string
 }
 
 class LevelDto {
   @IsString()
   @Length(1, 64)
   name!: string
+  @IsOptional()
+  @IsIn(['RESOURCE', 'SELL'])
+  line?: string
 }
 
 /* ── Service ── */
@@ -47,17 +55,21 @@ class LevelDto {
 export class TaxonomyService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /* ── 组别 ── */
+  /* ── 组别(条线隔离:line=RESOURCE 取资源线;缺省=销售线视图,存量 NULL 视同 SELL) ── */
 
-  async listGroups(storeId: number): Promise<unknown> {
+  private lineWhere(line?: string): Record<string, unknown> {
+    return line === 'RESOURCE' ? { line: 'RESOURCE' } : { OR: [{ line: null }, { line: 'SELL' }] }
+  }
+
+  async listGroups(storeId: number, line?: string): Promise<unknown> {
     const rows = await this.prisma.artistGroup.findMany({
-      where: { storeId, deletedAt: null },
+      where: { storeId, deletedAt: null, ...(this.lineWhere(line) as object) },
       orderBy: { id: 'asc' },
     })
-    // 挂靠人数(A4 列:组名/主管/人数)
+    // 挂靠人数(A4 列:组名/主管/人数;按条线口径计数)
     const counts = await this.prisma.artist.groupBy({
       by: ['groupId'],
-      where: { storeId, deletedAt: null },
+      where: { storeId, deletedAt: null, ...(this.lineWhere(line) as object) },
       _count: { _all: true },
     })
     const countMap = new Map(counts.map((c) => [c.groupId, c._count._all]))
@@ -65,9 +77,9 @@ export class TaxonomyService {
   }
 
   async createGroup(storeId: number, body: GroupDto, operatorId: number): Promise<{ id: number }> {
-    await this.assertGroupNameFree(storeId, body.name)
+    await this.assertGroupNameFree(storeId, body.name, undefined, body.line)
     const created = await this.prisma.artistGroup.create({
-      data: { storeId, name: body.name, supervisorName: body.supervisorName },
+      data: { storeId, name: body.name, supervisorName: body.supervisorName, line: body.line === 'RESOURCE' ? 'RESOURCE' : null },
     })
     await this.audit(storeId, operatorId, 'GROUP_CREATE', 'artist_group', String(created.id), null, created)
     return { id: created.id }
@@ -95,16 +107,16 @@ export class TaxonomyService {
     await this.audit(storeId, operatorId, 'GROUP_DELETE', 'artist_group', String(id), before, null)
   }
 
-  /* ── 等级 ── */
+  /* ── 等级(条线隔离口径同组别) ── */
 
-  async listLevels(storeId: number): Promise<unknown> {
+  async listLevels(storeId: number, line?: string): Promise<unknown> {
     const rows = await this.prisma.artistLevel.findMany({
-      where: { storeId, deletedAt: null },
+      where: { storeId, deletedAt: null, ...(this.lineWhere(line) as object) },
       orderBy: { id: 'asc' },
     })
     const counts = await this.prisma.artist.groupBy({
       by: ['levelId'],
-      where: { storeId, deletedAt: null },
+      where: { storeId, deletedAt: null, ...(this.lineWhere(line) as object) },
       _count: { _all: true },
     })
     const countMap = new Map(counts.map((c) => [c.levelId, c._count._all]))
@@ -112,9 +124,9 @@ export class TaxonomyService {
   }
 
   async createLevel(storeId: number, body: LevelDto, operatorId: number): Promise<{ id: number }> {
-    await this.assertLevelNameFree(storeId, body.name)
+    await this.assertLevelNameFree(storeId, body.name, undefined, body.line)
     const created = await this.prisma.artistLevel.create({
-      data: { storeId, name: body.name },
+      data: { storeId, name: body.name, line: body.line === 'RESOURCE' ? 'RESOURCE' : null },
     })
     await this.audit(storeId, operatorId, 'LEVEL_CREATE', 'artist_level', String(created.id), null, created)
     return { id: created.id }
@@ -141,18 +153,18 @@ export class TaxonomyService {
 
   /* ── 私有 ── */
 
-  private async assertGroupNameFree(storeId: number, name: string, excludeId?: number): Promise<void> {
+  private async assertGroupNameFree(storeId: number, name: string, excludeId?: number, line?: string): Promise<void> {
     const dup = await this.prisma.artistGroup.findFirst({
-      where: { storeId, name, deletedAt: null, ...(excludeId !== undefined ? { id: { not: excludeId } } : {}) },
+      where: { storeId, name, deletedAt: null, ...(this.lineWhere(line) as object), ...(excludeId !== undefined ? { id: { not: excludeId } } : {}) },
     })
-    if (dup !== null) throw new BadRequestException('组别名称已存在')
+    if (dup !== null) throw new BadRequestException('组别名称已存在(同条线)')
   }
 
-  private async assertLevelNameFree(storeId: number, name: string, excludeId?: number): Promise<void> {
+  private async assertLevelNameFree(storeId: number, name: string, excludeId?: number, line?: string): Promise<void> {
     const dup = await this.prisma.artistLevel.findFirst({
-      where: { storeId, name, deletedAt: null, ...(excludeId !== undefined ? { id: { not: excludeId } } : {}) },
+      where: { storeId, name, deletedAt: null, ...(this.lineWhere(line) as object), ...(excludeId !== undefined ? { id: { not: excludeId } } : {}) },
     })
-    if (dup !== null) throw new BadRequestException('等级名称已存在')
+    if (dup !== null) throw new BadRequestException('等级名称已存在(同条线)')
   }
 
   private async audit(
@@ -185,9 +197,9 @@ export class ArtistGroupController {
   constructor(private readonly svc: TaxonomyService) {}
 
   @Get()
-  async list(@Req() req: Request): Promise<unknown> {
+  async list(@Req() req: Request, @Query('line') line?: string): Promise<unknown> {
     const user = (req as ReqWithUser).user
-    return this.svc.listGroups(user?.storeId ?? 1)
+    return this.svc.listGroups(user?.storeId ?? 1, line)
   }
 
   @RequirePerm('group:manage')
@@ -223,9 +235,9 @@ export class ArtistLevelController {
   constructor(private readonly svc: TaxonomyService) {}
 
   @Get()
-  async list(@Req() req: Request): Promise<unknown> {
+  async list(@Req() req: Request, @Query('line') line?: string): Promise<unknown> {
     const user = (req as ReqWithUser).user
-    return this.svc.listLevels(user?.storeId ?? 1)
+    return this.svc.listLevels(user?.storeId ?? 1, line)
   }
 
   @RequirePerm('level:manage')

@@ -19,7 +19,7 @@ import {
   Res,
   BadRequestException,
 } from '@nestjs/common'
-import { IsArray, IsIn, IsInt, IsOptional, IsString, Length, Min, Max, IsNumber } from 'class-validator'
+import { IsArray, IsIn, IsInt, IsOptional, IsString, Length, Min, Max, IsNumber, Matches } from 'class-validator'
 import type { Request, Response } from 'express'
 import { randomInt } from 'node:crypto'
 import { PrismaService } from '../../prisma/prisma.service.js'
@@ -30,7 +30,9 @@ import { parseCsvTable } from '../../common/utils/csv-parse.js'
 
 const CATEGORIES = ['SESSION', 'ROOM', 'ORDER', 'TICKET', 'RECHARGE', 'MANUAL'] as const
 const CALC_TYPES = ['PERCENT', 'FIXED', 'TIERED'] as const
-const PAY_METHODS = ['CASH', 'TRANSFER', 'BANK', 'OFFSET'] as const
+// 结算/支付方式(2026-11-04 Owner 裁决:对应所有收付款方式)——门店收费通道清单可配(CUSTOM1-3 等),
+// 故放宽为大写码 2-20 位;OFFSET 为保留语义(台费冲抵,仅个人对象),其余码与门店收款渠道单源对齐
+const PAY_METHOD_RE = /^[A-Z][A-Z0-9_]{1,19}$/
 
 /* ── DTO ── */
 
@@ -58,7 +60,7 @@ class RuleDto {
   @IsIn(['REWARD', 'PENALTY'])
   rewardType?: string
   @IsOptional()
-  @IsIn(PAY_METHODS)
+  @Matches(PAY_METHOD_RE)
   payMethod?: string
 }
 
@@ -96,7 +98,7 @@ class ManualEntryDto {
   @IsNumber()
   amount!: number
   @IsOptional()
-  @IsIn(PAY_METHODS)
+  @Matches(PAY_METHOD_RE)
   payMethod?: string
   @IsOptional()
   @IsString()
@@ -115,7 +117,7 @@ class SettlementDto {
   periodFrom!: string
   @IsString()
   periodTo!: string
-  @IsIn(PAY_METHODS)
+  @Matches(PAY_METHOD_RE)
   payMethod!: string
 }
 

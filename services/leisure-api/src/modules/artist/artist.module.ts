@@ -374,6 +374,48 @@ export class ArtistService {
     })
   }
 
+  /** 头像写入(avatarKeys.photo dataURL ≤300KB;全员头像显示数据源) */
+  async setAvatar(id: number, photoBase64: string, storeId: number, operatorId: number): Promise<void> {
+    if (!photoBase64.startsWith('data:image/')) {
+      throw new BadRequestException('照片须为 data:image/* dataURL')
+    }
+    if (photoBase64.length > 400_000) {
+      throw new BadRequestException('照片超过 300KB 上限,请压缩后上传')
+    }
+    const target = await this.prisma.artist.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (target === null) throw new BadRequestException('销售经理不存在或已删除')
+    await this.prisma.artist.update({ where: { id }, data: { avatarKeys: { photo: photoBase64 } as object } })
+    await this.audit(operatorId, 'ARTIST_AVATAR_SET', 'artist', String(id), { avatarSet: false }, { avatarSet: true })
+  }
+
+  /** 资源经理转入销售:建审批单(bizType=RESOURCE_TO_SELL);审批通过由 approval.decide 钩子改线 */
+  async requestTransferToSell(
+    id: number,
+    reason: string,
+    storeId: number,
+    operatorId: number,
+  ): Promise<{ approvalId: number }> {
+    const target = await this.prisma.artist.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (target === null) throw new BadRequestException('档案不存在或已删除')
+    if ((target.line ?? 'SELL') !== 'RESOURCE') {
+      throw new BadRequestException('仅资源经理档案可发起转入销售申请')
+    }
+    const dup = await this.prisma.approval.findFirst({
+      where: { storeId, bizType: 'RESOURCE_TO_SELL', status: 'PENDING', bizPayload: { path: ['artistId'], equals: id } },
+    })
+    if (dup !== null) throw new ConflictException('该档案已有待审批的转入销售申请')
+    const created = await this.prisma.approval.create({
+      data: {
+        storeId,
+        bizType: 'RESOURCE_TO_SELL',
+        bizPayload: { artistId: id, artistName: target.realName, badgeNo: target.badgeNo, reason } as object,
+        applicantId: operatorId,
+      },
+    })
+    await this.audit(operatorId, 'RESOURCE_TRANSFER_APPLY', 'artist', String(id), { line: 'RESOURCE' }, { approvalId: created.id })
+    return { approvalId: created.id }
+  }
+
   private async audit(
     operatorId: number,
     action: string,
@@ -465,6 +507,31 @@ export class ArtistController {
     const user = (req as ReqWithUser).user
     await this.svc.auditArtist(id, body.auditStatus, user?.sub ?? 0)
     return { auditStatus: body.auditStatus }
+  }
+
+  /** 头像上传(前端压缩 ≤300KB dataURL 存 avatarKeys.photo;全员头像:档案/选人器/实时态显示) */
+  @RequirePerm('artist:edit')
+  @Post(':id/avatar')
+  async uploadAvatar(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { photoBase64?: string },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    await this.svc.setAvatar(id, body.photoBase64 ?? '', user?.storeId ?? 1, user?.sub ?? 0)
+    return { avatarSet: true }
+  }
+
+  /** 资源经理「转入销售」申请(2026-11-04 Owner 裁决:两线不互通,转线走审批;审批通过自动改线) */
+  @RequirePerm('resource:view')
+  @Post(':id/transfer-to-sell')
+  async transferToSell(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { reason?: string },
+  ): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.requestTransferToSell(id, body.reason ?? '', user?.storeId ?? 1, user?.sub ?? 0)
   }
 
   @RequirePerm('artist:batch')

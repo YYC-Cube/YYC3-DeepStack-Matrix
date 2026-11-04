@@ -79,6 +79,30 @@ export class ApprovalService {
     if (approval.applicantId === approver.sub) {
       throw new BadRequestException('审批人与申请人不可为同一人')
     }
+    // 资源经理转入销售(bizType=RESOURCE_TO_SELL,2026-11-04):通过=改线 SELL+清资源线组别/等级;不涉台费流水
+    if (approval.bizType === 'RESOURCE_TO_SELL') {
+      if (decision === 'REJECTED') {
+        await this.prisma.approval.update({
+          where: { id },
+          data: { status: 'REJECTED', approverId: approver.sub, decidedAt: new Date() },
+        })
+        await this.audit(approval.storeId, approver.sub, 'APPROVAL_REJECT', 'approval', String(id), approval, null)
+        return { id, status: 'REJECTED' }
+      }
+      const payload = approval.bizPayload as unknown as { artistId: number }
+      const artist = await this.prisma.artist.findFirst({ where: { id: payload.artistId, storeId: approval.storeId, deletedAt: null } })
+      if (artist === null) throw new BadRequestException('档案不存在或已删除')
+      const after = await this.prisma.artist.update({
+        where: { id: artist.id },
+        data: { line: 'SELL', groupId: null, levelId: null },
+      })
+      await this.prisma.approval.update({
+        where: { id },
+        data: { status: 'APPROVED', approverId: approver.sub, decidedAt: new Date() },
+      })
+      await this.audit(approval.storeId, approver.sub, 'RESOURCE_TRANSFER_APPROVED', 'artist', String(artist.id), { line: 'RESOURCE' }, { line: after.line })
+      return { id, status: 'APPROVED' }
+    }
     if (decision === 'REJECTED') {
       await this.prisma.approval.update({
         where: { id },

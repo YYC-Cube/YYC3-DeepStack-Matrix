@@ -8,6 +8,21 @@ import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, Dialog
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, DataTable, Field, PageHeader, SelectBox, StatusBadge, type Column } from '@/components/kit'
+import PersonPicker from '@/components/person-picker'
+
+/** 结算方式单源:门店收费渠道(DEFAULT_PAY_CHANNELS:CASH/TRANSFER/CUSTOM1-3,门店可配)+保留语义 OFFSET(台费冲抵) */
+const PAY_METHOD_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'CASH', label: '现金' },
+  { value: 'TRANSFER', label: '转账' },
+  { value: 'BANK', label: '银行' },
+  { value: 'WECHAT', label: '微信' },
+  { value: 'ALIPAY', label: '支付宝' },
+  { value: 'DOUYIN', label: '抖音' },
+  { value: 'CUSTOM1', label: '自定义1' },
+  { value: 'CUSTOM2', label: '自定义2' },
+  { value: 'CUSTOM3', label: '自定义3' },
+  { value: 'OFFSET', label: '抵扣台费(仅销售经理)' },
+]
 
 interface PlanRow {
   id: number
@@ -85,6 +100,11 @@ export default function SplitPage(): React.JSX.Element {
   const [payForm, setPayForm] = useState<{ id: number; targetName: string; amount: number; payMethod: string; payRef: string } | null>(null)
   const [importOpen, setImportOpen] = useState(false)
   const [importResult, setImportResult] = useState<{ updated: number; rows: Array<{ id: number | null; payRef: string; ok: boolean; reason: string }> } | null>(null)
+  /** 分账对象选择器/部门数据源(A:任一项匹配;结算方式全渠道下拉) */
+  const [manualPicker, setManualPicker] = useState(false)
+  const [settlePicker, setSettlePicker] = useState(false)
+  const [departments, setDepartments] = useState<Array<{ id: number; name: string }>>([])
+  const payMethodOptions = PAY_METHOD_OPTIONS
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async (): Promise<void> => {
@@ -107,6 +127,10 @@ export default function SplitPage(): React.JSX.Element {
 
   useEffect(() => {
     void load()
+    // 部门数据源(分账目标 DEPARTMENT 下拉;staff API setting:manage 同守卫)
+    void req<{ rows: Array<{ id: number; name: string }> }>('GET', '/staff/departments')
+      .then((r) => setDepartments(r.rows))
+      .catch(() => undefined)
   }, [load])
 
   async function savePlan(): Promise<void> {
@@ -383,16 +407,39 @@ export default function SplitPage(): React.JSX.Element {
             <Field label="对象类型">
               <SelectBox
                 value={manual.targetScope}
-                onChange={(v) => setManual({ ...manual, targetScope: v })}
+                onChange={(v) => setManual({ ...manual, targetScope: v, targetId: '', targetName: '' })}
                 options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }]}
               />
             </Field>
-            <Field label="对象 ID">
-              <Input inputMode="numeric" value={manual.targetId} onChange={(e) => setManual({ ...manual, targetId: e.target.value })} />
-            </Field>
-            <Field label="对象名称">
-              <Input value={manual.targetName} onChange={(e) => setManual({ ...manual, targetName: e.target.value })} />
-            </Field>
+            {manual.targetScope === 'ARTIST' && (
+              <Field label="对象(姓名/首字母/腰牌/电话 任一项可搜)">
+                <Button variant="outline" className="w-full justify-start" onClick={() => { setManualPicker(true) }}>
+                  {manual.targetName !== '' ? `已选:${manual.targetName}#${manual.targetId}` : '+ 选择人员'}
+                </Button>
+              </Field>
+            )}
+            {manual.targetScope === 'DEPARTMENT' && (
+              <Field label="部门">
+                <SelectBox
+                  value={manual.targetId}
+                  onChange={(v) => {
+                    const d = departments.find((x) => String(x.id) === v)
+                    setManual({ ...manual, targetId: v, targetName: d?.name ?? '' })
+                  }}
+                  options={[{ value: '', label: '选择部门' }, ...departments.map((d) => ({ value: String(d.id), label: d.name }))]}
+                />
+              </Field>
+            )}
+            {manual.targetScope === 'ADMIN' && (
+              <>
+                <Field label="岗位 ID">
+                  <Input inputMode="numeric" value={manual.targetId} onChange={(e) => setManual({ ...manual, targetId: e.target.value })} />
+                </Field>
+                <Field label="岗位名称">
+                  <Input value={manual.targetName} onChange={(e) => setManual({ ...manual, targetName: e.target.value })} />
+                </Field>
+              </>
+            )}
             <Field label="基数">
               <Input inputMode="decimal" value={manual.baseAmount} onChange={(e) => setManual({ ...manual, baseAmount: e.target.value })} />
             </Field>
@@ -401,7 +448,7 @@ export default function SplitPage(): React.JSX.Element {
             </Field>
             <div className="flex gap-2">
               <Button
-                disabled={busy}
+                disabled={busy || manual.targetId === '' || manual.targetName.trim() === ''}
                 onClick={() => {
                   void req('POST', '/split/entries', {
                     planId: (plans ?? []).find((p) => p.status === 'ACTIVE')?.id ?? 0,
@@ -440,31 +487,54 @@ export default function SplitPage(): React.JSX.Element {
             <Field label="对象类型">
               <SelectBox
                 value={settleForm.targetScope}
-                onChange={(v) => setSettleForm({ ...settleForm, targetScope: v })}
+                onChange={(v) => setSettleForm({ ...settleForm, targetScope: v, targetId: '', targetName: '' })}
                 options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }]}
               />
             </Field>
-            <Field label="对象 ID">
-              <Input inputMode="numeric" value={settleForm.targetId} onChange={(e) => setSettleForm({ ...settleForm, targetId: e.target.value })} />
-            </Field>
-            <Field label="对象名称">
-              <Input value={settleForm.targetName} onChange={(e) => setSettleForm({ ...settleForm, targetName: e.target.value })} />
-            </Field>
+            {settleForm.targetScope === 'ARTIST' && (
+              <Field label="对象(任一项可搜)">
+                <Button variant="outline" className="w-full justify-start" onClick={() => { setSettlePicker(true) }}>
+                  {settleForm.targetName !== '' ? `已选:${settleForm.targetName}#${settleForm.targetId}` : '+ 选择人员'}
+                </Button>
+              </Field>
+            )}
+            {settleForm.targetScope === 'DEPARTMENT' && (
+              <Field label="部门">
+                <SelectBox
+                  value={settleForm.targetId}
+                  onChange={(v) => {
+                    const d = departments.find((x) => String(x.id) === v)
+                    setSettleForm({ ...settleForm, targetId: v, targetName: d?.name ?? '' })
+                  }}
+                  options={[{ value: '', label: '选择部门' }, ...departments.map((d) => ({ value: String(d.id), label: d.name }))]}
+                />
+              </Field>
+            )}
+            {settleForm.targetScope === 'ADMIN' && (
+              <>
+                <Field label="岗位 ID">
+                  <Input inputMode="numeric" value={settleForm.targetId} onChange={(e) => setSettleForm({ ...settleForm, targetId: e.target.value })} />
+                </Field>
+                <Field label="岗位名称">
+                  <Input value={settleForm.targetName} onChange={(e) => setSettleForm({ ...settleForm, targetName: e.target.value })} />
+                </Field>
+              </>
+            )}
             <Field label="周期起">
               <Input type="date" value={settleForm.periodFrom} onChange={(e) => setSettleForm({ ...settleForm, periodFrom: e.target.value })} />
             </Field>
             <Field label="周期止">
               <Input type="date" value={settleForm.periodTo} onChange={(e) => setSettleForm({ ...settleForm, periodTo: e.target.value })} />
             </Field>
-            <Field label="支付方式">
+            <Field label="结算方式(对应门店全部收付款渠道)">
               <SelectBox
                 value={settleForm.payMethod}
                 onChange={(v) => setSettleForm({ ...settleForm, payMethod: v })}
-                options={[{ value: 'CASH', label: '现金' }, { value: 'TRANSFER', label: '转账' }, { value: 'BANK', label: '银行' }, { value: 'OFFSET', label: '抵扣台费' }]}
+                options={payMethodOptions}
               />
             </Field>
             <div className="flex gap-2">
-              <Button disabled={busy} onClick={() => { void createSettlement() }}>生成</Button>
+              <Button disabled={busy || settleForm.targetId === '' || settleForm.targetName.trim() === ''} onClick={() => { void createSettlement() }}>生成</Button>
               <Button variant="ghost" onClick={() => setSettleForm(null)}>取消</Button>
             </div>
           </div>
@@ -639,6 +709,33 @@ export default function SplitPage(): React.JSX.Element {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 分账对象选择器(手动奖惩) */}
+      <PersonPicker
+        open={manualPicker}
+        title="选择分账对象(销售经理)"
+        line="SELL"
+        excludeBusy={false}
+        onClose={() => { setManualPicker(false) }}
+        onPick={(p) => {
+          if (p !== null && !Array.isArray(p) && manual !== null) {
+            setManual({ ...manual, targetId: String(p.id), targetName: p.realName + (p.groupName !== null ? '(' + p.groupName + ')' : '') })
+          }
+        }}
+      />
+      {/* 分账对象选择器(结算单) */}
+      <PersonPicker
+        open={settlePicker}
+        title="选择结算对象(销售经理)"
+        line="SELL"
+        excludeBusy={false}
+        onClose={() => { setSettlePicker(false) }}
+        onPick={(p) => {
+          if (p !== null && !Array.isArray(p) && settleForm !== null) {
+            setSettleForm({ ...settleForm, targetId: String(p.id), targetName: p.realName })
+          }
+        }}
+      />
     </div>
   )
 }

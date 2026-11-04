@@ -10,6 +10,7 @@ import { RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { RoomCloseDialog, RoomOpenDialog, type OpenSessionRow, type RoomRow, type ArtistRow } from '@/components/room-ops'
+import PersonPicker from '@/components/person-picker'
 
 const STATUS_TEXT: Record<string, string> = {
   FREE: '空闲', OCCUPIED: '消费中', CLEANING: '清扫中', MAINTENANCE: '维修中', DISABLED: '停用', BOOKED: '已预定',
@@ -36,6 +37,8 @@ export default function MBoardPage(): React.JSX.Element {
   const [filter, setFilter] = useState<string>('全部')
   const [openRoom, setOpenRoom] = useState<RoomRow | null>(null)
   const [closeRoom, setCloseRoom] = useState<RoomRow | null>(null)
+  // 上钟选人器(2026-11-04 房态重构:开房与上钟解耦)
+  const [staffRoom, setStaffRoom] = useState<RoomRow | null>(null)
   const [closeSession, setCloseSession] = useState<OpenSessionRow | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -209,9 +212,14 @@ export default function MBoardPage(): React.JSX.Element {
                   </>
                 )}
                 {st === 'OCCUPIED' && open !== undefined && (
-                  <Button size="sm" className="h-7 px-2.5 text-xs flex-1" onClick={() => { setCloseRoom(r); setCloseSession(open) }}>
-                    关房结算
-                  </Button>
+                  <>
+                    <Button size="sm" className="h-7 px-2.5 text-xs flex-1" onClick={() => { setStaffRoom(r) }}>
+                      上钟
+                    </Button>
+                    <Button size="sm" className="h-7 px-2.5 text-xs flex-1" onClick={() => { setCloseRoom(r); setCloseSession(open) }}>
+                      关房结算
+                    </Button>
+                  </>
                 )}
                 {st === 'CLEANING' && (
                   <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs flex-1" disabled={busy} onClick={() => { void cleaningDone(r.id) }}>
@@ -240,6 +248,23 @@ export default function MBoardPage(): React.JSX.Element {
         session={closeSession}
         onClose={() => { setCloseRoom(null); setCloseSession(null) }}
         onClosed={load}
+      />
+      <PersonPicker
+        open={staffRoom !== null}
+        title={'上钟 · ' + (staffRoom?.roomNo ?? '') + '(仅未上钟人员)'}
+        line="SELL"
+        excludeBusy
+        onClose={() => { setStaffRoom(null) }}
+        onPick={(p) => {
+          if (p !== null && !Array.isArray(p) && staffRoom !== null) {
+            setBusy(true)
+            client.sessions
+              .start({ artistId: p.id, roomId: staffRoom.id })
+              .then((out) => { toast.success(staffRoom.roomNo + ' 上钟成功 · ' + out.businessDate); setStaffRoom(null); return load() })
+              .catch((e) => toastError(e, '上钟失败'))
+              .finally(() => setBusy(false))
+          }
+        }}
       />
     </div>
   )

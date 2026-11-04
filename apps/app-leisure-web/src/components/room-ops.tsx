@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner'
 import { client, toastError } from '@/lib/api'
 import type { BillPreview, DispatchQueue } from '@yyc3/leisure-core'
+import PersonPicker from '@/components/person-picker'
 
 export interface RoomRow {
   id: number
@@ -64,9 +65,10 @@ export function RoomOpenDialog(props: {
   onClose: () => void
   onOpened: () => Promise<void>
 }): React.JSX.Element {
-  const { room, artists, hasBooking = false, onClose, onOpened } = props
+  const { room, hasBooking = false, onClose, onOpened } = props
   const [busy, setBusy] = useState(false)
   const [pickedArtists, setPickedArtists] = useState<number[]>([])
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [queue, setQueue] = useState<DispatchQueue | null>(null)
   const [overrideReason, setOverrideReason] = useState('')
   const [ignoreHold, setIgnoreHold] = useState(false)
@@ -92,12 +94,10 @@ export function RoomOpenDialog(props: {
     return pickedArtists.filter((id) => !topK.has(id))
   }
 
+  const nameOf = (id: number): string => props.artists.find((a) => a.id === id)?.stageName ?? String(id)
+
   const doOpen = async (): Promise<void> => {
     if (room === null) return
-    if (pickedArtists.length === 0) {
-      toast.error('至少绑定一名在场销售经理')
-      return
-    }
     setBusy(true)
     try {
       const out = await client.roomSessions.open({
@@ -107,7 +107,8 @@ export function RoomOpenDialog(props: {
         ...(ignoreHold ? { ignoreBookingHold: true } : {}),
       })
       toast.success(
-        room.roomNo + ' 开房成功(进房即上钟)' +
+        room.roomNo + ' 开房成功' +
+          (pickedArtists.length > 0 ? '(已绑定上钟 ' + String(pickedArtists.length) + ' 人)' : '(空房;上钟请用房卡「上钟」选人)') +
           (out.overridden.length > 0 ? ' · 越过轮台推荐 ' + String(out.overridden.length) + ' 人已记录' : ''),
       )
       onClose()
@@ -149,24 +150,33 @@ export function RoomOpenDialog(props: {
               </div>
             </div>
           )}
-          <Label>绑定在场销售经理(进房即上钟,计费入本房账)</Label>
-          <div className="max-h-56 overflow-y-auto space-y-1">
-            {artists.filter((a) => a.badgeNo !== null).map((a) => {
-              const pos = queue?.rows.find((q) => q.artistId === a.id)?.position
-              return (
-                <label key={a.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={pickedArtists.includes(a.id)}
-                    onCheckedChange={(c) => {
-                      setPickedArtists(c === true ? [...pickedArtists, a.id] : pickedArtists.filter((x) => x !== a.id))
-                    }}
-                  />
-                  {a.stageName ?? a.realName}({a.badgeNo})
-                  {pos !== undefined && <span className="text-[10px] text-primary">轮台#{String(pos)}</span>}
-                </label>
-              )
-            })}
+          <Label>绑定在场销售经理(可选:立即上钟计费入本房;留空=开空房,后续用房卡「上钟」选人)</Label>
+          <div className="flex flex-wrap gap-1.5 min-h-9 rounded border border-line p-1.5">
+            {pickedArtists.map((id) => (
+              <span key={id} className="inline-flex items-center gap-1 rounded-full border border-line px-2 py-0.5 text-xs">
+                {nameOf(id)}
+                <button
+                  className="text-fg-muted hover:text-error"
+                  onClick={() => { setPickedArtists(pickedArtists.filter((x) => x !== id)) }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <Button variant="outline" size="sm" onClick={() => { setPickerOpen(true) }}>+ 选择人员</Button>
           </div>
+          <PersonPicker
+            open={pickerOpen}
+            title="选择上钟销售经理(未上钟优先)"
+            line="SELL"
+            multiple
+            excludeBusy={false}
+            onClose={() => { setPickerOpen(false) }}
+            onPick={(p) => {
+              const list = Array.isArray(p) ? p : [p]
+              setPickedArtists((s) => Array.from(new Set([...s, ...list.filter((x) => x !== null).map((x) => x!.id)])))
+            }}
+          />
           {queue !== null && queue.mode !== 'SELF_PICK' && offOrder().length > 0 && (
             <div className="space-y-1">
               <div className="text-xs text-warning">

@@ -22,6 +22,8 @@ interface ArtistRow {
   tipFixed: string
   status: number
   auditStatus: string
+  line?: string | null
+  avatarKeys?: { photo?: string } | null
   groupId: number | null
   levelId: number | null
   supervisorName: string | null
@@ -92,6 +94,8 @@ export default function ArtistsPage() {
   const [groups, setGroups] = useState<Option[]>([])
   const [levels, setLevels] = useState<Option[]>([])
   const [form, setForm] = useState<FormState | null>(null)
+  /** 头像上传预览(编辑态;上传成功后同步列表) */
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
 
@@ -231,6 +235,18 @@ export default function ArtistsPage() {
         ),
       },
       { key: 'stageName', header: '艺名', render: (r) => r.stageName ?? '—' },
+      {
+        key: 'avatar',
+        header: '头像',
+        render: (r) =>
+          r.avatarKeys?.photo ? (
+            <img src={r.avatarKeys.photo} alt="" className="w-8 h-8 rounded-full object-cover" />
+          ) : (
+            <span className="inline-flex w-8 h-8 rounded-full bg-fg-muted/15 items-center justify-center text-[10px] text-fg-muted">
+              {r.realName.slice(-2)}
+            </span>
+          ),
+      },
       { key: 'realName', header: '姓名' },
       { key: 'badgeNo', header: '腰牌号', render: (r) => r.badgeNo ?? '—' },
       { key: 'group', header: '组别', render: (r) => r.group?.name ?? '—' },
@@ -254,7 +270,8 @@ export default function ArtistsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() =>
+              onClick={() => {
+                setAvatarPreview(r.avatarKeys?.photo ?? null)
                 setForm({
                   id: r.id,
                   realName: r.realName,
@@ -273,7 +290,7 @@ export default function ArtistsPage() {
                   hourlyRate: String(r.hourlyRate ?? 0),
                   auditStatus: r.auditStatus,
                 })
-              }
+              }}
             >
               编辑
             </Button>
@@ -285,6 +302,20 @@ export default function ArtistsPage() {
             {r.auditStatus !== 'REJECTED' && hasPerm('artist:edit') && (
               <Button variant="outline" size="sm" className="text-destructive" onClick={() => void audit(r.id, 'REJECTED')}>
                 驳回
+              </Button>
+            )}
+            {/* 资源线专属:转入销售申请(2026-11-04 Owner 裁决:两线不互通,转线走审批;审批通过自动改线) */}
+            {(r.line ?? 'SELL') === 'RESOURCE' && hasPerm('resource:view') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  void req('POST', '/artists/' + String(r.id) + '/transfer-to-sell', { reason: '资源转销售申请' })
+                    .then(() => { toast.success('转入销售申请已提交,待审批(审批人≠申请人)') })
+                    .catch((e) => toastError(e))
+                }}
+              >
+                转入销售
               </Button>
             )}
           </div>
@@ -349,6 +380,46 @@ export default function ArtistsPage() {
           </DialogHeader>
           {form !== null && (
             <div className="grid grid-cols-2 gap-4">
+              {/* 照片上传(编辑态;canvas 压缩至 ≤300KB dataURL 存 avatarKeys.photo,全员头像数据源) */}
+              {form.id !== undefined && (
+                <Field label="照片(头像;全员显示)">
+                  <div className="flex items-center gap-2">
+                    {avatarPreview !== null ? (
+                      <img src={avatarPreview} alt="" className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <span className="w-12 h-12 rounded-full bg-fg-muted/15 flex items-center justify-center text-xs text-fg-muted">无</span>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="text-xs"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0]
+                        if (f === undefined) return
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                          const img = new Image()
+                          img.onload = () => {
+                            // 压缩:最长边 256,质量 0.8
+                            const scale = Math.min(1, 256 / Math.max(img.width, img.height))
+                            const canvas = document.createElement('canvas')
+                            canvas.width = Math.round(img.width * scale)
+                            canvas.height = Math.round(img.height * scale)
+                            canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8)
+                            setAvatarPreview(dataUrl)
+                            void req('POST', '/artists/' + String(form.id) + '/avatar', { photoBase64: dataUrl })
+                              .then(() => { toast.success('头像已更新'); void load() })
+                              .catch((err) => toastError(err))
+                          }
+                          img.src = String(reader.result)
+                        }
+                        reader.readAsDataURL(f)
+                      }}
+                    />
+                  </div>
+                </Field>
+              )}
               <Field label="姓名" required>
                 <Input value={form.realName} onChange={(e) => setForm({ ...form, realName: e.target.value })} />
               </Field>

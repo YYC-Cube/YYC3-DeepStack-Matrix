@@ -81,6 +81,8 @@ model Room {
 model ArtistGroup {
   id             Int      @id @default(autoincrement())
   storeId        Int      @map("store_id")
+  // 条线隔离(2026-11-04 Owner 裁决:销售/资源经理并非同一组织,组别不互通;存量 NULL 视同 SELL)
+  line           String?  @map("line") @db.VarChar(16)
   name           String   @db.VarChar(64) // 实测以主管命名:江海龙
   supervisorName String?  @map("supervisor_name") @db.VarChar(64)
   deletedAt      DateTime? @map("deleted_at")
@@ -95,6 +97,8 @@ model ArtistGroup {
 model ArtistLevel {
   id        Int       @id @default(autoincrement())
   storeId   Int       @map("store_id")
+  // 条线隔离(同组别;存量 NULL 视同 SELL)
+  line      String?   @map("line") @db.VarChar(16)
   name      String    @db.VarChar(64) // 实测:技师
   deletedAt DateTime? @map("deleted_at")
 

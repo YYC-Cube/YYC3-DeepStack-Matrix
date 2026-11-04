@@ -9,11 +9,44 @@ import { Button, Toaster } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth'
 import { useIsMobile, usePWAInstall, useOnlineStatus } from '@/lib/pwa'
-import { Sidebar } from './Sidebar'
+import { useLocation } from 'react-router'
+import { Sidebar, MENU } from './Sidebar'
 import { BottomNav } from '@/components/BottomNav'
 import { CommandPalette } from '@/components/command-palette/CommandPalette'
 import { AIAssistant } from '@/components/ai-assistant/AIAssistant'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
+
+/** 横向子菜单条(2026-11-04 导航优化):当前路由所在域的子项横向平铺;按功能码过滤,与 Sidebar 同源 MENU */
+function HorizontalSubNav(): React.JSX.Element | null {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const permCodes = useAuthStore((s) => s.permCodes)
+  const group = MENU.find((g) => g.items.some((it) => location.pathname.startsWith(it.path.split('?')[0] ?? it.path)))
+  if (group === undefined) return null
+  const items = group.items.filter((it) => it.perm === '*' || permCodes.includes(it.perm))
+  if (items.length === 0) return null
+  return (
+    <div className="h-9 shrink-0 flex items-center gap-1 px-5 border-b border-[rgba(0,212,255,0.08)] overflow-x-auto">
+      <span className="text-[11px] text-[#8b9bb4] mr-2 shrink-0">{group.label} ·</span>
+      {items.map((it) => {
+        const active = location.pathname.startsWith(it.path.split('?')[0] ?? it.path)
+        return (
+          <button
+            key={it.key}
+            onClick={() => { navigate(it.path) }}
+            className={
+              'px-2.5 py-1 rounded text-xs whitespace-nowrap transition-colors ' +
+              (active ? 'bg-[rgba(0,212,255,0.14)] text-[#00d4ff]' : 'text-[#8b9bb4] hover:text-[#c0d8f0] hover:bg-[rgba(0,212,255,0.06)]')
+            }
+          >
+            {it.label}
+            {it.badge !== undefined && <span className="ml-1 text-[9px] text-[#ffaa00]">{it.badge}</span>}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 /** 安装按钮(可用=一键装;iOS=指引;桌面已装=隐藏) */
 function InstallButton(): React.JSX.Element | null {
@@ -106,6 +139,8 @@ export function AppLayout() {
             )}
           </div>
         </header>
+        {/* 横向子菜单条(2026-11-04 导航优化:当前域的子菜单横向平铺,长侧栏一屏可达) */}
+        {!isMobile && <HorizontalSubNav />}
         <main className="flex-1 overflow-y-auto p-5 pb-20 md:pb-5">
           <Outlet />
         </main>

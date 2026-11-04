@@ -15,9 +15,10 @@ interface TaxRow {
   artistCount: number
 }
 
-export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
+export default function TaxonomyPage({ kind, line }: { kind: 'level' | 'group'; line?: 'RESOURCE' | 'SELL' }) {
   const isGroup = kind === 'group'
   const path = isGroup ? '/artist-groups' : '/artist-levels'
+  const lineQuery = line === 'RESOURCE' ? '?line=RESOURCE' : ''
   // 写操作权限(2026-11-04 权限全覆盖核对:可操作项进权限码;查看仍沿 artist:view/板块入口码)
   const permCodes = useAuthStore((s) => s.permCodes)
   const canManage = permCodes.includes(isGroup ? 'group:manage' : 'level:manage')
@@ -29,13 +30,13 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
   const load = useCallback(async (): Promise<void> => {
     setLoading(true)
     try {
-      setRows(await req<TaxRow[]>('GET', path))
+      setRows(await req<TaxRow[]>('GET', path + lineQuery))
     } catch (e) {
       toastError(e, '加载失败')
     } finally {
       setLoading(false)
     }
-  }, [path])
+  }, [path, lineQuery])
 
   useEffect(() => {
     void load()
@@ -49,8 +50,8 @@ export default function TaxonomyPage({ kind }: { kind: 'level' | 'group' }) {
     setBusy(true)
     try {
       const body = isGroup
-        ? { name: form.name, supervisorName: form.supervisorName === '' ? undefined : form.supervisorName }
-        : { name: form.name }
+        ? { name: form.name, supervisorName: form.supervisorName === '' ? undefined : form.supervisorName, ...(line !== undefined ? { line } : {}) }
+        : { name: form.name, ...(line !== undefined ? { line } : {}) }
       if (form.id !== undefined) {
         await req('PUT', path + '/' + String(form.id), body)
         toast.success('已更新')

@@ -95,10 +95,10 @@ export const router = createHashRouter([
       { path: 'artists', element: <ArtistsPage /> },
       { path: 'artists/levels', element: <TaxonomyPage kind="level" /> },
       { path: 'artists/groups', element: <TaxonomyPage kind="group" /> },
-      // 资源经理档案域(2026-11-04 独立板块:入口/授权分线 resource:view;等级/组别数据全域共用)
+      // 资源经理档案域(2026-11-04 独立板块:入口/授权分线 resource:view;数据按条线隔离)
       { path: 'resource/artists', element: <ArtistsPage /> },
-      { path: 'resource/levels', element: <TaxonomyPage kind="level" /> },
-      { path: 'resource/groups', element: <TaxonomyPage kind="group" /> },
+      { path: 'resource/levels', element: <TaxonomyPage kind="level" line="RESOURCE" /> },
+      { path: 'resource/groups', element: <TaxonomyPage kind="group" line="RESOURCE" /> },
       // 考勤上钟域
       { path: 'attendance/realtime', element: <RealtimePage /> },
       { path: 'attendance/reports', element: <AttendancePage view="reports" /> },

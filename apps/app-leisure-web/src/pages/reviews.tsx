@@ -9,6 +9,7 @@ import { client, idemKey, toastError } from '@/lib/api'
 import { DataTable, PageHeader, SelectBox, StatCard, StatusBadge } from '@/components/kit'
 import type { Column } from '@/components/kit'
 import type { ReviewRow, ReviewSummary } from '@yyc3/leisure-core'
+import PersonPicker from '@/components/person-picker'
 
 const REVIEW_TYPES = ['综合', '服务', '形象', '才艺']
 const SCORE_COLOR: Record<number, string> = { 1: 'var(--lm-danger)', 2: '#ff6699', 3: 'var(--lm-warning)', 4: 'var(--lm-primary)', 5: 'var(--lm-success)' }
@@ -47,6 +48,8 @@ export default function ReviewsPage(): React.JSX.Element {
 
   // 录入
   const [formOpen, setFormOpen] = useState(false)
+  /** 评价选人器(2026-11-04:评价对象=进行中上钟人员,统一选人器) */
+  const [reviewPickerOpen, setReviewPickerOpen] = useState(false)
   const [artists, setArtists] = useState<ArtistLite[]>([])
   const [artistId, setArtistId] = useState('')
   const [fType, setFType] = useState('综合')
@@ -144,19 +147,17 @@ export default function ReviewsPage(): React.JSX.Element {
         <Card className="p-4 space-y-3 max-w-2xl mb-3">
           <div className="flex gap-3 flex-wrap items-end">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs text-fg-muted">销售经理</Label>
-              <select
-                className="border rounded px-2 py-1.5 text-sm bg-transparent w-48"
-                value={artistId}
-                onChange={(e) => setArtistId(e.target.value)}
+              <Label className="text-xs text-fg-muted">销售经理(进行中上钟人员;选人器)</Label>
+              <Button
+                variant="outline"
+                className="w-56 justify-start"
+                onClick={() => { setReviewPickerOpen(true) }}
               >
-                <option value="">请选择</option>
-                {artists.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.stageName ?? a.realName}({a.badgeNo ?? '无腰牌'})
-                  </option>
-                ))}
-              </select>
+                {(() => {
+                  const a = artists.find((x) => String(x.id) === artistId)
+                  return a !== undefined ? `${a.stageName ?? a.realName}(${a.badgeNo ?? '无腰牌'})` : '+ 选择上钟人员'
+                })()}
+              </Button>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-fg-muted">类型</Label>
@@ -245,6 +246,19 @@ export default function ReviewsPage(): React.JSX.Element {
       </div>
 
       <DataTable columns={columns} rows={rows} loading={loading} total={total} page={page} pageSize={20} onPageChange={(p) => void load(p)} />
+      <PersonPicker
+        open={reviewPickerOpen}
+        title="选择上钟人员(进行中上钟)"
+        line="SELL"
+        busyOnly
+        onClose={() => { setReviewPickerOpen(false) }}
+        onPick={(p) => {
+          if (p !== null && !Array.isArray(p)) {
+            setArtistId(String(p.id))
+            setArtists((s) => (s.some((x) => x.id === p.id) ? s : [...s, { id: p.id, realName: p.realName, stageName: p.stageName, badgeNo: p.badgeNo }]))
+          }
+        }}
+      />
     </div>
   )
 }

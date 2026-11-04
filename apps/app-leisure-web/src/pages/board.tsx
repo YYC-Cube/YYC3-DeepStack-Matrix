@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { PageHeader } from '@/components/kit'
 import { RoomCloseDialog, RoomOpenDialog, type OpenSessionRow, type RoomRow, type ArtistRow } from '@/components/room-ops'
+import PersonPicker from '@/components/person-picker'
 
 interface CloseResult {
   roomFee: number
@@ -55,6 +56,54 @@ export default function BoardPage(): React.JSX.Element {
   const [openRoom, setOpenRoom] = useState<RoomRow | null>(null)
   const [closeRoom, setCloseRoom] = useState<RoomRow | null>(null)
   const [closeSession, setCloseSession] = useState<OpenSessionRow | null>(null)
+  // 上钟/送花(2026-11-04 房态重构:开房与上钟解耦;统一选人器)
+  const [staffRoom, setStaffRoom] = useState<RoomRow | null>(null)
+  const [flowerRoom, setFlowerRoom] = useState<RoomRow | null>(null)
+
+  const startStage = async (artistId: number): Promise<void> => {
+    if (staffRoom === null) return
+    setBusy(true)
+    try {
+      const out = await client.sessions.start({ artistId, roomId: staffRoom.id })
+      toast.success(staffRoom.roomNo + ' 上钟成功 · 营业日 ' + out.businessDate)
+      setStaffRoom(null)
+      await load()
+    } catch (e) {
+      toastError(e, '上钟失败')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const sendFlower = async (artistId: number): Promise<void> => {
+    if (flowerRoom === null) return
+    setBusy(true)
+    try {
+      // 送花=礼品入房账(008 #2):从在售商品取「花」类,无则提示上架;下单即计费入本房账
+      const goodsRes = await client.goods.list({ onSale: true })
+      const flower = goodsRes.rows.find((g) => (g.category ?? '').includes('花') || g.name.includes('花'))
+      if (flower === undefined) {
+        toast.error('请先在商品管理上架「花」类礼品(分类含「花」或名称含「花」),再使用送花')
+        setFlowerRoom(null)
+        return
+      }
+      const openSession = openSessions.find((s) => s.roomId === flowerRoom.id)
+      if (openSession === undefined) {
+        toast.error('本房无进行中房账')
+        setFlowerRoom(null)
+        return
+      }
+      const order = await client.selfOrders.place({ sessionId: openSession.id, artistId, items: [{ goodsId: flower.id, qty: 1 }] })
+      await client.selfOrders.deliver(order.orderId)
+      toast.success('送花成功 · ' + flower.name + ' ¥' + String(order.totalAmount) + ' 已计入 ' + flowerRoom.roomNo + ' 房账')
+      setFlowerRoom(null)
+      await load()
+    } catch (e) {
+      toastError(e, '送花失败')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const createReserve = async (): Promise<void> => {
     if (reserveFor === null) return
@@ -206,6 +255,17 @@ export default function BoardPage(): React.JSX.Element {
                     size="sm"
                     variant="outline"
                     className="h-7 px-2 text-xs"
+                    onClick={() => { setStaffRoom(r) }}
+                    title="为该房上钟:选人器(分组/首字母搜索/未上钟/头像)"
+                  >
+                    上钟
+                  </Button>
+                )}
+                {st === 'OCCUPIED' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
                     onClick={() => { navigate('/sessions') }}
                     title="查看/管理本房在场销售经理上下钟"
                   >
@@ -217,8 +277,8 @@ export default function BoardPage(): React.JSX.Element {
                     size="sm"
                     variant="outline"
                     className="h-7 px-2 text-xs"
-                    onClick={() => { toast.info('送花(礼品入房账)随自点单商品上架开放,III 期') }}
-                    title="给本房送花入房账"
+                    onClick={() => { setFlowerRoom(r) }}
+                    title="给本房在场上钟销售经理送花入房账"
                   >
                     送花
                   </Button>
@@ -285,6 +345,26 @@ export default function BoardPage(): React.JSX.Element {
         session={closeSession}
         onClose={() => { setCloseRoom(null); setCloseSession(null) }}
         onClosed={load}
+      />
+      <PersonPicker
+        open={staffRoom !== null}
+        title={'上钟 · ' + (staffRoom?.roomNo ?? '') + '(仅未上钟人员)'}
+        line="SELL"
+        excludeBusy
+        onClose={() => { setStaffRoom(null) }}
+        onPick={(p) => {
+          if (p !== null && !Array.isArray(p)) void startStage(p.id)
+        }}
+      />
+      <PersonPicker
+        open={flowerRoom !== null}
+        title={'送花 · ' + (flowerRoom?.roomNo ?? '') + '(进行中上钟人员)'}
+        line="SELL"
+        busyOnly
+        onClose={() => { setFlowerRoom(null) }}
+        onPick={(p) => {
+          if (p !== null && !Array.isArray(p)) void sendFlower(p.id)
+        }}
       />
     </div>
   )

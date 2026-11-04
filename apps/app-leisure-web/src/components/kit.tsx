@@ -64,45 +64,77 @@ export function DataTable<T extends object>(p: {
   const total = p.total ?? rows.length
   const pageSize = p.pageSize ?? 20
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
+  const cellValue = (row: T, c: Column<T>): ReactNode =>
+    c.render !== undefined ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? '—')
   return (
     <Card className="p-0 overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent border-b border-[rgba(0,212,255,0.12)]">
-            {p.columns.map((c) => (
-              <TableHead key={c.key} className={c.className}>
-                {c.header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {p.loading === true && (
-            <TableRow>
-              <TableCell colSpan={p.columns.length} className="text-center text-[#8b9bb4] py-10">
-                加载中…
-              </TableCell>
+      {/* 移动端卡片化(<768px:每行一卡,首列作卡头,其余 label:值 纵排;全站表格页自适应) */}
+      <div className="md:hidden divide-y divide-[rgba(0,212,255,0.06)]">
+        {p.loading === true && <div className="text-center text-[#8b9bb4] py-10 text-sm">加载中…</div>}
+        {p.loading !== true && rows.length === 0 && (
+          <div className="text-center text-[#8b9bb4] py-10 text-sm">{p.emptyText ?? '暂无记录'}</div>
+        )}
+        {p.loading !== true &&
+          rows.map((row, i) => {
+            const head = p.columns[0]
+            const rest = p.columns.slice(1)
+            return (
+              <div key={i} className="px-3 py-2.5 space-y-1.5">
+                {head !== undefined && (
+                  <div className="text-sm font-medium text-[#e0f0ff] break-all">{cellValue(row, head)}</div>
+                )}
+                <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                  {rest.map((c) => (
+                    <div key={c.key} className="contents">
+                      <span className="text-[#8b9bb4] whitespace-nowrap">{c.header}</span>
+                      <span className="text-right break-all min-w-0">{cellValue(row, c)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+      </div>
+      {/* 桌面表格(≥768px) */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-b border-[rgba(0,212,255,0.12)]">
+              {p.columns.map((c) => (
+                <TableHead key={c.key} className={c.className}>
+                  {c.header}
+                </TableHead>
+              ))}
             </TableRow>
-          )}
-          {p.loading !== true && rows.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={p.columns.length} className="text-center text-[#8b9bb4] py-10">
-                {p.emptyText ?? '暂无记录'}
-              </TableCell>
-            </TableRow>
-          )}
-          {p.loading !== true &&
-            rows.map((row, i) => (
-              <TableRow key={i} className="border-b border-[rgba(0,212,255,0.06)] transition-colors hover:bg-white/[0.02]">
-                {p.columns.map((c) => (
-                  <TableCell key={c.key} className={c.className}>
-                    {c.render !== undefined ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? '—')}
-                  </TableCell>
-                ))}
+          </TableHeader>
+          <TableBody>
+            {p.loading === true && (
+              <TableRow>
+                <TableCell colSpan={p.columns.length} className="text-center text-[#8b9bb4] py-10">
+                  加载中…
+                </TableCell>
               </TableRow>
-            ))}
-        </TableBody>
-      </Table>
+            )}
+            {p.loading !== true && rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={p.columns.length} className="text-center text-[#8b9bb4] py-10">
+                  {p.emptyText ?? '暂无记录'}
+                </TableCell>
+              </TableRow>
+            )}
+            {p.loading !== true &&
+              rows.map((row, i) => (
+                <TableRow key={i} className="border-b border-[rgba(0,212,255,0.06)] transition-colors hover:bg-white/[0.02]">
+                  {p.columns.map((c) => (
+                    <TableCell key={c.key} className={c.className}>
+                      {cellValue(row, c)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
       {p.onPageChange !== undefined && total > 0 && (
         <div className="flex items-center justify-between px-4 py-2 text-sm text-[#8b9bb4]">
           <span>

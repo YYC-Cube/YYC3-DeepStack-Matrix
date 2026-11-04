@@ -85,9 +85,9 @@ class PlanDto {
 class ManualEntryDto {
   @IsInt()
   planId!: number
-  // 分账对象(Owner 裁决:岗位/部门/人员三维;无装饰器字段不在 whitelist——三件必须挂校验)
-  @IsIn(['ADMIN', 'ARTIST', 'DEPARTMENT'])
-  targetScope!: 'ADMIN' | 'ARTIST' | 'DEPARTMENT'
+  // 分账对象(Owner 裁决:岗位/部门/组别/人员四维;组别=artist_group 按条线,池模式同部门)
+  @IsIn(['ADMIN', 'ARTIST', 'DEPARTMENT', 'GROUP'])
+  targetScope!: 'ADMIN' | 'ARTIST' | 'DEPARTMENT' | 'GROUP'
   @IsInt()
   targetId!: number
   @IsString()
@@ -107,8 +107,8 @@ class ManualEntryDto {
 }
 
 class SettlementDto {
-  @IsIn(['ADMIN', 'ARTIST', 'DEPARTMENT'])
-  targetScope!: 'ADMIN' | 'ARTIST' | 'DEPARTMENT'
+  @IsIn(['ADMIN', 'ARTIST', 'DEPARTMENT', 'GROUP'])
+  targetScope!: 'ADMIN' | 'ARTIST' | 'DEPARTMENT' | 'GROUP'
   @IsInt()
   targetId!: number
   @IsString()

@@ -104,6 +104,7 @@ export default function SplitPage(): React.JSX.Element {
   const [manualPicker, setManualPicker] = useState(false)
   const [settlePicker, setSettlePicker] = useState(false)
   const [departments, setDepartments] = useState<Array<{ id: number; name: string }>>([])
+  const [groupsList, setGroupsList] = useState<Array<{ id: number; name: string }>>([])
   const payMethodOptions = PAY_METHOD_OPTIONS
   const [busy, setBusy] = useState(false)
 
@@ -127,9 +128,12 @@ export default function SplitPage(): React.JSX.Element {
 
   useEffect(() => {
     void load()
-    // 部门数据源(分账目标 DEPARTMENT 下拉;staff API setting:manage 同守卫)
+    // 部门/组别数据源(分账目标 DEPARTMENT/GROUP 下拉;组别按条线=销售线视图)
     void req<{ rows: Array<{ id: number; name: string }> }>('GET', '/staff/departments')
       .then((r) => setDepartments(r.rows))
+      .catch(() => undefined)
+    void req<Array<{ id: number; name: string }>>('GET', '/artist-groups?line=SELL')
+      .then((r) => setGroupsList(r))
       .catch(() => undefined)
   }, [load])
 
@@ -408,7 +412,7 @@ export default function SplitPage(): React.JSX.Element {
               <SelectBox
                 value={manual.targetScope}
                 onChange={(v) => setManual({ ...manual, targetScope: v, targetId: '', targetName: '' })}
-                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }]}
+                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }, { value: 'GROUP', label: '组别' }]}
               />
             </Field>
             {manual.targetScope === 'ARTIST' && (
@@ -427,6 +431,18 @@ export default function SplitPage(): React.JSX.Element {
                     setManual({ ...manual, targetId: v, targetName: d?.name ?? '' })
                   }}
                   options={[{ value: '', label: '选择部门' }, ...departments.map((d) => ({ value: String(d.id), label: d.name }))]}
+                />
+              </Field>
+            )}
+            {manual.targetScope === 'GROUP' && (
+              <Field label="组别(按条线隔离)">
+                <SelectBox
+                  value={manual.targetId}
+                  onChange={(v) => {
+                    const g = groupsList.find((x) => String(x.id) === v)
+                    setManual({ ...manual, targetId: v, targetName: g?.name ?? '' })
+                  }}
+                  options={[{ value: '', label: '选择组别' }, ...groupsList.map((g) => ({ value: String(g.id), label: g.name }))]}
                 />
               </Field>
             )}
@@ -488,7 +504,7 @@ export default function SplitPage(): React.JSX.Element {
               <SelectBox
                 value={settleForm.targetScope}
                 onChange={(v) => setSettleForm({ ...settleForm, targetScope: v, targetId: '', targetName: '' })}
-                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }]}
+                options={[{ value: 'ARTIST', label: '销售经理' }, { value: 'ADMIN', label: '岗位' }, { value: 'DEPARTMENT', label: '部门' }, { value: 'GROUP', label: '组别' }]}
               />
             </Field>
             {settleForm.targetScope === 'ARTIST' && (
@@ -507,6 +523,18 @@ export default function SplitPage(): React.JSX.Element {
                     setSettleForm({ ...settleForm, targetId: v, targetName: d?.name ?? '' })
                   }}
                   options={[{ value: '', label: '选择部门' }, ...departments.map((d) => ({ value: String(d.id), label: d.name }))]}
+                />
+              </Field>
+            )}
+            {settleForm.targetScope === 'GROUP' && (
+              <Field label="组别(按条线隔离)">
+                <SelectBox
+                  value={settleForm.targetId}
+                  onChange={(v) => {
+                    const g = groupsList.find((x) => String(x.id) === v)
+                    setSettleForm({ ...settleForm, targetId: v, targetName: g?.name ?? '' })
+                  }}
+                  options={[{ value: '', label: '选择组别' }, ...groupsList.map((g) => ({ value: String(g.id), label: g.name }))]}
                 />
               </Field>
             )}

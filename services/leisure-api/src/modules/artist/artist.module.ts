@@ -18,6 +18,7 @@ import {
   BadRequestException,
   ConflictException,
 } from '@nestjs/common'
+import { createHmac } from 'node:crypto'
 import type { Request } from 'express'
 import {
   ArrayNotEmpty,
@@ -32,8 +33,9 @@ import {
   Min,
 } from 'class-validator'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { env } from '../../config/env.js'
 import { ARTIST_PROFILE_FIELDS, ERR, LeisureError } from '@yyc3/leisure-core'
-import { JwtGuard, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import { JwtGuard, Public, RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 import { StoreConfigService } from '../store-config/store-config.module.js'
 
 /** ① 资料必填项(销售经理设置):按门店配置校验 body 中各字段非空;返回缺失字段中文名 */
@@ -443,6 +445,74 @@ export class ArtistService {
     }
   }
 
+  /* ── A17 注册二维码自助绑定(2026-11-05;HMAC 短时 token,免短信通道走人工审核兜底) ── */
+
+  /** 签名/验签(HMAC-SHA256,密钥复用 SCENE_HMAC_KEY) */
+  private regSig(storeId: number, exp: number): string {
+    return createHmac('sha256', env().SCENE_HMAC_KEY).update('reg|' + String(storeId) + '|' + String(exp)).digest('hex').slice(0, 32)
+  }
+
+  /** 生成注册链接(24h 有效;H5 页 /m/register?t=) */
+  registerToken(storeId: number): { token: string; url: string; expireAt: string } {
+    const exp = Date.now() + 24 * 3600_000
+    const token = String(exp) + this.regSig(storeId, exp)
+    const base = env().H5_PUBLIC_BASE ?? 'https://lm.0379.pro'
+    return { token, url: base + '/m/#/pages/register/index?t=' + token, expireAt: new Date(exp).toISOString() }
+  }
+
+  /** 验签注册提交(公开;字段参照竞品「我的资料」,缺项审核时补;身份证等敏感件仅存键不存明文) */
+  async registerFromToken(token: string, body: {
+    realName: string; stageName?: string; phone: string; gender?: number
+    heightCm?: number; weightKg?: number; bustCm?: number; waistCm?: number; hipCm?: number
+    showWechat?: string; photos?: string[]
+  }, storeId: number): Promise<{ artistId: number }> {
+    if (token.length < 20 || !/^\d{13}[0-9a-f]{32}$/.test(token)) throw new BadRequestException('注册链接无效')
+    const exp = Number(token.slice(0, 13))
+    if (!Number.isFinite(exp) || Date.now() > exp) throw new BadRequestException('注册链接已过期,请向门店索取新二维码')
+    if (this.regSig(storeId, exp) !== token.slice(13)) throw new BadRequestException('注册链接校验失败')
+    if (body.realName === undefined || body.realName.trim() === '' || body.phone === undefined || body.phone.trim() === '') {
+      throw new BadRequestException('姓名与手机号必填')
+    }
+    const photos = Array.isArray(body.photos) ? body.photos : []
+    for (const p of photos) {
+      if (typeof p !== 'string' || !p.startsWith('data:image/') || p.length > 400_000) {
+        throw new BadRequestException('照片须为 data:image/* 且单张 ≤300KB')
+      }
+    }
+    if (photos.length > 6) throw new BadRequestException('照片最多 6 张')
+    // 腰牌冲突预检(审核时定牌,先防撞)
+    const dupPhone = await this.prisma.artist.findFirst({
+      where: { storeId, phone: body.phone.trim(), deletedAt: null },
+    })
+    if (dupPhone !== null) throw new ConflictException('该手机号已有档案,请联系门店管理员直接绑定')
+    const created = await this.prisma.artist.create({
+      data: {
+        storeId,
+        realName: body.realName.trim(),
+        stageName: body.stageName?.trim() === '' ? undefined : body.stageName?.trim(),
+        phone: body.phone.trim(),
+        gender: body.gender ?? 1,
+        line: 'SELL',
+        auditStatus: 'PENDING',
+        hourlyRate: 0,
+        heightCm: body.heightCm ?? null,
+        weightKg: body.weightKg ?? null,
+        bustCm: body.bustCm ?? null,
+        waistCm: body.waistCm ?? null,
+        hipCm: body.hipCm ?? null,
+        showWechat: body.showWechat?.trim() === '' ? undefined : body.showWechat?.trim(),
+        showPhotos: photos.length > 0 ? (photos as object) : undefined,
+        avatarKeys: photos.length > 0 ? ({ photo: photos[0] } as object) : undefined,
+      },
+    })
+    await this.audit(0, 'REGISTER_SUBMIT', 'artist', String(created.id), null, {
+      realName: created.realName,
+      phone: created.phone,
+      source: 'A17_QRCODE',
+    })
+    return { artistId: created.id }
+  }
+
   private async audit(
     operatorId: number,
     action: string,
@@ -567,6 +637,23 @@ export class ArtistController {
   async transferStats(@Req() req: Request): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.transferStats(user?.storeId ?? 1)
+  }
+
+  /** A17 注册二维码(24h 短时链接;前端 qrcode 库渲染;H5 /m/register?t=) */
+  @RequirePerm('artist:edit')
+  @Get('register-qr')
+  async registerQr(@Req() req: Request): Promise<unknown> {
+    const user = (req as ReqWithUser).user
+    return this.svc.registerToken(user?.storeId ?? 1)
+  }
+
+  /** A17 自助注册提交(公开;扫码免登,人工审核兜底) */
+  @Public()
+  @Post('register')
+  async register(@Req() req: Request, @Body() body: Record<string, unknown>): Promise<unknown> {
+    const token = typeof body.token === 'string' ? body.token : ''
+    const storeId = req.headers['x-store-id'] !== undefined ? Number(req.headers['x-store-id']) : 1
+    return this.svc.registerFromToken(token, body as never, Number.isFinite(storeId) ? storeId : 1)
   }
 
   @RequirePerm('artist:batch')

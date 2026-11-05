@@ -105,6 +105,7 @@ export default function SplitPage(): React.JSX.Element {
   const [settlePicker, setSettlePicker] = useState(false)
   const [departments, setDepartments] = useState<Array<{ id: number; name: string }>>([])
   const [groupsList, setGroupsList] = useState<Array<{ id: number; name: string }>>([])
+  const [staffUsers, setStaffUsers] = useState<Array<{ id: number; name: string; title?: string }>>([])
   const payMethodOptions = PAY_METHOD_OPTIONS
   const [busy, setBusy] = useState(false)
 
@@ -134,6 +135,10 @@ export default function SplitPage(): React.JSX.Element {
       .catch(() => undefined)
     void req<Array<{ id: number; name: string }>>('GET', '/artist-groups?line=SELL')
       .then((r) => setGroupsList(r))
+      .catch(() => undefined)
+    // 岗位/员工单源(staff 板块;数据互通 2026-11-05):分账「岗位」对象不再手输
+    void req<{ rows: Array<{ id: number; name: string; title?: string }> }>('GET', '/staff/users?pageSize=100')
+      .then((r) => setStaffUsers(r.rows))
       .catch(() => undefined)
   }, [load])
 
@@ -447,14 +452,16 @@ export default function SplitPage(): React.JSX.Element {
               </Field>
             )}
             {manual.targetScope === 'ADMIN' && (
-              <>
-                <Field label="岗位 ID">
-                  <Input inputMode="numeric" value={manual.targetId} onChange={(e) => setManual({ ...manual, targetId: e.target.value })} />
-                </Field>
-                <Field label="岗位名称">
-                  <Input value={manual.targetName} onChange={(e) => setManual({ ...manual, targetName: e.target.value })} />
-                </Field>
-              </>
+              <Field label="员工/岗位(员工管理单源)">
+                <SelectBox
+                  value={manual.targetId}
+                  onChange={(v) => {
+                    const u = staffUsers.find((x) => String(x.id) === v)
+                    setManual({ ...manual, targetId: v, targetName: u !== undefined ? u.name + (u.title !== undefined && u.title !== '' ? '(' + u.title + ')' : '') : '' })
+                  }}
+                  options={[{ value: '', label: '选择员工' }, ...staffUsers.map((u) => ({ value: String(u.id), label: u.name + (u.title !== undefined && u.title !== '' ? '(' + u.title + ')' : '') }))]}
+                />
+              </Field>
             )}
             <Field label="基数">
               <Input inputMode="decimal" value={manual.baseAmount} onChange={(e) => setManual({ ...manual, baseAmount: e.target.value })} />
@@ -539,14 +546,16 @@ export default function SplitPage(): React.JSX.Element {
               </Field>
             )}
             {settleForm.targetScope === 'ADMIN' && (
-              <>
-                <Field label="岗位 ID">
-                  <Input inputMode="numeric" value={settleForm.targetId} onChange={(e) => setSettleForm({ ...settleForm, targetId: e.target.value })} />
-                </Field>
-                <Field label="岗位名称">
-                  <Input value={settleForm.targetName} onChange={(e) => setSettleForm({ ...settleForm, targetName: e.target.value })} />
-                </Field>
-              </>
+              <Field label="员工/岗位(员工管理单源)">
+                <SelectBox
+                  value={settleForm.targetId}
+                  onChange={(v) => {
+                    const u = staffUsers.find((x) => String(x.id) === v)
+                    setSettleForm({ ...settleForm, targetId: v, targetName: u !== undefined ? u.name + (u.title !== undefined && u.title !== '' ? '(' + u.title + ')' : '') : '' })
+                  }}
+                  options={[{ value: '', label: '选择员工' }, ...staffUsers.map((u) => ({ value: String(u.id), label: u.name + (u.title !== undefined && u.title !== '' ? '(' + u.title + ')' : '') }))]}
+                />
+              </Field>
             )}
             <Field label="周期起">
               <Input type="date" value={settleForm.periodFrom} onChange={(e) => setSettleForm({ ...settleForm, periodFrom: e.target.value })} />

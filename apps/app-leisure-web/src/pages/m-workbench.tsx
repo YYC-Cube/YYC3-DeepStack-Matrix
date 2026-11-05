@@ -78,6 +78,9 @@ const MORE_EXTRAS = [
 
 /** 移动专属仪表/功能项(2026-11-04 精致化批:图表化零明细;按组挂载) */
 const GROUP_EXTRAS: Record<string, Array<{ key: string; label: string; path: string; perm: string; icon: typeof Gauge }>> = {
+  manage: [
+    { key: 'tasks', label: '任务中心', path: '/m/tasks', perm: '*', icon: ClipboardList },
+  ],
   stats: [
     { key: 'st-att', label: '出勤仪表', path: '/m/stats/attendance', perm: 'attend:summary:view', icon: Radar },
     { key: 'st-col', label: '收款仪表', path: '/m/stats/collection', perm: 'fee:ledger:view', icon: BadgeJapaneseYen },

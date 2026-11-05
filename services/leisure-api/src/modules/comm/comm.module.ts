@@ -314,6 +314,136 @@ export class CommService {
       createdAt: created.createdAt.toISOString(),
     }
   }
+
+
+  /* ── Task 任务中心(对标竞品图 9「设置订房任务」;完成度实时聚合) ── */
+
+  async listTasks(storeId: number, viewer: { scope: string; id: number }) {
+    const rows = await this.prisma.task.findMany({
+      where: {
+        storeId,
+        status: 'ACTIVE',
+        ...(viewer.scope === 'ARTIST' ? { targetArtistId: viewer.id } : {}),
+      },
+      orderBy: { id: 'desc' },
+      take: 100,
+    })
+    // 完成度实时聚合:BOOKING=期内作为在场销售经理的房账数;ORDER=期内本人点单数
+    const out = []
+    for (const t of rows) {
+      let progress = 0
+      if (t.type === 'BOOKING') {
+        progress = await this.prisma.roomSessionArtist.count({
+          where: { artistId: t.targetArtistId, joinedAt: { gte: t.startAt, lte: t.endAt } },
+        })
+      } else if (t.type === 'ORDER') {
+        progress = await this.prisma.selfOrder.count({
+          where: { storeId, artistId: t.targetArtistId, placedAt: { gte: t.startAt, lte: t.endAt }, status: { not: 'CANCELLED' } },
+        })
+      }
+      const artist = await this.prisma.artist.findUnique({ where: { id: t.targetArtistId }, select: { stageName: true, realName: true } })
+      out.push({
+        id: t.id,
+        type: t.type,
+        title: t.title,
+        targetArtistId: t.targetArtistId,
+        targetName: artist?.stageName ?? artist?.realName ?? String(t.targetArtistId),
+        targetCount: t.targetCount,
+        progress: Math.min(progress, t.targetCount * 3),
+        rawProgress: progress,
+        startAt: t.startAt.toISOString(),
+        endAt: t.endAt.toISOString(),
+      })
+    }
+    return { rows: out }
+  }
+
+  async createTask(storeId: number, body: { type: string; title: string; targetArtistId: number; targetCount: number; startAt: string; endAt: string }, operatorId: number): Promise<{ id: number }> {
+    if (!['BOOKING', 'ORDER'].includes(body.type)) throw new BadRequestException('任务类型无效')
+    if (body.targetCount <= 0) throw new BadRequestException('目标数量须为正数')
+    const artist = await this.prisma.artist.findFirst({ where: { id: body.targetArtistId, storeId, deletedAt: null } })
+    if (artist === null) throw new BadRequestException('目标销售经理不存在')
+    const created = await this.prisma.task.create({
+      data: {
+        storeId,
+        type: body.type,
+        title: body.title,
+        targetArtistId: body.targetArtistId,
+        targetCount: body.targetCount,
+        startAt: new Date(body.startAt),
+        endAt: new Date(body.endAt),
+        createdById: operatorId,
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operatorId,
+        action: 'TASK_CREATE',
+        targetType: 'task',
+        targetId: String(created.id),
+        beforeJson: null as unknown as object,
+        afterJson: { type: body.type, title: body.title, targetArtistId: body.targetArtistId, targetCount: body.targetCount } as object,
+      },
+    })
+    return { id: created.id }
+  }
+
+  async cancelTask(id: number, storeId: number, operatorId: number): Promise<void> {
+    const before = await this.prisma.task.findFirst({ where: { id, storeId } })
+    if (before === null) throw new NotFoundException('任务不存在')
+    await this.prisma.task.update({ where: { id }, data: { status: 'CANCELLED' } })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operatorId, action: 'TASK_CANCEL', targetType: 'task', targetId: String(id), beforeJson: { status: before.status } as object, afterJson: { status: 'CANCELLED' } as object },
+    })
+  }
+}
+
+/* ── Task DTO ── */
+
+class TaskDto {
+  @IsIn(['BOOKING', 'ORDER'])
+  type!: string
+  @IsString()
+  @Length(1, 64)
+  title!: string
+  @IsInt()
+  targetArtistId!: number
+  @IsInt()
+  targetCount!: number
+  @IsString()
+  startAt!: string
+  @IsString()
+  endAt!: string
+}
+
+/* ── Task Controller ── */
+
+@Controller('tasks')
+export class TaskController {
+  constructor(private readonly svc: CommService) {}
+
+  @Get()
+  async list(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.listTasks(u.storeId, u)
+  }
+
+  /** 下发任务(管理端) */
+  @RequirePerm('setting:manage')
+  @Post()
+  async create(@Req() req: Request, @Body() body: TaskDto): Promise<unknown> {
+    const u = op(req)
+    return this.svc.createTask(u.storeId, body, u.id)
+  }
+
+  @RequirePerm('setting:manage')
+  @Post(':id/cancel')
+  async cancel(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    await this.svc.cancelTask(id, u.storeId, u.id)
+    return { cancelled: true }
+  }
 }
 
 /* ── Controllers ── */
@@ -404,7 +534,7 @@ export class ChatController {
 }
 
 @Module({
-  controllers: [FeedbackController, ChatController],
+  controllers: [FeedbackController, ChatController, TaskController],
   providers: [CommService, PrismaService],
 })
 export class CommModule {}

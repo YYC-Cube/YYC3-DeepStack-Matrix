@@ -17,6 +17,8 @@ const EnvSchema = z.object({
   MANUAL_DEDUCT_THRESHOLD: z.coerce.number().default(500),
   // 接班码有效期(小时,默认 24;超期 OPEN 单须重新生成快照后确认)
   HANDOVER_CODE_TTL_HOURS: z.coerce.number().default(24),
+  // H5 公网基地址(A17 注册二维码链接;与销售端发布域一致)
+  H5_PUBLIC_BASE: z.string().default('https://lm.0379.pro'),
   ALLOW_NEGATIVE_BALANCE: z.enum(['true', 'false']).default('true'),
   ALLOW_STAGE_WITHOUT_CHECKIN: z.enum(['true', 'false']).default('false'),
   CHECKOUT_MIN_MINUTES: z.coerce.number().default(60),

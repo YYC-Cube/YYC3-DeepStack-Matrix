@@ -25,6 +25,18 @@ interface MsgRow {
   createdAt: string
 }
 
+/** 本地已读水位(群 id → 最后已读消息 id;未读数=群消息总数-水位) */
+function readMap(): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem('yyc3-chat-read') ?? '{}') as Record<string, number> } catch { return {} }
+}
+function writeRead(gid: number, lastId: number): void {
+  try {
+    const m = readMap()
+    m[String(gid)] = Math.max(m[String(gid)] ?? 0, lastId)
+    localStorage.setItem('yyc3-chat-read', JSON.stringify(m))
+  } catch { /* localStorage 不可用静默 */ }
+}
+
 export default function MChatPage(): React.JSX.Element {
   const [groups, setGroups] = useState<GroupRow[]>()
   const [active, setActive] = useState<GroupRow | null>(null)
@@ -82,6 +94,7 @@ export default function MChatPage(): React.JSX.Element {
       .then((res) => {
         setMsgs(res.rows)
         lastIdRef.current = res.rows.length > 0 ? Math.max(...res.rows.map((m) => m.id)) : 0
+        if (lastIdRef.current > 0) writeRead(g.id, lastIdRef.current)
       })
       .catch((e) => toastError(e, '消息加载失败'))
   }

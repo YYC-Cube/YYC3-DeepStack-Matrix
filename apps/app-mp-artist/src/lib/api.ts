@@ -269,6 +269,32 @@ export function myOrders(): Promise<MeOrdersResult> {
 }
 
 /** 统一错误文案(401 清态;其余透出后端中文文案) */
+/** A17:自助注册提交(公开端点;token 来自管理端注册二维码链接) */
+export function registerSubmit(p: {
+  token: string
+  realName: string
+  stageName?: string
+  phone: string
+  gender?: number
+  heightCm?: number
+  weightKg?: number
+  bustCm?: number
+  waistCm?: number
+  hipCm?: number
+  showWechat?: string
+  photos?: string[]
+}): Promise<{ artistId: number }> {
+  return Taro.request({
+    url: API_BASE + '/artists/register',
+    method: 'POST',
+    data: p,
+    header: { 'Content-Type': 'application/json' },
+    timeout: 15_000,
+  })
+    .then((res) => envelope<{ artistId: number }>(res))
+    .catch(translate)
+}
+
 export function errText(e: unknown): string {
   if (e instanceof LeisureError) {
     if (e.code === 40001) {

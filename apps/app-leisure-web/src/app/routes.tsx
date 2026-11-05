@@ -75,6 +75,7 @@ const MStatsCollectionPage = sus(lazy(() => import('@/pages/m-stats-collection')
 const MStatsBookingRankPage = sus(lazy(() => import('@/pages/m-stats-booking-rank')))
 const MStatsReviewsPage = sus(lazy(() => import('@/pages/m-stats-reviews')))
 const MStatsTransferPage = sus(lazy(() => import('@/pages/m-stats-transfer')))
+const MTasksPage = sus(lazy(() => import('@/pages/m-tasks')))
 const StaffPage = sus(lazy(() => import('@/pages/staff')))
 const DepartmentsPage = sus(lazy(() => import('@/pages/departments')))
 const RolesPage = sus(lazy(() => import('@/pages/roles')))
@@ -104,6 +105,7 @@ export const router = createHashRouter([
       { path: 'm/stats/booking-rank', element: <MStatsBookingRankPage /> },
       { path: 'm/stats/reviews', element: <MStatsReviewsPage /> },
       { path: 'm/stats/transfer', element: <MStatsTransferPage /> },
+      { path: 'm/tasks', element: <MTasksPage /> },
       { index: true, element: <IndexRedirect /> },
       // 档案域
       { path: 'artists', element: <ArtistsPage /> },

@@ -3,8 +3,9 @@
  * 业务规则:审核通过才对外展示;删除有流水禁删(40906 引导停用);腰牌号唯一(40901 含软删档案)
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Card, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
+import QRCode from 'qrcode'
 import { req, toastError } from '@/lib/api'
 import { AUDIT_LABEL } from '@/lib/format'
 import { ConfirmButton, DataTable, Field, MoneyText, PageHeader, SelectBox, StatusBadge, type Column } from '@/components/kit'
@@ -96,6 +97,8 @@ export default function ArtistsPage() {
   const [form, setForm] = useState<FormState | null>(null)
   /** 头像上传预览(编辑态;上传成功后同步列表) */
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  /** A17 注册二维码(24h 短时链接;手机扫码进 H5 自助资料) */
+  const [regQr, setRegQr] = useState<{ img: string; url: string; expireAt: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
 
@@ -332,9 +335,26 @@ export default function ArtistsPage() {
         title="销售经理资料管理"
         desc="审核通过后才在展示端对外可见(需求全集 §3);腰牌号店内唯一含停用档案"
         actions={
-          hasPerm('artist:edit') && (
-            <Button onClick={() => setForm({ ...EMPTY_FORM })}>+ 添加销售经理</Button>
-          )
+          <div className='flex gap-2'>
+            {hasPerm('artist:edit') && (
+              <Button
+                variant='outline'
+                onClick={() => {
+                  void req<{ token: string; url: string; expireAt: string }>('GET', '/artists/register-qr')
+                    .then(async (r) => {
+                      const img = await QRCode.toDataURL(r.url, { width: 260, margin: 1 })
+                      setRegQr({ img, url: r.url, expireAt: r.expireAt })
+                    })
+                    .catch((e) => toastError(e, '注册二维码生成失败'))
+                }}
+              >
+                注册二维码
+              </Button>
+            )}
+            {hasPerm('artist:edit') && (
+              <Button onClick={() => setForm({ ...EMPTY_FORM })}>+ 添加销售经理</Button>
+            )}
+          </div>
         }
       />
       <Card className="p-4 mb-4 flex flex-row flex-wrap items-center gap-3">
@@ -373,6 +393,27 @@ export default function ArtistsPage() {
       <DataTable columns={columns} rows={rows} loading={loading} total={total} page={page} pageSize={20} onPageChange={setPage} />
 
       {/* A2 添加/编辑表单 */}
+      {/* A17 注册二维码(24h 短时链接;扫码进 H5 自助资料页) */}
+      <Dialog open={regQr !== null} onOpenChange={(o) => { if (!o) setRegQr(null) }}>
+        <DialogContent className='max-w-sm'>
+          <DialogHeader>
+            <DialogTitle>销售经理注册二维码(24h 有效)</DialogTitle>
+          </DialogHeader>
+          {regQr !== null && (
+            <div className='space-y-3 text-center'>
+              <img src={regQr.img} alt='注册二维码' className='mx-auto w-60 h-60' />
+              <p className='text-xs text-fg-muted break-all'>{regQr.url}</p>
+              <p className='text-xs text-fg-muted'>
+                手机扫码(或浏览器打开)进入自助资料页;提交后进入「待审核」,由管理员在列表审核通过。过期后点「注册二维码」重新生成。
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setRegQr(null)}>关闭</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={form !== null} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>

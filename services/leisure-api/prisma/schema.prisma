@@ -280,6 +280,14 @@ model Artist {
   idCardNoEnc         Bytes?    @map("id_card_no_enc")
   idCardImgKey        String?   @map("id_card_img_key") @db.VarChar(255)
   avatarKeys          Json?     @map("avatar_keys")
+  // 展示型字段(A17 自助注册参照竞品「我的资料」;2026-11-05 可空兼容存量)
+  heightCm            Int?      @map("height_cm")
+  weightKg            Int?      @map("weight_kg")
+  bustCm              Int?      @map("bust_cm")
+  waistCm             Int?      @map("waist_cm")
+  hipCm               Int?      @map("hip_cm")
+  showWechat          String?   @map("show_wechat") @db.VarChar(64)
+  showPhotos          Json?     @map("show_photos")
   tags                Json?
   performanceTarget   Decimal   @default(0) @map("performance_target") @db.Decimal(12, 2)
   maxTotalShows       Int       @default(0) @map("max_total_shows") // 0=不限
@@ -1024,4 +1032,21 @@ model ChatMessage {
 
   @@index([chatGroupId, id])
   @@map("chat_message")
+}
+/// 任务中心(对标竞品图 9「设置订房任务」;2026-11-05:给销售经理下指标,完成度实时聚合)
+model Task {
+  id             Int       @id @default(autoincrement())
+  storeId        Int       @map("store_id")
+  type           String    @db.VarChar(16) // BOOKING 订房 / ORDER 点餐
+  title          String    @db.VarChar(64)
+  targetArtistId Int       @map("target_artist_id")
+  targetCount    Int       @map("target_count")
+  startAt        DateTime  @map("start_at")
+  endAt          DateTime  @map("end_at")
+  status         String    @default("ACTIVE") @db.VarChar(16) // ACTIVE/CANCELLED
+  createdById    Int       @map("created_by_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@index([storeId, status])
+  @@map("task")
 }

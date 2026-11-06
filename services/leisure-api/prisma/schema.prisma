@@ -1046,7 +1046,10 @@ model Task {
   targetCount    Int       @map("target_count")
   startAt        DateTime  @map("start_at")
   endAt          DateTime  @map("end_at")
-  status         String    @default("ACTIVE") @db.VarChar(16) // ACTIVE/CANCELLED
+  status         String    @default("ACTIVE") @db.VarChar(16) // ACTIVE/CANCELLED/EXPIRED(到期转历史)
+  // 周期模板(2026-11-05 深化:NONE 单次/DAILY 每日/WEEKLY 每周——到期惰性重建下一周期新任务)
+  recurrence     String    @default("NONE") @map("recurrence") @db.VarChar(16)
+  notifyAt       DateTime? @map("notify_at") // 达标通知已发时间(去重)
   createdById    Int       @map("created_by_id")
   createdAt      DateTime  @default(now()) @map("created_at")
 

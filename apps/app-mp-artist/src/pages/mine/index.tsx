@@ -45,6 +45,9 @@ export default function Mine() {
   const [rows, setRows] = useState<TxnRow[]>([])
   const [msg, setMsg] = useState('')
   const [name, setName] = useState('')
+  const [sum7, setSum7] = useState<{ in7: number; out7: number }>({ in7: 0, out7: 0 })
+  /** 流水类型筛选(H5 卡片化专项:全部/充值/扣费/冲正 本地过滤) */
+  const [tab, setTab] = useState<'ALL' | 'RECHARGE' | 'DEDUCT' | 'REVERSE'>('ALL')
 
   const load = useCallback(async (): Promise<void> => {
     const auth = loadAuth()
@@ -54,6 +57,18 @@ export default function Mine() {
       const res = await myTxns({ businessDateFrom: '2020-01-01', businessDateTo: '2030-01-01' })
       setBalance(res.balance)
       setRows(res.rows)
+      // 近 7 日收支(H5 卡片化专项摘要)
+      const cut = Date.now() - 7 * 86_400_000
+      let in7 = 0
+      let out7 = 0
+      for (const r of res.rows) {
+        const t = new Date(r.createdAt).getTime()
+        if (t < cut) continue
+        const a = Number(r.amount)
+        if (a > 0) in7 += a
+        else out7 += Math.abs(a)
+      }
+      setSum7({ in7: Math.round(in7 * 100) / 100, out7: Math.round(out7 * 100) / 100 })
     } catch (e) {
       setMsg(errText(e))
     }
@@ -75,20 +90,56 @@ export default function Mine() {
           {balance === null ? '…' : balance.toFixed(2)}
         </Text>
         {balance !== null && balance < 0 && <Text className="mp-warn">负余额 = 未收款,请与前台确认</Text>}
+        <View className="mp-sum7">
+          <View className="mp-sum7-item">
+            <Text className="mp-sum7-num" style={{ color: '#37d67a' }}>{sum7.in7.toFixed(2)}</Text>
+            <Text className="mp-sum7-lb">近 7 日收入</Text>
+          </View>
+          <View className="mp-sum7-item">
+            <Text className="mp-sum7-num" style={{ color: '#ff6b81' }}>{sum7.out7.toFixed(2)}</Text>
+            <Text className="mp-sum7-lb">近 7 日支出</Text>
+          </View>
+        </View>
       </View>
 
       <View className="mp-card">
         <Text className="mp-muted">台费流水(最近 100 条)</Text>
-        {rows.length === 0 && <Text className="mp-muted">暂无流水记录</Text>}
-        {rows.map((r) => (
-          <View key={r.id} className="mp-txn-row">
-            <View className="mp-txn-left">
-              <Text className="mp-txn-type">{TYPE_LABEL[r.type] ?? r.type}</Text>
-              <Text className="mp-muted">{fmtTime(r.createdAt)}{r.remark !== null ? ' · ' + r.remark : ''}</Text>
-            </View>
-            <Text className={r.amount.startsWith('-') ? 'mp-txn-amt-neg' : 'mp-txn-amt-pos'}>{r.amount}</Text>
-          </View>
-        ))}
+        <View className="mp-tab-row">
+          {[['ALL', '全部'], ['RECHARGE', '充值'], ['DEDUCT', '扣费'], ['REVERSE', '冲正']].map(([k, label]) => (
+            <Text
+              key={k}
+              className={'mp-tab' + (tab === k ? ' mp-tab-on' : '')}
+              onClick={() => setTab(k as typeof tab)}
+            >
+              {label}
+            </Text>
+          ))}
+        </View>
+        {(() => {
+          const filtered = rows.filter((r) => {
+            if (tab === 'ALL') return true
+            if (tab === 'RECHARGE') return r.type === 'RECHARGE'
+            if (tab === 'DEDUCT') return r.type === 'ROOM_SETTLE' || r.type === 'MANUAL_DEDUCT'
+            return r.type === 'REVERSE'
+          })
+          if (filtered.length === 0) return <Text className="mp-muted">该分类暂无流水</Text>
+          return filtered.map((r) => {
+            const isPos = !r.amount.startsWith('-')
+            const tone = r.type === 'RECHARGE' ? '#37d67a' : r.type === 'REVERSE' ? '#f5a623' : '#ff6b81'
+            return (
+              <View key={r.id} className="mp-txn-row">
+                <View className="mp-txn-left">
+                  <View className="mp-txn-badge-wrap">
+                    <Text className="mp-txn-badge" style={{ background: tone }}>{TYPE_LABEL[r.type] ?? r.type}</Text>
+                    <Text className="mp-muted">{fmtTime(r.createdAt)}</Text>
+                  </View>
+                  {r.remark !== null && <Text className="mp-muted">{r.remark}</Text>}
+                </View>
+                <Text className={isPos ? 'mp-txn-amt-pos' : 'mp-txn-amt-neg'}>{r.amount}</Text>
+              </View>
+            )
+          })
+        })()}
       </View>
 
       <View className="mp-card">

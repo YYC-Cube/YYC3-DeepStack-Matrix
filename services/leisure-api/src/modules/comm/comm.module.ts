@@ -372,6 +372,48 @@ export class CommService {
         })
       }
       const artist = await this.prisma.artist.findUnique({ where: { id: t.targetArtistId }, select: { stageName: true, realName: true } })
+      // 达标事件通知(下发人 notice;notifyAt 去重——与日切告警同链)
+      if (progress >= t.targetCount && t.notifyAt === null && t.createdById > 0) {
+        const creator = await this.prisma.adminUser.findUnique({ where: { id: t.createdById }, select: { title: true } })
+        if (creator !== null) {
+          await this.prisma.notice.create({
+            data: {
+              storeId,
+              title: '任务达标:' + t.title.slice(0, 40),
+              body: '对象「' + (artist?.stageName ?? artist?.realName ?? String(t.targetArtistId)) + '」已完成 ' + String(progress) + '/' + String(t.targetCount) + '(' + (t.type === 'BOOKING' ? '订房' : '点餐') + '任务)。',
+              publishedBy: t.createdById,
+              visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+              remind: true,
+            },
+          })
+        }
+        await this.prisma.task.update({ where: { id: t.id }, data: { notifyAt: new Date() } })
+        t.notifyAt = new Date()
+      }
+      // 周期模板惰性重建(到期且 recurrence!=NONE:旧任务转 EXPIRED,顺延创建下一周期)
+      if (t.endAt < new Date() && t.recurrence !== 'NONE' && t.status === 'ACTIVE') {
+        const span = t.endAt.getTime() - t.startAt.getTime()
+        const nextStart = t.recurrence === 'DAILY' ? new Date(t.startAt.getTime() + 86_400_000) : new Date(t.startAt.getTime() + 7 * 86_400_000)
+        const nextEnd = new Date(nextStart.getTime() + span)
+        await this.prisma.task.update({ where: { id: t.id }, data: { status: 'EXPIRED' } })
+        const cloned = await this.prisma.task.create({
+          data: {
+            storeId,
+            type: t.type,
+            title: t.title,
+            targetArtistId: t.targetArtistId,
+            targetCount: t.targetCount,
+            startAt: nextStart,
+            endAt: nextEnd,
+            recurrence: t.recurrence,
+            createdById: t.createdById,
+          },
+        })
+        await this.prisma.auditLog.create({
+          data: { storeId, actorId: 0, action: 'TASK_RECURRING_CLONE', targetType: 'task', targetId: String(cloned.id), beforeJson: { from: t.id } as object, afterJson: { nextStart, nextEnd } as object },
+        })
+        continue // 重建后的下周期任务从 0 开始,不在本轮列表(下轮可见)
+      }
       out.push({
         id: t.id,
         type: t.type,
@@ -381,6 +423,7 @@ export class CommService {
         targetCount: t.targetCount,
         progress: Math.min(progress, t.targetCount * 3),
         rawProgress: progress,
+        recurrence: t.recurrence,
         startAt: t.startAt.toISOString(),
         endAt: t.endAt.toISOString(),
       })
@@ -388,7 +431,7 @@ export class CommService {
     return { rows: out }
   }
 
-  async createTask(storeId: number, body: { type: string; title: string; targetArtistId: number; targetCount: number; startAt: string; endAt: string }, operatorId: number): Promise<{ id: number }> {
+  async createTask(storeId: number, body: { type: string; title: string; targetArtistId: number; targetCount: number; startAt: string; endAt: string; recurrence?: string }, operatorId: number): Promise<{ id: number }> {
     if (!['BOOKING', 'ORDER'].includes(body.type)) throw new BadRequestException('任务类型无效')
     if (body.targetCount <= 0) throw new BadRequestException('目标数量须为正数')
     const artist = await this.prisma.artist.findFirst({ where: { id: body.targetArtistId, storeId, deletedAt: null } })
@@ -402,6 +445,7 @@ export class CommService {
         targetCount: body.targetCount,
         startAt: new Date(body.startAt),
         endAt: new Date(body.endAt),
+        recurrence: body.recurrence ?? 'NONE',
         createdById: operatorId,
       },
     })
@@ -445,6 +489,9 @@ class TaskDto {
   startAt!: string
   @IsString()
   endAt!: string
+  @IsOptional()
+  @IsIn(['NONE', 'DAILY', 'WEEKLY'])
+  recurrence?: string
 }
 
 /* ── Task Controller ── */

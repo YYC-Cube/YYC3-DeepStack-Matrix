@@ -7,7 +7,7 @@ import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, Dialog
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
-import { ConfirmButton, PageHeader } from '@/components/kit'
+import { ConfirmButton, Field, PageHeader, SelectBox } from '@/components/kit'
 import PersonPicker from '@/components/person-picker'
 
 interface TaskRow {
@@ -18,6 +18,7 @@ interface TaskRow {
   targetCount: number
   progress: number
   rawProgress: number
+  recurrence?: string
   startAt: string
   endAt: string
 }
@@ -28,7 +29,7 @@ export default function MTasksPage(): React.JSX.Element {
   const permCodes = useAuthStore((s) => s.permCodes)
   const canManage = permCodes.includes('setting:manage')
   const [rows, setRows] = useState<TaskRow[]>()
-  const [form, setForm] = useState<{ type: string; title: string; artistId: string; artistName: string; targetCount: string; startAt: string; endAt: string } | null>(null)
+  const [form, setForm] = useState<{ type: string; title: string; artistId: string; artistName: string; targetCount: string; startAt: string; endAt: string; recurrence: string } | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [busy, setBusy] = useState(false)
 
@@ -59,6 +60,7 @@ export default function MTasksPage(): React.JSX.Element {
         targetCount: Number(form.targetCount),
         startAt: new Date(form.startAt + 'T00:00:00').toISOString(),
         endAt: new Date(form.endAt + 'T23:59:59').toISOString(),
+        recurrence: form.recurrence,
       })
       toast.success('任务已下发')
       setForm(null)
@@ -79,7 +81,7 @@ export default function MTasksPage(): React.JSX.Element {
           const from = new Date()
           const to = new Date(Date.now() + 7 * 86_400_000)
           const fmt = (d: Date): string => d.toISOString().slice(0, 10)
-          setForm({ type: 'BOOKING', title: '', artistId: '', artistName: '', targetCount: '', startAt: fmt(from), endAt: fmt(to) })
+          setForm({ type: 'BOOKING', title: '', artistId: '', artistName: '', targetCount: '', startAt: fmt(from), endAt: fmt(to), recurrence: 'NONE' })
         }}>+ 下发任务</Button> : undefined}
       />
 
@@ -90,6 +92,8 @@ export default function MTasksPage(): React.JSX.Element {
           <Card key={t.id} className="p-3 space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{TYPE_LABEL[t.type] ?? t.type}</span>
+              {t.recurrence === 'DAILY' && <span className="text-[10px] text-primary">每日</span>}
+              {t.recurrence === 'WEEKLY' && <span className="text-[10px] text-primary">每周</span>}
               <span className="text-sm font-medium flex-1 break-all">{t.title}</span>
               {canManage && (
                 <ConfirmButton
@@ -179,7 +183,14 @@ export default function MTasksPage(): React.JSX.Element {
                   <Input type="date" value={form.endAt} onChange={(e) => setForm({ ...form, endAt: e.target.value })} />
                 </div>
               </div>
-              <p className="text-[11px] text-fg-muted">完成度实时聚合:订房任务=期内作为在场销售经理的房账数;点餐任务=期内本人有效点单数。</p>
+              <Field label="周期(到期自动重建下一周期,完成度归零)">
+                <SelectBox
+                  value={form.recurrence}
+                  onChange={(v) => setForm({ ...form, recurrence: v })}
+                  options={[{ value: 'NONE', label: '单次' }, { value: 'DAILY', label: '每日重建' }, { value: 'WEEKLY', label: '每周重建' }]}
+                />
+              </Field>
+              <p className="text-[11px] text-fg-muted">完成度实时聚合:订房任务=期内作为在场销售经理的房账数;点餐任务=期内本人有效点单数。达标自动通知下发人。</p>
             </div>
           )}
           <DialogFooter>

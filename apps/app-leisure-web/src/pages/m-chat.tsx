@@ -54,6 +54,8 @@ export default function MChatPage(): React.JSX.Element {
   const wsRef = useRef<WebSocket | null>(null)
   const [wsOk, setWsOk] = useState(false)
   const [pendingImages, setPendingImages] = useState<string[]>([])
+  /** 图片消息点击放大预览 */
+  const [previewImg, setPreviewImg] = useState<string | null>(null)
   const token = useAuthStore((s) => s.token)
 
   const loadGroups = useCallback(async (): Promise<void> => {
@@ -68,6 +70,9 @@ export default function MChatPage(): React.JSX.Element {
   useEffect(() => {
     void loadGroups()
     void req<Array<{ id: number; name: string }>>('GET', '/artist-groups?line=SELL').then((r) => setGroupsList(r)).catch(() => undefined)
+    // 群列表轻轮询(15s):未读角标实时刷新(进聊天室走 WS 双模,列表页保持轻量)
+    const timer = setInterval(() => { void loadGroups() }, 15_000)
+    return () => clearInterval(timer)
   }, [loadGroups])
 
   // 聊天室轮询(3s;增量 after=lastId)
@@ -204,7 +209,15 @@ export default function MChatPage(): React.JSX.Element {
                 <div className="text-[10px] text-fg-muted">{m.senderName} · {m.createdAt.slice(11, 16)}</div>
                 {m.images !== undefined && m.images.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-0.5">
-                    {m.images.map((img, i) => <img key={i} src={img} alt="" className="rounded-lg max-w-[180px] max-h-[180px] object-cover" />)}
+                    {m.images.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt=""
+                        className="rounded-lg max-w-[180px] max-h-[180px] object-cover cursor-zoom-in"
+                        onClick={() => { setPreviewImg(img) }}
+                      />
+                    ))}
                   </div>
                 )}
                 {m.content !== '' && <div className="text-sm break-all whitespace-pre-wrap mt-0.5">{m.content}</div>}
@@ -301,6 +314,15 @@ export default function MChatPage(): React.JSX.Element {
       {groups !== undefined && groups.length === 0 && (
         <Card className="p-6 text-center text-sm text-fg-muted">暂无群组,点击「+ 建群」</Card>
       )}
+
+      {/* 图片放大预览 */}
+      <Dialog open={previewImg !== null} onOpenChange={(o) => { if (!o) setPreviewImg(null) }}>
+        <DialogContent className="max-w-2xl">
+          {previewImg !== null && (
+            <img src={previewImg} alt="图片预览" className="w-full max-h-[75vh] object-contain" />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) setCreateOpen(false) }}>
         <DialogContent className="max-w-sm">

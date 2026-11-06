@@ -107,3 +107,14 @@ page {
   color: #ff6699;
   font-size: 24rpx;
 }
+
+/* H5 流水页卡片化专项(2026-11-05):筛选 Tab/徽标/近 7 日摘要 */
+.mp-tab-row { display: flex; gap: 8px; margin: 8px 0 4px; flex-wrap: wrap; }
+.mp-tab { padding: 3px 12px; border-radius: 999px; font-size: 12px; color: #8b9bb4; border: 1px solid rgba(139,155,180,0.3); }
+.mp-tab-on { color: #00d4ff; border-color: #00d4ff; background: rgba(0,212,255,0.08); }
+.mp-txn-badge-wrap { display: flex; align-items: center; gap: 6px; }
+.mp-txn-badge { padding: 1px 8px; border-radius: 999px; font-size: 10px; color: #fff; }
+.mp-sum7 { display: flex; justify-content: space-around; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(139,155,180,0.15); }
+.mp-sum7-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.mp-sum7-num { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mp-sum7-lb { font-size: 11px; color: #8b9bb4; }

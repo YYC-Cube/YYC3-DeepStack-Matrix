@@ -42,11 +42,8 @@ const TITLE_LABEL: Record<string, string> = {
 const BUILTIN_ROLES = ['管理员']
 
 function tempPassword(): string {
-  // 临时口令:16 位随机(字母+数字;首登必改策略兼容)
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
-  let out = ''
-  for (let i = 0; i < 16; i++) out += alphabet[randomInt(0, alphabet.length)]
-  return out
+  // 预设口令(Owner 裁决 2026-11-06:全局新增员工统一 123456;mustChangePassword=true 首登强制改密)
+  return '123456'
 }
 
 /* ── DTO ── */
@@ -126,7 +123,26 @@ export class StaffService {
 
   /* ── 员工信息 ── */
 
-  async listUsers(storeId: number, q: { departmentId?: number; keyword?: string; status?: number }) {
+  /** 查看者画像(角色名+职级;「管理员」预置角色或 VP 职级=超管全见) */
+  async viewerProfile(userId: number, storeId: number): Promise<{ title: string | null; isSuperAdmin: boolean } | null> {
+    const u = await this.prisma.adminUser.findFirst({
+      where: { id: userId, storeId },
+      include: { role: { select: { name: true } } },
+    })
+    if (u === null) return null
+    const isSuperAdmin = u.role?.name === '管理员' || u.title === 'VP'
+    return { title: u.title ?? null, isSuperAdmin }
+  }
+
+  /** 职级权重(16 号组织树:VP4 > 总监3 > 经理2 > 其余1;无职级=1 与一线平权) */
+  private titleWeight(title: string | null): number {
+    if (title === 'VP') return 4
+    if (title === 'MANAGER_DIRECTOR') return 3
+    if (title === 'MANAGER') return 2
+    return 1
+  }
+
+  async listUsers(storeId: number, q: { departmentId?: number; keyword?: string; status?: number }, viewer?: { id: number; title: string | null; isSuperAdmin: boolean }) {
     const where = {
       storeId,
       ...(q.departmentId !== undefined ? { departmentId: q.departmentId } : {}),
@@ -135,12 +151,21 @@ export class StaffService {
         ? { OR: [{ name: { contains: q.keyword } }, { phone: { contains: q.keyword } }] }
         : {}),
     }
-    const rows = await this.prisma.adminUser.findMany({
+    // 层级可见性(Owner 裁决 2026-11-06:下级不可查上级——非超管按职级权重过滤,仅见平级+下属)
+    let rows = await this.prisma.adminUser.findMany({
       where,
       include: { role: { select: { name: true } } },
       orderBy: { id: 'desc' },
       take: 200,
     })
+    if (viewer !== undefined && !viewer.isSuperAdmin) {
+      const w = this.titleWeight(viewer.title)
+      rows = rows.filter((r) => {
+        if (r.id === viewer.id) return true
+        const isSuper = r.role?.name === '管理员' || r.title === 'VP'
+        return !isSuper && this.titleWeight(r.title) <= w
+      })
+    }
     const deptIds = Array.from(new Set(rows.map((r) => r.departmentId).filter((x): x is number => x !== null)))
     const depts = deptIds.length > 0
       ? await this.prisma.department.findMany({ where: { id: { in: deptIds } }, select: { id: true, name: true } })
@@ -439,11 +464,12 @@ export class StaffController {
     @Query('status') status?: string,
   ): Promise<unknown> {
     const user = (req as ReqWithUser).user
+    const viewerProfile = user?.sub !== undefined ? await this.svc.viewerProfile(user.sub, user?.storeId ?? 1) : null
     return this.svc.listUsers(user?.storeId ?? 1, {
       departmentId: departmentId !== undefined && departmentId !== '' ? Number(departmentId) : undefined,
       keyword,
       status: status !== undefined && status !== '' ? Number(status) : undefined,
-    })
+    }, viewerProfile !== null && user !== undefined ? { id: user.sub, title: viewerProfile.title, isSuperAdmin: viewerProfile.isSuperAdmin } : undefined)
   }
 
   @RequirePerm('setting:manage')

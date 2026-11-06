@@ -24,6 +24,7 @@
     "@nestjs/platform-express": "^10.4.0",
     "@nestjs/swagger": "^7.4.0",
     "@prisma/client": "^5.19.0",
+    "@types/ws": "^8.18.2",
     "@yyc3/leisure-core": "workspace:*",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
@@ -31,6 +32,7 @@
     "ioredis": "^5.4.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "ws": "^8.22.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {

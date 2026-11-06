@@ -28,16 +28,11 @@ import type { Request } from 'express'
 import { randomInt } from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { STAFF_TITLE_LABEL } from '@yyc3/leisure-core'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 const TITLES = ['VP', 'MANAGER_DIRECTOR', 'MANAGER', 'CASHIER', 'FINANCE'] as const
-const TITLE_LABEL: Record<string, string> = {
-  VP: '销售副总(管理职)',
-  MANAGER_DIRECTOR: '销售总监(管理职)',
-  MANAGER: '销售经理',
-  CASHIER: '收银员',
-  FINANCE: '财务',
-}
+const TITLE_LABEL: Record<string, string> = STAFF_TITLE_LABEL
 /** 预置角色保护:不可删;管理员不可改功能码 */
 const BUILTIN_ROLES = ['管理员']
 

@@ -38,7 +38,8 @@ const PAY_METHOD_RE = /^[A-Z][A-Z0-9_]{1,19}$/
 
 class RuleDto {
   @IsOptional()
-  @IsString()
+  @IsIn(['VP', 'MANAGER_DIRECTOR', 'MANAGER', 'CASHIER', 'FINANCE'])
+  /** 适用岗位(数据互通 2026-11-05:枚举单源 leisure-core STAFF_TITLES;空=不限岗位) */
   applyTitle?: string
   @IsOptional()
   @IsString()

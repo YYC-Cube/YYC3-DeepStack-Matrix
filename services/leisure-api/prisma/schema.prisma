@@ -1026,6 +1026,9 @@ model ChatMessage {
   senderId    Int      @map("sender_id")
   senderName  String   @map("sender_name") @db.VarChar(64)
   content     String   @db.VarChar(2000)
+  // 消息类型:TEXT 文本 / IMAGE 图片(images=压缩 dataURL 数组 ≤4 张;2026-11-05 深化)
+  type        String   @default("TEXT") @db.VarChar(16)
+  images      Json?
   createdAt   DateTime @default(now()) @map("created_at")
 
   chatGroup ChatGroup @relation(fields: [chatGroupId], references: [id])

@@ -20,8 +20,9 @@ import {
 } from '@nestjs/common'
 import { IsIn, IsInt, IsOptional, IsString, Length, Matches } from 'class-validator'
 import type { Request } from 'express'
-import { PrismaService } from '../../prisma/prisma.service.js'
+import { JwtModule, JwtService } from '@nestjs/jwt'
 import { env } from '../../config/env.js'
+import { PrismaService } from '../../prisma/prisma.service.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 
 const CHAT_GROUP_NAME_RE = /^.{1,64}$/
@@ -54,9 +55,13 @@ class ChatGroupDto {
 }
 
 class ChatMessageDto {
+  /** 文本或图片说明(纯图消息可空串;service 校验「文本/图片至少其一」) */
+  @IsOptional()
   @IsString()
-  @Length(1, 2000)
-  content!: string
+  @Length(0, 2000)
+  content?: string
+  @IsOptional()
+  images?: unknown
 }
 
 /* ── Service ── */
@@ -283,9 +288,18 @@ export class CommService {
         senderId: m.senderId,
         senderName: m.senderName,
         content: m.content,
+        type: m.type,
+        images: Array.isArray(m.images) ? (m.images as string[]) : [],
         createdAt: m.createdAt.toISOString(),
       })),
     }
+  }
+
+  private chatServer: { to: (room: string) => { emit: (ev: string, data: unknown) => void } } | null = null
+
+  /** WS 桥启动后注入(原生 ws 独立挂载;群消息实时广播) */
+  setChatServer(server: { to: (room: string) => { emit: (ev: string, data: unknown) => void } }): void {
+    this.chatServer = server
   }
 
   async sendMessage(
@@ -295,6 +309,15 @@ export class CommService {
     sender: { scope: string; id: number; name: string },
   ) {
     await this.assertCanJoin(chatGroupId, storeId, sender)
+    const images = Array.isArray(body.images) ? body.images : []
+    for (const img of images) {
+      if (typeof img !== 'string' || !img.startsWith('data:image/') || img.length > 400_000) {
+        throw new BadRequestException('图片须为 data:image/* 且单张 ≤300KB')
+      }
+    }
+    if (images.length > 4) throw new BadRequestException('单条消息图片最多 4 张')
+    const content = body.content ?? ''
+    if (content.trim() === '' && images.length === 0) throw new BadRequestException('消息内容不能为空')
     const created = await this.prisma.chatMessage.create({
       data: {
         storeId,
@@ -302,17 +325,24 @@ export class CommService {
         senderScope: sender.scope,
         senderId: sender.id,
         senderName: sender.name,
-        content: body.content,
+        content: body.content ?? '',
+        type: images.length > 0 ? 'IMAGE' : 'TEXT',
+        images: images.length > 0 ? (images as object) : undefined,
       },
     })
-    return {
+    const msg = {
       id: created.id,
       senderScope: created.senderScope,
       senderId: created.senderId,
       senderName: created.senderName,
       content: created.content,
+      type: created.type,
+      images: Array.isArray(created.images) ? (created.images as string[]) : [],
       createdAt: created.createdAt.toISOString(),
     }
+    // WS 实时广播(房间=chat:<groupId>;前端轮询为 fallback 仍在)
+    this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:message', msg)
+    return msg
   }
 
 
@@ -533,8 +563,9 @@ export class ChatController {
   }
 }
 
+
 @Module({
   controllers: [FeedbackController, ChatController, TaskController],
   providers: [CommService, PrismaService],
-})
+  })
 export class CommModule {}

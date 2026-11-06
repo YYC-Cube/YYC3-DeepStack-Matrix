@@ -92,6 +92,7 @@ export default function SplitPage(): React.JSX.Element {
     calcType: string
     percent: string
     fixedAmount: string
+    applyTitle: string
     tiers: Array<{ min: string; max: string; percent: string }>
     budget: string
   } | null>(null)
@@ -147,7 +148,7 @@ export default function SplitPage(): React.JSX.Element {
       toast.error('方案名称必填')
       return
     }
-    const base = { payMethod: 'CASH', rewardType: 'REWARD' }
+    const base = { payMethod: 'CASH', rewardType: 'REWARD', ...(form.applyTitle !== '' ? { applyTitle: form.applyTitle } : {}) }
     if (form.calcType === 'TIERED') {
       const tiers = form.tiers.filter((t) => t.percent.trim() !== '')
       if (tiers.length === 0) {
@@ -311,7 +312,7 @@ export default function SplitPage(): React.JSX.Element {
         desc="17 号闭环规划:方案(类目×周期×规则×预算)→ 计提(只增,基数快照)→ 结算单(复核→支付→导出);冲正=反向条目;三向对账挂日切"
         actions={
           <div className="flex gap-2">
-            <Button onClick={() => setForm({ name: '', category: 'SESSION', calcType: 'PERCENT', percent: '20', fixedAmount: '', tiers: [{ min: '', max: '', percent: '' }], budget: '' })}>+ 新建方案</Button>
+            <Button onClick={() => setForm({ name: '', category: 'SESSION', calcType: 'PERCENT', percent: '20', fixedAmount: '', applyTitle: '', tiers: [{ min: '', max: '', percent: '' }], budget: '' })}>+ 新建方案</Button>
             <Button variant="outline" onClick={() => { setImportOpen(true); setImportResult(null) }}>批量导入凭证(CSV)</Button>
           </div>
         }
@@ -678,6 +679,20 @@ export default function SplitPage(): React.JSX.Element {
                   <Button variant="outline" size="sm" onClick={() => setForm({ ...form, tiers: [...form.tiers, { min: '', max: '', percent: '' }] })}>+ 加一行</Button>
                 </div>
               )}
+              <Field label="适用岗位(可选;职级单源,空=不限)">
+                <SelectBox
+                  value={form.applyTitle}
+                  onChange={(v) => setForm({ ...form, applyTitle: v })}
+                  options={[
+                    { value: '', label: '不限岗位' },
+                    { value: 'VP', label: '销售副总' },
+                    { value: 'MANAGER_DIRECTOR', label: '销售总监' },
+                    { value: 'MANAGER', label: '销售经理' },
+                    { value: 'CASHIER', label: '收银员' },
+                    { value: 'FINANCE', label: '财务' },
+                  ]}
+                />
+              </Field>
               <Field label="计划期预算(可选;达成率=实际/预算)">
                 <Input inputMode="decimal" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} placeholder="如 5000" />
               </Field>

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth'
 import { PageHeader } from '@/components/kit'
 
 interface GroupRow {
@@ -22,6 +23,8 @@ interface MsgRow {
   senderId: number
   senderName: string
   content: string
+  type: string
+  images: string[]
   createdAt: string
 }
 
@@ -47,6 +50,11 @@ export default function MChatPage(): React.JSX.Element {
   const [groupsList, setGroupsList] = useState<Array<{ id: number; name: string }>>([])
   const [busy, setBusy] = useState(false)
   const lastIdRef = useRef(0)
+  /** WS 实时(优先)——连不上自动回落 3s 轮询 */
+  const wsRef = useRef<WebSocket | null>(null)
+  const [wsOk, setWsOk] = useState(false)
+  const [pendingImages, setPendingImages] = useState<string[]>([])
+  const token = useAuthStore((s) => s.token)
 
   const loadGroups = useCallback(async (): Promise<void> => {
     try {
@@ -64,7 +72,7 @@ export default function MChatPage(): React.JSX.Element {
 
   // 聊天室轮询(3s;增量 after=lastId)
   useEffect(() => {
-    if (active === null) return
+    if (active === null || wsOk) return
     let stop = false
     const pull = async (): Promise<void> => {
       try {
@@ -84,12 +92,53 @@ export default function MChatPage(): React.JSX.Element {
     void pull()
     const timer = setInterval(() => { void pull() }, 3000)
     return () => { stop = true; clearInterval(timer) }
-  }, [active])
+  }, [active, wsOk])
+
+  // WS 实时通道(深化:连接→join 房间→onmessage 增量;失败静默回落轮询)
+  useEffect(() => {
+    if (active === null || token === null || token === '') return
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws'
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(proto + '://' + location.host + '/api/v1/ws/chat?token=' + encodeURIComponent(token))
+    } catch {
+      return
+    }
+    wsRef.current = ws
+    ws.onopen = () => {
+      setWsOk(true)
+      ws.send(JSON.stringify({ event: 'chat:join', data: { groupId: active.id } }))
+    }
+    ws.onmessage = (ev) => {
+      try {
+        const payload = JSON.parse(String(ev.data)) as { event?: string; data?: MsgRow }
+        if (payload.event === 'chat:message' && payload.data !== undefined) {
+          const m = payload.data
+          setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
+          lastIdRef.current = Math.max(lastIdRef.current, m.id)
+          try {
+            const rm = JSON.parse(localStorage.getItem('yyc3-chat-read') ?? '{}') as Record<string, number>
+            rm[String(active.id)] = Math.max(rm[String(active.id)] ?? 0, m.id)
+            localStorage.setItem('yyc3-chat-read', JSON.stringify(rm))
+          } catch { /* 静默 */ }
+        }
+      } catch { /* 非 JSON 静默 */ }
+    }
+    ws.onerror = () => { setWsOk(false) }
+    ws.onclose = () => { setWsOk(false) }
+    return () => {
+      try { ws.send(JSON.stringify({ event: 'chat:leave', data: { groupId: active.id } })) } catch { /* 静默 */ }
+      ws.close()
+      wsRef.current = null
+      setWsOk(false)
+    }
+  }, [active, token])
 
   const openRoom = (g: GroupRow): void => {
     setActive(g)
     lastIdRef.current = 0
     setMsgs([])
+    setPendingImages([])
     void req<{ rows: MsgRow[] }>('GET', '/chat/groups/' + String(g.id) + '/messages')
       .then((res) => {
         setMsgs(res.rows)
@@ -103,7 +152,11 @@ export default function MChatPage(): React.JSX.Element {
     if (active === null || draft.trim() === '') return
     setBusy(true)
     try {
-      const m = await req<MsgRow>('POST', '/chat/groups/' + String(active.id) + '/messages', { content: draft.trim() })
+      const m = await req<MsgRow>('POST', '/chat/groups/' + String(active.id) + '/messages', {
+        content: draft.trim(),
+        ...(pendingImages.length > 0 ? { images: pendingImages } : {}),
+      })
+      setPendingImages([])
       setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
       lastIdRef.current = Math.max(lastIdRef.current, m.id)
       setDraft('')
@@ -149,21 +202,74 @@ export default function MChatPage(): React.JSX.Element {
             <div key={m.id} className={'flex ' + (m.senderScope === 'ADMIN' ? 'justify-end' : 'justify-start')}>
               <div className={'max-w-[78%] rounded-2xl px-3 py-1.5 ' + (m.senderScope === 'ADMIN' ? 'bg-primary/15' : 'bg-fg-muted/10')}>
                 <div className="text-[10px] text-fg-muted">{m.senderName} · {m.createdAt.slice(11, 16)}</div>
-                <div className="text-sm break-all whitespace-pre-wrap">{m.content}</div>
+                {m.images !== undefined && m.images.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    {m.images.map((img, i) => <img key={i} src={img} alt="" className="rounded-lg max-w-[180px] max-h-[180px] object-cover" />)}
+                  </div>
+                )}
+                {m.content !== '' && <div className="text-sm break-all whitespace-pre-wrap mt-0.5">{m.content}</div>}
               </div>
             </div>
           ))}
           {msgs.length === 0 && <div className="text-center text-xs text-fg-muted py-10">暂无消息,说第一句吧</div>}
         </div>
-        <div className="flex gap-2 pt-2 border-t border-line">
+        <div className="flex gap-2 pt-2 border-t border-line items-center">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            id="m-chat-img"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              e.target.value = ''
+              if (f === undefined) return
+              const reader = new FileReader()
+              reader.onload = () => {
+                const img = new Image()
+                img.onload = () => {
+                  const scale = Math.min(1, 640 / Math.max(img.width, img.height))
+                  const canvas = document.createElement('canvas')
+                  canvas.width = Math.round(img.width * scale)
+                  canvas.height = Math.round(img.height * scale)
+                  canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
+                  const dataUrl = canvas.toDataURL('image/jpeg', 0.72)
+                  setPendingImages((s) => (s.length >= 4 ? s : [...s, dataUrl]))
+                }
+                img.src = String(reader.result)
+              }
+              reader.readAsDataURL(f)
+            }}
+          />
+          <label
+            htmlFor="m-chat-img"
+            className="shrink-0 w-9 h-9 rounded-lg border border-line flex items-center justify-center cursor-pointer text-fg-muted hover:text-primary text-lg"
+            title="发送图片(≤4 张)"
+          >
+            +
+          </label>
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="输入消息…"
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send() } }}
           />
-          <Button disabled={busy || draft.trim() === ''} onClick={() => { void send() }}>发送</Button>
+          <Button disabled={busy || (draft.trim() === '' && pendingImages.length === 0)} onClick={() => { void send() }}>发送</Button>
         </div>
+        {pendingImages.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap">
+            {pendingImages.map((img, i) => (
+              <span key={i} className="relative">
+                <img src={img} alt="" className="w-14 h-14 rounded object-cover" />
+                <button
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-error text-white text-xs leading-none"
+                  onClick={() => setPendingImages((s) => s.filter((_, j) => j !== i))}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     )
   }

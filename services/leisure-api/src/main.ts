@@ -8,8 +8,12 @@ import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module.js'
+import { CommModule, CommService } from './modules/comm/comm.module.js'
+import { PrismaService } from './prisma/prisma.service.js'
+import { JwtService } from '@nestjs/jwt'
 import { LeisureExceptionFilter } from './common/filters/leisure-exception.filter.js'
 import { env } from './config/env.js'
+import { mountChatWs } from './ws/chat-ws.js'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -37,7 +41,13 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, docCfg))
   }
 
-  await app.listen(env().PORT)
+  await app.listen(env().PORT ?? 3001, '0.0.0.0')
+  // A17+/沟通批:原生 ws 独立挂载(/ws/chat;JWT 连接鉴权;房间广播;避开 @nestjs/websockets 适配器摩擦)
+  mountChatWs(app.getHttpServer(), {
+    setChatServer: (b) => app.get(CommService).setChatServer(b),
+    prisma: app.get(PrismaService),
+    jwt: app.get(JwtService),
+  })
   new Logger('bootstrap').log(
     'leisure-api listening on :' + String(env().PORT) + ' /api/v1 (env ' + env().NODE_ENV + ', cors ' + (corsOrigins.length > 0 ? String(corsOrigins.length) + ' origins' : 'any') + ')',
   )

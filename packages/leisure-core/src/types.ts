@@ -441,3 +441,25 @@ export interface Goods {
   salePrice: number
   onSale: boolean
 }
+/** 员工职级枚举(单源:staff 岗位维/分账规则 applyTitle/组织树共用;2026-11-05 数据互通批) */
+export const STAFF_TITLES = [
+  { code: 'VP', label: '销售副总(管理职)' },
+  { code: 'MANAGER_DIRECTOR', label: '销售总监(管理职)' },
+  { code: 'MANAGER', label: '销售经理' },
+  { code: 'CASHIER', label: '收银员' },
+  { code: 'FINANCE', label: '财务' },
+] as const
+
+export type StaffTitleCode = (typeof STAFF_TITLES)[number]['code']
+
+export const STAFF_TITLE_LABEL: Record<string, string> = Object.fromEntries(
+  STAFF_TITLES.map((t) => [t.code, t.label]),
+)
+
+/** 职级权重(组织树:VP4>总监3>经理2>其余1;下级不可查上级过滤用) */
+export function staffTitleWeight(title: string | null): number {
+  if (title === 'VP') return 4
+  if (title === 'MANAGER_DIRECTOR') return 3
+  if (title === 'MANAGER') return 2
+  return 1
+}

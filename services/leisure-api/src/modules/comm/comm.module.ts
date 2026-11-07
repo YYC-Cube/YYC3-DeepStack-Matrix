@@ -14,6 +14,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   BadRequestException,
@@ -752,6 +753,82 @@ export class CommService {
       data: { storeId, actorId: operatorId, action: 'TASK_TEMPLATE_DELETE', targetType: 'task_template', targetId: String(id), beforeJson: before as object, afterJson: null as unknown as object },
     })
   }
+
+  /* ── 客资体系(P5 2026-11-07):客户线索最小闭环;ADMIN 全量/ARTIST 本人归属 ── */
+
+  async listCustomers(storeId: number, viewer: { scope: string; id: number }) {
+    const rows = await this.prisma.customerLead.findMany({
+      where: {
+        storeId,
+        ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}),
+      },
+      orderBy: { id: 'desc' },
+      take: 200,
+    })
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        phone: r.phone,
+        source: r.source,
+        status: r.status,
+        note: r.note,
+        ownerArtistId: r.ownerArtistId,
+        createdAt: r.createdAt.toISOString(),
+      })),
+    }
+  }
+
+  async createCustomer(storeId: number, operator: { scope: string; id: number }, body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<{ id: number }> {
+    const created = await this.prisma.customerLead.create({
+      data: {
+        storeId,
+        name: body.name.trim(),
+        phone: body.phone,
+        source: body.source,
+        status: body.status ?? 'FOLLOW',
+        note: body.note,
+        ownerArtistId: body.ownerArtistId ?? (operator.scope === 'ARTIST' ? operator.id : undefined),
+        createdBy: operator.id,
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operator.id, action: 'CUSTOMER_CREATE', targetType: 'customer_lead', targetId: String(created.id), beforeJson: null as unknown as object, afterJson: { name: body.name } as object },
+    })
+    return { id: created.id }
+  }
+
+  async updateCustomer(id: number, storeId: number, viewer: { scope: string; id: number }, body: { name?: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<void> {
+    const before = await this.prisma.customerLead.findFirst({
+      where: { id, storeId, ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}) },
+    })
+    if (before === null) throw new NotFoundException('客资不存在或无权操作')
+    await this.prisma.customerLead.update({
+      where: { id },
+      data: {
+        ...(body.name !== undefined ? { name: body.name.trim() } : {}),
+        ...(body.phone !== undefined ? { phone: body.phone } : {}),
+        ...(body.source !== undefined ? { source: body.source } : {}),
+        ...(body.status !== undefined ? { status: body.status } : {}),
+        ...(body.note !== undefined ? { note: body.note } : {}),
+        ...(body.ownerArtistId !== undefined ? { ownerArtistId: body.ownerArtistId } : {}),
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: viewer.id, action: 'CUSTOMER_UPDATE', targetType: 'customer_lead', targetId: String(id), beforeJson: { status: before.status } as object, afterJson: { status: body.status ?? before.status } as object },
+    })
+  }
+
+  async deleteCustomer(id: number, storeId: number, viewer: { scope: string; id: number }): Promise<void> {
+    const before = await this.prisma.customerLead.findFirst({
+      where: { id, storeId, ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}) },
+    })
+    if (before === null) throw new NotFoundException('客资不存在或无权操作')
+    await this.prisma.customerLead.delete({ where: { id } })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: viewer.id, action: 'CUSTOMER_DELETE', targetType: 'customer_lead', targetId: String(id), beforeJson: { name: before.name } as object, afterJson: null as unknown as object },
+    })
+  }
 }
 
 /* ── Task DTO ── */
@@ -852,6 +929,47 @@ export class TaskController {
     const u = op(req)
     await this.svc.deleteTemplate(id, u.storeId, u.id)
     return { deleted: true }
+  }
+}
+
+/* ── Customer 客资 Controller(P5) ── */
+
+@Controller('customers')
+export class CustomerController {
+  constructor(private readonly svc: CommService) {}
+
+  @Get()
+  async list(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.listCustomers(u.storeId, u)
+  }
+
+  @Post()
+  async create(
+    @Req() req: Request,
+    @Body() body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number },
+  ): Promise<unknown> {
+    const u = op(req)
+    if (body.name === undefined || body.name.trim() === '') throw new BadRequestException('姓名必填')
+    return this.svc.createCustomer(u.storeId, u, body)
+  }
+
+  @Put(':id')
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { name?: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number },
+  ): Promise<unknown> {
+    const u = op(req)
+    await this.svc.updateCustomer(id, u.storeId, u, body)
+    return { ok: true }
+  }
+
+  @Post(':id/delete')
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    await this.svc.deleteCustomer(id, u.storeId, u)
+    return { ok: true }
   }
 }
 
@@ -985,7 +1103,7 @@ export class ChatController {
 
 
 @Module({
-  controllers: [FeedbackController, ChatController, TaskController],
+  controllers: [FeedbackController, ChatController, TaskController, CustomerController],
   providers: [CommService, PrismaService],
   })
 export class CommModule {}

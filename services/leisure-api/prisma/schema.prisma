@@ -974,20 +974,39 @@ model SelfOrder {
 }
 
 model Goods {
-  id        Int       @id @default(autoincrement())
-  storeId   Int       @map("store_id")
-  name      String    @db.VarChar(64)
-  category  String?   @db.VarChar(32)
-  unit      String?   @db.VarChar(16)
-  salePrice Decimal   @map("sale_price") @db.Decimal(10, 2)
-  onSale    Boolean   @default(true) @map("on_sale")
-  sort      Int       @default(0)
-  deletedAt DateTime? @map("deleted_at")
+  id          Int       @id @default(autoincrement())
+  storeId     Int       @map("store_id")
+  name        String    @db.VarChar(64)
+  category    String?   @db.VarChar(32)
+  unit        String?   @db.VarChar(16)
+  salePrice   Decimal   @map("sale_price") @db.Decimal(10, 2)
+  memberPrice Decimal?  @map("member_price") @db.Decimal(10, 2)
+  imageUrl    String?   @map("image_url")
+  onSale      Boolean   @default(true) @map("on_sale")
+  sort        Int       @default(0)
+  deletedAt   DateTime? @map("deleted_at")
 
   @@unique([storeId, name, deletedAt])
   @@map("goods")
 }
 /// 功能定制回馈(Owner 指令 2026-11-04:无关模块收进定制申请→回馈消息→拟定;产品需求收集通道)
+/// 客资体系(P5 2026-11-07):客户线索最小闭环(姓名/电话/来源/状态/跟进/归属)
+model CustomerLead {
+  id            Int       @id @default(autoincrement())
+  storeId       Int       @map("store_id")
+  name          String    @db.VarChar(64)
+  phone         String?   @db.VarChar(32)
+  source        String?   @db.VarChar(32)
+  status        String    @default("FOLLOW") @db.VarChar(16)
+  note          String?   @db.VarChar(500)
+  ownerArtistId Int?      @map("owner_artist_id")
+  createdBy     Int       @map("created_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([storeId, status])
+  @@map("customer_lead")
+}
 model Feedback {
   id          Int       @id @default(autoincrement())
   storeId     Int       @map("store_id")

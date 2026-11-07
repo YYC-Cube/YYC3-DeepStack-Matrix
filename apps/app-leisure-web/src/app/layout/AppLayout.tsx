@@ -74,7 +74,12 @@ function InstallButton(): React.JSX.Element | null {
 }
 
 export function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false)
+  // 侧栏折叠(localStorage 记忆;折叠态 hover 感应自动展开=左侧折叠感应)
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('yyc3-sidebar-collapsed') === '1')
+  const setCollapsedPersist = (v: boolean): void => {
+    setCollapsed(v)
+    try { localStorage.setItem('yyc3-sidebar-collapsed', v ? '1' : '0') } catch { /* 静默 */ }
+  }
   const navigate = useNavigate()
   const name = useAuthStore((s) => s.name)
   const logout = useAuthStore((s) => s.logout)
@@ -95,7 +100,14 @@ export function AppLayout() {
           离线模式 · 展示缓存数据,操作将在联网后可用
         </div>
       )}
-      {!isMobile && <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />}
+      {!isMobile && (
+        <div
+          onMouseEnter={() => { if (collapsed) setCollapsedPersist(false) }}
+          className="h-full shrink-0"
+        >
+          <Sidebar collapsed={collapsed} onToggle={() => setCollapsedPersist(!collapsed)} />
+        </div>
+      )}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 shrink-0 flex items-center px-5 border-b border-[rgba(0,212,255,0.12)]">
           {!isMobile && <span className="text-sm text-[#8b9bb4]">Web 管理端</span>}

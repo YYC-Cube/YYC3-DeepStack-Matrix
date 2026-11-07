@@ -104,6 +104,7 @@ export const MENU: MenuGroup[] = [
     label: '扩展域',
     icon: LayoutDashboard,
     items: [
+      { key: 'customers', label: '客户(客资体系)', path: '/customers', perm: '*' },
       { key: 'a21', label: '销售经理订单(销售端 H5 已上线)', path: '/todo/a21', perm: 'order:view', badge: 'II' },
       { key: 'a22', label: '展示控制台', path: '/showcase', perm: 'showcase:view' },
       { key: 'a23', label: '服务评价', path: '/reviews', perm: 'review:view' },
@@ -117,6 +118,7 @@ export const MENU: MenuGroup[] = [
       { key: 'a26', label: '门店参数(销售设置)', path: '/settings/artist', perm: 'setting:manage' },
       { key: 'theme', label: '主题定制', path: '/settings/theme', perm: 'setting:manage' },
       { key: 'rooms', label: '包厢房号管理', path: '/store/rooms', perm: 'setting:manage' },
+      { key: 'goods', label: '商品管理', path: '/goods', perm: 'setting:manage' },
       { key: 'staff', label: '员工信息', path: '/staff', perm: 'setting:manage' },
       { key: 'departments', label: '部门管理', path: '/staff/departments', perm: 'setting:manage' },
       { key: 'roles', label: '权限管理', path: '/staff/roles', perm: 'setting:manage' },

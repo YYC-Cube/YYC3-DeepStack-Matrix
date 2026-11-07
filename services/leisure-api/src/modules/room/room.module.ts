@@ -16,6 +16,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   BadRequestException,
@@ -893,6 +894,8 @@ export class RoomService {
     category?: string
     unit?: string
     salePrice: number
+    memberPrice?: number
+    imageUrl?: string
     onSale?: boolean
   }): Promise<{ id: number }> {
     const dup = await this.prisma.goods.findFirst({
@@ -906,10 +909,51 @@ export class RoomService {
         category: p.category,
         unit: p.unit,
         salePrice: p.salePrice,
+        memberPrice: p.memberPrice,
+        imageUrl: p.imageUrl,
         onSale: p.onSale ?? true,
       },
     })
     return { id: created.id }
+  }
+
+  /** 商品编辑(P3:图片/价格体系/上下架;守卫 ADMIN 于 Controller) */
+  async updateGoods(
+    id: number,
+    storeId: number,
+    p: {
+      name?: string
+      category?: string
+      unit?: string
+      salePrice?: number
+      memberPrice?: number | null
+      imageUrl?: string | null
+      onSale?: boolean
+      sort?: number
+    },
+  ): Promise<void> {
+    const before = await this.prisma.goods.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (before === null) throw new NotFoundException('商品不存在')
+    await this.prisma.goods.update({
+      where: { id },
+      data: {
+        ...(p.name !== undefined ? { name: p.name } : {}),
+        ...(p.category !== undefined ? { category: p.category } : {}),
+        ...(p.unit !== undefined ? { unit: p.unit } : {}),
+        ...(p.salePrice !== undefined ? { salePrice: p.salePrice } : {}),
+        ...(p.memberPrice !== undefined ? { memberPrice: p.memberPrice } : {}),
+        ...(p.imageUrl !== undefined ? { imageUrl: p.imageUrl } : {}),
+        ...(p.onSale !== undefined ? { onSale: p.onSale } : {}),
+        ...(p.sort !== undefined ? { sort: p.sort } : {}),
+      },
+    })
+  }
+
+  /** 商品软删(下架历史保留;点单历史 goodsId 引用不受影响) */
+  async deleteGoods(id: number, storeId: number): Promise<void> {
+    const before = await this.prisma.goods.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (before === null) throw new NotFoundException('商品不存在')
+    await this.prisma.goods.update({ where: { id }, data: { deletedAt: new Date(), onSale: false } })
   }
 
   /* ── P0-1 钟房叫钟队列(大屏 + 语音播报文本) ── */
@@ -1281,14 +1325,41 @@ export class RoomController {
   async createGoods(
     @Req() req: Request,
     @Body()
-    body: { name: string; category?: string; unit?: string; salePrice: number; onSale?: boolean },
+    body: { name: string; category?: string; unit?: string; salePrice: number; memberPrice?: number; imageUrl?: string; onSale?: boolean },
   ): Promise<unknown> {
     const user = op(req)
     if (user.scope !== 'ADMIN') throw new ForbiddenException('仅管理端可维护商品')
     if (body.name === undefined || body.name === '' || body.salePrice === undefined) {
       throw new BadRequestException('name/salePrice 必填')
     }
+    if (body.imageUrl !== undefined && (typeof body.imageUrl !== 'string' || !body.imageUrl.startsWith('data:image/') || body.imageUrl.length > 400_000)) {
+      throw new BadRequestException('图片须为 data:image/* 且 ≤300KB')
+    }
     return this.svc.createGoods({ ...body, storeId: user.storeId ?? 1 })
+  }
+
+  @Put('goods/:id')
+  async updateGoods(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body()
+    body: { name?: string; category?: string; unit?: string; salePrice?: number; memberPrice?: number | null; imageUrl?: string | null; onSale?: boolean; sort?: number },
+  ): Promise<unknown> {
+    const user = op(req)
+    if (user.scope !== 'ADMIN') throw new ForbiddenException('仅管理端可维护商品')
+    if (body.imageUrl !== undefined && body.imageUrl !== null && (typeof body.imageUrl !== 'string' || !body.imageUrl.startsWith('data:image/') || body.imageUrl.length > 400_000)) {
+      throw new BadRequestException('图片须为 data:image/* 且 ≤300KB')
+    }
+    await this.svc.updateGoods(id, user.storeId ?? 1, body)
+    return { ok: true }
+  }
+
+  @Post('goods/:id/delete')
+  async deleteGoods(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const user = op(req)
+    if (user.scope !== 'ADMIN') throw new ForbiddenException('仅管理端可维护商品')
+    await this.svc.deleteGoods(id, user.storeId ?? 1)
+    return { ok: true }
   }
 
   @Post('room-calls')

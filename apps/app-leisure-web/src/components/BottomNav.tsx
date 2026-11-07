@@ -1,9 +1,9 @@
 /**
- * 移动端底部导航(移动工作台批次重设计):房态 / 工作台(中央凸起) / 我的
+ * 移动端底部导航(2026-11-07 五 Tab:房态 / 沟通 / 工作台(中央凸起) / 客户(客资) / 我的)
  * 工作台为移动端主入口(概况+宫格,页面内按功能码过滤);桌面端不渲染(<768px 由 AppLayout 控制)
  */
 import { useNavigate, useLocation } from 'react-router'
-import { LayoutGrid, UserRound } from 'lucide-react'
+import { LayoutGrid, UserRound, MessagesSquare, Users } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 
 export function BottomNav(): React.JSX.Element {
@@ -29,6 +29,16 @@ export function BottomNav(): React.JSX.Element {
         >
           <LayoutGrid className="w-5 h-5" />
           <span className="text-[10px]">房态</span>
+        </div>
+
+        {/* 沟通(群聊;2026-11-07 新增) */}
+        <div
+          className="flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer"
+          onClick={() => { navigate('/m/chat') }}
+          style={{ color: on('/m/chat') ? activeColor : idleColor }}
+        >
+          <MessagesSquare className="w-5 h-5" />
+          <span className="text-[10px]">沟通</span>
         </div>
 
         {/* 工作台(中央凸起大钮) */}
@@ -58,6 +68,16 @@ export function BottomNav(): React.JSX.Element {
           </span>
         </div>
 
+        {/* 客户(客资体系;2026-11-07 新增) */}
+        <div
+          className="flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer"
+          onClick={() => { navigate('/customers') }}
+          style={{ color: on('/customers') ? activeColor : idleColor }}
+        >
+          <Users className="w-5 h-5" />
+          <span className="text-[10px]">客户</span>
+        </div>
+
         {/* 我的 */}
         <div
           className="flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer"
@@ -65,7 +85,7 @@ export function BottomNav(): React.JSX.Element {
           style={{ color: on('/profile') ? activeColor : idleColor }}
         >
           <UserRound className="w-5 h-5" />
-          <span className="text-[10px]">{name !== '' ? '我的' : '我的'}</span>
+          <span className="text-[10px]">我的</span>
         </div>
       </div>
     </nav>

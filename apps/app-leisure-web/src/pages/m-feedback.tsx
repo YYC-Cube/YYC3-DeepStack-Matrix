@@ -54,7 +54,7 @@ export default function MFeedbackPage(): React.JSX.Element {
         module: form.module.trim(),
         title: form.title.trim(),
         detail: form.detail.trim(),
-        photos: form.photos,
+        photoKeys: form.photos, // 后端 DTO 字段名 photoKeys(2026-11-07 修复:曾发 photos 被 forbidNonWhitelisted 400=功能定制整体不可用)
       })
       toast.success('定制申请已提交,管理员将收到回馈通知')
       setForm(null)

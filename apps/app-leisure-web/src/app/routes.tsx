@@ -54,6 +54,8 @@ const RealtimePage = sus(lazy(() => import('@/pages/realtime')))
 const SessionsPage = sus(lazy(() => import('@/pages/sessions')))
 const SettingsArtistPage = sus(lazy(() => import('@/pages/settings-artist')))
 const RoomsPage = sus(lazy(() => import('@/pages/rooms')))
+const GoodsPage = sus(lazy(() => import('@/pages/goods')))
+const CustomersPage = sus(lazy(() => import('@/pages/customers')))
 const ReportCenterPage = sus(lazy(() => import('@/pages/report-center')))
 const TodoPage = sus(lazy(() => import('@/pages/placeholder')))
 const BoardPage = sus(lazy(() => import('@/pages/board')))
@@ -148,6 +150,8 @@ export const router = createHashRouter([
       { path: 'handover/:id/print', element: <HandoverPrintPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
+      { path: 'goods', element: <GoodsPage /> },
+      { path: 'customers', element: <CustomersPage /> },
       { path: 'rooms/board', element: <BoardPage /> },
       { path: 'clock-screen', element: <ClockScreenPage /> },
       { path: 'reports/recon', element: <ReconPage /> },

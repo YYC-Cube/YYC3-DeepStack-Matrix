@@ -45,8 +45,8 @@
     "@types/react": "^18.3.3",
     "@types/webpack-env": "^1.13.6",
     "babel-preset-taro": "4.1.7",
-    "postcss": "^8.4.38",
+    "postcss": "^8.5.32",
     "typescript": "^5.9.3",
-    "webpack": "5.91.0"
+    "webpack": "5.112.2"
   }
 }

@@ -62,6 +62,32 @@ export default function Tickets() {
     void load()
   })
 
+  /** 流水导出(H5 端 HTML 表格 xls;零依赖,对齐 web 导出格式) */
+  const exportTxns = (): void => {
+    const headers = ['时间', '类型', '规则', '张数', '金额']
+    const body = txns.map((t) => [
+      fmtTime(t.createdAt),
+      TYPE_LABEL[t.type] ?? t.type,
+      t.ruleName,
+      String(t.qty),
+      t.type === 'BUY' ? t.amount.toFixed(2) : '—',
+    ])
+    const rowsCsv = [headers, ...body]
+    let html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1">'
+    for (const r of rowsCsv) {
+      html += '<tr>'
+      for (const c of r) html += '<td>' + String(c).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</td>'
+      html += '</tr>'
+    }
+    html += '</table></body></html>'
+    const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel;charset=utf-8' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = '台票流水_' + new Date().toISOString().slice(0, 10) + '.xls'
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
+
   return (
     <View className="mp-page">
       <View className="mp-card">
@@ -85,7 +111,10 @@ export default function Tickets() {
       </View>
 
       <View className="mp-card">
-        <Text className="mp-muted">台票流水(购买/使用)</Text>
+        <View style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text className="mp-muted">台票流水(购买/使用)</Text>
+          <Text className="mp-muted" style={{ fontSize: '11px', color: '#00d4ff' }} onClick={() => { exportTxns() }}>导出 xlsx</Text>
+        </View>
         <View className="mp-tab-row">
           {[['ALL', '全部'], ['BUY', '购买'], ['USE', '使用']].map(([k, label]) => (
             <Text key={k} className={'mp-tab' + (tab === k ? ' mp-tab-on' : '')} onClick={() => setTab(k as typeof tab)}>

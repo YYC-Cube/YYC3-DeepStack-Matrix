@@ -35,6 +35,7 @@ interface TplRow {
   targetCount: number
   days: number
   recurrence: string
+  applyCount: number
 }
 
 export default function TasksAdminPage(): React.JSX.Element {
@@ -298,9 +299,10 @@ export default function TasksAdminPage(): React.JSX.Element {
                     const to = new Date(from.getTime() + tpl.days * 86_400_000)
                     const fmt = (d: Date): string => d.toISOString().slice(0, 10)
                     setForm({ ...form, title: tpl.title, type: tpl.type, targetCount: String(tpl.targetCount), startAt: fmt(from), endAt: fmt(to), recurrence: tpl.recurrence })
+                    void req('POST', '/tasks/templates/' + String(tpl.id) + '/apply', {}).catch(() => undefined)
                     toast.success('模板已套用:' + tpl.name)
                   }}
-                  options={[{ value: '', label: '选择模板…' }, ...templates.map((t) => ({ value: String(t.id), label: t.name }))]}
+                  options={[{ value: '', label: '选择模板…' }, ...[...templates].sort((a, b) => b.applyCount - a.applyCount).map((t) => ({ value: String(t.id), label: t.name + (t.applyCount > 0 ? ' (用过' + String(t.applyCount) + '次)' : '') }))]}
                 />
               </Field>
               <Field label="任务名称" required>

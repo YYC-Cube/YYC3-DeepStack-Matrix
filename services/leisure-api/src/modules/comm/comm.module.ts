@@ -582,6 +582,38 @@ export class CommService {
     })
   }
 
+  /** 模板套用(计数累加+审计;高频排序数据源) */
+  async applyTemplate(id: number, storeId: number, operatorId: number): Promise<{ applyCount: number }> {
+    const t = await this.prisma.taskTemplate.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (t === null) throw new NotFoundException('模板不存在')
+    const after = await this.prisma.taskTemplate.update({
+      where: { id },
+      data: { applyCount: { increment: 1 } },
+    })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operatorId, action: 'TASK_TEMPLATE_APPLY', targetType: 'task_template', targetId: String(id), beforeJson: { applyCount: t.applyCount } as object, afterJson: { applyCount: after.applyCount } as object },
+    })
+    return { applyCount: after.applyCount }
+  }
+
+  /** 模板统计(高频排序) */
+  async templateStats(storeId: number) {
+    const rows = await this.prisma.taskTemplate.findMany({
+      where: { storeId, deletedAt: null },
+      orderBy: [{ applyCount: 'desc' }, { id: 'asc' }],
+      take: 50,
+    })
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        type: r.type,
+        targetCount: r.targetCount,
+        applyCount: r.applyCount,
+      })),
+    }
+  }
+
   /* ── 任务模板库(管理员可编辑;一键套用持久化) ── */
 
   async listTemplates(storeId: number) {
@@ -589,7 +621,7 @@ export class CommService {
       where: { storeId, deletedAt: null },
       orderBy: [{ sort: 'asc' }, { id: 'asc' }],
     })
-    return { rows }
+    return { rows: rows.map((r) => ({ ...r, applyCount: r.applyCount })) }
   }
 
   async createTemplate(storeId: number, body: TemplateDto, operatorId: number): Promise<{ id: number }> {
@@ -683,6 +715,23 @@ export class TaskController {
     const u = op(req)
     await this.svc.cancelTask(id, u.storeId, u.id)
     return { cancelled: true }
+  }
+
+  /** 模板套用计数(一键套用时调用;高频排序数据源) */
+  @Post('templates/:id/apply')
+  async applyTemplate(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<unknown> {
+    const u = op(req)
+    return this.svc.applyTemplate(id, u.storeId, u.id)
+  }
+
+  /** 模板统计(高频排序) */
+  @Get('templates/stats')
+  async templateStats(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.templateStats(u.storeId)
   }
 
   /** 模板库清单(全员可读;套用下拉数据源) */

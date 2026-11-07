@@ -1072,6 +1072,7 @@ model TaskTemplate {
   days        Int      // 期长(天)
   recurrence  String   @default("NONE") @map("recurrence") @db.VarChar(16)
   sort        Int      @default(0)
+  applyCount  Int      @default(0) @map("apply_count")
   deletedAt   DateTime? @map("deleted_at")
   createdById Int      @map("created_by_id")
   createdAt   DateTime @default(now()) @map("created_at")

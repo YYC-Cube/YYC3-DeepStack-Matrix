@@ -345,6 +345,19 @@ export class CommService {
     return msg
   }
 
+  /** 消息撤回(2 分钟内本人;软删=内容置已撤回/图清空/类型 RETRACTED;WS 广播 retract) */
+  async retractMessage(chatGroupId: number, messageId: number, storeId: number, sender: { scope: string; id: number }): Promise<void> {
+    const m = await this.prisma.chatMessage.findFirst({ where: { id: messageId, storeId, chatGroupId } })
+    if (m === null) throw new NotFoundException('消息不存在')
+    if (m.senderScope !== sender.scope || m.senderId !== sender.id) throw new BadRequestException('仅本人可撤回')
+    if (Date.now() - m.createdAt.getTime() > 2 * 60_000) throw new BadRequestException('超过 2 分钟,不可撤回')
+    await this.prisma.chatMessage.update({
+      where: { id: messageId },
+      data: { content: '已撤回', type: 'RETRACTED' },
+    })
+    this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:retract', { id: messageId })
+  }
+
 
   /* ── Task 任务中心(对标竞品图 9「设置订房任务」;完成度实时聚合) ── */
 
@@ -389,6 +402,29 @@ export class CommService {
         }
         await this.prisma.task.update({ where: { id: t.id }, data: { notifyAt: new Date() } })
         t.notifyAt = new Date()
+        // 达标抄送组别群(激励可见;无组别群则店群):系统消息「任务助手」
+        const target = await this.prisma.artist.findUnique({ where: { id: t.targetArtistId }, select: { groupId: true } })
+        const chatGroup = target?.groupId !== null && target?.groupId !== undefined
+          ? await this.prisma.chatGroup.findFirst({ where: { storeId, groupId: target.groupId } })
+          : await this.prisma.chatGroup.findFirst({ where: { storeId, groupId: null } })
+        const cheer = '🎉 ' + (artist?.stageName ?? artist?.realName ?? '') + ' 已完成「' + t.title + '」' + String(progress) + '/' + String(t.targetCount)
+        if (chatGroup !== null) {
+          await this.prisma.chatMessage.create({
+            data: {
+              storeId,
+              chatGroupId: chatGroup.id,
+              senderScope: 'ADMIN',
+              senderId: 0,
+              senderName: '任务助手',
+              content: cheer,
+              type: 'TEXT',
+            },
+          })
+          this.chatServer?.to('chat:' + String(chatGroup.id)).emit('chat:message', {
+            id: Date.now(), senderScope: 'ADMIN', senderId: 0, senderName: '任务助手',
+            content: cheer, type: 'TEXT', images: [], createdAt: new Date().toISOString(),
+          })
+        }
       }
       // 周期模板惰性重建(到期且 recurrence!=NONE:旧任务转 EXPIRED,顺延创建下一周期)
       if (t.endAt < new Date() && t.recurrence !== 'NONE' && t.status === 'ACTIVE') {
@@ -607,6 +643,18 @@ export class ChatController {
   ): Promise<unknown> {
     const u = op(req)
     return this.svc.sendMessage(id, u.storeId, body, u)
+  }
+
+  /** 消息撤回(2 分钟内本人) */
+  @Post('groups/:id/messages/:mid/retract')
+  async retract(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Param('mid', ParseIntPipe) mid: number,
+  ): Promise<unknown> {
+    const u = op(req)
+    await this.svc.retractMessage(id, mid, u.storeId, u)
+    return { retracted: true }
   }
 }
 

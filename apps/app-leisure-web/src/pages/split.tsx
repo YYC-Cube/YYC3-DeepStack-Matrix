@@ -679,7 +679,7 @@ export default function SplitPage(): React.JSX.Element {
                   <Button variant="outline" size="sm" onClick={() => setForm({ ...form, tiers: [...form.tiers, { min: '', max: '', percent: '' }] })}>+ 加一行</Button>
                 </div>
               )}
-              <Field label="适用岗位(可选;职级单源,空=不限)">
+              <Field label={'适用岗位(可选;人数单源预览' + (form.applyTitle !== '' ? ':' + String(staffUsers.filter((u) => u.title === form.applyTitle).length) + ' 人' : '') + ')'}>
                 <SelectBox
                   value={form.applyTitle}
                   onChange={(v) => setForm({ ...form, applyTitle: v })}

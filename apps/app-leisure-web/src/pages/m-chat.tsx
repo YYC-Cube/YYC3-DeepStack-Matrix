@@ -57,6 +57,7 @@ export default function MChatPage(): React.JSX.Element {
   /** 图片消息点击放大预览 */
   const [previewImg, setPreviewImg] = useState<string | null>(null)
   const token = useAuthStore((s) => s.token)
+  const myName = useAuthStore((s) => s.name)
 
   const loadGroups = useCallback(async (): Promise<void> => {
     try {
@@ -117,7 +118,10 @@ export default function MChatPage(): React.JSX.Element {
     ws.onmessage = (ev) => {
       try {
         const payload = JSON.parse(String(ev.data)) as { event?: string; data?: MsgRow }
-        if (payload.event === 'chat:message' && payload.data !== undefined) {
+        if (payload.event === 'chat:retract' && payload.data !== undefined) {
+          const rid = payload.data.id
+          setMsgs((s2) => s2.map((x) => (x.id === rid ? { ...x, type: 'RETRACTED', content: '已撤回', images: [] } : x)))
+        } else if (payload.event === 'chat:message' && payload.data !== undefined) {
           const m = payload.data
           setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
           lastIdRef.current = Math.max(lastIdRef.current, m.id)
@@ -138,6 +142,15 @@ export default function MChatPage(): React.JSX.Element {
       setWsOk(false)
     }
   }, [active, token])
+
+  const retract = (m: MsgRow): void => {
+    if (active === null) return
+    void req('POST', '/chat/groups/' + String(active.id) + '/messages/' + String(m.id) + '/retract', {})
+      .then(() => {
+        setMsgs((s2) => s2.map((x) => (x.id === m.id ? { ...x, type: 'RETRACTED', content: '已撤回', images: [] } : x)))
+      })
+      .catch((e) => toastError(e))
+  }
 
   const openRoom = (g: GroupRow): void => {
     setActive(g)
@@ -220,7 +233,27 @@ export default function MChatPage(): React.JSX.Element {
                     ))}
                   </div>
                 )}
-                {m.content !== '' && <div className="text-sm break-all whitespace-pre-wrap mt-0.5">{m.content}</div>}
+                {m.type === 'RETRACTED' ? (
+                  <div className="text-xs italic text-fg-muted">已撤回</div>
+                ) : (
+                  <>
+                    {m.content !== '' && (
+                      <div className="text-sm break-all whitespace-pre-wrap">
+                        {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+)/g).map((part, i) =>
+                          part.startsWith('@') ? <span key={i} className="text-primary font-medium">{part}</span> : <span key={i}>{part}</span>,
+                        )}
+                      </div>
+                    )}
+                    {m.senderScope === 'ADMIN' && m.senderName === myName && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && m.type === 'TEXT' && (
+                      <button
+                        className="text-[10px] text-fg-muted hover:text-error mt-0.5"
+                        onClick={() => retract(m)}
+                      >
+                        撤回
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -260,6 +293,13 @@ export default function MChatPage(): React.JSX.Element {
           >
             +
           </label>
+          <button
+            className="shrink-0 w-9 h-9 rounded-lg border border-line flex items-center justify-center cursor-pointer text-fg-muted hover:text-primary"
+            title="提及某人(@名字)"
+            onClick={() => setDraft((d) => d + '@')}
+          >
+            @
+          </button>
           <Input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

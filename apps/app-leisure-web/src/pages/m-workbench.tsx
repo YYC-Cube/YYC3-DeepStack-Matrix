@@ -101,6 +101,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [liveRooms, setLiveRooms] = useState<number>(0)
   /** 分账月报卡(S4-3:三向对账三数;仅 setting:manage 拉取) */
   const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> } | null>(null)
+  /** 任务预警(今日概况行:进行中/达标数;全员可见本人) */
+  const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [tab, setTab] = useState('manage')
   const [showNotices, setShowNotices] = useState(false)
   /** 工作通告(/notices 真数据;含播放配置;空时回退占位) */
@@ -135,6 +137,13 @@ export default function MWorkbenchPage(): React.JSX.Element {
       .then((r) => setSplitCard(r))
       .catch(() => undefined)
   }, [permCodes])
+
+  // 任务预警(2026-11-06):进行中任务数+达标数(全员,ARTIST 端点自动过滤本人)
+  useEffect(() => {
+    void req<{ rows: Array<{ rawProgress: number; targetCount: number }> }>('GET', '/tasks')
+      .then((r) => setTaskAlert({ total: r.rows.length, done: r.rows.filter((t) => t.rawProgress >= t.targetCount).length }))
+      .catch(() => undefined)
+  }, [])
 
   useEffect(() => {
     const bd = client.businessDateOf()
@@ -303,6 +312,19 @@ export default function MWorkbenchPage(): React.JSX.Element {
           <span className="text-sm font-semibold text-[var(--lm-fg)]">今日概况</span>
           <span className="text-xs text-primary">更多统计 ›</span>
         </div>
+        {taskAlert !== null && taskAlert.total > 0 && (
+          <div
+            className={'mb-2 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-xs ' + (taskAlert.done === taskAlert.total ? 'bg-[rgba(0,255,136,0.08)]' : 'bg-[rgba(255,170,0,0.08)]')}
+            onClick={() => { navigate('/m/tasks') }}
+          >
+            <span className={taskAlert.done === taskAlert.total ? 'text-[#00ff88]' : 'text-[#ffaa00]'}>
+              {taskAlert.done === taskAlert.total ? '✅ 任务全部达标' : '⚠️ 任务进行中'}
+            </span>
+            <span className="text-fg-muted">
+              {String(taskAlert.done)}/{String(taskAlert.total)} 达标 · 点击查看
+            </span>
+          </div>
+        )}
         <div className="grid grid-cols-4 rounded-xl py-3" style={{ background: 'var(--lm-card)' }}>
           {cards.map((c) => (
             <div key={c.label} className="flex flex-col items-center gap-1">

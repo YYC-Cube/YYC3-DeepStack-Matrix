@@ -44,6 +44,8 @@ function fmtTime(v: string): string {
 export default function Tickets() {
   const [rows, setRows] = useState<BalanceRow[]>([])
   const [txns, setTxns] = useState<TxnRow[]>([])
+  /** 流水筛选(H5 卡片化专项对齐 mine) */
+  const [tab, setTab] = useState<'ALL' | 'BUY' | 'USE'>('ALL')
   const [msg, setMsg] = useState('')
 
   const load = useCallback(async (): Promise<void> => {
@@ -84,19 +86,32 @@ export default function Tickets() {
 
       <View className="mp-card">
         <Text className="mp-muted">台票流水(购买/使用)</Text>
-        {txns.length === 0 && <Text className="mp-muted">暂无流水记录</Text>}
-        {txns.map((t) => (
-          <View key={t.id} className="mp-txn-row">
-            <View className="mp-txn-left">
-              <Text className="mp-txn-type">{(TYPE_LABEL[t.type] ?? t.type) + ' · ' + t.ruleName}</Text>
-              <Text className="mp-muted">{fmtTime(t.createdAt)}</Text>
-            </View>
-            <Text className={t.type === 'BUY' ? 'mp-txn-amt-pos' : 'mp-txn-amt-neg'}>
-              {t.type === 'BUY' ? '+' : '−'}{String(t.qty)} 张
-              {t.type === 'BUY' ? ' ¥' + t.amount.toFixed(2) : ''}
+        <View className="mp-tab-row">
+          {[['ALL', '全部'], ['BUY', '购买'], ['USE', '使用']].map(([k, label]) => (
+            <Text key={k} className={'mp-tab' + (tab === k ? ' mp-tab-on' : '')} onClick={() => setTab(k as typeof tab)}>
+              {label}
             </Text>
-          </View>
-        ))}
+          ))}
+        </View>
+        {(() => {
+          const filtered = txns.filter((t) => tab === 'ALL' || t.type === tab)
+          if (filtered.length === 0) return <Text className="mp-muted">该分类暂无流水</Text>
+          return filtered.map((t) => (
+            <View key={t.id} className="mp-txn-row">
+              <View className="mp-txn-left">
+                <View className="mp-txn-badge-wrap">
+                  <Text className="mp-txn-badge" style={{ background: t.type === 'BUY' ? '#37d67a' : '#ff6b81' }}>{TYPE_LABEL[t.type] ?? t.type}</Text>
+                  <Text className="mp-muted">{fmtTime(t.createdAt)}</Text>
+                </View>
+                <Text className="mp-muted">{t.ruleName}</Text>
+              </View>
+              <Text className={t.type === 'BUY' ? 'mp-txn-amt-pos' : 'mp-txn-amt-neg'}>
+                {t.type === 'BUY' ? '+' : '−'}{String(t.qty)} 张
+                {t.type === 'BUY' ? ' ¥' + t.amount.toFixed(2) : ''}
+              </Text>
+            </View>
+          ))
+        })()}
       </View>
 
       {msg !== '' && (

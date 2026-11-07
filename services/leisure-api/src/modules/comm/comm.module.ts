@@ -426,6 +426,22 @@ export class CommService {
           })
         }
       }
+      // 超期未达标提醒(下发人 notice;NONE 单次任务到期未达标→通知后转 EXPIRED 归档,防止重复)
+      const overdueSeen = t.notifyAt !== null && t.notifyAt.getTime() > t.endAt.getTime()
+      if (t.endAt < new Date() && progress < t.targetCount && !overdueSeen && t.createdById > 0) {
+        await this.prisma.notice.create({
+          data: {
+            storeId,
+            title: '任务超期未达标:' + t.title.slice(0, 40),
+            body: '对象「' + (artist?.stageName ?? artist?.realName ?? String(t.targetArtistId)) + '」截止 ' + t.endAt.toISOString().slice(0, 10) + ' 仅完成 ' + String(progress) + '/' + String(t.targetCount) + ',请跟进复盘或调整指标。',
+            publishedBy: t.createdById,
+            visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+            remind: true,
+          },
+        })
+        await this.prisma.task.update({ where: { id: t.id }, data: { notifyAt: new Date() } })
+        t.notifyAt = new Date()
+      }
       // 周期模板惰性重建(到期且 recurrence!=NONE:旧任务转 EXPIRED,顺延创建下一周期)
       if (t.endAt < new Date() && t.recurrence !== 'NONE' && t.status === 'ACTIVE') {
         const span = t.endAt.getTime() - t.startAt.getTime()
@@ -449,6 +465,11 @@ export class CommService {
           data: { storeId, actorId: 0, action: 'TASK_RECURRING_CLONE', targetType: 'task', targetId: String(cloned.id), beforeJson: { from: t.id } as object, afterJson: { nextStart, nextEnd } as object },
         })
         continue // 重建后的下周期任务从 0 开始,不在本轮列表(下轮可见)
+      }
+      // NONE 单次任务已超期且已通知未达标 → EXPIRED 归档(列表不再常驻;记录仍在)
+      if (t.endAt < new Date() && t.recurrence === 'NONE' && t.status === 'ACTIVE' && progress < t.targetCount && overdueSeen) {
+        await this.prisma.task.update({ where: { id: t.id }, data: { status: 'EXPIRED' } })
+        continue
       }
       out.push({
         id: t.id,

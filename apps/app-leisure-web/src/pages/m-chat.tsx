@@ -56,6 +56,8 @@ export default function MChatPage(): React.JSX.Element {
   const [pendingImages, setPendingImages] = useState<string[]>([])
   /** 图片消息点击放大预览 */
   const [previewImg, setPreviewImg] = useState<string | null>(null)
+  /** @ 点击定位成员卡(最近发言/入群信息) */
+  const [memberCard, setMemberCard] = useState<{ name: string; count: number; lastAt: string | null; mine: boolean } | null>(null)
   const token = useAuthStore((s) => s.token)
   const myName = useAuthStore((s) => s.name)
 
@@ -240,7 +242,27 @@ export default function MChatPage(): React.JSX.Element {
                     {m.content !== '' && (
                       <div className="text-sm break-all whitespace-pre-wrap">
                         {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+)/g).map((part, i) =>
-                          part.startsWith('@') ? <span key={i} className="text-primary font-medium">{part}</span> : <span key={i}>{part}</span>,
+                          part.startsWith('@') && part.length > 1 ? (
+                            <span
+                              key={i}
+                              className="text-primary font-medium cursor-pointer hover:underline"
+                              title="查看成员"
+                              onClick={() => {
+                                const name = part.slice(1)
+                                const theirs = msgs.filter((x) => x.senderName === name)
+                                setMemberCard({
+                                  name,
+                                  count: theirs.length,
+                                  lastAt: theirs.length > 0 ? theirs[theirs.length - 1]!.createdAt.slice(0, 16).replace('T', ' ') : null,
+                                  mine: name === myName,
+                                })
+                              }}
+                            >
+                              {part}
+                            </span>
+                          ) : (
+                            <span key={i}>{part}</span>
+                          ),
                         )}
                       </div>
                     )}
@@ -361,6 +383,34 @@ export default function MChatPage(): React.JSX.Element {
           {previewImg !== null && (
             <img src={previewImg} alt="图片预览" className="w-full max-h-[75vh] object-contain" />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* @ 成员定位卡 */}
+      <Dialog open={memberCard !== null} onOpenChange={(o) => { if (!o) setMemberCard(null) }}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle>成员 · {memberCard?.name ?? ''}</DialogTitle>
+          </DialogHeader>
+          {memberCard !== null && (
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-3">
+                <span className="w-12 h-12 rounded-full bg-fg-muted/15 flex items-center justify-center text-sm text-fg-muted">
+                  {memberCard.name.slice(-2)}
+                </span>
+                <div>
+                  <div className="font-medium">{memberCard.name}{memberCard.mine ? '(我)' : ''}</div>
+                  <div className="text-xs text-fg-muted">
+                    {memberCard.count > 0 ? `本群发言 ${String(memberCard.count)} 条 · 最近 ${memberCard.lastAt ?? ''}` : '本群暂无发言记录'}
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-fg-muted">成员 roster 以群消息发言推断(组别群=本组销售经理;店群=全员)。</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMemberCard(null)}>关闭</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

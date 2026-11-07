@@ -16,6 +16,7 @@ interface BizCache {
   at: number
   artists: number
   openSessions: number
+  roomsTotal: number
   activeTasks: number
   chatMessages: number
   txnsToday: number
@@ -31,21 +32,22 @@ export class MetricsService {
   private async biz(): Promise<BizCache> {
     if (this.cache !== null && Date.now() - this.cache.at < this.cacheMs) return this.cache
     const dayStart = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00')
-    const [artists, openSessions, activeTasks, chatMessages, txnsToday] = await Promise.all([
+    const [artists, openSessions, roomsTotal, activeTasks, chatMessages, txnsToday] = await Promise.all([
       this.prisma.artist.count({ where: { deletedAt: null, status: 1 } }),
       this.prisma.roomSession.count({ where: { status: 'OPEN' } }).catch(() => 0),
+      this.prisma.room.count().catch(() => 0),
       this.prisma.task.count({ where: { status: 'ACTIVE' } }).catch(() => 0),
       this.prisma.chatMessage.count().catch(() => 0),
       this.prisma.stageFeeTxn.count({ where: { createdAt: { gte: dayStart } } }).catch(() => 0),
     ])
-    this.cache = { at: Date.now(), artists, openSessions, activeTasks, chatMessages, txnsToday }
+    this.cache = { at: Date.now(), artists, openSessions, roomsTotal, activeTasks, chatMessages, txnsToday }
     return this.cache
   }
 
   async render(): Promise<string> {
     const mem = process.memoryUsage()
     const uptime = Math.floor((Date.now() - BOOT_AT) / 1000)
-    let biz: BizCache = { at: 0, artists: 0, openSessions: 0, activeTasks: 0, chatMessages: 0, txnsToday: 0 }
+    let biz: BizCache = { at: 0, artists: 0, openSessions: 0, roomsTotal: 0, activeTasks: 0, chatMessages: 0, txnsToday: 0 }
     try {
       biz = await this.biz()
     } catch {
@@ -67,6 +69,9 @@ export class MetricsService {
       '# HELP lm_room_sessions_open Open room sessions',
       '# TYPE lm_room_sessions_open gauge',
       'lm_room_sessions_open ' + String(biz.openSessions),
+      '# HELP lm_rooms_total Total rooms',
+      '# TYPE lm_rooms_total gauge',
+      'lm_rooms_total ' + String(biz.roomsTotal),
       '# HELP lm_tasks_active Active tasks',
       '# TYPE lm_tasks_active gauge',
       'lm_tasks_active ' + String(biz.activeTasks),

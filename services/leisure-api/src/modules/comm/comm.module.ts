@@ -370,6 +370,29 @@ export class CommService {
     }
     // WS 实时广播(房间=chat:<groupId>;前端轮询为 fallback 仍在)
     this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:message', msg)
+
+    // @提及定向通知(通告矩阵承接):@名字 匹配店内在册销售经理→定向 notice(提醒被 @ 者)
+    const mentioned = (body.content ?? '').match(/@([\u4e00-\u9fa5a-zA-Z0-9_]+)/g) ?? []
+    for (const raw of mentioned) {
+      const nm = raw.slice(1)
+      if (nm.length < 2) continue
+      const hit = await this.prisma.artist.findFirst({
+        where: { storeId, deletedAt: null, status: 1, OR: [{ stageName: nm }, { realName: nm }] },
+        select: { id: true },
+      })
+      if (hit === null) continue
+      await this.prisma.notice.create({
+        data: {
+          storeId,
+          title: '群聊提及提醒:' + sender.name.slice(0, 24),
+          body: '在群聊中被 @:' + (body.content ?? '').slice(0, 200),
+          publishedBy: sender.id,
+          visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+          remind: true,
+        },
+      })
+      break // 单条消息至多一封提及通知
+    }
     return msg
   }
 

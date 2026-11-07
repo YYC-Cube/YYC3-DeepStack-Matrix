@@ -73,6 +73,10 @@ export default function Chat() {
   const [wsOk, setWsOk] = useState(false)
   /** 全店高频表情(打开面板时拉取 top8;emoji-stats 端点) */
   const [hotEmojis, setHotEmojis] = useState<Array<{ emoji: string; count: number }>>([])
+  /** 向前分页(before 游标;进房拉最近 50 条,更早按需加载) */
+  const [canLoadOlder, setCanLoadOlder] = useState(true)
+  const [loadingOlder, setLoadingOlder] = useState(false)
+  const pingAtRef = useRef(0)
   const [busy, setBusy] = useState(false)
   const [msg_, setMsg_] = useState('')
   const lastIdRef = useRef(0)
@@ -156,6 +160,17 @@ export default function Chat() {
           setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
           lastIdRef.current = Math.max(lastIdRef.current, m.id)
           if (g !== null) writeRead(g.id, lastIdRef.current)
+        } else if (p.event === 'chat:ping' && p.data !== undefined) {
+          // 群列表未读角标实时(非当前群 ping→刷新群列表;3s 节流)
+          const gid = (p.data as { groupId?: number }).groupId
+          const cur = activeRef.current
+          if (cur === null || cur.id !== gid) {
+            const now = Date.now()
+            if (now - pingAtRef.current > 3000) {
+              pingAtRef.current = now
+              void loadGroups()
+            }
+          }
         }
       } catch { /* 非 JSON 静默 */ }
     }
@@ -178,6 +193,7 @@ export default function Chat() {
     lastIdRef.current = 0
     setMsgs([])
     setPendingImages([])
+    setCanLoadOlder(true)
     void chatMessages(g.id)
       .then((res) => {
         setMsgs(res.rows)
@@ -219,6 +235,23 @@ export default function Chat() {
       .catch((e) => setMsg_(errText(e)))
   }
 
+  /** 向前分页:以当前最早一条为游标拉更早 50 条(prepend;不足 50=已到头) */
+  const loadOlder = (): void => {
+    const g = active
+    if (g === null || msgs.length === 0 || loadingOlder) return
+    setLoadingOlder(true)
+    chatMessages(g.id, undefined, msgs[0].id)
+      .then((res) => {
+        if (res.rows.length < 50) setCanLoadOlder(false)
+        setMsgs((s) => {
+          const known = new Set(s.map((m) => m.id))
+          return [...res.rows.filter((m) => !known.has(m.id)), ...s]
+        })
+      })
+      .catch((e) => setMsg_(errText(e)))
+      .finally(() => setLoadingOlder(false))
+  }
+
   const pickImage = (): void => {
     void Taro.chooseImage({ count: 1 })
       .then((r) => {
@@ -249,6 +282,14 @@ export default function Chat() {
           <Text className="mp-muted">{active.kind === 'STORE' ? '店群' : '组别群'}</Text>
         </View>
         <View style={{ flex: 1, overflowY: 'auto' }}>
+          {msgs.length > 0 && canLoadOlder && (
+            <View style={{ textAlign: 'center', padding: '4px 0' }}>
+              <Text className="mp-muted" style={{ fontSize: '11px' }} onClick={() => { loadOlder() }}>{loadingOlder ? '加载中…' : '查看更早消息'}</Text>
+            </View>
+          )}
+          {msgs.length > 0 && !canLoadOlder && (
+            <Text className="mp-muted" style={{ fontSize: '10px', textAlign: 'center', display: 'block' }}>已到最早消息</Text>
+          )}
           {msgs.map((m) => {
             const mine = m.senderScope === 'ADMIN' && m.senderName === myName()
             if (m.type === 'RETRACTED') {

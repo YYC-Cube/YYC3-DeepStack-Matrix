@@ -22,6 +22,7 @@ export default defineConfig({
       '/api/v1': {
         target: 'http://localhost:3001',
         changeOrigin: true,
+        ws: true, // WS 升级透传(2026-11-07:缺此 dev 环境 WS 握手必败静默走轮询;生产边缘已配 Upgrade 无此问题)
       },
     },
   },

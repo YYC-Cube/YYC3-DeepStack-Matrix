@@ -274,15 +274,15 @@ export function myOrders(): Promise<MeOrdersResult> {
 }
 
 /** 统一错误文案(401 清态;其余透出后端中文文案) */
-/** 任务中心(销售端本人;完成度实时聚合) */
-export function myTasks(): Promise<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string }> }> {
+/** 任务中心(销售端本人;完成度实时聚合;notifyAt=达标/超期通知时刻) */
+export function myTasks(): Promise<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string; notifyAt: string | null }> }> {
   return Taro.request({
     url: API_BASE + '/tasks',
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,
   })
-    .then((res) => envelope<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string }> }>(res))
+    .then((res) => envelope<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string; notifyAt: string | null }> }>(res))
     .catch(translate)
 }
 
@@ -298,10 +298,11 @@ export function chatGroups(): Promise<{ rows: Array<{ id: number; name: string; 
     .catch(translate)
 }
 
-/** 群消息(after=增量水位) */
-export function chatMessages(groupId: number, afterId?: number): Promise<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> }> {
+/** 群消息(after=增量水位;before=向前分页游标) */
+export function chatMessages(groupId: number, afterId?: number, beforeId?: number): Promise<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> }> {
+  const qs = afterId !== undefined ? '?after=' + String(afterId) : beforeId !== undefined ? '?before=' + String(beforeId) : ''
   return Taro.request({
-    url: API_BASE + '/chat/groups/' + String(groupId) + '/messages' + (afterId !== undefined ? '?after=' + String(afterId) : ''),
+    url: API_BASE + '/chat/groups/' + String(groupId) + '/messages' + qs,
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,

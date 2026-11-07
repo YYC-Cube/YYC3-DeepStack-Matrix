@@ -72,6 +72,9 @@ export default function MChatPage(): React.JSX.Element {
   const [emojiTab, setEmojiTab] = useState(0)
   /** 全店高频表情(打开面板时拉取 top8;/chat/emoji-stats) */
   const [hotEmojis, setHotEmojis] = useState<Array<{ emoji: string; count: number }>>([])
+  /** 向前分页(before 游标;进房拉最近 50 条) */
+  const [canLoadOlder, setCanLoadOlder] = useState(true)
+  const [loadingOlder, setLoadingOlder] = useState(false)
   const token = useAuthStore((s) => s.token)
   const myName = useAuthStore((s) => s.name)
 
@@ -181,11 +184,30 @@ export default function MChatPage(): React.JSX.Element {
       .catch((e) => toastError(e))
   }
 
+  /** 向前分页:以当前最早一条为游标拉更早 50 条(prepend;不足 50=已到头) */
+  const loadOlder = async (): Promise<void> => {
+    if (active === null || msgs.length === 0 || loadingOlder) return
+    setLoadingOlder(true)
+    try {
+      const res = await req<{ rows: MsgRow[] }>('GET', '/chat/groups/' + String(active.id) + '/messages?before=' + String(msgs[0].id))
+      if (res.rows.length < 50) setCanLoadOlder(false)
+      setMsgs((s) => {
+        const known = new Set(s.map((m) => m.id))
+        return [...res.rows.filter((m) => !known.has(m.id)), ...s]
+      })
+    } catch (e) {
+      toastError(e)
+    } finally {
+      setLoadingOlder(false)
+    }
+  }
+
   const openRoom = (g: GroupRow): void => {
     setActive(g)
     lastIdRef.current = 0
     setMsgs([])
     setPendingImages([])
+    setCanLoadOlder(true)
     void req<{ rows: MsgRow[] }>('GET', '/chat/groups/' + String(g.id) + '/messages')
       .then((res) => {
         setMsgs(res.rows)
@@ -350,6 +372,14 @@ export default function MChatPage(): React.JSX.Element {
           className="mb-2"
         />
         <div className="flex-1 overflow-y-auto space-y-2 pb-3">
+          {msgs.length > 0 && canLoadOlder && (
+            <button className="block mx-auto text-xs text-fg-muted hover:text-primary py-1" onClick={() => { void loadOlder() }}>
+              {loadingOlder ? '加载中…' : '查看更早消息'}
+            </button>
+          )}
+          {msgs.length > 0 && !canLoadOlder && (
+            <div className="text-center text-[10px] text-fg-muted py-1">已到最早消息</div>
+          )}
           {msgs.map((m) => (
             <div key={m.id} className={'flex ' + (m.senderScope === 'ADMIN' ? 'justify-end' : 'justify-start')}>
               <div className={'max-w-[78%] rounded-2xl px-3 py-1.5 ' + (m.senderScope === 'ADMIN' ? 'bg-primary/15' : 'bg-fg-muted/10')}>

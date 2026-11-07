@@ -20,6 +20,8 @@ export interface ChatBroadcaster {
   to: (room: string) => { emit: (ev: string, data: unknown) => void }
   /** 定向用户(task:changed 等非房间事件;scope+id 匹配在线会话) */
   toUsers: (scope: string, ids: number[]) => { emit: (ev: string, data: unknown) => void }
+  /** 全店广播(chat:ping 群列表未读实时;不要求 join 房间) */
+  toStore: (storeId: number) => { emit: (ev: string, data: unknown) => void }
 }
 
 /** 已验证 socket + 房间注册表 */
@@ -61,6 +63,16 @@ export function mountChatWs(
           const payload = JSON.stringify({ event: ev, data })
           for (const [sock, sess] of sessions) {
             if (sess.scope === scope && targets.has(sess.id)) sendSock(sock, payload)
+          }
+        },
+      }
+    },
+    toStore(storeId: number) {
+      return {
+        emit(ev: string, data: unknown) {
+          const payload = JSON.stringify({ event: ev, data })
+          for (const [sock, sess] of sessions) {
+            if (sess.storeId === storeId) sendSock(sock, payload)
           }
         },
       }

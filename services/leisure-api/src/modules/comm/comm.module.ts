@@ -390,8 +390,9 @@ export class CommService {
       images: Array.isArray(created.images) ? (created.images as string[]) : [],
       createdAt: created.createdAt.toISOString(),
     }
-    // WS 实时广播(房间=chat:<groupId>;前端轮询为 fallback 仍在)
+    // WS 实时广播(房间=chat:<groupId>;前端轮询为 fallback 仍在)+全店 chat:ping(群列表未读角标实时,不要求 join)
     this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:message', msg)
+    this.chatServer?.toStore(storeId).emit('chat:ping', { groupId: chatGroupId })
 
     // @提及定向通知(通告矩阵承接):@名字 匹配店内在册销售经理→定向 notice(提醒被 @ 者)
     const mentioned = (body.content ?? '').match(/@([\u4e00-\u9fa5a-zA-Z0-9_]+)/g) ?? []
@@ -457,14 +458,14 @@ export class CommService {
     return out
   }
 
-  /** 全店高频表情统计(近 500 条消息 reactions 聚合 top12;60s 内存缓存防打库;react toggle 即时失效) */
+  /** 全店高频表情统计(近 7 天≤500 条消息 reactions 聚合 top12;60s 内存缓存防打库;react toggle 即时失效) */
   private emojiStatsCache: { at: number; rows: Array<{ emoji: string; count: number }> } | null = null
   async emojiStats(storeId: number): Promise<{ rows: Array<{ emoji: string; count: number }> }> {
     if (this.emojiStatsCache !== null && Date.now() - this.emojiStatsCache.at < 60_000) {
       return { rows: this.emojiStatsCache.rows }
     }
     const msgs = await this.prisma.chatMessage.findMany({
-      where: { storeId },
+      where: { storeId, createdAt: { gte: new Date(Date.now() - 7 * 86_400_000) } },
       orderBy: { id: 'desc' },
       take: 500,
       select: { reactions: true },
@@ -552,6 +553,7 @@ export class CommService {
             id: Date.now(), senderScope: 'ADMIN', senderId: 0, senderName: '任务助手',
             content: cheer, type: 'TEXT', images: [], createdAt: new Date().toISOString(),
           })
+          this.chatServer?.toStore(storeId).emit('chat:ping', { groupId: chatGroup.id })
         }
       }
       // 超期未达标提醒(下发人 notice;NONE 单次任务到期未达标→通知后转 EXPIRED 归档,防止重复)
@@ -615,6 +617,7 @@ export class CommService {
         recurrence: t.recurrence,
         startAt: t.startAt.toISOString(),
         endAt: t.endAt.toISOString(),
+        notifyAt: t.notifyAt !== null && t.notifyAt !== undefined ? t.notifyAt.toISOString() : null,
       })
     }
     return { rows: out }

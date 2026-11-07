@@ -20,6 +20,7 @@ interface TaskRow {
   recurrence: string
   startAt: string
   endAt: string
+  notifyAt: string | null
 }
 
 const TYPE_LABEL: Record<string, string> = { BOOKING: '订房任务', ORDER: '点餐任务' }
@@ -173,6 +174,11 @@ export default function Tasks() {
                   <Text className="mp-muted" style={{ display: 'block', marginTop: '6px' }}>
                     完成度 {String(detail.rawProgress)}/{String(detail.targetCount)}{ok ? ' · 已达标 🎉' : ' · 进行中'}
                   </Text>
+                  {detail.notifyAt !== null && (
+                    <Text className="mp-muted" style={{ display: 'block', marginTop: '2px' }}>
+                      {(ok ? '达标通知' : '超期提醒') + '发送于 ' + detail.notifyAt.slice(0, 16).replace('T', ' ')}
+                    </Text>
+                  )}
                 </View>
               )
             })()}

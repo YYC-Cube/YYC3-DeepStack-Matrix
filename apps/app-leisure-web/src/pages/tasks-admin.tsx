@@ -62,6 +62,26 @@ export default function TasksAdminPage(): React.JSX.Element {
     void load()
   }, [load])
 
+  // WS 实时(2026-11-07):task:changed(下发/取消/达标/超期/周期重建)→即时刷新;断线静默(下发/取消本页操作已本地刷新)
+  const token = useAuthStore((s) => s.token)
+  useEffect(() => {
+    if (token === null || token === '') return
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws'
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(proto + '://' + location.host + '/api/v1/ws/chat?token=' + encodeURIComponent(token))
+    } catch {
+      return
+    }
+    ws.onmessage = (ev) => {
+      try {
+        const p = JSON.parse(String(ev.data)) as { event?: string }
+        if (p.event === 'task:changed') void load()
+      } catch { /* 非 JSON 静默 */ }
+    }
+    return () => { try { ws.close() } catch { /* 静默 */ } }
+  }, [token, load])
+
   async function create(): Promise<void> {
     if (form === null || form.title.trim() === '' || form.artistId === '' || form.targetCount === '') {
       toast.error('人员/任务名称/目标数量 必填')

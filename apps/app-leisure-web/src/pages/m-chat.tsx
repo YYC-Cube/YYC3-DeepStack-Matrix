@@ -70,6 +70,8 @@ export default function MChatPage(): React.JSX.Element {
   const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
   /** 全集面板当前类别 tab */
   const [emojiTab, setEmojiTab] = useState(0)
+  /** 全店高频表情(打开面板时拉取 top8;/chat/emoji-stats) */
+  const [hotEmojis, setHotEmojis] = useState<Array<{ emoji: string; count: number }>>([])
   const token = useAuthStore((s) => s.token)
   const myName = useAuthStore((s) => s.name)
 
@@ -282,6 +284,25 @@ export default function MChatPage(): React.JSX.Element {
           <DialogTitle>选择表情回应</DialogTitle>
         </DialogHeader>
         <div className="space-y-2">
+          {hotEmojis.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap pb-1.5 border-b border-line">
+              <span className="text-xs text-fg-muted">高频</span>
+              {hotEmojis.map((h) => (
+                <button
+                  key={h.emoji}
+                  className="text-lg hover:bg-fg-muted/10 rounded"
+                  title={'全店回应 ' + String(h.count) + ' 次'}
+                  onClick={() => {
+                    const m = msgs.find((x) => x.id === emojiPanelFor)
+                    if (m !== undefined) react(m, h.emoji)
+                    setEmojiPanelFor(null)
+                  }}
+                >
+                  {h.emoji}<span className="text-[9px] text-fg-muted"> {String(h.count)}</span>
+                </button>
+              ))}
+            </div>
+          )}
           <div className="flex gap-1 flex-wrap">
             {EMOJI_GROUPS.map((g, gi) => (
               <button
@@ -412,7 +433,7 @@ export default function MChatPage(): React.JSX.Element {
                             {e}
                           </button>
                         ))}
-                        <button className="text-[10px] text-fg-muted hover:text-primary" title="更多表情" onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id) }}>
+                        <button className="text-[10px] text-fg-muted hover:text-primary" title="更多表情" onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id); void req<{ rows: Array<{ emoji: string; count: number }> }>('GET', '/chat/emoji-stats').then((r) => setHotEmojis(r.rows.slice(0, 8))).catch(() => undefined) }}>
                           ☺+
                         </button>
                         {m.senderScope === 'ADMIN' && m.senderName === myName && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && (

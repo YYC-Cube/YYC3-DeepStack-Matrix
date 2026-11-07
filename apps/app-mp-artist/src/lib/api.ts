@@ -349,6 +349,18 @@ export function chatReact(groupId: number, messageId: number, emoji: string): Pr
     .catch(translate)
 }
 
+/** 全店高频表情统计(面板高频行;近 500 条消息聚合 top N) */
+export function chatEmojiStats(): Promise<{ rows: Array<{ emoji: string; count: number }> }> {
+  return Taro.request({
+    url: API_BASE + '/chat/emoji-stats',
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ rows: Array<{ emoji: string; count: number }> }>(res))
+    .catch(translate)
+}
+
 /** A17:自助注册提交(公开端点;token 来自管理端注册二维码链接) */
 export function registerSubmit(p: {
   token: string

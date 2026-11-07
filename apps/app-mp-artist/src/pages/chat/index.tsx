@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, Text, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { EMOJI_GROUPS, REACTION_QUICK } from '@yyc3/leisure-core'
-import { chatGroups, chatMessages, chatSend, chatRetract, chatReact, errText } from '../../lib/api'
+import { apiBase, loadAuth, chatGroups, chatMessages, chatSend, chatRetract, chatReact, chatEmojiStats, errText } from '../../lib/api'
 
 interface GroupRow {
   id: number
@@ -69,6 +69,10 @@ export default function Chat() {
   /** 表情全集面板(leisure-core 单源;展开消息 id+类别 tab) */
   const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
   const [emojiTab, setEmojiTab] = useState(0)
+  /** WS 连通态(true=实时,false=轮询兜底) */
+  const [wsOk, setWsOk] = useState(false)
+  /** 全店高频表情(打开面板时拉取 top8;emoji-stats 端点) */
+  const [hotEmojis, setHotEmojis] = useState<Array<{ emoji: string; count: number }>>([])
   const [busy, setBusy] = useState(false)
   const [msg_, setMsg_] = useState('')
   const lastIdRef = useRef(0)
@@ -95,9 +99,9 @@ export default function Chat() {
     return () => clearInterval(timer)
   }, [loadGroups])
 
-  // 聊天室 3s 增量轮询(active 存在时启用;ref 保稳定)
+  // 聊天室 3s 增量轮询(fallback;WS 已连通时不打)
   useEffect(() => {
-    if (active === null) return
+    if (active === null || wsOk) return
     const timer = setInterval(() => {
       const g = activeRef.current
       if (g === null) return
@@ -116,7 +120,58 @@ export default function Chat() {
         .catch(() => undefined)
     }, 3000)
     return () => clearInterval(timer)
-  }, [active])
+  }, [active, wsOk])
+
+  // WS 实时通道(优先;2026-11-07):join 当前群→chat:message 追加/chat:react 更新/chat:retract 标记;断线自动回落轮询
+  const wsRef = useRef<WebSocket | null>(null)
+  useEffect(() => {
+    if (typeof WebSocket === 'undefined') return // weapp 端暂走轮询
+    const auth = loadAuth()
+    if (auth === null) return
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(apiBase().replace(/^http/, 'ws') + '/ws/chat?token=' + encodeURIComponent(auth.token))
+    } catch {
+      return
+    }
+    wsRef.current = ws
+    ws.onopen = () => {
+      setWsOk(true)
+      const g = activeRef.current
+      if (g !== null) ws.send(JSON.stringify({ event: 'chat:join', data: { groupId: g.id } }))
+    }
+    ws.onmessage = (ev) => {
+      try {
+        const p = JSON.parse(String(ev.data)) as { event?: string; data?: { id: number; reactions?: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; senderName?: string; content?: string; type?: string; images?: string[] } }
+        if (p.event === 'chat:react' && p.data !== undefined && p.data.reactions !== undefined) {
+          const rid = p.data.id
+          const rr = p.data.reactions
+          setMsgs((s) => s.map((x) => (x.id === rid ? { ...x, reactions: rr } : x)))
+        } else if (p.event === 'chat:retract' && p.data !== undefined) {
+          const rid = p.data.id
+          setMsgs((s) => s.map((x) => (x.id === rid ? { ...x, type: 'RETRACTED', content: '已撤回', images: [] } : x)))
+        } else if (p.event === 'chat:message' && p.data !== undefined && p.data.senderName !== undefined) {
+          const m = p.data as unknown as MsgRow
+          const g = activeRef.current
+          setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
+          lastIdRef.current = Math.max(lastIdRef.current, m.id)
+          if (g !== null) writeRead(g.id, lastIdRef.current)
+        }
+      } catch { /* 非 JSON 静默 */ }
+    }
+    ws.onclose = () => { setWsOk(false) }
+    ws.onerror = () => { setWsOk(false) }
+    return () => {
+      setWsOk(false)
+      try { ws.close() } catch { /* 已断 */ }
+      wsRef.current = null
+    }
+  }, [])
+  // join 随 active 切换(WS 已连通时)
+  useEffect(() => {
+    if (active === null || !wsOk || wsRef.current === null) return
+    try { wsRef.current.send(JSON.stringify({ event: 'chat:join', data: { groupId: active.id } })) } catch { /* 静默 */ }
+  }, [active, wsOk])
 
   const openRoom = (g: GroupRow): void => {
     setActive(g)
@@ -234,7 +289,7 @@ export default function Chat() {
                         part.startsWith('@') ? (
                           <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }}>{part}</Text>
                         ) : part.startsWith('#task') ? (
-                          <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }} onClick={() => { void Taro.navigateTo({ url: '/pages/tasks/index' }) }}>{part}</Text>
+                          <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }} onClick={() => { void Taro.navigateTo({ url: '/pages/tasks/index?taskId=' + part.slice(5) }) }}>{part}</Text>
                         ) : (
                           <Text key={i}>{part}</Text>
                         ),
@@ -246,7 +301,7 @@ export default function Chat() {
                       {REACTION_QUICK.slice(0, 3).map((e) => (
                         <Text key={e} className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { react(m, e) }}>{e}</Text>
                       ))}
-                      <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id) }}>☺+</Text>
+                      <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id); void chatEmojiStats().then((r) => setHotEmojis(r.rows.slice(0, 8))).catch(() => undefined) }}>☺+</Text>
                       {mine && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && (
                         <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { retract(m) }}>撤回</Text>
                       )}
@@ -265,6 +320,22 @@ export default function Chat() {
         )}
         {emojiPanelFor !== null && (
           <View style={{ position: 'fixed', left: 0, right: 0, bottom: 0, background: 'rgba(8,17,38,0.97)', borderTop: '1px solid rgba(139,155,180,0.25)', zIndex: 98, padding: '10px', maxHeight: '45vh', overflowY: 'auto' }}>
+            <View style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
+              <Text className="mp-muted" style={{ fontSize: '11px' }}>高频</Text>
+              {hotEmojis.length > 0 ? hotEmojis.map((h) => (
+                <Text
+                  key={h.emoji}
+                  style={{ fontSize: '18px', padding: '0 4px' }}
+                  onClick={() => {
+                    const mm = msgs.find((x) => x.id === emojiPanelFor)
+                    if (mm !== undefined) react(mm, h.emoji)
+                    setEmojiPanelFor(null)
+                  }}
+                >
+                  {h.emoji}<Text style={{ fontSize: '9px', color: '#8b9bb4' }}> {String(h.count)}</Text>
+                </Text>
+              )) : <Text className="mp-muted" style={{ fontSize: '11px' }}>暂无统计</Text>}
+            </View>
             <View style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
               {EMOJI_GROUPS.map((g, gi) => (
                 <Text

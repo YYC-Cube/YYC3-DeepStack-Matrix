@@ -453,7 +453,35 @@ export class CommService {
     await this.prisma.chatMessage.update({ where: { id: messageId }, data: { reactions } })
     const out = { id: messageId, reactions: list }
     this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:react', out)
+    this.emojiStatsCache = null // 高频统计即时新鲜
     return out
+  }
+
+  /** 全店高频表情统计(近 500 条消息 reactions 聚合 top12;60s 内存缓存防打库;react toggle 即时失效) */
+  private emojiStatsCache: { at: number; rows: Array<{ emoji: string; count: number }> } | null = null
+  async emojiStats(storeId: number): Promise<{ rows: Array<{ emoji: string; count: number }> }> {
+    if (this.emojiStatsCache !== null && Date.now() - this.emojiStatsCache.at < 60_000) {
+      return { rows: this.emojiStatsCache.rows }
+    }
+    const msgs = await this.prisma.chatMessage.findMany({
+      where: { storeId },
+      orderBy: { id: 'desc' },
+      take: 500,
+      select: { reactions: true },
+    })
+    const counter = new Map<string, number>()
+    for (const m of msgs) {
+      if (!Array.isArray(m.reactions)) continue
+      for (const r of m.reactions as Array<{ emoji: string; by: unknown[] }>) {
+        counter.set(r.emoji, (counter.get(r.emoji) ?? 0) + r.by.length)
+      }
+    }
+    const rows = [...counter.entries()]
+      .map(([emoji, count]) => ({ emoji, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 12)
+    this.emojiStatsCache = { at: Date.now(), rows }
+    return { rows }
   }
 
 
@@ -879,6 +907,13 @@ export class ChatController {
   async groups(@Req() req: Request): Promise<unknown> {
     const u = op(req)
     return this.svc.listGroups(u.storeId, u)
+  }
+
+  /** 全店高频表情统计(面板高频行;近 500 条聚合,60s 缓存) */
+  @Get('emoji-stats')
+  async emojiStats(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.emojiStats(u.storeId)
   }
 
   /** 建群(管理端;组别群=动态成员) */

@@ -182,8 +182,8 @@ export default function Tasks() {
                 </View>
               )
             })()}
-            <Text className="mp-muted" style={{ fontSize: '10px', display: 'block', marginTop: '10px' }}>
-              群聊任务抄送卡尾缀 #task{String(detail.id)} 可直达本详情;进度实时(WS 推送)。
+            <Text className="mp-muted" style={{ fontSize: '10px', display: 'block', marginTop: '10px' }} onClick={() => { void Taro.navigateTo({ url: '/pages/chat/index' }) }}>
+              群聊任务抄送卡尾缀 #task{String(detail.id)} 可直达本详情;进度实时(WS 推送)。点此前往群聊 →
             </Text>
           </View>
         </View>

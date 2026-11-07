@@ -76,7 +76,21 @@ export default function Chat() {
   /** 向前分页(before 游标;进房拉最近 50 条,更早按需加载) */
   const [canLoadOlder, setCanLoadOlder] = useState(true)
   const [loadingOlder, setLoadingOlder] = useState(false)
-  const pingAtRef = useRef(0)
+  /** 滚动定位:贴底跟踪+新消息悬浮计数+prepend 位置保持(2026-11-07) */
+  const roomRef = useRef<HTMLDivElement | null>(null)
+  const stickRef = useRef(true)
+  const lastCountRef = useRef(0)
+  const [newBelow, setNewBelow] = useState(0)
+  /** 搜索(关键词/成员;本地过滤已加载区间) */
+  const [searchKw, setSearchKw] = useState('')
+  /** 快捷条个人高频(localStorage yyc3-react-hist 记忆;top3 不足用 REACTION_QUICK 补) */
+  const [quickEmoji, setQuickEmoji] = useState<string[]>(() => {
+    try {
+      const h = JSON.parse(localStorage.getItem('yyc3-react-hist') ?? '{}') as Record<string, number>
+      const top = Object.entries(h).sort((a, b) => b[1] - a[1]).map((x) => x[0]).filter((e) => e.length <= 8)
+      return [...new Set([...top, ...REACTION_QUICK])].slice(0, 3)
+    } catch { return [...REACTION_QUICK].slice(0, 3) }
+  })
   const [busy, setBusy] = useState(false)
   const [msg_, setMsg_] = useState('')
   const lastIdRef = useRef(0)
@@ -112,14 +126,24 @@ export default function Chat() {
       void chatMessages(g.id, lastIdRef.current)
         .then((res) => {
           if (res.rows.length === 0) return
+          const gel = roomRef.current
+          const nearBottom = gel !== null && gel.scrollHeight - gel.scrollTop - gel.clientHeight < 80
           setMsgs((s) => {
             const known = new Set(s.map((m) => m.id))
             const fresh = res.rows.filter((m) => !known.has(m.id))
             if (fresh.length === 0) return s
             lastIdRef.current = Math.max(lastIdRef.current, ...fresh.map((m) => m.id))
-            writeRead(g.id, lastIdRef.current)
+            if (!nearBottom) setNewBelow((n) => n + fresh.length)
             return [...s, ...fresh]
           })
+          stickRef.current = nearBottom
+          if (typeof window !== 'undefined') {
+            requestAnimationFrame(() => {
+              const e2 = roomRef.current
+              if (e2 !== null && nearBottom) e2.scrollTop = e2.scrollHeight
+            })
+          }
+          writeRead(g.id, lastIdRef.current)
         })
         .catch(() => undefined)
     }, 3000)
@@ -156,20 +180,26 @@ export default function Chat() {
           setMsgs((s) => s.map((x) => (x.id === rid ? { ...x, type: 'RETRACTED', content: '已撤回', images: [] } : x)))
         } else if (p.event === 'chat:message' && p.data !== undefined && p.data.senderName !== undefined) {
           const m = p.data as unknown as MsgRow
+          const gel = roomRef.current
+          const nearBottom = gel !== null && gel.scrollHeight - gel.scrollTop - gel.clientHeight < 80
           const g = activeRef.current
           setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
           lastIdRef.current = Math.max(lastIdRef.current, m.id)
+          if (!nearBottom) setNewBelow((n) => n + 1)
+          stickRef.current = nearBottom
+          if (typeof window !== 'undefined') {
+            requestAnimationFrame(() => {
+              const e2 = roomRef.current
+              if (e2 !== null && nearBottom) e2.scrollTop = e2.scrollHeight
+            })
+          }
           if (g !== null) writeRead(g.id, lastIdRef.current)
         } else if (p.event === 'chat:ping' && p.data !== undefined) {
-          // 群列表未读角标实时(非当前群 ping→刷新群列表;3s 节流)
+          // 群列表未读精确计数(局部增量替代整表刷新;lastPreview 占位,15s 轮询校正)
           const gid = (p.data as { groupId?: number }).groupId
           const cur = activeRef.current
           if (cur === null || cur.id !== gid) {
-            const now = Date.now()
-            if (now - pingAtRef.current > 3000) {
-              pingAtRef.current = now
-              void loadGroups()
-            }
+            setGroups((s) => s.map((g) => (g.id === gid ? { ...g, msgCount: g.msgCount + 1, lastAt: new Date().toISOString(), lastPreview: '新消息…' } : g)))
           }
         }
       } catch { /* 非 JSON 静默 */ }
@@ -194,6 +224,10 @@ export default function Chat() {
     setMsgs([])
     setPendingImages([])
     setCanLoadOlder(true)
+    stickRef.current = true
+    lastCountRef.current = 0
+    setNewBelow(0)
+    setSearchKw('')
     void chatMessages(g.id)
       .then((res) => {
         setMsgs(res.rows)
@@ -223,7 +257,17 @@ export default function Chat() {
     const g = active
     if (g === null) return
     chatReact(g.id, m.id, emoji)
-      .then((out) => setMsgs((s) => s.map((x) => (x.id === m.id ? { ...x, reactions: out.reactions } : x))))
+      .then((out) => {
+        setMsgs((s) => s.map((x) => (x.id === m.id ? { ...x, reactions: out.reactions } : x)))
+        // 个人高频记忆(localStorage;快捷条 top3 实时更新)
+        try {
+          const h = JSON.parse(localStorage.getItem('yyc3-react-hist') ?? '{}') as Record<string, number>
+          h[emoji] = (h[emoji] ?? 0) + 1
+          localStorage.setItem('yyc3-react-hist', JSON.stringify(h))
+          const top = Object.entries(h).sort((a, b) => b[1] - a[1]).map((x) => x[0]).filter((e) => e.length <= 8)
+          setQuickEmoji([...new Set([...top, ...REACTION_QUICK])].slice(0, 3))
+        } catch { /* 静默 */ }
+      })
       .catch((e) => setMsg_(errText(e)))
   }
 
@@ -235,22 +279,52 @@ export default function Chat() {
       .catch((e) => setMsg_(errText(e)))
   }
 
-  /** 向前分页:以当前最早一条为游标拉更早 50 条(prepend;不足 50=已到头) */
+  /** 向前分页:以当前最早一条为游标拉更早 50 条(prepend;保持滚动位置;不计新消息悬浮) */
   const loadOlder = (): void => {
     const g = active
     if (g === null || msgs.length === 0 || loadingOlder) return
     setLoadingOlder(true)
+    const el = roomRef.current
+    const prevHeight = el?.scrollHeight ?? 0
     chatMessages(g.id, undefined, msgs[0].id)
       .then((res) => {
         if (res.rows.length < 50) setCanLoadOlder(false)
         setMsgs((s) => {
           const known = new Set(s.map((m) => m.id))
-          return [...res.rows.filter((m) => !known.has(m.id)), ...s]
+          const fresh = res.rows.filter((m) => !known.has(m.id))
+          lastCountRef.current = s.length + fresh.length
+          return [...fresh, ...s]
         })
+        if (typeof window !== 'undefined') {
+          requestAnimationFrame(() => {
+            const e2 = roomRef.current
+            if (e2 !== null) e2.scrollTop += e2.scrollHeight - prevHeight
+          })
+        }
       })
       .catch((e) => setMsg_(errText(e)))
       .finally(() => setLoadingOlder(false))
   }
+
+  /** 贴底跟随(仅贴底;nearBottom 判定已前移至 append 点) */
+  useEffect(() => {
+    const el = roomRef.current
+    if (el === null) return
+    if (stickRef.current) el.scrollTop = el.scrollHeight
+  }, [msgs])
+
+  /** 贴底跟随+新消息悬浮计数 */
+  useEffect(() => {
+    const el = roomRef.current
+    if (el === null) return
+    if (stickRef.current) {
+      el.scrollTop = el.scrollHeight
+      setNewBelow(0)
+    } else if (msgs.length > lastCountRef.current) {
+      setNewBelow((n) => n + (msgs.length - lastCountRef.current))
+    }
+    lastCountRef.current = msgs.length
+  }, [msgs])
 
   const pickImage = (): void => {
     void Taro.chooseImage({ count: 1 })
@@ -281,7 +355,18 @@ export default function Chat() {
           <Text style={{ fontSize: '14px', fontWeight: 700, color: '#e0f0ff' }}>{active.name}</Text>
           <Text className="mp-muted">{active.kind === 'STORE' ? '店群' : '组别群'}</Text>
         </View>
-        <View style={{ flex: 1, overflowY: 'auto' }}>
+        <View style={{ paddingBottom: '6px' }}>
+          <input
+            value={searchKw}
+            onInput={(e) => setSearchKw((e as unknown as { detail: { value: string } }).detail.value)}
+            placeholder="搜索:关键词 / 成员名"
+            style={{ width: '100%', height: '28px', borderRadius: 8, border: '1px solid rgba(139,155,180,0.3)', background: 'transparent', color: '#e0f0ff', padding: '0 8px', fontSize: '12px' }}
+          />
+        </View>
+        <View
+          ref={roomRef}
+          style={{ flex: 1, overflowY: 'auto', position: 'relative' }}
+        >
           {msgs.length > 0 && canLoadOlder && (
             <View style={{ textAlign: 'center', padding: '4px 0' }}>
               <Text className="mp-muted" style={{ fontSize: '11px' }} onClick={() => { loadOlder() }}>{loadingOlder ? '加载中…' : '查看更早消息'}</Text>
@@ -290,7 +375,12 @@ export default function Chat() {
           {msgs.length > 0 && !canLoadOlder && (
             <Text className="mp-muted" style={{ fontSize: '10px', textAlign: 'center', display: 'block' }}>已到最早消息</Text>
           )}
-          {msgs.map((m) => {
+          {(() => {
+            const kw = searchKw.trim()
+            const shown = kw === '' ? msgs : msgs.filter((m) => m.content.includes(kw) || m.senderName.includes(kw))
+            return (
+              <View>
+                {shown.map((m) => {
             const mine = m.senderScope === 'ADMIN' && m.senderName === myName()
             if (m.type === 'RETRACTED') {
               return (
@@ -339,7 +429,7 @@ export default function Chat() {
                   )}
                   {m.type !== 'RETRACTED' && (
                     <View style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
-                      {REACTION_QUICK.slice(0, 3).map((e) => (
+                      {quickEmoji.map((e) => (
                         <Text key={e} className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { react(m, e) }}>{e}</Text>
                       ))}
                       <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id); void chatEmojiStats().then((r) => setHotEmojis(r.rows.slice(0, 8))).catch(() => undefined) }}>☺+</Text>
@@ -352,7 +442,23 @@ export default function Chat() {
               </View>
             )
           })}
-          {msgs.length === 0 && <Text className="mp-muted" style={{ textAlign: 'center', margin: '20px 0' }}>暂无消息,说第一句吧</Text>}
+                {msgs.length > 0 && shown.length === 0 && searchKw.trim() !== '' && (
+                  <Text className="mp-muted" style={{ textAlign: 'center', margin: '12px 0', fontSize: '11px' }}>无匹配消息(仅搜索已加载区间;可「查看更早消息」后重搜)</Text>
+                )}
+                {msgs.length === 0 && <Text className="mp-muted" style={{ textAlign: 'center', margin: '20px 0' }}>暂无消息,说第一句吧</Text>}
+              </View>
+            )
+            })()}
+            {newBelow > 0 && (
+              <View style={{ position: 'sticky', bottom: '8px', display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+                <Text
+                  style={{ pointerEvents: 'auto', padding: '3px 14px', borderRadius: 999, background: 'rgba(0,212,255,0.9)', color: '#081130', fontSize: '11px', fontWeight: 700 }}
+                  onClick={() => { stickRef.current = true; const el = roomRef.current; if (el !== null) el.scrollTop = el.scrollHeight; setNewBelow(0) }}
+                >
+                  ↓ {String(newBelow)} 条新消息
+                </Text>
+              </View>
+            )}
         </View>
         {previewImg !== null && (
           <View style={{ position: 'fixed', left: 0, right: 0, top: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99 }} onClick={() => setPreviewImg(null)}>

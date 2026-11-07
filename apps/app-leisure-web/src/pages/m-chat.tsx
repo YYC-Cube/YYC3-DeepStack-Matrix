@@ -75,6 +75,11 @@ export default function MChatPage(): React.JSX.Element {
   /** 向前分页(before 游标;进房拉最近 50 条) */
   const [canLoadOlder, setCanLoadOlder] = useState(true)
   const [loadingOlder, setLoadingOlder] = useState(false)
+  /** 滚动定位:贴底跟踪+新消息悬浮计数+prepend 位置保持(2026-11-07) */
+  const roomRef = useRef<HTMLDivElement | null>(null)
+  const stickRef = useRef(true)
+  const lastCountRef = useRef(0)
+  const [newBelow, setNewBelow] = useState(0)
   const token = useAuthStore((s) => s.token)
   const myName = useAuthStore((s) => s.name)
 
@@ -103,12 +108,20 @@ export default function MChatPage(): React.JSX.Element {
       try {
         const res = await req<{ rows: MsgRow[] }>('GET', '/chat/groups/' + String(active.id) + '/messages?after=' + String(lastIdRef.current))
         if (stop || res.rows.length === 0) return
+        const el = roomRef.current
+        const nearBottom = el !== null && el.scrollHeight - el.scrollTop - el.clientHeight < 80
         setMsgs((s) => {
           const known = new Set(s.map((m) => m.id))
           const fresh = res.rows.filter((m) => !known.has(m.id))
           if (fresh.length === 0) return s
           lastIdRef.current = Math.max(lastIdRef.current, ...fresh.map((m) => m.id))
+          if (!nearBottom) setNewBelow((n) => n + fresh.length)
           return [...s, ...fresh]
+        })
+        stickRef.current = nearBottom
+        requestAnimationFrame(() => {
+          const e2 = roomRef.current
+          if (e2 !== null && nearBottom) e2.scrollTop = e2.scrollHeight
         })
       } catch {
         /* 轮询静默 */
@@ -146,8 +159,16 @@ export default function MChatPage(): React.JSX.Element {
           setMsgs((s2) => s2.map((x) => (x.id === rid ? { ...x, type: 'RETRACTED', content: '已撤回', images: [] } : x)))
         } else if (payload.event === 'chat:message' && payload.data !== undefined) {
           const m = payload.data
+          const el = roomRef.current
+          const nearBottom = el !== null && el.scrollHeight - el.scrollTop - el.clientHeight < 80
           setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
           lastIdRef.current = Math.max(lastIdRef.current, m.id)
+          if (!nearBottom) setNewBelow((n) => n + 1)
+          stickRef.current = nearBottom
+          requestAnimationFrame(() => {
+            const e2 = roomRef.current
+            if (e2 !== null && nearBottom) e2.scrollTop = e2.scrollHeight
+          })
           try {
             const rm = JSON.parse(localStorage.getItem('yyc3-chat-read') ?? '{}') as Record<string, number>
             rm[String(active.id)] = Math.max(rm[String(active.id)] ?? 0, m.id)
@@ -184,16 +205,24 @@ export default function MChatPage(): React.JSX.Element {
       .catch((e) => toastError(e))
   }
 
-  /** 向前分页:以当前最早一条为游标拉更早 50 条(prepend;不足 50=已到头) */
+  /** 向前分页:以当前最早一条为游标拉更早 50 条(prepend;不足 50=已到头;保持滚动位置) */
   const loadOlder = async (): Promise<void> => {
     if (active === null || msgs.length === 0 || loadingOlder) return
     setLoadingOlder(true)
+    const el = roomRef.current
+    const prevHeight = el?.scrollHeight ?? 0
     try {
       const res = await req<{ rows: MsgRow[] }>('GET', '/chat/groups/' + String(active.id) + '/messages?before=' + String(msgs[0].id))
       if (res.rows.length < 50) setCanLoadOlder(false)
       setMsgs((s) => {
         const known = new Set(s.map((m) => m.id))
-        return [...res.rows.filter((m) => !known.has(m.id)), ...s]
+        const fresh = res.rows.filter((m) => !known.has(m.id))
+        lastCountRef.current = s.length + fresh.length // prepend 不计新消息悬浮
+        return [...fresh, ...s]
+      })
+      requestAnimationFrame(() => {
+        const el2 = roomRef.current
+        if (el2 !== null) el2.scrollTop += el2.scrollHeight - prevHeight
       })
     } catch (e) {
       toastError(e)
@@ -202,12 +231,22 @@ export default function MChatPage(): React.JSX.Element {
     }
   }
 
+  /** 初始/消息变化贴底(nearBottom 判定已前移至 append 点;此 effect 仅初始进房兜底贴底) */
+  useEffect(() => {
+    const el = roomRef.current
+    if (el === null) return
+    if (stickRef.current) el.scrollTop = el.scrollHeight
+  }, [msgs])
+
   const openRoom = (g: GroupRow): void => {
     setActive(g)
     lastIdRef.current = 0
     setMsgs([])
     setPendingImages([])
     setCanLoadOlder(true)
+    stickRef.current = true
+    lastCountRef.current = 0
+    setNewBelow(0)
     void req<{ rows: MsgRow[] }>('GET', '/chat/groups/' + String(g.id) + '/messages')
       .then((res) => {
         setMsgs(res.rows)
@@ -357,6 +396,10 @@ export default function MChatPage(): React.JSX.Element {
     </Dialog>
   )
 
+  // 搜索过滤(2026-11-07 接线修复:上批搜索框 UI 在但 searchKw 未接入过滤=摆设;本地即时过滤已加载区间)
+  const kwTrim = searchKw.trim()
+  const shown = kwTrim === '' ? msgs : msgs.filter((m) => m.content.includes(kwTrim) || m.senderName.includes(kwTrim))
+
   if (active !== null) {
     return (
       <div className="flex flex-col h-[calc(100dvh-8rem)]">
@@ -371,7 +414,10 @@ export default function MChatPage(): React.JSX.Element {
           placeholder="搜索:关键词 / 成员名(回车确认)"
           className="mb-2"
         />
-        <div className="flex-1 overflow-y-auto space-y-2 pb-3">
+        <div
+          ref={roomRef}
+          className="relative flex-1 overflow-y-auto space-y-2 pb-3"
+        >
           {msgs.length > 0 && canLoadOlder && (
             <button className="block mx-auto text-xs text-fg-muted hover:text-primary py-1" onClick={() => { void loadOlder() }}>
               {loadingOlder ? '加载中…' : '查看更早消息'}
@@ -380,7 +426,7 @@ export default function MChatPage(): React.JSX.Element {
           {msgs.length > 0 && !canLoadOlder && (
             <div className="text-center text-[10px] text-fg-muted py-1">已到最早消息</div>
           )}
-          {msgs.map((m) => (
+          {shown.map((m) => (
             <div key={m.id} className={'flex ' + (m.senderScope === 'ADMIN' ? 'justify-end' : 'justify-start')}>
               <div className={'max-w-[78%] rounded-2xl px-3 py-1.5 ' + (m.senderScope === 'ADMIN' ? 'bg-primary/15' : 'bg-fg-muted/10')}>
                 <div className="text-[10px] text-fg-muted">{m.senderName} · {m.createdAt.slice(11, 16)}</div>
@@ -481,7 +527,18 @@ export default function MChatPage(): React.JSX.Element {
               </div>
             </div>
           ))}
+          {msgs.length > 0 && shown.length === 0 && kwTrim !== '' && (
+            <div className="text-center text-xs text-fg-muted py-6">无匹配消息(仅搜索当前已加载区间;可「查看更早消息」后重搜)</div>
+          )}
           {msgs.length === 0 && <div className="text-center text-xs text-fg-muted py-10">暂无消息,说第一句吧</div>}
+          {newBelow > 0 && (
+            <button
+              className="sticky bottom-2 left-1/2 -translate-x-1/2 block rounded-full bg-primary text-white text-xs px-3 py-1 shadow"
+              onClick={() => { stickRef.current = true; const el = roomRef.current; if (el !== null) el.scrollTop = el.scrollHeight; setNewBelow(0) }}
+            >
+              ↓ {String(newBelow)} 条新消息
+            </button>
+          )}
         </div>
         <div className="flex gap-2 pt-2 border-t border-line items-center">
           <input

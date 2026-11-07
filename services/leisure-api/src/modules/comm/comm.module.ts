@@ -24,6 +24,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt'
 import { env } from '../../config/env.js'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
+import type { ChatBroadcaster } from '../../ws/chat-ws.js'
 
 const CHAT_GROUP_NAME_RE = /^.{1,64}$/
 
@@ -65,8 +66,9 @@ class ChatMessageDto {
 }
 
 class ReactDto {
+  /** 16 码元上限:unicode 全集面板(含 VS16 变体)兼容;ZWJ 大组合仍被拒 */
   @IsString()
-  @Length(1, 8)
+  @Length(1, 16)
   emoji!: string
 }
 
@@ -336,11 +338,18 @@ export class CommService {
     }
   }
 
-  private chatServer: { to: (room: string) => { emit: (ev: string, data: unknown) => void } } | null = null
+  private chatServer: ChatBroadcaster | null = null
 
-  /** WS 桥启动后注入(原生 ws 独立挂载;群消息实时广播) */
-  setChatServer(server: { to: (room: string) => { emit: (ev: string, data: unknown) => void } }): void {
+  /** WS 桥启动后注入(原生 ws 独立挂载;房间广播 to + 定向用户 toUsers) */
+  setChatServer(server: ChatBroadcaster): void {
     this.chatServer = server
+  }
+
+  /** 任务事件定向推送(下发人+对象;H5 任务页 WS 实时化数据源) */
+  private notifyTaskChange(targetArtistId: number, creatorAdminId: number, taskId: number, reason: string): void {
+    const data = { taskId, reason }
+    this.chatServer?.toUsers('ARTIST', [targetArtistId]).emit('task:changed', data)
+    if (creatorAdminId > 0) this.chatServer?.toUsers('ADMIN', [creatorAdminId]).emit('task:changed', data)
   }
 
   async sendMessage(
@@ -491,6 +500,8 @@ export class CommService {
         }
         await this.prisma.task.update({ where: { id: t.id }, data: { notifyAt: new Date() } })
         t.notifyAt = new Date()
+        // WS 定向:达标事件推对象+下发人(H5 任务页实时刷新)
+        this.notifyTaskChange(t.targetArtistId, t.createdById, t.id, 'reached')
         // 达标抄送组别群(激励可见;无组别群则店群):系统消息「任务助手」
         const target = await this.prisma.artist.findUnique({ where: { id: t.targetArtistId }, select: { groupId: true } })
         const chatGroup = target?.groupId !== null && target?.groupId !== undefined
@@ -530,6 +541,8 @@ export class CommService {
         })
         await this.prisma.task.update({ where: { id: t.id }, data: { notifyAt: new Date() } })
         t.notifyAt = new Date()
+        // WS 定向:超期事件推下发人(对象端由惰性重建/取消事件覆盖)
+        this.chatServer?.toUsers('ADMIN', [t.createdById]).emit('task:changed', { taskId: t.id, reason: 'overdue' })
       }
       // 周期模板惰性重建(到期且 recurrence!=NONE:旧任务转 EXPIRED,顺延创建下一周期)
       if (t.endAt < new Date() && t.recurrence !== 'NONE' && t.status === 'ACTIVE') {
@@ -553,6 +566,8 @@ export class CommService {
         await this.prisma.auditLog.create({
           data: { storeId, actorId: 0, action: 'TASK_RECURRING_CLONE', targetType: 'task', targetId: String(cloned.id), beforeJson: { from: t.id } as object, afterJson: { nextStart, nextEnd } as object },
         })
+        // WS 定向:下周期任务已生成,推对象端实时可见
+        this.chatServer?.toUsers('ARTIST', [t.targetArtistId]).emit('task:changed', { taskId: cloned.id, reason: 'recycled' })
         continue // 重建后的下周期任务从 0 开始,不在本轮列表(下轮可见)
       }
       // NONE 单次任务已超期且已通知未达标 → EXPIRED 归档(列表不再常驻;记录仍在)
@@ -606,6 +621,8 @@ export class CommService {
         afterJson: { type: body.type, title: body.title, targetArtistId: body.targetArtistId, targetCount: body.targetCount } as object,
       },
     })
+    // WS 定向:下发即时可见(H5 任务页实时刷新)
+    this.notifyTaskChange(created.targetArtistId, operatorId, created.id, 'created')
     return { id: created.id }
   }
 
@@ -616,6 +633,8 @@ export class CommService {
     await this.prisma.auditLog.create({
       data: { storeId, actorId: operatorId, action: 'TASK_CANCEL', targetType: 'task', targetId: String(id), beforeJson: { status: before.status } as object, afterJson: { status: 'CANCELLED' } as object },
     })
+    // WS 定向:取消后对象端列表即时移除
+    this.chatServer?.toUsers('ARTIST', [before.targetArtistId]).emit('task:changed', { taskId: id, reason: 'cancelled' })
   }
 
   /** 模板套用(计数累加+审计;高频排序数据源) */

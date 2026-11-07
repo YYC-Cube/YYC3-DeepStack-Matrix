@@ -10,6 +10,11 @@ import { LeisureError, type MeOrdersResult, type ReportType } from '@yyc3/leisur
 // API 基址:defineConstants 编译期内联(config/index.ts;TARO_APP_API_BASE 可覆盖,缺省本机 dev)
 declare const API_BASE: string
 
+/** WS 等非 HTTP 场景复用基址(编译期内联;调用方自行 http(s)→ws(s) 替换) */
+export function apiBase(): string {
+  return API_BASE
+}
+
 /* ── 登录态(Taro Storage 持久化) ── */
 
 export interface MpAuth {

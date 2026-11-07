@@ -1,11 +1,12 @@
 /**
  * 任务中心(销售端本人任务进度;2026-11-07 web/H5 双端一致)
  * 数据=GET /tasks(ARTIST scope 后端自动过滤本人);进度条+达标✅;周期标签
+ * 2026-11-07:WS 实时化(服务端 task:changed 定向推送→即时刷新;断线自动回落 15s 轻轮询;离线缓存不变)
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import { useDidShow } from '@tarojs/taro'
-import { myTasks, errText } from '../../lib/api'
+import { apiBase, loadAuth, myTasks, errText } from '../../lib/api'
 
 interface TaskRow {
   id: number
@@ -48,6 +49,41 @@ export default function Tasks() {
   useDidShow(() => {
     void load()
   })
+
+  // WS 实时通道(优先):下发/取消/达标/周期重建均触发 task:changed→即时刷新
+  const wsOkRef = useRef(false)
+  useEffect(() => {
+    if (typeof WebSocket === 'undefined') return // weapp 端暂走轮询
+    const auth = loadAuth()
+    if (auth === null) return
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(apiBase().replace(/^http/, 'ws') + '/ws/chat?token=' + encodeURIComponent(auth.token))
+    } catch {
+      return
+    }
+    ws.onopen = () => { wsOkRef.current = true }
+    ws.onmessage = (ev) => {
+      try {
+        const p = JSON.parse(String(ev.data)) as { event?: string }
+        if (p.event === 'task:changed') void load()
+      } catch { /* 非 JSON 静默 */ }
+    }
+    ws.onclose = () => { wsOkRef.current = false }
+    ws.onerror = () => { wsOkRef.current = false }
+    return () => {
+      wsOkRef.current = false
+      try { ws.close() } catch { /* 已断 */ }
+    }
+  }, [load])
+
+  // 轮询兜底(WS 未连通时 15s 轻轮询;连通后不重复打)
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (!wsOkRef.current) void load()
+    }, 15_000)
+    return () => clearInterval(t)
+  }, [load])
 
   const done = rows.filter((r) => r.rawProgress >= r.targetCount).length
 

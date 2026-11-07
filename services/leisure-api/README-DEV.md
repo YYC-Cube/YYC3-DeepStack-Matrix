@@ -133,9 +133,9 @@ bash scripts/demo-core-chain.sh
 ```bash
 pnpm type-check          # tsc --noEmit
 # e2e(服务已启动后;凭据经环境变量,不嵌入源码):
-LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026' \
+LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026#Lm' \
   ./node_modules/.bin/vitest run test/api.e2e.test.ts            # 阶段1-B(7 用例)
-LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026' \
+LEISURE_E2E_PHONE=13103790379 LEISURE_E2E_PASSWORD='ChangeMe@2026#Lm' \
 LEISURE_E2E_FINANCE_PHONE=13103790380 \
   ./node_modules/.bin/vitest run test/session-fee.e2e.test.ts    # 阶段2(7 用例)
 # 冒烟(服务启动后)

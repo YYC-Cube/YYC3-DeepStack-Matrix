@@ -16,35 +16,51 @@ interface ChatSession {
   groups: Set<string>
 }
 
-interface ChatBroadcaster {
+export interface ChatBroadcaster {
   to: (room: string) => { emit: (ev: string, data: unknown) => void }
+  /** 定向用户(task:changed 等非房间事件;scope+id 匹配在线会话) */
+  toUsers: (scope: string, ids: number[]) => { emit: (ev: string, data: unknown) => void }
 }
 
 /** 已验证 socket + 房间注册表 */
 const sessions = new Map<object, ChatSession>()
+
+function sendSock(sock: object, payload: string): void {
+  try {
+    (sock as unknown as { send: (s: string) => void }).send(payload)
+  } catch {
+    /* 死连接由 close 事件清理 */
+  }
+}
 
 export function mountChatWs(
   httpServer: HttpServer,
   deps: { setChatServer: (b: ChatBroadcaster) => void; prisma: PrismaService; jwt: JwtService },
 ): void {
   const { prisma, jwt } = deps
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws/chat' })
+  // 路径含全局前缀(2026-11-07 修复:原生 ws 升级请求不受 Nest setGlobalPrefix 影响,曾挂 /ws/chat 与客户端 /api/v1/ws/chat 错配→永远静默回落轮询)
+  const wss = new WebSocketServer({ server: httpServer, path: '/api/v1/ws/chat' })
 
-  // 广播适配器:to('chat:<id>') 语义与 @nestjs/websockets 对齐,CommService.sendMessage 无感切换
+  // 广播适配器:to('chat:<id>') 房间语义 + toUsers 定向语义;事件名透传(chat:message/react/retract/task:changed)
   deps.setChatServer({
     to(room: string) {
       const gid = room.replace('chat:', '')
       return {
-        emit(_ev: string, data: unknown) {
-          const payload = JSON.stringify({ event: 'chat:message', data })
+        emit(ev: string, data: unknown) {
+          const payload = JSON.stringify({ event: ev, data })
           for (const [sock, sess] of sessions) {
-            if (sess.groups.has(gid)) {
-              try {
-                (sock as unknown as { send: (s: string) => void }).send(payload)
-              } catch {
-                /* 死连接由 close 事件清理 */
-              }
-            }
+            if (sess.groups.has(gid)) sendSock(sock, payload)
+          }
+        },
+      }
+    },
+    toUsers(scope: string, ids: number[]) {
+      const targets = new Set(ids)
+      return {
+        emit(ev: string, data: unknown) {
+          const payload = JSON.stringify({ event: ev, data })
+          for (const [sock, sess] of sessions) {
+            if (sess.scope === scope && targets.has(sess.id)) sendSock(sock, payload)
           }
         },
       }
@@ -81,7 +97,7 @@ export function mountChatWs(
               if (sess.scope === 'ARTIST' && g.groupId !== null) {
                 const a = await prisma.artist.findUnique({ where: { id: sess.id }, select: { groupId: true } })
                 if ((a?.groupId ?? null) !== g.groupId) {
-                  ;(sock as unknown as { send: (s: string) => void }).send(JSON.stringify({ event: 'chat:error', data: { msg: '仅本组别成员可进群' } }))
+                  sendSock(sock, JSON.stringify({ event: 'chat:error', data: { msg: '仅本组别成员可进群' } }))
                   return
                 }
               }

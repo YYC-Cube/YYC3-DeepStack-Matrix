@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
+import { EMOJI_GROUPS, REACTION_QUICK } from '@yyc3/leisure-core'
 import { req, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { PageHeader } from '@/components/kit'
@@ -67,6 +68,8 @@ export default function MChatPage(): React.JSX.Element {
   const [memberCard, setMemberCard] = useState<{ name: string; count: number; lastAt: string | null; mine: boolean } | null>(null)
   /** 表情面板展开(消息 id) */
   const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
+  /** 全集面板当前类别 tab */
+  const [emojiTab, setEmojiTab] = useState(0)
   const token = useAuthStore((s) => s.token)
   const myName = useAuthStore((s) => s.name)
 
@@ -231,6 +234,86 @@ export default function MChatPage(): React.JSX.Element {
     }
   }
 
+  /** 图片预览/@成员卡/表情面板 Dialog——聊天室内触发,双分支挂载(曾只挂列表分支,早退 return 致室内永不可达) */
+  const previewDialog = (
+    <Dialog open={previewImg !== null} onOpenChange={(o) => { if (!o) setPreviewImg(null) }}>
+      <DialogContent className="max-w-2xl">
+        {previewImg !== null && (
+          <img src={previewImg} alt="图片预览" className="w-full max-h-[75vh] object-contain" />
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+
+  const memberCardDialog = (
+    <Dialog open={memberCard !== null} onOpenChange={(o) => { if (!o) setMemberCard(null) }}>
+      <DialogContent className="max-w-xs">
+        <DialogHeader>
+          <DialogTitle>成员 · {memberCard?.name ?? ''}</DialogTitle>
+        </DialogHeader>
+        {memberCard !== null && (
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-3">
+              <span className="w-12 h-12 rounded-full bg-fg-muted/15 flex items-center justify-center text-sm text-fg-muted">
+                {memberCard.name.slice(-2)}
+              </span>
+              <div>
+                <div className="font-medium">{memberCard.name}{memberCard.mine ? '(我)' : ''}</div>
+                <div className="text-xs text-fg-muted">
+                  {memberCard.count > 0 ? `本群发言 ${String(memberCard.count)} 条 · 最近 ${memberCard.lastAt ?? ''}` : '本群暂无发言记录'}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-fg-muted">成员 roster 以群消息发言推断(组别群=本组销售经理;店群=全员)。</p>
+          </div>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setMemberCard(null)}>关闭</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+
+  /** 表情全集面板(leisure-core EMOJI_GROUPS 单源;8 类 Tab + 网格) */
+  const emojiPanelDialog = (
+    <Dialog open={emojiPanelFor !== null} onOpenChange={(o) => { if (!o) setEmojiPanelFor(null) }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>选择表情回应</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2">
+          <div className="flex gap-1 flex-wrap">
+            {EMOJI_GROUPS.map((g, gi) => (
+              <button
+                key={g.name}
+                className={'px-2 py-1 rounded text-xs border ' + (emojiTab === gi ? 'border-primary text-primary bg-primary/10' : 'border-line text-fg-muted')}
+                onClick={() => setEmojiTab(gi)}
+              >
+                {g.icon} {g.name}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-8 gap-0.5 max-h-60 overflow-y-auto">
+            {(EMOJI_GROUPS[emojiTab] ?? EMOJI_GROUPS[0]).emojis.map((e) => (
+              <button
+                key={e}
+                className="text-xl rounded py-0.5 hover:bg-fg-muted/10"
+                onClick={() => {
+                  const m = msgs.find((x) => x.id === emojiPanelFor)
+                  if (m !== undefined) react(m, e)
+                  setEmojiPanelFor(null)
+                }}
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-fg-muted">同一表情再点一次=取消回应;单条消息至多 8 种回应。</p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+
   if (active !== null) {
     return (
       <div className="flex flex-col h-[calc(100dvh-8rem)]">
@@ -322,13 +405,16 @@ export default function MChatPage(): React.JSX.Element {
                         })}
                       </div>
                     )}
-                    {m.type === 'TEXT' && (
+                    {m.type !== 'RETRACTED' && (
                       <div className="flex gap-1 mt-0.5 items-center">
-                        {['👍', '❤️', '🎉', '😄', '😮', '🔥'].map((e) => (
+                        {REACTION_QUICK.map((e) => (
                           <button key={e} className="text-[10px] text-fg-muted hover:text-primary" onClick={() => { react(m, e) }}>
                             {e}
                           </button>
                         ))}
+                        <button className="text-[10px] text-fg-muted hover:text-primary" title="更多表情" onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id) }}>
+                          ☺+
+                        </button>
                         {m.senderScope === 'ADMIN' && m.senderName === myName && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && (
                           <button
                             className="text-[10px] text-fg-muted hover:text-error"
@@ -410,6 +496,9 @@ export default function MChatPage(): React.JSX.Element {
             ))}
           </div>
         )}
+        {previewDialog}
+        {memberCardDialog}
+        {emojiPanelDialog}
       </div>
     )
   }
@@ -442,42 +531,8 @@ export default function MChatPage(): React.JSX.Element {
         <Card className="p-6 text-center text-sm text-fg-muted">暂无群组,点击「+ 建群」</Card>
       )}
 
-      {/* 图片放大预览 */}
-      <Dialog open={previewImg !== null} onOpenChange={(o) => { if (!o) setPreviewImg(null) }}>
-        <DialogContent className="max-w-2xl">
-          {previewImg !== null && (
-            <img src={previewImg} alt="图片预览" className="w-full max-h-[75vh] object-contain" />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* @ 成员定位卡 */}
-      <Dialog open={memberCard !== null} onOpenChange={(o) => { if (!o) setMemberCard(null) }}>
-        <DialogContent className="max-w-xs">
-          <DialogHeader>
-            <DialogTitle>成员 · {memberCard?.name ?? ''}</DialogTitle>
-          </DialogHeader>
-          {memberCard !== null && (
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-3">
-                <span className="w-12 h-12 rounded-full bg-fg-muted/15 flex items-center justify-center text-sm text-fg-muted">
-                  {memberCard.name.slice(-2)}
-                </span>
-                <div>
-                  <div className="font-medium">{memberCard.name}{memberCard.mine ? '(我)' : ''}</div>
-                  <div className="text-xs text-fg-muted">
-                    {memberCard.count > 0 ? `本群发言 ${String(memberCard.count)} 条 · 最近 ${memberCard.lastAt ?? ''}` : '本群暂无发言记录'}
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-fg-muted">成员 roster 以群消息发言推断(组别群=本组销售经理;店群=全员)。</p>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setMemberCard(null)}>关闭</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {previewDialog}
+      {memberCardDialog}
 
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) setCreateOpen(false) }}>
         <DialogContent className="max-w-sm">

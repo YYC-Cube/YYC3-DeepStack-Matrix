@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, Text, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
+import { EMOJI_GROUPS, REACTION_QUICK } from '@yyc3/leisure-core'
 import { chatGroups, chatMessages, chatSend, chatRetract, chatReact, errText } from '../../lib/api'
 
 interface GroupRow {
@@ -65,6 +66,9 @@ export default function Chat() {
   const [draft, setDraft] = useState('')
   const [pendingImages, setPendingImages] = useState<string[]>([])
   const [previewImg, setPreviewImg] = useState<string | null>(null)
+  /** 表情全集面板(leisure-core 单源;展开消息 id+类别 tab) */
+  const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
+  const [emojiTab, setEmojiTab] = useState(0)
   const [busy, setBusy] = useState(false)
   const [msg_, setMsg_] = useState('')
   const lastIdRef = useRef(0)
@@ -226,25 +230,27 @@ export default function Chat() {
                   )}
                   {m.content !== '' && (
                     <Text style={{ fontSize: '13px', color: '#e0f0ff', wordBreak: 'break-all' }}>
-                      {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+)/g).map((part, i) =>
-                        part.startsWith('@') ? <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }}>{part}</Text> : <Text key={i}>{part}</Text>,
+                      {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+|#[a-z]+\d+)/g).map((part, i) =>
+                        part.startsWith('@') ? (
+                          <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }}>{part}</Text>
+                        ) : part.startsWith('#task') ? (
+                          <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }} onClick={() => { void Taro.navigateTo({ url: '/pages/tasks/index' }) }}>{part}</Text>
+                        ) : (
+                          <Text key={i}>{part}</Text>
+                        ),
                       )}
                     </Text>
                   )}
-                  {m.type === 'TEXT' && (
-                    <View style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
-                      {['👍', '❤️', '🎉'].map((e) => (
+                  {m.type !== 'RETRACTED' && (
+                    <View style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                      {REACTION_QUICK.slice(0, 3).map((e) => (
                         <Text key={e} className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { react(m, e) }}>{e}</Text>
                       ))}
+                      <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { setEmojiTab(0); setEmojiPanelFor(m.id) }}>☺+</Text>
                       {mine && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && (
                         <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { retract(m) }}>撤回</Text>
                       )}
                     </View>
-                  )}
-                  {mine && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && m.type === 'TEXT' && (
-                    <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { retract(m) }}>
-                      撤回
-                    </Text>
                   )}
                 </View>
               </View>
@@ -255,6 +261,38 @@ export default function Chat() {
         {previewImg !== null && (
           <View style={{ position: 'fixed', left: 0, right: 0, top: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99 }} onClick={() => setPreviewImg(null)}>
             <Image src={previewImg} mode='aspectFit' style={{ width: '90vw', maxHeight: '75vh' }} />
+          </View>
+        )}
+        {emojiPanelFor !== null && (
+          <View style={{ position: 'fixed', left: 0, right: 0, bottom: 0, background: 'rgba(8,17,38,0.97)', borderTop: '1px solid rgba(139,155,180,0.25)', zIndex: 98, padding: '10px', maxHeight: '45vh', overflowY: 'auto' }}>
+            <View style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
+              {EMOJI_GROUPS.map((g, gi) => (
+                <Text
+                  key={g.name}
+                  style={{ padding: '2px 8px', borderRadius: 999, fontSize: '11px', color: emojiTab === gi ? '#00d4ff' : '#8b9bb4', border: emojiTab === gi ? '1px solid #00d4ff' : '1px solid rgba(139,155,180,0.3)' }}
+                  onClick={() => setEmojiTab(gi)}
+                >
+                  {g.icon} {g.name}
+                </Text>
+              ))}
+              <Text className="mp-muted" style={{ marginLeft: 'auto', fontSize: '11px' }} onClick={() => setEmojiPanelFor(null)}>收起</Text>
+            </View>
+            <View style={{ display: 'flex', flexWrap: 'wrap' }}>
+              {(EMOJI_GROUPS[emojiTab] ?? EMOJI_GROUPS[0]).emojis.map((e) => (
+                <Text
+                  key={e}
+                  style={{ fontSize: '22px', padding: '3px 0', width: '11.11%', textAlign: 'center' }}
+                  onClick={() => {
+                    const mm = msgs.find((x) => x.id === emojiPanelFor)
+                    if (mm !== undefined) react(mm, e)
+                    setEmojiPanelFor(null)
+                  }}
+                >
+                  {e}
+                </Text>
+              ))}
+            </View>
+            <Text className="mp-muted" style={{ fontSize: '10px', marginTop: '4px' }}>同一表情再点一次=取消回应;单条消息至多 8 种回应</Text>
           </View>
         )}
         <View style={{ display: 'flex', gap: '6px', paddingTop: '8px', borderTop: '1px solid rgba(139,155,180,0.15)', alignItems: 'center' }}>

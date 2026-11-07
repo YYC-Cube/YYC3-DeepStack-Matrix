@@ -40,7 +40,7 @@ export class AuthService {
   ) {}
 
   /** 管理端登录(账号=用户名或手机号 + 密码);连错5次锁15分钟(库计数,Redis 增强位阶段3接) */
-  async adminLogin(p: { account?: string; phone?: string; password: string }): Promise<{
+  async adminLogin(p: { account?: string; phone?: string; password: string }, ip = '', ua = ''): Promise<{
     accessToken: string
     refreshToken: string
     permCodes: string[]
@@ -104,6 +104,18 @@ export class AuthService {
       ? await this.prisma.role.findUnique({ where: { id: user.roleId } })
       : null
     const permCodes = Array.isArray(role?.permCodes) ? (role?.permCodes as string[]) : []
+    // 登录地记录(008 2026-11-07:IP/UA/时间;每次登录留痕,fire-and-forget 不阻塞)
+    void this.prisma.loginAudit.create({
+      data: {
+        storeId: user.storeId ?? 1,
+        scope: 'ADMIN',
+        userId: user.id,
+        name: user.name,
+        ip: (ip || '-').slice(0, 64),
+        ua: (ua || '-').slice(0, 255),
+        ok: true,
+      },
+    }).catch(() => undefined)
     return this.issue({
       sub: user.id,
       name: user.name,
@@ -279,6 +291,33 @@ export class AuthService {
     }
   }
 
+  /** token 刷新(refreshToken 验签→按 scope 续期:ARTIST 直发/ADMIN 回库取最新权限) */
+  async refreshAccess(refreshToken: string): Promise<{ accessToken: string; refreshToken: string; permCodes: string[]; name: string; mustChangePassword: boolean }> {
+    let payload: JwtPayload
+    try {
+      payload = await this.jwt.verifyAsync<JwtPayload>(refreshToken, { secret: env().JWT_REFRESH_SECRET })
+    } catch {
+      throw new UnauthorizedException('refreshToken 无效或已过期,请重新登录')
+    }
+    if (payload.scope === 'ARTIST') {
+      return this.issue({ sub: payload.sub, name: payload.name, storeId: payload.storeId ?? 1, permCodes: [], scope: 'ARTIST' })
+    }
+    const u = await this.prisma.adminUser.findUnique({
+      where: { id: payload.sub },
+      include: { role: { select: { permCodes: true, name: true } } },
+    })
+    if (u === null || u.status !== 1) throw new UnauthorizedException('账号不存在或已停用')
+    const permCodes = Array.isArray(u.role?.permCodes) ? (u.role.permCodes as string[]) : []
+    return this.issue({
+      sub: u.id,
+      name: u.name,
+      storeId: u.storeId ?? 1,
+      permCodes,
+      scope: 'ADMIN',
+      mustChangePassword: u.mustChangePassword,
+    })
+  }
+
   /** 微信 code2session(凭据就绪后接通;骨架返回确定性占位以支撑联调) */
   private async codeToOpenid(code: string): Promise<string> {
     const appid = env().WX_APPID
@@ -316,9 +355,19 @@ export class AuthController {
   @Public()
   @Post('admin/login')
   async adminLogin(
+    @Req() req: Request,
     @Body() body: { account?: string; phone?: string; password: string },
   ): Promise<unknown> {
-    return this.auth.adminLogin(body)
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? req.socket?.remoteAddress ?? ''
+    const ua = (req.headers['user-agent'] as string ?? '').slice(0, 255)
+    return this.auth.adminLogin(body, ip, ua)
+  }
+
+  /** token 刷新(refreshToken 验签→重发双 token;ACCESS 2h 到期前静默续期) */
+  @Public()
+  @Post('refresh')
+  async refresh(@Body() body: { refreshToken?: string }): Promise<unknown> {
+    return this.auth.refreshAccess(body.refreshToken ?? '')
   }
 
   @Public()

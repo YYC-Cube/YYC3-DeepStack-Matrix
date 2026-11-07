@@ -12,7 +12,35 @@ export const transport = new FetchTransport({ baseUrl: '/api/v1', getToken: () =
 
 export const client = new LeisureApiClient(transport, { baseUrl: '/api/v1' })
 
-/** 业务错误是否为未认证/须改密 → 登出跳转 / 跳改密页 */
+/** 静默续期(refreshToken 换新 access;并发去重) */
+let refreshInFlight: Promise<boolean> | null = null
+async function tryRefresh(): Promise<boolean> {
+  if (refreshInFlight !== null) return refreshInFlight
+  refreshInFlight = (async () => {
+    try {
+      let rt = useAuthStore.getState().refreshToken ?? ''
+      if (rt === '') rt = localStorage.getItem('yyc3-refresh-token') ?? ''
+      if (rt === '') return false
+      const r = await fetch('/api/v1/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: rt }),
+      })
+      const json = (await r.json()) as { code: number; data?: { accessToken: string; refreshToken: string } }
+      if (json.code !== 0 || json.data === undefined) return false
+      useAuthStore.setState({ token: json.data.accessToken, refreshToken: json.data.refreshToken })
+      try { localStorage.setItem('yyc3-refresh-token', json.data.refreshToken) } catch { /* 静默 */ }
+      return true
+    } catch {
+      return false
+    } finally {
+      refreshInFlight = null
+    }
+  })()
+  return refreshInFlight
+}
+
+/** 业务错误是否为未认证/须改密 → 静默续期一次(成功则调用方重试)/登出跳转 / 跳改密页 */
 function guardAuthError(e: unknown): boolean {
   if (e instanceof LeisureError && e.code === 40001) {
     useAuthStore.getState().logout()

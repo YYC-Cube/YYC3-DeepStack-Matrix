@@ -8,10 +8,11 @@ import { persist } from 'zustand/middleware'
 
 interface AuthState {
   token: string | null
+  refreshToken: string | null
   name: string
   permCodes: string[]
   mustChangePassword: boolean
-  login: (p: { token: string; name: string; permCodes: string[]; mustChangePassword?: boolean }) => void
+  login: (p: { token: string; refreshToken?: string; name: string; permCodes: string[]; mustChangePassword?: boolean }) => void
   logout: () => void
   hasPerm: (code: string) => boolean
 }
@@ -20,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       token: null,
+      refreshToken: null,
       name: '',
       permCodes: [],
       mustChangePassword: false,

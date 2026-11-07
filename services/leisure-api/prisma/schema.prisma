@@ -1080,3 +1080,18 @@ model TaskTemplate {
   @@index([storeId, deletedAt])
   @@map("task_template")
 }
+/// 登录地记录(2026-11-07):每次登录留痕 IP/UA/设备/结果;「登录地记录」数据源
+model LoginAudit {
+  id        Int      @id @default(autoincrement())
+  storeId   Int      @map("store_id")
+  scope     String   @db.VarChar(16) // ADMIN/ARTIST
+  userId    Int      @map("user_id")
+  name      String   @db.VarChar(64)
+  ip        String   @db.VarChar(64)
+  ua        String   @db.VarChar(255) // User-Agent(设备/浏览器推断)
+  ok        Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([storeId, userId, createdAt])
+  @@map("login_audit")
+}

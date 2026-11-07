@@ -730,6 +730,9 @@ model AdminUser {
   passwordHash String   @map("password_hash") @db.VarChar(128)
   // 首登必改:seed/管理员重置的默认密码置 true;改密成功置 false;为 true 时除改密/me/登录外接口一律 40302
   mustChangePassword Boolean @default(false) @map("must_change_password")
+  // 预置口令签发时间(建号/重置时写):超 PRESET_PASSWORD_TTL_HOURS(默认24h)未首登改密则登录冻结,
+  // 仅管理员重置可重开窗口——封堵「预置口令→真实首登」之间的竞态接管窗口
+  presetAt  DateTime? @map("preset_at")
   roleId       Int?     @map("role_id")
   status       Int      @default(1)
   // 登录防爆破:连错 5 次锁 15 分钟(42901);成功登录即复位

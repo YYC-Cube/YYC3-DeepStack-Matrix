@@ -84,6 +84,15 @@ export class AuthService {
       }
       throw new UnauthorizedException('账号或密码错误')
     }
+    // 预置口令时限:超 TTL 未首登改密 → 拒绝并提示联系管理员重置,
+    // 封堵「建号/重置 → 真实首登」窗口内预置口令被第三方抢先改密的接管面
+    if (
+      user.mustChangePassword &&
+      user.presetAt !== null &&
+      Date.now() - user.presetAt.getTime() > env().PRESET_PASSWORD_TTL_HOURS * 3600_000
+    ) {
+      throw new LeisureError(ERR.FORBIDDEN, '初始口令已超时未修改,账号冻结,请联系管理员重置')
+    }
     // 成功即复位
     if (user.failedLoginCount !== 0 || user.lockedUntil !== null) {
       await this.prisma.adminUser.update({

@@ -150,6 +150,20 @@ export default function Mine() {
       </View>
 
       <View className="mp-card">
+        <Text className="mp-muted">我的任务(web/H5 双端一致)</Text>
+        <Button className="mp-btn" onClick={() => Taro.navigateTo({ url: '/pages/tasks/index' })}>
+          查看任务进度与达标
+        </Button>
+      </View>
+
+      <View className="mp-card">
+        <Text className="mp-muted">沟通(店群/组别群)</Text>
+        <Button className="mp-btn" onClick={() => Taro.navigateTo({ url: '/pages/chat/index' })}>
+          进入群聊
+        </Button>
+      </View>
+
+      <View className="mp-card">
         <Text className="mp-muted">我的订单(a21:点单+上钟费)</Text>
         <Button className="mp-btn" onClick={() => Taro.navigateTo({ url: '/pages/orders/index' })}>
           查看我的订单

@@ -269,6 +269,68 @@ export function myOrders(): Promise<MeOrdersResult> {
 }
 
 /** 统一错误文案(401 清态;其余透出后端中文文案) */
+/** 任务中心(销售端本人;完成度实时聚合) */
+export function myTasks(): Promise<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string }> }> {
+  return Taro.request({
+    url: API_BASE + '/tasks',
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string }> }>(res))
+    .catch(translate)
+}
+
+/** 群列表(销售端:店群+本人组别群) */
+export function chatGroups(): Promise<{ rows: Array<{ id: number; name: string; kind: string; msgCount: number; lastAt: string | null; lastPreview: string }> }> {
+  return Taro.request({
+    url: API_BASE + '/chat/groups',
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ rows: Array<{ id: number; name: string; kind: string; msgCount: number; lastAt: string | null; lastPreview: string }> }>(res))
+    .catch(translate)
+}
+
+/** 群消息(after=增量水位) */
+export function chatMessages(groupId: number, afterId?: number): Promise<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }> }> {
+  return Taro.request({
+    url: API_BASE + '/chat/groups/' + String(groupId) + '/messages' + (afterId !== undefined ? '?after=' + String(afterId) : ''),
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }> }>(res))
+    .catch(translate)
+}
+
+/** 发消息(文本/图片) */
+export function chatSend(groupId: number, p: { content: string; images?: string[] }): Promise<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }> {
+  return Taro.request({
+    url: API_BASE + '/chat/groups/' + String(groupId) + '/messages',
+    method: 'POST',
+    data: p,
+    header: authHeaders(),
+    timeout: 15_000,
+  })
+    .then((res) => envelope<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }>(res))
+    .catch(translate)
+}
+
+/** 消息撤回(2 分钟内本人) */
+export function chatRetract(groupId: number, messageId: number): Promise<{ retracted: boolean }> {
+  return Taro.request({
+    url: API_BASE + '/chat/groups/' + String(groupId) + '/messages/' + String(messageId) + '/retract',
+    method: 'POST',
+    data: {},
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ retracted: boolean }>(res))
+    .catch(translate)
+}
+
 /** A17:自助注册提交(公开端点;token 来自管理端注册二维码链接) */
 export function registerSubmit(p: {
   token: string

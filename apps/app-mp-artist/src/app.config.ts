@@ -6,6 +6,8 @@ export default defineAppConfig({
     'pages/tickets/index',
     'pages/orders/index',
     'pages/register/index',
+    'pages/tasks/index',
+    'pages/chat/index',
     'pages/earnings/index',
     'pages/bind/index',
   ],

@@ -184,13 +184,14 @@ async function main() {
         passwordHash: await bcrypt.hash('ChangeMe@2026', 10),
         roleId: role.id,
         mustChangePassword: true,
+        presetAt: new Date(),
       },
     })
-    console.log('[seed] 管理员已创建: ' + adminPhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
+    console.log('[seed] 管理员已创建: ' + adminPhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改,24h 内)')
   } else if (!adminExists.mustChangePassword && (await bcrypt.compare('ChangeMe@2026', adminExists.passwordHash))) {
-    // 仍在用默认口令 → 补打首登必改标志(幂等升级)
-    await prisma.adminUser.update({ where: { id: adminExists.id }, data: { mustChangePassword: true } })
-    console.log('[seed] 管理员仍为默认口令,已置首登必改')
+    // 仍在用默认口令 → 补打首登必改标志 + 重开 24h 改密窗口(幂等升级)
+    await prisma.adminUser.update({ where: { id: adminExists.id }, data: { mustChangePassword: true, presetAt: new Date() } })
+    console.log('[seed] 管理员仍为默认口令,已置首登必改(24h 内改,超时冻结)')
   }
 
   // 财务角色+账号(双人防线第二人:手动扣费审批人≠申请人,C-08)
@@ -224,12 +225,13 @@ async function main() {
         passwordHash: await bcrypt.hash('ChangeMe@2026', 10),
         roleId: financeRole.id,
         mustChangePassword: true,
+        presetAt: new Date(),
       },
     })
-    console.log('[seed] 财务已创建: ' + financePhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改)')
+    console.log('[seed] 财务已创建: ' + financePhone + ' / 初始密码 ChangeMe@2026(首次登录必须修改,24h 内)')
   } else if (!financeExists.mustChangePassword && (await bcrypt.compare('ChangeMe@2026', financeExists.passwordHash))) {
-    await prisma.adminUser.update({ where: { id: financeExists.id }, data: { mustChangePassword: true } })
-    console.log('[seed] 财务仍为默认口令,已置首登必改')
+    await prisma.adminUser.update({ where: { id: financeExists.id }, data: { mustChangePassword: true, presetAt: new Date() } })
+    console.log('[seed] 财务仍为默认口令,已置首登必改(24h 内改,超时冻结)')
   }
 
   // 测试账号(用户名登录;dev/演示用,密码固定,每次 seed 重置;**生产 seed 不得携带:NODE_ENV=prod 跳过**)
@@ -246,7 +248,7 @@ async function main() {
     const passwordHash = await bcrypt.hash(t.password, 10)
     await prisma.adminUser.upsert({
       where: { username: t.username },
-      update: { passwordHash, roleId: t.roleId, status: 1, failedLoginCount: 0, lockedUntil: null, mustChangePassword: t.mustChange },
+      update: { passwordHash, roleId: t.roleId, status: 1, failedLoginCount: 0, lockedUntil: null, mustChangePassword: t.mustChange, presetAt: t.mustChange ? new Date() : null },
       create: {
         storeId: store.id,
         name: t.name,
@@ -255,6 +257,7 @@ async function main() {
         passwordHash,
         roleId: t.roleId,
         mustChangePassword: t.mustChange,
+        presetAt: t.mustChange ? new Date() : null,
       },
     })
   }

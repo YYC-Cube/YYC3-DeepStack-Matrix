@@ -205,6 +205,7 @@ export class StaffService {
         phone: body.phone,
         passwordHash,
         mustChangePassword: true,
+        presetAt: new Date(),
         roleId: body.roleId ?? null,
         departmentId: body.departmentId ?? null,
         title: body.title ?? null,
@@ -250,7 +251,7 @@ export class StaffService {
     const passwordHash = await bcrypt.hash(temp, 10)
     await this.prisma.adminUser.update({
       where: { id },
-      data: { passwordHash, mustChangePassword: true, failedLoginCount: 0, lockedUntil: null },
+      data: { passwordHash, mustChangePassword: true, presetAt: new Date(), failedLoginCount: 0, lockedUntil: null },
     })
     await this.audit(storeId, operatorId, 'STAFF_USER_RESET_PASSWORD', 'admin_user', String(id), null, null)
     return { tempPassword: temp }

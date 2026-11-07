@@ -300,7 +300,7 @@ export default function MChatPage(): React.JSX.Element {
                     )}
                     {m.type === 'TEXT' && (
                       <div className="flex gap-1 mt-0.5 items-center">
-                        {['👍', '❤️', '🎉'].map((e) => (
+                        {['👍', '❤️', '🎉', '😄', '😮', '🔥', '💯', '👏'].map((e) => (
                           <button key={e} className="text-[10px] text-fg-muted hover:text-primary" onClick={() => { react(m, e) }}>
                             {e}
                           </button>

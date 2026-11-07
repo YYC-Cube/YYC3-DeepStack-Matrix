@@ -61,6 +61,8 @@ export default function MChatPage(): React.JSX.Element {
   const [pendingImages, setPendingImages] = useState<string[]>([])
   /** 图片消息点击放大预览 */
   const [previewImg, setPreviewImg] = useState<string | null>(null)
+  /** 消息搜索(关键词/成员;本地过滤) */
+  const [searchKw, setSearchKw] = useState('')
   /** @ 点击定位成员卡(最近发言/入群信息) */
   const [memberCard, setMemberCard] = useState<{ name: string; count: number; lastAt: string | null; mine: boolean } | null>(null)
   /** 表情面板展开(消息 id) */
@@ -237,6 +239,12 @@ export default function MChatPage(): React.JSX.Element {
           <span className="text-sm font-semibold">{active.name}</span>
           <span className="text-[10px] text-fg-muted">{active.kind === 'STORE' ? '店群' : '组别群'}</span>
         </div>
+        <Input
+          value={searchKw}
+          onChange={(e) => setSearchKw(e.target.value)}
+          placeholder="搜索:关键词 / 成员名(回车确认)"
+          className="mb-2"
+        />
         <div className="flex-1 overflow-y-auto space-y-2 pb-3">
           {msgs.map((m) => (
             <div key={m.id} className={'flex ' + (m.senderScope === 'ADMIN' ? 'justify-end' : 'justify-start')}>
@@ -275,29 +283,43 @@ export default function MChatPage(): React.JSX.Element {
                     )}
                     {m.content !== '' && (
                       <div className="text-sm break-all whitespace-pre-wrap">
-                        {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+)/g).map((part, i) =>
-                          part.startsWith('@') && part.length > 1 ? (
-                            <span
-                              key={i}
-                              className="text-primary font-medium cursor-pointer hover:underline"
-                              title="查看成员"
-                              onClick={() => {
-                                const name = part.slice(1)
-                                const theirs = msgs.filter((x) => x.senderName === name)
-                                setMemberCard({
-                                  name,
-                                  count: theirs.length,
-                                  lastAt: theirs.length > 0 ? theirs[theirs.length - 1]!.createdAt.slice(0, 16).replace('T', ' ') : null,
-                                  mine: name === myName,
-                                })
-                              }}
-                            >
-                              {part}
-                            </span>
-                          ) : (
-                            <span key={i}>{part}</span>
-                          ),
-                        )}
+                        {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+|#[a-z]+\d+)/g).map((part, i) => {
+                          if (part.startsWith('@') && part.length > 1) {
+                            return (
+                              <span
+                                key={i}
+                                className="text-primary font-medium cursor-pointer hover:underline"
+                                title="查看成员"
+                                onClick={() => {
+                                  const name = part.slice(1)
+                                  const theirs = msgs.filter((x) => x.senderName === name)
+                                  setMemberCard({
+                                    name,
+                                    count: theirs.length,
+                                    lastAt: theirs.length > 0 ? theirs[theirs.length - 1]!.createdAt.slice(0, 16).replace('T', ' ') : null,
+                                    mine: name === myName,
+                                  })
+                                }}
+                              >
+                                {part}
+                              </span>
+                            )
+                          }
+                          const tm = part.match(/^#task(\d+)$/)
+                          if (tm !== null) {
+                            return (
+                              <span
+                                key={i}
+                                className="text-primary font-medium cursor-pointer hover:underline"
+                                title="查看任务"
+                                onClick={() => { window.location.hash = '#/m/tasks' }}
+                              >
+                                {part}
+                              </span>
+                            )
+                          }
+                          return <span key={i}>{part}</span>
+                        })}
                       </div>
                     )}
                     {m.type === 'TEXT' && (

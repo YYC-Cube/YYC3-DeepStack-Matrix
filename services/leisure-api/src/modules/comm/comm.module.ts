@@ -295,14 +295,27 @@ export class CommService {
     viewer: { scope: string; id: number },
     afterId?: number,
     beforeId?: number,
+    q?: string,
+    senderName?: string,
   ) {
     await this.assertCanJoin(chatGroupId, storeId, viewer)
+    // 搜索过滤(2026-11-07:关键词=内容/成员=发送者名;q 与 senderName 可组合)
+    const kw = q?.trim() ?? ''
     const rows = await this.prisma.chatMessage.findMany({
       where: {
         storeId,
         chatGroupId,
         ...(afterId !== undefined ? { id: { gt: afterId } } : {}),
         ...(beforeId !== undefined ? { id: { lt: beforeId } } : {}),
+        ...(kw !== ''
+          ? {
+              OR: [
+                { content: { contains: kw } },
+                { senderName: { contains: kw } },
+              ],
+            }
+          : {}),
+        ...(senderName !== undefined && senderName !== '' ? { senderName } : {}),
       },
       orderBy: { id: afterId !== undefined ? 'asc' : 'desc' },
       take: afterId !== undefined ? 200 : 50,
@@ -492,7 +505,7 @@ export class CommService {
               senderScope: 'ADMIN',
               senderId: 0,
               senderName: '任务助手',
-              content: cheer,
+              content: cheer + ' (#task' + String(t.id) + ')',
               type: 'TEXT',
             },
           })
@@ -863,9 +876,19 @@ export class ChatController {
     @Param('id', ParseIntPipe) id: number,
     @Query('after') after?: string,
     @Query('before') before?: string,
+    @Query('q') q?: string,
+    @Query('senderName') senderName?: string,
   ): Promise<unknown> {
     const u = op(req)
-    return this.svc.listMessages(id, u.storeId, u, after !== undefined && after !== '' ? Number(after) : undefined, before !== undefined && before !== '' ? Number(before) : undefined)
+    return this.svc.listMessages(
+      id,
+      u.storeId,
+      u,
+      after !== undefined && after !== '' ? Number(after) : undefined,
+      before !== undefined && before !== '' ? Number(before) : undefined,
+      q,
+      senderName,
+    )
   }
 
   @Post('groups/:id/messages')

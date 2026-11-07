@@ -49,11 +49,12 @@
 
 ## 四、待办队列(本仓)
 
-1. gates 名单改 glob/显式追加(#2,脚本项,建议随下次发版批);
-2. 版本收敛目标线(#3)+ 跨域依赖逐个裁决(#5)——待 Owner;
-3. 包级测试分层门禁(#4)——随 P1 批次;
-4. README 品牌加注(#7)——低成本,可随手批次带上;
-5. **部署提醒**:生产实例重启前先迁移(§2.2 部署红线)。
+1. ~~gates 名单改 glob/显式追加(#2)~~ **✅ 已收口**(v1.1.0,G7 元门禁防复发);
+2. ~~README 品牌加注(#7)~~ **✅ 已收口**(v1.1.0);
+3. **分支保护** ~~建议 Owner 仓库设置开启~~ **✅ 已开启**(v1.1.1,gh api 配置):main 必过 `gates`/`sast`/`lighthouse` 三检查(strict=false 不强制与 HEAD 同步),禁 force-push/删除;`enforce_admins=false` 保留 Owner 直推通道——**dependabot 等任何 PR 合并被三检查阻断,#6 回摆类结构性消灭**;
+4. 版本收敛目标线(#3)~~待 Owner~~ → **已裁定双线登记,M1(2026-11-20)复盘收敛**;跨域依赖逐个裁决(#5)——仍待 Owner;
+5. 包级测试分层门禁(#4)——随 P1 批次;
+6. **部署提醒**:生产实例重启用 `bash scripts/deploy-prod.sh`(迁移已编排,勿手动裸重启)。
 
 ## 变更记录
 
@@ -61,3 +62,4 @@
 | ---- | ---- | ---- | ---- |
 | v1.0.0 | 2026-11-07 | 初版:接收 7 项移交;#1 本会话收口(迁移+时限闸+验证矩阵);#2-#7 复核定性并入待办队列;登记 apps 仓 HEAD 基线 c54293e | DeepStack-Matrix 维护会话 |
 | v1.1.0 | 2026-11-07 | #2 收口:verify-gates G1→13 包/G2-G3→6 端(mp-artist 映射 build:weapp)/G5 补两新应用路径/**新增 G7 元门禁(目录全覆盖断言,名单滞后错误类结构性消灭)**;gates 深挖连带修复三件——mp-artist webpack 精确 peer 对齐(5.91.0,taro runner 隔离断链根因)、webpackbar 垫片条件化(validate 钩子仅 webpack≥5.94 存在)、图片模块声明(#2 潜伏面实证)。#3 裁定:双线登记(家族 19.2.5+leisure 19.3.0 合法并存,mp-artist 随 Taro),M1(2026-11-20)复盘收敛。#7 收口:README 加注命名说明+计数更新(六端一核/十三包)。部署红线收口:scripts/deploy-prod.sh 编排(迁移→优雅重启,备好未执行,时机归 Owner)+ main.ts 启动自防(assertDbSchemaUpToDate 缺列 fail-fast)。#6 修正:CI(ci.yml)本就每笔跑 gates,回摆真因疑为无分支保护直合,建议 Owner 仓库设置启用分支保护。**勘误**:commit 03e2038 的 git add -A 卷入并发会话在途工作(app-mp-artist chat/tasks 页+metrics 模块+app.module.ts),内容已验证类型全绿,提交归属与两会话约定需 Owner 协调;自本笔起本会话弃用 add -A,按显式路径暂存 | DeepStack-Matrix 维护会话 |
+| v1.1.1 | 2026-11-07 | **分支保护开启**(Owner 指令「gh 或 ssh 设置」,gh api 落地):main 必过 gates/sast/lighthouse 三检查(strict=false),禁 force-push/删除,enforce_admins=false 保留 Owner 直推;#6 回摆类结构性消灭,待办队列刷新(#2/#7/#6 收口,#3 已裁定,#4/#5 余项) | DeepStack-Matrix 维护会话 |

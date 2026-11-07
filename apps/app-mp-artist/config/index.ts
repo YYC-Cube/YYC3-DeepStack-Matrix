@@ -22,7 +22,13 @@ function patchWebpackBar(chain: ChainLike): void {
     const inst = new Plugin(...args)
     const apply = inst.apply.bind(inst)
     inst.apply = (compiler: unknown) => {
-      const hooks = (compiler as { hooks: { validate: { tap: (opts: { name: string; stage: number }, fn: () => void) => void } } }).hooks
+      // validate 钩子仅存在于 webpack ≥5.94(按 ProgressPlugin schema 校验 options);
+      // 旧版(Taro 4.1.7 精确 peer 5.91.0)无此钩子也无此校验,直接放行即可
+      const hooks = (compiler as { hooks: { validate?: { tap: (opts: { name: string; stage: number }, fn: () => void) => void } } }).hooks
+      if (hooks?.validate === undefined) {
+        apply(compiler)
+        return
+      }
       const real = inst.options
       hooks.validate.tap({ name: 'TaroWebpackBarCompat', stage: -1000 }, () => {
         inst.options = { activeModules: true }

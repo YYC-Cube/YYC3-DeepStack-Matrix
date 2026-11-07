@@ -7,6 +7,7 @@ import { NestFactory } from '@nestjs/core'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { PrismaClient } from '@prisma/client'
 import { AppModule } from './app.module.js'
 import { CommModule, CommService } from './modules/comm/comm.module.js'
 import { PrismaService } from './prisma/prisma.service.js'
@@ -15,7 +16,33 @@ import { LeisureExceptionFilter } from './common/filters/leisure-exception.filte
 import { env } from './config/env.js'
 import { mountChatWs } from './ws/chat-ws.js'
 
+/**
+ * 启动自防(部署红线):admin_user 关键列缺失=迁移未跑,拒绝带病服务。
+ * 代码与库 schema 两态漂移时,登录等接口会 500;宁可启动即失败并给明确指引
+ * (先对目标库跑 `prisma migrate deploy`,生产用 DATABASE_URL_OWNER 所有者账号)
+ */
+async function assertDbSchemaUpToDate(): Promise<void> {
+  const required = ['must_change_password', 'failed_login_count', 'locked_until', 'preset_at']
+  const prisma = new PrismaClient()
+  try {
+    const rows = await prisma.$queryRaw<Array<{ column_name: string }>>`
+      SELECT column_name FROM information_schema.columns WHERE table_name = 'admin_user'`
+    const have = new Set(rows.map((r) => r.column_name))
+    const missing = required.filter((c) => !have.has(c))
+    if (missing.length > 0) {
+      new Logger('bootstrap').error(
+        'admin_user 缺列: ' + missing.join(', ') + ' —— 库 schema 未迁移,拒绝启动。' +
+        '请先执行: DATABASE_URL=<所有者账号> pnpm exec prisma migrate deploy(services/leisure-api 下)',
+      )
+      process.exit(1)
+    }
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
 async function bootstrap(): Promise<void> {
+  await assertDbSchemaUpToDate()
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     // 生产置于 LB/nginx 之后
     logger: ['log', 'warn', 'error'],

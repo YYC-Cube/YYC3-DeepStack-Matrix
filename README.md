@@ -4,7 +4,9 @@
 
 # YYC³ CloudPivot Intelli-Matrix
 
-**言启象限 · 语枢未来 | 四端一核 · 十二包同源 · 全链路质量门禁**
+> **命名说明**(移交清单 #7 处置,2026-11-07):本仓 slug 为 **DeepStack-Matrix**——即 CloudPivot Matrix 家族的 monorepo 底座实现(后端服务/领域单源包/共享组件库);品牌叙事沿用家族名 CloudPivot Intelli-Matrix,两者并存不冲突。
+
+**言启象限 · 语枢未来 | 六端一核 · 十三包同源 · 全链路质量门禁(G1-G7 元门禁全覆盖)**
 
 `一码四形态` `Monorepo` `React 19` `TypeScript strict` `Vite 8` `pnpm workspace` `shadcn/ui + Radix`
 
@@ -13,8 +15,8 @@
 [![发布管线](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/actions/workflows/release.yml/badge.svg)](https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/actions/workflows/release.yml)
 
 <!-- ━━ ② 质量门禁基线（本地 gates 实证快照）━━ -->
-[![G1-G6](https://img.shields.io/badge/%E9%97%A8%E7%A6%81-verify--gates%20G1--G6%20%E5%85%A8%E7%BB%BF-brightgreen)](scripts/verify-gates.sh)
-[![tsc](https://img.shields.io/badge/tsc-12%20pkgs%20%2B%204%20apps%20%C2%B7%200%20errors-blue)](scripts/verify-gates.sh)
+[![G1-G7](https://img.shields.io/badge/%E9%97%A8%E7%A6%81-verify--gates%20G1--G7%20%E5%85%A8%E7%BB%BF-brightgreen)](scripts/verify-gates.sh)
+[![tsc](https://img.shields.io/badge/tsc-13%20pkgs%20%2B%206%20apps%20%C2%B7%200%20errors-blue)](scripts/verify-gates.sh)
 [![复用率](https://img.shields.io/badge/%E4%B8%89%E7%AB%AF%E5%87%80%E6%89%BF%E6%8E%A5%E7%8E%87-83.5%25%20%C2%B7%20DoD%E2%89%A580%25-success)](scripts/reuse-report.mjs)
 [![i18n 裸键](https://img.shields.io/badge/i18n%E8%A3%B8%E9%94%AE-0%20%C2%B7%201220%20keys-success)](scripts/i18n-bare-key-scan.mjs)
 [![视觉基线](https://img.shields.io/badge/%E8%A7%86%E8%A7%89%E5%9F%BA%E7%BA%BF-61%E5%BC%A0%20%C2%B7%20diff%E2%89%A40.5%25-purple)](docs/YYC3-组件拆分-指导文档/)

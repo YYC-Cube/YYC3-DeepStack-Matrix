@@ -199,10 +199,11 @@ export default function Chat() {
                 </View>
               )
             }
+            const mentionMe = m.content.includes('@' + myName())
             return (
               <View key={m.id} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start', margin: '6px 0' }}>
-                <View style={{ maxWidth: '80%', borderRadius: 16, padding: '6px 10px', background: mine ? 'rgba(0,212,255,0.14)' : 'rgba(139,155,180,0.12)' }}>
-                  <Text className="mp-muted" style={{ fontSize: '10px' }}>{m.senderName} · {m.createdAt.slice(11, 16)}</Text>
+                <View style={{ maxWidth: '80%', borderRadius: 16, padding: '6px 10px', background: mine ? 'rgba(0,212,255,0.14)' : 'rgba(139,155,180,0.12)', border: mentionMe && !mine ? '1px solid #f5a623' : '1px solid transparent' }}>
+                  <Text className="mp-muted" style={{ fontSize: '10px' }}>{m.senderName} · {m.createdAt.slice(11, 16)}{mentionMe && !mine ? ' · @提及我' : ''}</Text>
                   {m.images.length > 0 && (
                     <View style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                       {m.images.map((img, i) => (

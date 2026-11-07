@@ -63,6 +63,8 @@ export default function MChatPage(): React.JSX.Element {
   const [previewImg, setPreviewImg] = useState<string | null>(null)
   /** @ 点击定位成员卡(最近发言/入群信息) */
   const [memberCard, setMemberCard] = useState<{ name: string; count: number; lastAt: string | null; mine: boolean } | null>(null)
+  /** 表情面板展开(消息 id) */
+  const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
   const token = useAuthStore((s) => s.token)
   const myName = useAuthStore((s) => s.name)
 
@@ -300,7 +302,7 @@ export default function MChatPage(): React.JSX.Element {
                     )}
                     {m.type === 'TEXT' && (
                       <div className="flex gap-1 mt-0.5 items-center">
-                        {['👍', '❤️', '🎉', '😄', '😮', '🔥', '💯', '👏'].map((e) => (
+                        {['👍', '❤️', '🎉', '😄', '😮', '🔥'].map((e) => (
                           <button key={e} className="text-[10px] text-fg-muted hover:text-primary" onClick={() => { react(m, e) }}>
                             {e}
                           </button>

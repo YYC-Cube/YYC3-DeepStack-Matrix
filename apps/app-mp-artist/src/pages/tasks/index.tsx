@@ -28,10 +28,16 @@ export default function Tasks() {
   const [loaded, setLoaded] = useState(false)
 
   const load = useCallback(async (): Promise<void> => {
+    // 离线缓存优先(H5 弱网可用;刷新成功后覆盖)
+    try {
+      const cached = JSON.parse(localStorage.getItem('yyc3-tasks-cache') ?? 'null') as TaskRow[] | null
+      if (cached !== null && Array.isArray(cached) && cached.length > 0) setRows(cached)
+    } catch { /* 静默 */ }
     try {
       const res = await myTasks()
       setRows(res.rows)
       setMsg('')
+      try { localStorage.setItem('yyc3-tasks-cache', JSON.stringify(res.rows)) } catch { /* 静默 */ }
     } catch (e) {
       setMsg(errText(e))
     } finally {

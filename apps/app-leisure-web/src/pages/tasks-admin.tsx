@@ -25,6 +25,15 @@ interface TaskRow {
 
 const TYPE_LABEL: Record<string, string> = { BOOKING: '订房任务', ORDER: '点餐任务' }
 
+/** 任务模板库(常用指标一键套用;2026-11-07) */
+const TASK_TEMPLATES = [
+  { id: 'new-m', name: '新人月度·订房 20 间', type: 'BOOKING', title: '新人月度订房指标', count: 20, days: 30, recurrence: 'WEEKLY' },
+  { id: 'wk-b10', name: '周冲刺·订房 10 间', type: 'BOOKING', title: '本周订房冲刺', count: 10, days: 7, recurrence: 'NONE' },
+  { id: 'wk-b5', name: '周冲刺·订房 5 间(新人)', type: 'BOOKING', title: '新人周订房指标', count: 5, days: 7, recurrence: 'NONE' },
+  { id: 'd-o5', name: '每日·点单 5 单', type: 'ORDER', title: '每日点单指标', count: 5, days: 1, recurrence: 'DAILY' },
+  { id: 'wk-o20', name: '周指标·点单 20 单', type: 'ORDER', title: '本周点单指标', count: 20, days: 7, recurrence: 'NONE' },
+]
+
 export default function TasksAdminPage(): React.JSX.Element {
   const permCodes = useAuthStore((s) => s.permCodes)
   const canManage = permCodes.includes('setting:manage')
@@ -159,6 +168,21 @@ export default function TasksAdminPage(): React.JSX.Element {
                 <Button variant="outline" className="w-full justify-start" onClick={() => { setPickerOpen(true) }}>
                   {form.artistName !== '' ? `已选:${form.artistName}#${form.artistId}` : '+ 选择人员'}
                 </Button>
+              </Field>
+              <Field label="模板一键套用(常用指标)">
+                <SelectBox
+                  value=""
+                  onChange={(v) => {
+                    const tpl = TASK_TEMPLATES.find((t) => t.id === v)
+                    if (tpl === undefined) return
+                    const from = new Date()
+                    const to = new Date(from.getTime() + tpl.days * 86_400_000)
+                    const fmt = (d: Date): string => d.toISOString().slice(0, 10)
+                    setForm({ ...form, title: tpl.title, type: tpl.type, targetCount: String(tpl.count), startAt: fmt(from), endAt: fmt(to), recurrence: tpl.recurrence })
+                    toast.success('模板已套用:' + tpl.name)
+                  }}
+                  options={[{ value: '', label: '选择模板…' }, ...TASK_TEMPLATES.map((t) => ({ value: t.id, label: t.name }))]}
+                />
               </Field>
               <Field label="任务名称" required>
                 <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="如:本周订房冲刺 10 间" />

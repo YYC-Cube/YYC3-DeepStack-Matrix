@@ -70,6 +70,27 @@ class ReactDto {
   emoji!: string
 }
 
+class TemplateDto {
+  @IsString()
+  @Length(1, 64)
+  name!: string
+  @IsIn(['BOOKING', 'ORDER'])
+  type!: string
+  @IsString()
+  @Length(1, 64)
+  title!: string
+  @IsInt()
+  targetCount!: number
+  @IsInt()
+  days!: number
+  @IsOptional()
+  @IsIn(['NONE', 'DAILY', 'WEEKLY'])
+  recurrence?: string
+  @IsOptional()
+  @IsInt()
+  sort?: number
+}
+
 /* ── Service ── */
 
 @Injectable()
@@ -560,6 +581,59 @@ export class CommService {
       data: { storeId, actorId: operatorId, action: 'TASK_CANCEL', targetType: 'task', targetId: String(id), beforeJson: { status: before.status } as object, afterJson: { status: 'CANCELLED' } as object },
     })
   }
+
+  /* ── 任务模板库(管理员可编辑;一键套用持久化) ── */
+
+  async listTemplates(storeId: number) {
+    const rows = await this.prisma.taskTemplate.findMany({
+      where: { storeId, deletedAt: null },
+      orderBy: [{ sort: 'asc' }, { id: 'asc' }],
+    })
+    return { rows }
+  }
+
+  async createTemplate(storeId: number, body: TemplateDto, operatorId: number): Promise<{ id: number }> {
+    const dup = await this.prisma.taskTemplate.findFirst({ where: { storeId, name: body.name, deletedAt: null } })
+    if (dup !== null) throw new BadRequestException('模板名称已存在')
+    const created = await this.prisma.taskTemplate.create({
+      data: {
+        storeId,
+        name: body.name,
+        type: body.type,
+        title: body.title,
+        targetCount: body.targetCount,
+        days: body.days,
+        recurrence: body.recurrence ?? 'NONE',
+        sort: body.sort ?? 0,
+        createdById: operatorId,
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operatorId, action: 'TASK_TEMPLATE_CREATE', targetType: 'task_template', targetId: String(created.id), beforeJson: null as unknown as object, afterJson: { name: body.name, type: body.type } as object },
+    })
+    return { id: created.id }
+  }
+
+  async updateTemplate(id: number, storeId: number, body: TemplateDto, operatorId: number): Promise<void> {
+    const before = await this.prisma.taskTemplate.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (before === null) throw new NotFoundException('模板不存在')
+    const after = await this.prisma.taskTemplate.update({
+      where: { id },
+      data: { name: body.name, type: body.type, title: body.title, targetCount: body.targetCount, days: body.days, recurrence: body.recurrence ?? 'NONE', sort: body.sort ?? 0 },
+    })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operatorId, action: 'TASK_TEMPLATE_UPDATE', targetType: 'task_template', targetId: String(id), beforeJson: before as object, afterJson: after as object },
+    })
+  }
+
+  async deleteTemplate(id: number, storeId: number, operatorId: number): Promise<void> {
+    const before = await this.prisma.taskTemplate.findFirst({ where: { id, storeId, deletedAt: null } })
+    if (before === null) throw new NotFoundException('模板不存在')
+    await this.prisma.taskTemplate.update({ where: { id }, data: { deletedAt: new Date() } })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operatorId, action: 'TASK_TEMPLATE_DELETE', targetType: 'task_template', targetId: String(id), beforeJson: before as object, afterJson: null as unknown as object },
+    })
+  }
 }
 
 /* ── Task DTO ── */
@@ -609,6 +683,40 @@ export class TaskController {
     const u = op(req)
     await this.svc.cancelTask(id, u.storeId, u.id)
     return { cancelled: true }
+  }
+
+  /** 模板库清单(全员可读;套用下拉数据源) */
+  @Get('templates')
+  async templates(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.listTemplates(u.storeId)
+  }
+
+  @RequirePerm('setting:manage')
+  @Post('templates')
+  async createTemplate(@Req() req: Request, @Body() body: TemplateDto): Promise<unknown> {
+    const u = op(req)
+    return this.svc.createTemplate(u.storeId, body, u.id)
+  }
+
+  @RequirePerm('setting:manage')
+  @Post('templates/:id')
+  async updateTemplate(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: TemplateDto,
+  ): Promise<unknown> {
+    const u = op(req)
+    await this.svc.updateTemplate(id, u.storeId, body, u.id)
+    return { updated: true }
+  }
+
+  @RequirePerm('setting:manage')
+  @Post('templates/:id/delete')
+  async deleteTemplate(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    await this.svc.deleteTemplate(id, u.storeId, u.id)
+    return { deleted: true }
   }
 }
 

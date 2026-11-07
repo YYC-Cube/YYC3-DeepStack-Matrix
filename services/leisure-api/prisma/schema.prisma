@@ -1061,3 +1061,21 @@ model Task {
   @@index([storeId, status])
   @@map("task")
 }
+/// 任务模板库(2026-11-07 Owner 指令:管理员可编辑;一键套用持久化)
+model TaskTemplate {
+  id          Int      @id @default(autoincrement())
+  storeId     Int      @map("store_id")
+  name        String   @db.VarChar(64)
+  type        String   @db.VarChar(16) // BOOKING/ORDER
+  title       String   @db.VarChar(64)
+  targetCount Int      @map("target_count")
+  days        Int      // 期长(天)
+  recurrence  String   @default("NONE") @map("recurrence") @db.VarChar(16)
+  sort        Int      @default(0)
+  deletedAt   DateTime? @map("deleted_at")
+  createdById Int      @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([storeId, deletedAt])
+  @@map("task_template")
+}

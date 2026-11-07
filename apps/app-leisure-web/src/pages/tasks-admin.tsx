@@ -26,18 +26,23 @@ interface TaskRow {
 const TYPE_LABEL: Record<string, string> = { BOOKING: '订房任务', ORDER: '点餐任务' }
 
 /** 任务模板库(常用指标一键套用;2026-11-07) */
-const TASK_TEMPLATES = [
-  { id: 'new-m', name: '新人月度·订房 20 间', type: 'BOOKING', title: '新人月度订房指标', count: 20, days: 30, recurrence: 'WEEKLY' },
-  { id: 'wk-b10', name: '周冲刺·订房 10 间', type: 'BOOKING', title: '本周订房冲刺', count: 10, days: 7, recurrence: 'NONE' },
-  { id: 'wk-b5', name: '周冲刺·订房 5 间(新人)', type: 'BOOKING', title: '新人周订房指标', count: 5, days: 7, recurrence: 'NONE' },
-  { id: 'd-o5', name: '每日·点单 5 单', type: 'ORDER', title: '每日点单指标', count: 5, days: 1, recurrence: 'DAILY' },
-  { id: 'wk-o20', name: '周指标·点单 20 单', type: 'ORDER', title: '本周点单指标', count: 20, days: 7, recurrence: 'NONE' },
-]
+/** 模板库(持久化 task_template;GET /tasks/templates 数据源,管理员可增改删) */
+interface TplRow {
+  id: number
+  name: string
+  type: string
+  title: string
+  targetCount: number
+  days: number
+  recurrence: string
+}
 
 export default function TasksAdminPage(): React.JSX.Element {
   const permCodes = useAuthStore((s) => s.permCodes)
   const canManage = permCodes.includes('setting:manage')
   const [rows, setRows] = useState<TaskRow[]>()
+  const [templates, setTemplates] = useState<TplRow[]>([])
+  const [tplForm, setTplForm] = useState<{ id?: number; name: string; type: string; title: string; targetCount: string; days: string; recurrence: string; sort: number } | null>(null)
   const [form, setForm] = useState<{ type: string; title: string; artistId: string; artistName: string; targetCount: string; startAt: string; endAt: string; recurrence: string } | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -46,6 +51,7 @@ export default function TasksAdminPage(): React.JSX.Element {
     try {
       const res = await req<{ rows: TaskRow[] }>('GET', '/tasks')
       setRows(res.rows)
+      void req<{ rows: TplRow[] }>('GET', '/tasks/templates').then((r) => setTemplates(r.rows)).catch(() => undefined)
     } catch (e) {
       toastError(e, '任务加载失败')
     }
@@ -140,6 +146,119 @@ export default function TasksAdminPage(): React.JSX.Element {
       />
       <DataTable columns={columns} rows={rows} loading={rows === undefined} total={rows?.length ?? 0} page={1} pageSize={50} />
 
+      {/* 模板库管理(canManage) */}
+      {canManage && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">任务模板库</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setTplForm({ id: undefined, name: '', type: 'BOOKING', title: '', targetCount: '', days: '7', recurrence: 'NONE', sort: 0 })}
+            >
+              + 新增模板
+            </Button>
+          </div>
+          <DataTable
+            columns={[
+              { key: 'name', header: '模板名' },
+              { key: 'type', header: '类型', render: (r) => TYPE_LABEL[r.type] ?? r.type },
+              { key: 'title', header: '任务标题' },
+              { key: 'targetCount', header: '目标数', render: (r) => String(r.targetCount) },
+              { key: 'days', header: '期长(天)', render: (r) => String(r.days) },
+              { key: 'recurrence', header: '周期', render: (r) => r.recurrence === 'DAILY' ? '每日' : r.recurrence === 'WEEKLY' ? '每周' : '单次' },
+              {
+                key: 'act',
+                header: '操作',
+                render: (r) => (
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" onClick={() => setTplForm({ id: r.id, name: r.name, type: r.type, title: r.title, targetCount: String(r.targetCount), days: String(r.days), recurrence: r.recurrence, sort: 0 })}>编辑</Button>
+                    <ConfirmButton
+                      confirmTitle="删除模板"
+                      confirmDesc="删除后一键套用不再显示该模板。"
+                      onConfirm={() => {
+                        void req('POST', '/tasks/templates/' + String(r.id) + '/delete', {})
+                          .then(() => { toast.success('已删除'); return load() })
+                          .catch((e) => toastError(e))
+                      }}
+                    >
+                      删除
+                    </ConfirmButton>
+                  </div>
+                ),
+              },
+            ] as Array<Column<TplRow>>}
+            rows={templates}
+            loading={templates === undefined}
+            total={templates?.length ?? 0}
+            page={1}
+            pageSize={50}
+          />
+          <Dialog open={tplForm !== null} onOpenChange={(o) => { if (!o) setTplForm(null) }}>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle>{tplForm?.id !== undefined ? '编辑模板' : '新增模板'}</DialogTitle>
+              </DialogHeader>
+              {tplForm !== null && (
+                <div className="space-y-3">
+                  <Field label="模板名" required>
+                    <Input value={tplForm.name} onChange={(e) => setTplForm({ ...tplForm, name: e.target.value })} />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="类型">
+                      <SelectBox value={tplForm.type} onChange={(v) => setTplForm({ ...tplForm, type: v })} options={[{ value: 'BOOKING', label: '订房' }, { value: 'ORDER', label: '点餐' }]} />
+                    </Field>
+                    <Field label="任务标题">
+                      <Input value={tplForm.title} onChange={(e) => setTplForm({ ...tplForm, title: e.target.value })} />
+                    </Field>
+                    <Field label="目标数">
+                      <Input inputMode="numeric" value={tplForm.targetCount} onChange={(e) => setTplForm({ ...tplForm, targetCount: e.target.value.replace(/\D/g, '') })} />
+                    </Field>
+                    <Field label="期长(天)">
+                      <Input inputMode="numeric" value={tplForm.days} onChange={(e) => setTplForm({ ...tplForm, days: e.target.value.replace(/\D/g, '') })} />
+                    </Field>
+                    <Field label="周期">
+                      <SelectBox value={tplForm.recurrence} onChange={(v) => setTplForm({ ...tplForm, recurrence: v })} options={[{ value: 'NONE', label: '单次' }, { value: 'DAILY', label: '每日' }, { value: 'WEEKLY', label: '每周' }]} />
+                    </Field>
+                    <Field label="排序">
+                      <Input inputMode="numeric" value={String(tplForm.sort)} onChange={(e) => setTplForm({ ...tplForm, sort: Number(e.target.value) || 0 })} />
+                    </Field>
+                  </div>
+                </div>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setTplForm(null)}>取消</Button>
+                <Button
+                  disabled={busy || tplForm?.name.trim() === '' || tplForm?.title.trim() === '' || tplForm?.targetCount === ''}
+                  onClick={() => {
+                    if (tplForm === null) return
+                    const body = {
+                      name: tplForm.name.trim(),
+                      type: tplForm.type,
+                      title: tplForm.title.trim(),
+                      targetCount: Number(tplForm.targetCount) || 1,
+                      days: Number(tplForm.days) || 7,
+                      recurrence: tplForm.recurrence,
+                      sort: tplForm.sort,
+                    }
+                    setBusy(true)
+                    const call = tplForm.id !== undefined
+                      ? req('POST', '/tasks/templates/' + String(tplForm.id), body)
+                      : req('POST', '/tasks/templates', body)
+                    void call
+                      .then(() => { toast.success('模板已保存'); setTplForm(null); return load() })
+                      .catch((e) => toastError(e))
+                      .finally(() => setBusy(false))
+                  }}
+                >
+                  保存
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </Card>
+      )}
+
       <PersonPicker
         open={pickerOpen}
         title="选择任务对象(销售经理)"
@@ -173,15 +292,15 @@ export default function TasksAdminPage(): React.JSX.Element {
                 <SelectBox
                   value=""
                   onChange={(v) => {
-                    const tpl = TASK_TEMPLATES.find((t) => t.id === v)
+                    const tpl = templates.find((t) => String(t.id) === v)
                     if (tpl === undefined) return
                     const from = new Date()
                     const to = new Date(from.getTime() + tpl.days * 86_400_000)
                     const fmt = (d: Date): string => d.toISOString().slice(0, 10)
-                    setForm({ ...form, title: tpl.title, type: tpl.type, targetCount: String(tpl.count), startAt: fmt(from), endAt: fmt(to), recurrence: tpl.recurrence })
+                    setForm({ ...form, title: tpl.title, type: tpl.type, targetCount: String(tpl.targetCount), startAt: fmt(from), endAt: fmt(to), recurrence: tpl.recurrence })
                     toast.success('模板已套用:' + tpl.name)
                   }}
-                  options={[{ value: '', label: '选择模板…' }, ...TASK_TEMPLATES.map((t) => ({ value: t.id, label: t.name }))]}
+                  options={[{ value: '', label: '选择模板…' }, ...templates.map((t) => ({ value: String(t.id), label: t.name }))]}
                 />
               </Field>
               <Field label="任务名称" required>

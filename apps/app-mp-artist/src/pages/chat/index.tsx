@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, Text, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { chatGroups, chatMessages, chatSend, chatRetract, errText } from '../../lib/api'
+import { chatGroups, chatMessages, chatSend, chatRetract, chatReact, errText } from '../../lib/api'
 
 interface GroupRow {
   id: number
@@ -16,6 +16,10 @@ interface GroupRow {
   lastAt: string | null
   lastPreview: string
 }
+interface ReactionGroup {
+  emoji: string
+  by: Array<{ scope: string; id: number; name: string }>
+}
 interface MsgRow {
   id: number
   senderScope: string
@@ -24,6 +28,7 @@ interface MsgRow {
   content: string
   type: string
   images: string[]
+  reactions: ReactionGroup[]
   createdAt: string
 }
 
@@ -139,6 +144,14 @@ export default function Chat() {
       .finally(() => setBusy(false))
   }
 
+  const react = (m: MsgRow, emoji: string): void => {
+    const g = active
+    if (g === null) return
+    chatReact(g.id, m.id, emoji)
+      .then((out) => setMsgs((s) => s.map((x) => (x.id === m.id ? { ...x, reactions: out.reactions } : x))))
+      .catch((e) => setMsg_(errText(e)))
+  }
+
   const retract = (m: MsgRow): void => {
     const g = active
     if (g === null) return
@@ -197,12 +210,35 @@ export default function Chat() {
                       ))}
                     </View>
                   )}
+                  {m.reactions !== undefined && m.reactions.length > 0 && (
+                    <View style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                      {m.reactions.map((r) => (
+                        <Text
+                          key={r.emoji}
+                          style={{ padding: '1px 8px', borderRadius: 999, border: '1px solid rgba(139,155,180,0.3)', fontSize: '11px', color: '#e0f0ff', background: 'rgba(139,155,180,0.08)' }}
+                          onClick={() => { react(m, r.emoji) }}
+                        >
+                          {r.emoji} {String(r.by.length)}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
                   {m.content !== '' && (
                     <Text style={{ fontSize: '13px', color: '#e0f0ff', wordBreak: 'break-all' }}>
                       {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+)/g).map((part, i) =>
                         part.startsWith('@') ? <Text key={i} style={{ color: '#00d4ff', fontWeight: 700 }}>{part}</Text> : <Text key={i}>{part}</Text>,
                       )}
                     </Text>
+                  )}
+                  {m.type === 'TEXT' && (
+                    <View style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                      {['👍', '❤️', '🎉'].map((e) => (
+                        <Text key={e} className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { react(m, e) }}>{e}</Text>
+                      ))}
+                      {mine && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && (
+                        <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { retract(m) }}>撤回</Text>
+                      )}
+                    </View>
                   )}
                   {mine && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && m.type === 'TEXT' && (
                     <Text className="mp-muted" style={{ fontSize: '10px' }} onClick={() => { retract(m) }}>

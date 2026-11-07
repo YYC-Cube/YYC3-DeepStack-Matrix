@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { View, Text, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import logoPng from '../../assets/yyc3-logo.png'
-import { loadAuth, clearAuth, myToday, myFinish, errText } from '../../lib/api'
+import { loadAuth, clearAuth, myToday, myFinish, myTasks, errText } from '../../lib/api'
 
 interface TodayReport {
   type: string
@@ -14,6 +14,7 @@ interface TodayReport {
 }
 
 export default function Home() {
+  const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [authed, setAuthed] = useState(true)
   const [today, setToday] = useState<TodayReport | null>(null)
   const [name, setName] = useState('')
@@ -33,6 +34,12 @@ export default function Home() {
         setToday(res.report)
       } catch (e) {
         Taro.showToast({ title: errText(e), icon: 'none' })
+      }
+      try {
+        const t = await myTasks()
+        setTaskAlert({ total: t.rows.length, done: t.rows.filter((x) => x.rawProgress >= x.targetCount).length })
+      } catch {
+        /* 任务加载失败静默(卡片不渲染) */
       }
     })()
   })
@@ -70,7 +77,23 @@ export default function Home() {
         </Text>
       </View>
 
-      <View className="mp-card">
+            {taskAlert !== null && taskAlert.total > 0 && (
+        <View
+          className="mp-card"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+          onClick={() => Taro.navigateTo({ url: '/pages/tasks/index' })}
+        >
+          <Text style={{ fontSize: '18px' }}>{taskAlert.done === taskAlert.total ? '✅' : '⚠️'}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: '13px', fontWeight: 600, color: taskAlert.done === taskAlert.total ? '#37d67a' : '#f5a623' }}>
+              {taskAlert.done === taskAlert.total ? '任务全部达标' : '任务进行中'}
+            </Text>
+            <Text className="mp-muted">{String(taskAlert.done)}/{String(taskAlert.total)} 达标 · 点击查看进度</Text>
+          </View>
+        </View>
+      )}
+
+<View className="mp-card">
         <Button className="mp-btn" onClick={() => Taro.switchTab({ url: '/pages/attendance/index' })}>
           扫码签到 / 签退
         </Button>

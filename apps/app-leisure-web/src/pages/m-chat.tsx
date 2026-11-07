@@ -17,6 +17,10 @@ interface GroupRow {
   lastAt: string | null
   lastPreview: string
 }
+interface ReactionGroup {
+  emoji: string
+  by: Array<{ scope: string; id: number; name: string }>
+}
 interface MsgRow {
   id: number
   senderScope: string
@@ -25,6 +29,7 @@ interface MsgRow {
   content: string
   type: string
   images: string[]
+  reactions: ReactionGroup[]
   createdAt: string
 }
 
@@ -120,7 +125,11 @@ export default function MChatPage(): React.JSX.Element {
     ws.onmessage = (ev) => {
       try {
         const payload = JSON.parse(String(ev.data)) as { event?: string; data?: MsgRow }
-        if (payload.event === 'chat:retract' && payload.data !== undefined) {
+        if (payload.event === 'chat:react' && payload.data !== undefined) {
+          const rid = payload.data.id
+          const rr = payload.data.reactions
+          setMsgs((s2) => s2.map((x) => (x.id === rid ? { ...x, reactions: rr } : x)))
+        } else if (payload.event === 'chat:retract' && payload.data !== undefined) {
           const rid = payload.data.id
           setMsgs((s2) => s2.map((x) => (x.id === rid ? { ...x, type: 'RETRACTED', content: '已撤回', images: [] } : x)))
         } else if (payload.event === 'chat:message' && payload.data !== undefined) {
@@ -144,6 +153,15 @@ export default function MChatPage(): React.JSX.Element {
       setWsOk(false)
     }
   }, [active, token])
+
+  const react = (m: MsgRow, emoji: string): void => {
+    if (active === null) return
+    void req<{ id: number; reactions: ReactionGroup[] }>('POST', '/chat/groups/' + String(active.id) + '/messages/' + String(m.id) + '/react', { emoji })
+      .then((out) => {
+        setMsgs((s2) => s2.map((x) => (x.id === m.id ? { ...x, reactions: out.reactions } : x)))
+      })
+      .catch((e) => toastError(e))
+  }
 
   const retract = (m: MsgRow): void => {
     if (active === null) return
@@ -239,6 +257,20 @@ export default function MChatPage(): React.JSX.Element {
                   <div className="text-xs italic text-fg-muted">已撤回</div>
                 ) : (
                   <>
+                    {m.reactions !== undefined && m.reactions.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {m.reactions.map((r) => (
+                          <button
+                            key={r.emoji}
+                            className="px-1.5 py-0.5 rounded-full border border-line text-xs bg-fg-muted/10 hover:border-primary"
+                            title={r.by.map((b) => b.name).join('、')}
+                            onClick={() => { react(m, r.emoji) }}
+                          >
+                            {r.emoji} {String(r.by.length)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {m.content !== '' && (
                       <div className="text-sm break-all whitespace-pre-wrap">
                         {m.content.split(/(@[\u4e00-\u9fa5a-zA-Z0-9_]+)/g).map((part, i) =>
@@ -266,13 +298,22 @@ export default function MChatPage(): React.JSX.Element {
                         )}
                       </div>
                     )}
-                    {m.senderScope === 'ADMIN' && m.senderName === myName && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && m.type === 'TEXT' && (
-                      <button
-                        className="text-[10px] text-fg-muted hover:text-error mt-0.5"
-                        onClick={() => retract(m)}
-                      >
-                        撤回
-                      </button>
+                    {m.type === 'TEXT' && (
+                      <div className="flex gap-1 mt-0.5 items-center">
+                        {['👍', '❤️', '🎉'].map((e) => (
+                          <button key={e} className="text-[10px] text-fg-muted hover:text-primary" onClick={() => { react(m, e) }}>
+                            {e}
+                          </button>
+                        ))}
+                        {m.senderScope === 'ADMIN' && m.senderName === myName && Date.now() - new Date(m.createdAt).getTime() < 2 * 60_000 && (
+                          <button
+                            className="text-[10px] text-fg-muted hover:text-error"
+                            onClick={() => retract(m)}
+                          >
+                            撤回
+                          </button>
+                        )}
+                      </div>
                     )}
                   </>
                 )}

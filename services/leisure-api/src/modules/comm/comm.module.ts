@@ -64,6 +64,12 @@ class ChatMessageDto {
   images?: unknown
 }
 
+class ReactDto {
+  @IsString()
+  @Length(1, 8)
+  emoji!: string
+}
+
 /* ── Service ── */
 
 @Injectable()
@@ -290,6 +296,7 @@ export class CommService {
         content: m.content,
         type: m.type,
         images: Array.isArray(m.images) ? (m.images as string[]) : [],
+        reactions: Array.isArray(m.reactions) ? (m.reactions as Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>) : [],
         createdAt: m.createdAt.toISOString(),
       })),
     }
@@ -356,6 +363,31 @@ export class CommService {
       data: { content: '已撤回', type: 'RETRACTED' },
     })
     this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:retract', { id: messageId })
+  }
+
+  /** 表情回应 toggle(同 emoji 重复点=取消;WS 广播 chat:react;reactions=[{emoji,by:[{scope,id,name}]}]) */
+  async reactMessage(chatGroupId: number, messageId: number, storeId: number, emoji: string, sender: { scope: string; id: number; name: string }): Promise<unknown> {
+    const m = await this.prisma.chatMessage.findFirst({ where: { id: messageId, storeId, chatGroupId } })
+    if (m === null) throw new NotFoundException('消息不存在')
+    const list = Array.isArray(m.reactions) ? (m.reactions as Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>) : []
+    const hit = list.find((r) => r.emoji === emoji)
+    if (hit === undefined) {
+      if (list.length >= 8) throw new BadRequestException('回应种类已达上限(8)')
+      list.push({ emoji, by: [{ scope: sender.scope, id: sender.id, name: sender.name }] })
+    } else {
+      const before = hit.by.length
+      hit.by = hit.by.filter((b) => !(b.scope === sender.scope && b.id === sender.id))
+      if (hit.by.length === before) hit.by.push({ scope: sender.scope, id: sender.id, name: sender.name })
+      if (hit.by.length === 0) {
+        const idx = list.findIndex((r) => r.emoji === emoji)
+        list.splice(idx, 1)
+      }
+    }
+    const reactions = list.length > 0 ? (list as object) : undefined
+    await this.prisma.chatMessage.update({ where: { id: messageId }, data: { reactions } })
+    const out = { id: messageId, reactions: list }
+    this.chatServer?.to('chat:' + String(chatGroupId)).emit('chat:react', out)
+    return out
   }
 
 
@@ -676,6 +708,18 @@ export class ChatController {
     const u = op(req)
     await this.svc.retractMessage(id, mid, u.storeId, u)
     return { retracted: true }
+  }
+
+  /** 表情回应 toggle */
+  @Post('groups/:id/messages/:mid/react')
+  async react(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Param('mid', ParseIntPipe) mid: number,
+    @Body() body: ReactDto,
+  ): Promise<unknown> {
+    const u = op(req)
+    return this.svc.reactMessage(id, mid, u.storeId, body.emoji, u)
   }
 }
 

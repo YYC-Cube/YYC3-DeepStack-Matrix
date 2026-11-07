@@ -20,6 +20,10 @@ interface BizCache {
   activeTasks: number
   chatMessages: number
   txnsToday: number
+  /** 结算金额直方图(近 30d;桶界 [100,500,1000,5000,10000,+Inf] 累计) */
+  settleBuckets: number[]
+  settleSum: number
+  settleCount: number
 }
 
 @Injectable()
@@ -32,22 +36,42 @@ export class MetricsService {
   private async biz(): Promise<BizCache> {
     if (this.cache !== null && Date.now() - this.cache.at < this.cacheMs) return this.cache
     const dayStart = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00')
-    const [artists, openSessions, roomsTotal, activeTasks, chatMessages, txnsToday] = await Promise.all([
+    const [artists, openSessions, roomsTotal, activeTasks, chatMessages, txnsToday, settles] = await Promise.all([
       this.prisma.artist.count({ where: { deletedAt: null, status: 1 } }),
       this.prisma.roomSession.count({ where: { status: 'OPEN' } }).catch(() => 0),
       this.prisma.room.count().catch(() => 0),
       this.prisma.task.count({ where: { status: 'ACTIVE' } }).catch(() => 0),
       this.prisma.chatMessage.count().catch(() => 0),
       this.prisma.stageFeeTxn.count({ where: { createdAt: { gte: dayStart } } }).catch(() => 0),
+      this.prisma.splitSettlement.findMany({ where: { createdAt: { gte: new Date(Date.now() - 30 * 86_400_000) } }, select: { amount: true } }).catch(() => []),
     ])
-    this.cache = { at: Date.now(), artists, openSessions, roomsTotal, activeTasks, chatMessages, txnsToday }
+    // 结算金额分桶(近 30d)
+    const edges = [100, 500, 1000, 5000, 10000]
+    const buckets = [0, 0, 0, 0, 0, 0]
+    let sSum = 0
+    let sCount = 0
+    for (const r of settles) {
+      const a = Number(r.amount)
+      sSum += a
+      sCount++
+      let placed = false
+      for (let i = 0; i < edges.length; i++) {
+        if (a < edges[i]!) {
+          buckets[i]!++
+          placed = true
+          break
+        }
+      }
+      if (!placed) buckets[edges.length]!++
+    }
+    this.cache = { at: Date.now(), artists, openSessions, roomsTotal, activeTasks, chatMessages, txnsToday, settleBuckets: buckets, settleSum: Math.round(sSum * 100) / 100, settleCount: sCount }
     return this.cache
   }
 
   async render(): Promise<string> {
     const mem = process.memoryUsage()
     const uptime = Math.floor((Date.now() - BOOT_AT) / 1000)
-    let biz: BizCache = { at: 0, artists: 0, openSessions: 0, roomsTotal: 0, activeTasks: 0, chatMessages: 0, txnsToday: 0 }
+    let biz: BizCache = { at: 0, artists: 0, openSessions: 0, roomsTotal: 0, activeTasks: 0, chatMessages: 0, txnsToday: 0, settleBuckets: [0, 0, 0, 0, 0, 0], settleSum: 0, settleCount: 0 }
     try {
       biz = await this.biz()
     } catch {
@@ -81,6 +105,16 @@ export class MetricsService {
       '# HELP lm_stage_fee_txns_today Stage fee txns today',
       '# TYPE lm_stage_fee_txns_today gauge',
       'lm_stage_fee_txns_today ' + String(biz.txnsToday),
+      '# HELP lm_settlement_amount_bucket Settlement amounts in last 30d, cumulative buckets (CNY)',
+      '# TYPE lm_settlement_amount_bucket histogram',
+      'lm_settlement_amount_bucket{le="100"} ' + String(biz.settleBuckets[0]),
+      'lm_settlement_amount_bucket{le="500"} ' + String(biz.settleBuckets[1]),
+      'lm_settlement_amount_bucket{le="1000"} ' + String(biz.settleBuckets[2]),
+      'lm_settlement_amount_bucket{le="5000"} ' + String(biz.settleBuckets[3]),
+      'lm_settlement_amount_bucket{le="10000"} ' + String(biz.settleBuckets[4]),
+      'lm_settlement_amount_bucket{le="+Inf"} ' + String(biz.settleBuckets[5]),
+      'lm_settlement_amount_sum ' + String(biz.settleSum),
+      'lm_settlement_amount_count ' + String(biz.settleCount),
     ]
     return lines.join('\n') + '\n'
   }

@@ -294,19 +294,19 @@ export function chatGroups(): Promise<{ rows: Array<{ id: number; name: string; 
 }
 
 /** 群消息(after=增量水位) */
-export function chatMessages(groupId: number, afterId?: number): Promise<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }> }> {
+export function chatMessages(groupId: number, afterId?: number): Promise<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> }> {
   return Taro.request({
     url: API_BASE + '/chat/groups/' + String(groupId) + '/messages' + (afterId !== undefined ? '?after=' + String(afterId) : ''),
     method: 'GET',
     header: authHeaders(),
     timeout: 10_000,
   })
-    .then((res) => envelope<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }> }>(res))
+    .then((res) => envelope<{ rows: Array<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> }>(res))
     .catch(translate)
 }
 
 /** 发消息(文本/图片) */
-export function chatSend(groupId: number, p: { content: string; images?: string[] }): Promise<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }> {
+export function chatSend(groupId: number, p: { content: string; images?: string[] }): Promise<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> {
   return Taro.request({
     url: API_BASE + '/chat/groups/' + String(groupId) + '/messages',
     method: 'POST',
@@ -314,7 +314,7 @@ export function chatSend(groupId: number, p: { content: string; images?: string[
     header: authHeaders(),
     timeout: 15_000,
   })
-    .then((res) => envelope<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; createdAt: string }>(res))
+    .then((res) => envelope<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }>(res))
     .catch(translate)
 }
 
@@ -328,6 +328,19 @@ export function chatRetract(groupId: number, messageId: number): Promise<{ retra
     timeout: 10_000,
   })
     .then((res) => envelope<{ retracted: boolean }>(res))
+    .catch(translate)
+}
+
+/** 表情回应 toggle */
+export function chatReact(groupId: number, messageId: number, emoji: string): Promise<{ id: number; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }> }> {
+  return Taro.request({
+    url: API_BASE + '/chat/groups/' + String(groupId) + '/messages/' + String(messageId) + '/react',
+    method: 'POST',
+    data: { emoji },
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ id: number; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }> }>(res))
     .catch(translate)
 }
 

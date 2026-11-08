@@ -17,8 +17,19 @@ interface LeadRow {
   note: string | null
   ownerArtistId: number | null
   ownerName: string | null
+  lastFollowAt: string | null
+  lastFollowContent: string | null
+  followupCount: number
   createdAt: string
 }
+interface FollowupRow {
+  id: number
+  content: string
+  kind: string
+  creatorName: string
+  createdAt: string
+}
+const KIND_LABEL: Record<string, string> = { MANUAL: '跟进', ARRIVED: '到店', CONSUME: '消费', SYSTEM: '系统' }
 interface ArtistOption {
   id: number
   stageName: string | null
@@ -46,6 +57,41 @@ export default function CustomersPage(): React.JSX.Element {
   const [q, setQ] = useState('')
   const [status, setStatus] = useState('')
   const [artists, setArtists] = useState<ArtistOption[]>([])
+  /** 跟进时间线弹窗 */
+  const [fuFor, setFuFor] = useState<LeadRow | null>(null)
+  const [fuRows, setFuRows] = useState<FollowupRow[]>([])
+  const [fuInput, setFuInput] = useState('')
+
+  const openFollowups = (r: LeadRow): void => {
+    setFuFor(r)
+    setFuInput('')
+    void req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups').then((res) => setFuRows(res.rows)).catch((e) => toastError(e))
+  }
+
+  const addFollowup = (): void => {
+    const r = fuFor
+    if (r === null || fuInput.trim() === '') return
+    void req('POST', '/customers/' + String(r.id) + '/followups', { content: fuInput.trim() }).then(async () => {
+      toast.success('跟进已记录')
+      setFuInput('')
+      const res = await req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups')
+      setFuRows(res.rows)
+      await load()
+    }).catch((e) => toastError(e))
+  }
+
+  /** 来源转化统计(按当前筛选聚合;来源缺省归「未填」) */
+  const sourceStats = (() => {
+    const m = new Map<string, { total: number; deal: number }>()
+    for (const r of rows ?? []) {
+      const src = r.source !== null && r.source !== '' ? r.source : '未填'
+      const e = m.get(src) ?? { total: 0, deal: 0 }
+      e.total += 1
+      if (r.status === 'DEAL') e.deal += 1
+      m.set(src, e)
+    }
+    return [...m.entries()].sort((a, b) => b[1].total - a[1].total)
+  })()
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -104,6 +150,12 @@ export default function CustomersPage(): React.JSX.Element {
     { key: 'source', header: '来源', render: (r) => r.source ?? '—' },
     { key: 'status', header: '状态', render: (r) => <StatusBadge label={STATUS_LABEL[r.status] ?? r.status} color={STATUS_COLOR[r.status] ?? '#ffaa00'} /> },
     { key: 'ownerName', header: '归属销售经理', render: (r) => r.ownerName ?? '—' },
+    { key: 'lastFollow', header: '最近跟进', render: (r) => r.lastFollowContent !== null ? (
+      <span className="text-xs" title={r.lastFollowAt !== null ? r.lastFollowAt.slice(0, 16).replace('T', ' ') : ''}>
+        {r.lastFollowContent.slice(0, 18) + (r.lastFollowContent.length > 18 ? '…' : '')}
+        <span className="text-fg-muted">({String(r.followupCount)})</span>
+      </span>
+    ) : <span className="text-xs text-fg-muted">—</span> },
     { key: 'note', header: '跟进备注', render: (r) => r.note ?? '—' },
     { key: 'createdAt', header: '录入时间', render: (r) => r.createdAt.slice(0, 16).replace('T', ' ') },
     {
@@ -120,6 +172,7 @@ export default function CustomersPage(): React.JSX.Element {
             note: r.note ?? '',
             ownerArtistId: r.ownerArtistId !== null ? String(r.ownerArtistId) : '',
           })}>编辑</Button>
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => { openFollowups(r) }}>跟进</Button>
           <ConfirmButton
             confirmTitle="确认删除客资"
             confirmDesc={'「' + r.name + '」删除后不可恢复。'}
@@ -158,7 +211,48 @@ export default function CustomersPage(): React.JSX.Element {
         </select>
         <Button variant="outline" size="sm" onClick={() => { void load() }}>查询</Button>
       </Card>
+      {/* 来源转化统计条(按当前筛选聚合) */}
+      {sourceStats.length > 0 && (
+        <Card className="p-3 flex flex-row flex-wrap items-center gap-4">
+          <span className="text-xs text-fg-muted shrink-0">来源转化:</span>
+          {sourceStats.map(([src, st]) => (
+            <span key={src} className="text-xs">
+              <span className="font-medium">{src}</span>
+              <span className="text-fg-muted"> · 总 {String(st.total)} · 成交 {String(st.deal)} · 转化率 </span>
+              <span className={st.total > 0 && st.deal / st.total >= 0.3 ? 'text-success font-medium' : 'text-fg-muted'}>{st.total > 0 ? String(Math.round((st.deal / st.total) * 100)) + '%' : '—'}</span>
+            </span>
+          ))}
+        </Card>
+      )}
       <DataTable columns={columns} rows={rows} loading={rows === undefined} />
+
+      {/* 跟进时间线弹窗(一客多条) */}
+      <Dialog open={fuFor !== null} onOpenChange={(o) => { if (!o) setFuFor(null) }}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>跟进时间线 · {fuFor?.name ?? ''}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {fuRows.length === 0 && <div className="text-xs text-fg-muted py-2">暂无跟进记录;下方输入第一条</div>}
+            {fuRows.map((f) => (
+              <div key={f.id} className="border border-line rounded-lg px-2.5 py-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{KIND_LABEL[f.kind] ?? f.kind}</span>
+                  <span className="text-[10px] text-fg-muted ml-auto">{f.createdAt.slice(5, 16).replace('T', ' ')} · {f.creatorName}</span>
+                </div>
+                <p className="text-xs mt-1 break-all">{f.content}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 pt-2 border-t border-line">
+            <Input value={fuInput} onChange={(e) => setFuInput(e.target.value)} placeholder="记录本次跟进(沟通/意向/预算)" onKeyDown={(e) => { if (e.key === 'Enter') addFollowup() }} />
+            <Button disabled={fuInput.trim() === ''} onClick={() => { addFollowup() }}>记录</Button>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFuFor(null)}>关闭</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={form !== null} onOpenChange={(o) => { if (!o) setForm(null) }}>
         <DialogContent className="max-w-md">

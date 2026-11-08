@@ -781,6 +781,17 @@ export class CommService {
       ? await this.prisma.artist.findMany({ where: { id: { in: ownerIds } }, select: { id: true, stageName: true, realName: true } })
       : []
     const ownerMap = new Map(owners.map((o) => [o.id, o.stageName ?? o.realName ?? String(o.id)]))
+    // 最近跟进摘要(时间线子表;一次聚合防 N+1)
+    const leadIds = rows.map((r) => r.id)
+    const followups = leadIds.length > 0
+      ? await this.prisma.customerFollowup.findMany({ where: { leadId: { in: leadIds } }, orderBy: { createdAt: 'desc' } })
+      : []
+    const lastMap = new Map<number, { content: string; at: string }>()
+    const cntMap = new Map<number, number>()
+    for (const f of followups) {
+      if (!lastMap.has(f.leadId)) lastMap.set(f.leadId, { content: f.content, at: f.createdAt.toISOString() })
+      cntMap.set(f.leadId, (cntMap.get(f.leadId) ?? 0) + 1)
+    }
     return {
       rows: rows.map((r) => ({
         id: r.id,
@@ -791,9 +802,54 @@ export class CommService {
         note: r.note,
         ownerArtistId: r.ownerArtistId,
         ownerName: r.ownerArtistId !== null ? ownerMap.get(r.ownerArtistId) ?? null : null,
+        lastFollowAt: lastMap.get(r.id)?.at ?? null,
+        lastFollowContent: lastMap.get(r.id)?.content ?? null,
+        followupCount: cntMap.get(r.id) ?? 0,
         createdAt: r.createdAt.toISOString(),
       })),
     }
+  }
+
+  /** 跟进时间线(一客多条;desc) */
+  async listFollowups(leadId: number, storeId: number) {
+    const rows = await this.prisma.customerFollowup.findMany({
+      where: { leadId, storeId },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    })
+    const adminIds = [...new Set(rows.map((r) => r.createdBy))]
+    const admins = adminIds.length > 0
+      ? await this.prisma.adminUser.findMany({ where: { id: { in: adminIds } }, select: { id: true, name: true } })
+      : []
+    const adminMap = new Map(admins.map((a) => [a.id, a.name]))
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        content: r.content,
+        kind: r.kind,
+        creatorName: adminMap.get(r.createdBy) ?? String(r.createdBy),
+        createdAt: r.createdAt.toISOString(),
+      })),
+    }
+  }
+
+  /** 新增跟进(手动;写时间线) */
+  async createFollowup(leadId: number, storeId: number, operator: { scope: string; id: number }, content: string): Promise<{ id: number }> {
+    const lead = await this.prisma.customerLead.findFirst({ where: { id: leadId, storeId } })
+    if (lead === null) throw new NotFoundException('客资不存在')
+    const created = await this.prisma.customerFollowup.create({
+      data: {
+        storeId,
+        leadId,
+        content: content.trim().slice(0, 500),
+        kind: 'MANUAL',
+        createdBy: operator.id,
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operator.id, action: 'CUSTOMER_FOLLOWUP', targetType: 'customer_lead', targetId: String(leadId), beforeJson: null as unknown as object, afterJson: { content: content.slice(0, 100) } as object },
+    })
+    return { id: created.id }
   }
 
   async createCustomer(storeId: number, operator: { scope: string; id: number }, body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<{ id: number }> {
@@ -980,6 +1036,25 @@ export class CustomerController {
     const u = op(req)
     await this.svc.updateCustomer(id, u.storeId, u, body)
     return { ok: true }
+  }
+
+  /** 跟进时间线(一客多条) */
+  @Get(':id/followups')
+  async followups(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    return this.svc.listFollowups(id, u.storeId)
+  }
+
+  /** 新增跟进(手动) */
+  @Post(':id/followups')
+  async addFollowup(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { content: string },
+  ): Promise<unknown> {
+    const u = op(req)
+    if (body.content === undefined || body.content.trim() === '') throw new BadRequestException('跟进内容必填')
+    return this.svc.createFollowup(id, u.storeId, u, body.content)
   }
 
   @Post(':id/delete')

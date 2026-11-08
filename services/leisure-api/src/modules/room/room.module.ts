@@ -446,6 +446,29 @@ export class RoomService {
         },
       })
 
+      // ⑥ 客资消费档案(2026-11-08):当日 ARRIVED 预约挂了客资且房号匹配 → 写「消费完成」跟进(时间线闭环)
+      const linkedBooking = await tx.artistBooking.findFirst({
+        where: {
+          storeId: rs.storeId,
+          roomId: rs.roomId,
+          customerLeadId: { not: null },
+          status: 'ARRIVED',
+          businessDate: rs.businessDate,
+        },
+        orderBy: { id: 'desc' },
+      })
+      if (linkedBooking !== null && linkedBooking.customerLeadId !== null) {
+        await tx.customerFollowup.create({
+          data: {
+            storeId: rs.storeId,
+            leadId: linkedBooking.customerLeadId,
+            content: '消费完成 · ' + (rs.roomNo ?? '') + ' ¥' + String(totalAmount) + '(房费 ¥' + String(roomFee) + ' + 点单 ¥' + String(orderTotal) + ')',
+            kind: 'CONSUME',
+            createdBy: operator.sub,
+          },
+        })
+      }
+
       return {
         roomFee,
         orderTotal,

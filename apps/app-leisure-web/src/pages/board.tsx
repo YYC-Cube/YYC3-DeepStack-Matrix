@@ -236,16 +236,36 @@ export default function BoardPage(): React.JSX.Element {
         <Button variant="outline" onClick={() => setAdminOpen(true)}>房间设置(增/改/停用)</Button>
       </div>
       <RoomAdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} onChanged={() => { void load() }} />
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}>
-        {rooms.map((r) => {
-          const st = roomStatus(r)
-          const open = openSessions.find((s) => s.roomId === r.id)
-          const color = STATUS_COLOR[st] ?? '#44546e'
-          const canOpen = st === 'FREE' || st === 'BOOKED'
-          const canClose = st === 'OCCUPIED' && open !== undefined
-          const canClean = st === 'CLEANING'
-          const consumption = open !== undefined ? (consumptionMap.get(open.id) ?? 0) : 0
-          return (
+      {/* 按类型分区(2026-11-08:31 间新布局;固定序:小包/中包/大包/VIP包/西亳厅/外卖房) */}
+      {(() => {
+        const TYPE_ORDER = ['小包', '中包', '大包', 'VIP包', '西亳厅', '外卖房']
+        const m = new Map<string, RoomRow[]>()
+        for (const r of rooms) {
+          const t = r.roomType?.name ?? '未分类'
+          const arr = m.get(t) ?? []
+          arr.push(r)
+          m.set(t, arr)
+        }
+        const groups = TYPE_ORDER.filter((t) => m.has(t)).map((t) => ({ type: t, list: m.get(t) ?? [] }))
+        for (const [t, list] of m.entries()) {
+          if (!TYPE_ORDER.includes(t)) groups.push({ type: t, list })
+        }
+        return groups.map((g) => (
+          <div key={g.type} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-[var(--lm-fg)]">{g.type}</span>
+              <span className="text-xs text-fg-muted">{String(g.list.length)} 间 · 空闲 {String(g.list.filter((r) => roomStatus(r) === 'FREE').length)}</span>
+            </div>
+            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}>
+              {g.list.map((r) => {
+                const st = roomStatus(r)
+                const open = openSessions.find((s) => s.roomId === r.id)
+                const color = STATUS_COLOR[st] ?? '#44546e'
+                const canOpen = st === 'FREE' || st === 'BOOKED'
+                const canClose = st === 'OCCUPIED' && open !== undefined
+                const canClean = st === 'CLEANING'
+                const consumption = open !== undefined ? (consumptionMap.get(open.id) ?? 0) : 0
+                return (
             <Card
               key={r.id}
               className="p-3 space-y-1.5"
@@ -356,6 +376,9 @@ export default function BoardPage(): React.JSX.Element {
           )
         })}
       </div>
+    </div>
+  ))
+})()}
 
       {/* 预定弹窗:房间快捷预约(BOOKED) */}
       <Dialog open={reserveFor !== null} onOpenChange={(o) => { if (!o) setReserveFor(null) }}>

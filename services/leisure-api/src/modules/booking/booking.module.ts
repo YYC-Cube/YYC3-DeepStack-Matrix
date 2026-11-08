@@ -242,6 +242,20 @@ export class BookingService {
       await this.prisma.artistBooking.update({ where: { id }, data: { callId: call.callId } })
       autoCallId = call.callId
     }
+    // 客资到店/流失自动跟进(2026-11-08:客资消费档案闭环;挂了客资的预约状态变化即写时间线)
+    if (before.customerLeadId !== null && (status === 'ARRIVED' || status === 'NO_SHOW')) {
+      await this.prisma.customerFollowup.create({
+        data: {
+          storeId,
+          leadId: before.customerLeadId,
+          content: status === 'ARRIVED'
+            ? '客到店 · ' + (before.roomName ?? '') + (before.artistName !== null ? ' · 指名 ' + before.artistName : '')
+            : '未到店(NO_SHOW) · ' + (before.roomName ?? ''),
+          kind: status === 'ARRIVED' ? 'ARRIVED' : 'SYSTEM',
+          createdBy: operatorId,
+        },
+      })
+    }
     await this.audit(storeId, operatorId, 'BOOKING_STATUS', 'artist_booking', String(id), before, {
       ...after,
       autoCallId,

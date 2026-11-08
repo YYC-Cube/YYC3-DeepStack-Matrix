@@ -142,9 +142,28 @@ export default function MBoardPage(): React.JSX.Element {
         })}
       </div>
 
-      {/* 房卡网格(双列) */}
-      <div className="px-3 mt-2 grid grid-cols-2 gap-2.5">
-        {shown.map((r) => {
+      {/* 房卡网格(双列;按类型分区 2026-11-08:31 间新布局) */}
+      {(() => {
+        const TYPE_ORDER = ['小包', '中包', '大包', 'VIP包', '西亳厅', '外卖房']
+        const m = new Map<string, RoomRow[]>()
+        for (const r of shown) {
+          const t = r.roomType?.name ?? '未分类'
+          const arr = m.get(t) ?? []
+          arr.push(r)
+          m.set(t, arr)
+        }
+        const groups = TYPE_ORDER.filter((t) => m.has(t)).map((t) => ({ type: t, list: m.get(t) ?? [] }))
+        for (const [t, list] of m.entries()) {
+          if (!TYPE_ORDER.includes(t)) groups.push({ type: t, list })
+        }
+        return groups.map((g) => (
+          <div key={g.type} className="px-3 mt-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold text-[var(--lm-fg)]">{g.type}</span>
+              <span className="text-[10px] text-fg-muted">{String(g.list.length)} 间 · 空闲 {String(g.list.filter((r) => statusOf(r) === '空闲').length)}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {g.list.map((r) => {
           const st = roomStatus(r)
           const open = openSessions.find((s) => s.roomId === r.id)
           const color = STATUS_COLOR[st] ?? '#44546e'
@@ -229,11 +248,13 @@ export default function MBoardPage(): React.JSX.Element {
               </div>
             </Card>
           )
-        })}
-        {shown.length === 0 && (
-          <div className="col-span-2 text-center text-sm text-fg-muted py-10">该状态下暂无包厢</div>
-        )}
-      </div>
+            })}
+          </div>
+        </div>
+      ))})()}
+      {shown.length === 0 && (
+        <div className="text-center text-sm text-fg-muted py-10">该状态下暂无包厢</div>
+      )}
 
       {/* 开房/关房共享弹窗 */}
       <RoomOpenDialog

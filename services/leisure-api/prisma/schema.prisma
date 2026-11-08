@@ -1009,6 +1009,19 @@ model CustomerLead {
   @@index([storeId, status])
   @@map("customer_lead")
 }
+/// 客资跟进时间线(2026-11-08):一客多条跟进记录(MANUAL 手动/ARRIVED 到店/CONSUME 消费/SYSTEM 系统)
+model CustomerFollowup {
+  id        Int      @id @default(autoincrement())
+  storeId   Int      @map("store_id")
+  leadId    Int      @map("lead_id")
+  content   String   @db.VarChar(500)
+  kind      String   @default("MANUAL") @db.VarChar(16)
+  createdBy Int      @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([leadId, createdAt(sort: Desc)])
+  @@map("customer_followup")
+}
 model Feedback {
   id          Int       @id @default(autoincrement())
   storeId     Int       @map("store_id")

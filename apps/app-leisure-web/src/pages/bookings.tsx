@@ -124,7 +124,11 @@ export default function BookingsPage(): React.JSX.Element {
     { key: 'bookingTime', header: '预约时间', render: (r) => (r.bookingTime !== null ? r.bookingTime.slice(5, 16).replace('T', ' ') : '—') },
     { key: 'roomName', header: '包厢', render: (r) => r.roomName ?? '—' },
     { key: 'artistName', header: '销售经理', render: (r) => (r.artistName ?? '—') + (r.badgeNo !== null ? '(' + r.badgeNo + ')' : '') },
-    { key: 'customerName', header: '关联客资', render: (r) => r.customerName ?? '—' },
+    { key: 'customerName', header: '关联客资', render: (r) => r.customerName !== null ? (
+      <button className="text-primary hover:underline text-xs" title="查看客资(跳转客资列表定位)" onClick={() => { window.location.hash = '#/customers?q=' + encodeURIComponent(r.customerName ?? '') }}>
+        {r.customerName} →
+      </button>
+    ) : '—' },
     {
       key: 'hold',
       header: '锁钟/押金',

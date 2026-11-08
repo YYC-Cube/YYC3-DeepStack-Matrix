@@ -925,6 +925,7 @@ model RoomSession {
   closedBy        Int?      @map("closed_by")
   remark          String?   @db.VarChar(255)
   createdAt       DateTime  @default(now()) @map("created_at")
+  customerLeadId Int?      @map("customer_lead_id") // 开房时自动挂当日 ARRIVED 客资(2026-11-08)
   closedAt        DateTime? @map("closed_at")
 
   room       Room                @relation(fields: [roomId], references: [id])
@@ -1016,6 +1017,8 @@ model CustomerFollowup {
   leadId    Int      @map("lead_id")
   content   String   @db.VarChar(500)
   kind      String   @default("MANUAL") @db.VarChar(16)
+  dueAt     DateTime? @map("due_at") // TODO 到期
+  isDone    Boolean  @default(false) @map("is_done")
   createdBy Int      @map("created_by")
   createdAt DateTime @default(now()) @map("created_at")
 

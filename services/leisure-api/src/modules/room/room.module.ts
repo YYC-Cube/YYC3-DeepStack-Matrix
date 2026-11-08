@@ -173,6 +173,19 @@ export class RoomService {
           openedBy: operator.sub,
           startAt: new Date(),
           status: 'OPEN',
+          // 客资自动入账(2026-11-08):当日 ARRIVED 预约挂客资且房号匹配 → 开房即把客资写入房账消费档案(替代结算时反查)
+          customerLeadId: (
+            await tx.artistBooking.findFirst({
+              where: {
+                storeId: room.storeId,
+                roomId: room.id,
+                customerLeadId: { not: null },
+                status: 'ARRIVED',
+                businessDate: new Date(businessDate),
+              },
+              orderBy: { id: 'desc' },
+            })
+          )?.customerLeadId ?? null,
         },
       })
 
@@ -446,22 +459,26 @@ export class RoomService {
         },
       })
 
-      // ⑥ 客资消费档案(2026-11-08):当日 ARRIVED 预约挂了客资且房号匹配 → 写「消费完成」跟进(时间线闭环)
-      const linkedBooking = await tx.artistBooking.findFirst({
-        where: {
-          storeId: rs.storeId,
-          roomId: rs.roomId,
-          customerLeadId: { not: null },
-          status: 'ARRIVED',
-          businessDate: rs.businessDate,
-        },
-        orderBy: { id: 'desc' },
-      })
-      if (linkedBooking !== null && linkedBooking.customerLeadId !== null) {
+      // ⑥ 客资消费档案(2026-11-08):**优先直读房账挂载的客资**(开房时自动写入);旧数据回退=当日 ARRIVED 预约反查 → 写「消费完成」跟进(时间线闭环)
+      let linkedLeadId = rs.customerLeadId
+      if (linkedLeadId === null) {
+        const linkedBooking = await tx.artistBooking.findFirst({
+          where: {
+            storeId: rs.storeId,
+            roomId: rs.roomId,
+            customerLeadId: { not: null },
+            status: 'ARRIVED',
+            businessDate: rs.businessDate,
+          },
+          orderBy: { id: 'desc' },
+        })
+        linkedLeadId = linkedBooking?.customerLeadId ?? null
+      }
+      if (linkedLeadId !== null) {
         await tx.customerFollowup.create({
           data: {
             storeId: rs.storeId,
-            leadId: linkedBooking.customerLeadId,
+            leadId: linkedLeadId,
             content: '消费完成 · ' + (rs.roomNo ?? '') + ' ¥' + String(totalAmount) + '(房费 ¥' + String(roomFee) + ' + 点单 ¥' + String(orderTotal) + ')',
             kind: 'CONSUME',
             createdBy: operator.sub,

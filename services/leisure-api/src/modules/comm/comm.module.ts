@@ -781,16 +781,27 @@ export class CommService {
       ? await this.prisma.artist.findMany({ where: { id: { in: ownerIds } }, select: { id: true, stageName: true, realName: true } })
       : []
     const ownerMap = new Map(owners.map((o) => [o.id, o.stageName ?? o.realName ?? String(o.id)]))
-    // 最近跟进摘要(时间线子表;一次聚合防 N+1)
+    // 最近跟进摘要(时间线子表;一次聚合防 N+1)+TODO 待办到期
     const leadIds = rows.map((r) => r.id)
     const followups = leadIds.length > 0
       ? await this.prisma.customerFollowup.findMany({ where: { leadId: { in: leadIds } }, orderBy: { createdAt: 'desc' } })
       : []
     const lastMap = new Map<number, { content: string; at: string }>()
     const cntMap = new Map<number, number>()
+    const todoMap = new Map<number, { overdue: boolean; dueAt: string; content: string }>()
+    const nowMs = Date.now()
     for (const f of followups) {
       if (!lastMap.has(f.leadId)) lastMap.set(f.leadId, { content: f.content, at: f.createdAt.toISOString() })
       cntMap.set(f.leadId, (cntMap.get(f.leadId) ?? 0) + 1)
+      if (f.kind === 'TODO' && !f.isDone && !todoMap.has(f.leadId)) {
+        const dueAt = f.dueAt
+        const overdue = dueAt !== null && dueAt.getTime() < nowMs
+        const prev = todoMap.get(f.leadId)
+        // 取最早未完成 TODO
+        if (prev === undefined || (dueAt !== null && new Date(prev.dueAt).getTime() > dueAt.getTime())) {
+          todoMap.set(f.leadId, { overdue, dueAt: dueAt !== null ? dueAt.toISOString() : '', content: f.content })
+        }
+      }
     }
     return {
       rows: rows.map((r) => ({
@@ -805,6 +816,9 @@ export class CommService {
         lastFollowAt: lastMap.get(r.id)?.at ?? null,
         lastFollowContent: lastMap.get(r.id)?.content ?? null,
         followupCount: cntMap.get(r.id) ?? 0,
+        todoOverdue: todoMap.get(r.id)?.overdue === true,
+        todoDueAt: todoMap.get(r.id)?.dueAt ?? null,
+        todoContent: todoMap.get(r.id)?.content ?? null,
         createdAt: r.createdAt.toISOString(),
       })),
     }
@@ -827,29 +841,47 @@ export class CommService {
         id: r.id,
         content: r.content,
         kind: r.kind,
+        dueAt: r.dueAt !== null && r.dueAt !== undefined ? r.dueAt.toISOString() : null,
+        isDone: r.isDone,
         creatorName: adminMap.get(r.createdBy) ?? String(r.createdBy),
         createdAt: r.createdAt.toISOString(),
       })),
     }
   }
 
-  /** 新增跟进(手动;写时间线) */
-  async createFollowup(leadId: number, storeId: number, operator: { scope: string; id: number }, content: string): Promise<{ id: number }> {
+  /** 新增跟进(手动/TODO 待办) */
+  async createFollowup(leadId: number, storeId: number, operator: { scope: string; id: number }, body: { content: string; kind?: string; dueAt?: string }): Promise<{ id: number }> {
     const lead = await this.prisma.customerLead.findFirst({ where: { id: leadId, storeId } })
     if (lead === null) throw new NotFoundException('客资不存在')
+    const kind = body.kind === 'TODO' ? 'TODO' : 'MANUAL'
+    if (kind === 'TODO' && (body.dueAt === undefined || body.dueAt === '')) {
+      throw new BadRequestException('待办跟进须带到期时间')
+    }
     const created = await this.prisma.customerFollowup.create({
       data: {
         storeId,
         leadId,
-        content: content.trim().slice(0, 500),
-        kind: 'MANUAL',
+        content: body.content.trim().slice(0, 500),
+        kind,
+        dueAt: body.dueAt !== undefined && body.dueAt !== '' ? new Date(body.dueAt) : null,
         createdBy: operator.id,
       },
     })
     await this.prisma.auditLog.create({
-      data: { storeId, actorId: operator.id, action: 'CUSTOMER_FOLLOWUP', targetType: 'customer_lead', targetId: String(leadId), beforeJson: null as unknown as object, afterJson: { content: content.slice(0, 100) } as object },
+      data: { storeId, actorId: operator.id, action: 'CUSTOMER_FOLLOWUP', targetType: 'customer_lead', targetId: String(leadId), beforeJson: null as unknown as object, afterJson: { content: body.content.slice(0, 100), kind } as object },
     })
     return { id: created.id }
+  }
+
+  /** 完成待办跟进 */
+  async doneFollowup(leadId: number, fid: number, storeId: number, operator: { scope: string; id: number }): Promise<void> {
+    const f = await this.prisma.customerFollowup.findFirst({ where: { id: fid, leadId, storeId } })
+    if (f === null) throw new NotFoundException('跟进记录不存在')
+    if (f.isDone) return // 幂等
+    await this.prisma.customerFollowup.update({ where: { id: fid }, data: { isDone: true } })
+    await this.prisma.auditLog.create({
+      data: { storeId, actorId: operator.id, action: 'CUSTOMER_TODO_DONE', targetType: 'customer_lead', targetId: String(leadId), beforeJson: { isDone: false } as object, afterJson: { isDone: true } as object },
+    })
   }
 
   async createCustomer(storeId: number, operator: { scope: string; id: number }, body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<{ id: number }> {
@@ -1045,16 +1077,28 @@ export class CustomerController {
     return this.svc.listFollowups(id, u.storeId)
   }
 
-  /** 新增跟进(手动) */
+  /** 新增跟进(手动/TODO 待办) */
   @Post(':id/followups')
   async addFollowup(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { content: string },
+    @Body() body: { content: string; kind?: string; dueAt?: string },
   ): Promise<unknown> {
     const u = op(req)
     if (body.content === undefined || body.content.trim() === '') throw new BadRequestException('跟进内容必填')
-    return this.svc.createFollowup(id, u.storeId, u, body.content)
+    return this.svc.createFollowup(id, u.storeId, u, body)
+  }
+
+  /** 完成待办跟进 */
+  @Post(':id/followups/:fid/done')
+  async doneFollowup(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Param('fid', ParseIntPipe) fid: number,
+  ): Promise<unknown> {
+    const u = op(req)
+    await this.svc.doneFollowup(id, fid, u.storeId, u)
+    return { ok: true }
   }
 
   @Post(':id/delete')

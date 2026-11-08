@@ -20,16 +20,37 @@ interface LeadRow {
   lastFollowAt: string | null
   lastFollowContent: string | null
   followupCount: number
+  todoOverdue: boolean
+  todoDueAt: string | null
+  todoContent: string | null
   createdAt: string
 }
 interface FollowupRow {
   id: number
   content: string
   kind: string
+  dueAt: string | null
+  isDone: boolean
   creatorName: string
   createdAt: string
 }
-const KIND_LABEL: Record<string, string> = { MANUAL: '跟进', ARRIVED: '到店', CONSUME: '消费', SYSTEM: '系统' }
+interface BookingLite {
+  id: number
+  bookingNo: string
+  status: string
+  roomName: string | null
+  artistName: string | null
+  bookingTime: string | null
+}
+const KIND_LABEL: Record<string, string> = { MANUAL: '跟进', ARRIVED: '到店', CONSUME: '消费', SYSTEM: '系统', TODO: '待办' }
+/** 跟进提醒阈值(天):超过即置顶+角标 */
+const FOLLOW_REMIND_DAYS = 3
+
+/** 未跟进天数(以最近跟进/录入时间较晚者起算) */
+function daysSinceFollow(r: LeadRow): number {
+  const base = r.lastFollowAt ?? r.createdAt
+  return Math.floor((Date.now() - new Date(base).getTime()) / 86_400_000)
+}
 interface ArtistOption {
   id: number
   stageName: string | null
@@ -61,19 +82,47 @@ export default function CustomersPage(): React.JSX.Element {
   const [fuFor, setFuFor] = useState<LeadRow | null>(null)
   const [fuRows, setFuRows] = useState<FollowupRow[]>([])
   const [fuInput, setFuInput] = useState('')
+  const [fuTodo, setFuTodo] = useState(false)
+  const [fuDue, setFuDue] = useState('')
+  /** 客资详情页化(档案卡:基本信息+时间线+关联预订一屏) */
+  const [detailFor, setDetailFor] = useState<LeadRow | null>(null)
+  const [detailFu, setDetailFu] = useState<FollowupRow[]>([])
+  const [detailBooks, setDetailBooks] = useState<BookingLite[]>([])
 
   const openFollowups = (r: LeadRow): void => {
     setFuFor(r)
     setFuInput('')
+    setFuTodo(false)
+    setFuDue('')
     void req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups').then((res) => setFuRows(res.rows)).catch((e) => toastError(e))
+  }
+
+  const openDetail = (r: LeadRow): void => {
+    setDetailFor(r)
+    void req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups').then((res) => setDetailFu(res.rows)).catch(() => undefined)
+    void req<{ rows: BookingLite[] }>('GET', '/bookings?customerId=' + String(r.id) + '&pageSize=20').then((res) => setDetailBooks(res.rows)).catch(() => undefined)
   }
 
   const addFollowup = (): void => {
     const r = fuFor
     if (r === null || fuInput.trim() === '') return
-    void req('POST', '/customers/' + String(r.id) + '/followups', { content: fuInput.trim() }).then(async () => {
-      toast.success('跟进已记录')
+    void req('POST', '/customers/' + String(r.id) + '/followups', {
+      content: fuInput.trim(),
+      ...(fuTodo ? { kind: 'TODO', dueAt: fuDue !== '' ? new Date(fuDue).toISOString() : undefined } : {}),
+    }).then(async () => {
+      toast.success(fuTodo ? '待办已创建' : '跟进已记录')
       setFuInput('')
+      setFuTodo(false)
+      setFuDue('')
+      const res = await req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups')
+      setFuRows(res.rows)
+      await load()
+    }).catch((e) => toastError(e))
+  }
+
+  const doneTodo = (r: LeadRow, fid: number): void => {
+    void req('POST', '/customers/' + String(r.id) + '/followups/' + String(fid) + '/done', {}).then(async () => {
+      toast.success('待办已完成')
       const res = await req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups')
       setFuRows(res.rows)
       await load()
@@ -91,6 +140,22 @@ export default function CustomersPage(): React.JSX.Element {
       m.set(src, e)
     }
     return [...m.entries()].sort((a, b) => b[1].total - a[1].total)
+  })()
+
+  /** 转化率排行(按销售经理;衔接员工绩效) */
+  const ownerRank = (() => {
+    const m = new Map<string, { total: number; deal: number }>()
+    for (const r of rows ?? []) {
+      const o = r.ownerName ?? '未归属'
+      const e = m.get(o) ?? { total: 0, deal: 0 }
+      e.total += 1
+      if (r.status === 'DEAL') e.deal += 1
+      m.set(o, e)
+    }
+    return [...m.entries()]
+      .map(([name, st]) => ({ name, ...st, rate: st.total > 0 ? Math.round((st.deal / st.total) * 100) : 0 }))
+      .sort((a, b) => b.rate - a.rate || b.total - a.total)
+      .slice(0, 8)
   })()
 
   const load = useCallback(async (): Promise<void> => {
@@ -144,8 +209,30 @@ export default function CustomersPage(): React.JSX.Element {
     }
   }
 
+  const sortedRows = (() => {
+    const list = [...(rows ?? [])]
+    // 跟进提醒:待办到期/超 N 天未跟进 → 置顶;其余按录入时间倒序
+    list.sort((a, b) => {
+      const aHot = a.todoOverdue || daysSinceFollow(a) >= FOLLOW_REMIND_DAYS ? 1 : 0
+      const bHot = b.todoOverdue || daysSinceFollow(b) >= FOLLOW_REMIND_DAYS ? 1 : 0
+      if (aHot !== bHot) return bHot - aHot
+      return b.id - a.id
+    })
+    return list
+  })()
+
   const columns: Array<Column<LeadRow>> = [
-    { key: 'name', header: '客户' },
+    { key: 'name', header: '客户', render: (r) => {
+      const days = daysSinceFollow(r)
+      const hot = r.todoOverdue || days >= FOLLOW_REMIND_DAYS
+      return (
+        <button className="text-left hover:underline" title="查看客资档案" onClick={() => { openDetail(r) }}>
+          <span className="font-medium">{r.name}</span>
+          {r.todoOverdue && <span className="ml-1 text-[10px] px-1 rounded bg-error/15 text-error">待办到期</span>}
+          {!r.todoOverdue && days >= FOLLOW_REMIND_DAYS && <span className="ml-1 text-[10px] px-1 rounded bg-warning/15 text-warning">{String(days)} 天未跟进</span>}
+        </button>
+      )
+    } },
     { key: 'phone', header: '电话', render: (r) => r.phone ?? '—' },
     { key: 'source', header: '来源', render: (r) => r.source ?? '—' },
     { key: 'status', header: '状态', render: (r) => <StatusBadge label={STATUS_LABEL[r.status] ?? r.status} color={STATUS_COLOR[r.status] ?? '#ffaa00'} /> },
@@ -224,7 +311,21 @@ export default function CustomersPage(): React.JSX.Element {
           ))}
         </Card>
       )}
-      <DataTable columns={columns} rows={rows} loading={rows === undefined} />
+      {/* 转化率排行(按销售经理;衔接员工绩效) */}
+      {ownerRank.length > 0 && (
+        <Card className="p-3 flex flex-row flex-wrap items-center gap-4">
+          <span className="text-xs text-fg-muted shrink-0">转化排行:</span>
+          {ownerRank.map((o, i) => (
+            <span key={o.name} className="text-xs">
+              <span className="text-fg-muted">{String(i + 1)}.</span>
+              <span className="font-medium"> {o.name}</span>
+              <span className="text-fg-muted"> · 客资 {String(o.total)} · 成交 {String(o.deal)} · </span>
+              <span className={o.rate >= 30 ? 'text-success font-medium' : ''}>{String(o.rate)}%</span>
+            </span>
+          ))}
+        </Card>
+      )}
+      <DataTable columns={columns} rows={sortedRows} loading={rows === undefined} />
 
       {/* 跟进时间线弹窗(一客多条) */}
       <Dialog open={fuFor !== null} onOpenChange={(o) => { if (!o) setFuFor(null) }}>
@@ -235,21 +336,87 @@ export default function CustomersPage(): React.JSX.Element {
           <div className="space-y-2">
             {fuRows.length === 0 && <div className="text-xs text-fg-muted py-2">暂无跟进记录;下方输入第一条</div>}
             {fuRows.map((f) => (
-              <div key={f.id} className="border border-line rounded-lg px-2.5 py-1.5">
+              <div key={f.id} className={'border rounded-lg px-2.5 py-1.5 ' + (f.kind === 'TODO' && !f.isDone ? 'border-warning/50 bg-warning/5' : 'border-line')}>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{KIND_LABEL[f.kind] ?? f.kind}</span>
+                  {f.kind === 'TODO' && !f.isDone && f.dueAt !== null && (
+                    <span className={'text-[10px] ' + (new Date(f.dueAt).getTime() < Date.now() ? 'text-error font-medium' : 'text-fg-muted')}>到期 {f.dueAt.slice(5, 16).replace('T', ' ')}</span>
+                  )}
                   <span className="text-[10px] text-fg-muted ml-auto">{f.createdAt.slice(5, 16).replace('T', ' ')} · {f.creatorName}</span>
                 </div>
-                <p className="text-xs mt-1 break-all">{f.content}</p>
+                <p className={'text-xs mt-1 break-all ' + (f.kind === 'TODO' && f.isDone ? 'line-through text-fg-muted' : '')}>{f.content}</p>
+                {f.kind === 'TODO' && !f.isDone && (
+                  <button className="text-[10px] text-success hover:underline mt-1" onClick={() => { if (fuFor !== null) doneTodo(fuFor, f.id) }}>✓ 完成待办</button>
+                )}
               </div>
             ))}
           </div>
-          <div className="flex gap-2 pt-2 border-t border-line">
-            <Input value={fuInput} onChange={(e) => setFuInput(e.target.value)} placeholder="记录本次跟进(沟通/意向/预算)" onKeyDown={(e) => { if (e.key === 'Enter') addFollowup() }} />
-            <Button disabled={fuInput.trim() === ''} onClick={() => { addFollowup() }}>记录</Button>
+          <div className="flex items-center gap-2 pt-2 border-t border-line">
+            <label className="flex items-center gap-1 text-xs text-fg-muted cursor-pointer select-none shrink-0">
+              <input type="checkbox" checked={fuTodo} onChange={(e) => { setFuTodo(e.target.checked); if (!e.target.checked) setFuDue('') }} />
+              待办
+            </label>
+            {fuTodo && <input type="datetime-local" className="h-8 rounded border border-line bg-transparent px-1 text-xs" value={fuDue} onChange={(e) => setFuDue(e.target.value)} />}
+            <Input value={fuInput} onChange={(e) => setFuInput(e.target.value)} placeholder={fuTodo ? '待办事项(须带到期时间)' : '记录本次跟进(沟通/意向/预算)'} onKeyDown={(e) => { if (e.key === 'Enter' && !fuTodo) addFollowup() }} />
+            <Button disabled={fuInput.trim() === '' || (fuTodo && fuDue === '')} onClick={() => { addFollowup() }}>记录</Button>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setFuFor(null)}>关闭</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 客资详情档案卡(基本信息+时间线+关联预订一屏;点客资名进入) */}
+      <Dialog open={detailFor !== null} onOpenChange={(o) => { if (!o) setDetailFor(null) }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>客资档案 · {detailFor?.name ?? ''}</DialogTitle>
+          </DialogHeader>
+          {detailFor !== null && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div><span className="text-xs text-fg-muted">电话:</span>{detailFor.phone ?? '—'}</div>
+                <div><span className="text-xs text-fg-muted">来源:</span>{detailFor.source ?? '—'}</div>
+                <div><span className="text-xs text-fg-muted">状态:</span><StatusBadge label={STATUS_LABEL[detailFor.status] ?? detailFor.status} color={STATUS_COLOR[detailFor.status] ?? '#ffaa00'} /></div>
+                <div><span className="text-xs text-fg-muted">归属:</span>{detailFor.ownerName ?? '—'}</div>
+                <div className="col-span-2"><span className="text-xs text-fg-muted">备注:</span>{detailFor.note ?? '—'}</div>
+                {detailFor.todoOverdue && (
+                  <div className="col-span-2 text-xs text-error">⚠ 待办到期:{detailFor.todoContent ?? ''}(到期 {detailFor.todoDueAt !== null ? detailFor.todoDueAt.slice(5, 16).replace('T', ' ') : ''})</div>
+                )}
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-fg-muted mb-1.5">关联预订历史</div>
+                {detailBooks.length === 0 && <div className="text-xs text-fg-muted">暂无预订记录</div>}
+                <div className="space-y-1">
+                  {detailBooks.map((b) => (
+                    <div key={b.id} className="flex items-center gap-2 text-xs border border-line rounded px-2 py-1">
+                      <span className="font-medium">{b.bookingNo}</span>
+                      <span className="text-fg-muted">{b.status}</span>
+                      <span>{b.roomName ?? '无房'}</span>
+                      <span className="text-fg-muted">{b.artistName ?? ''}</span>
+                      <span className="text-fg-muted ml-auto">{b.bookingTime !== null ? b.bookingTime.slice(5, 16).replace('T', ' ') : ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-fg-muted mb-1.5">跟进时间线({String(detailFu.length)} 条)</div>
+                <div className="space-y-1.5">
+                  {detailFu.length === 0 && <div className="text-xs text-fg-muted">暂无跟进记录</div>}
+                  {detailFu.map((f) => (
+                    <div key={f.id} className="flex items-start gap-2 text-xs border-b border-line/60 pb-1.5">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted shrink-0">{KIND_LABEL[f.kind] ?? f.kind}</span>
+                      <span className="flex-1 break-all">{f.content}</span>
+                      <span className="text-fg-muted shrink-0">{f.createdAt.slice(5, 16).replace('T', ' ')}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetailFor(null)}>关闭</Button>
+            {detailFor !== null && <Button onClick={() => { const r = detailFor; setDetailFor(null); openFollowups(r) }}>记跟进</Button>}
           </DialogFooter>
         </DialogContent>
       </Dialog>

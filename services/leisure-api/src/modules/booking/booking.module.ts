@@ -101,7 +101,7 @@ export class BookingService {
 
   async list(
     storeId: number,
-    q: { businessDate?: string; status?: string; page: number; pageSize: number },
+    q: { businessDate?: string; status?: string; customerId?: number; page: number; pageSize: number },
   ): Promise<{ rows: unknown[]; total: number; page: number; pageSize: number }> {
     const page = q.page > 0 ? q.page : 1
     const pageSize = q.pageSize > 0 ? Math.min(q.pageSize, MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE
@@ -109,6 +109,7 @@ export class BookingService {
       storeId,
       ...(q.businessDate !== undefined && q.businessDate !== '' ? { businessDate: new Date(q.businessDate) } : {}),
       ...(q.status !== undefined && q.status !== '' ? { status: q.status } : {}),
+      ...(q.customerId !== undefined ? { customerLeadId: q.customerId } : {}),
     }
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.artistBooking.findMany({
@@ -298,6 +299,7 @@ export class BookingController {
     @Req() req: Request,
     @Query('businessDate') businessDate?: string,
     @Query('status') status?: string,
+    @Query('customerId') customerId?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ): Promise<unknown> {
@@ -305,6 +307,7 @@ export class BookingController {
     return this.svc.list(user?.storeId ?? 1, {
       businessDate,
       status,
+      customerId: customerId !== undefined && customerId !== '' ? Number(customerId) : undefined,
       page: Number(page ?? 1),
       pageSize: Number(pageSize ?? DEFAULT_PAGE_SIZE),
     })

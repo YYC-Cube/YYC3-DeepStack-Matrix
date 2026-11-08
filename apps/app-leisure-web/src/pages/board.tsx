@@ -68,6 +68,19 @@ export default function BoardPage(): React.JSX.Element {
   const [orderGoods, setOrderGoods] = useState<Array<{ id: number; name: string; salePrice: string | number; unit: string | null }>>([])
   const [orderItems, setOrderItems] = useState<Record<number, number>>({})
   const [orderPickerOpen, setOrderPickerOpen] = useState(false)
+  /** 分区折叠(大包 17 间占屏;记忆于 localStorage) */
+  const [collapsedTypes, setCollapsedTypes] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('yyc3-board-collapsed') ?? '[]') as string[]) } catch { return new Set() }
+  })
+  const toggleType = (t: string): void => {
+    setCollapsedTypes((s) => {
+      const n = new Set(s)
+      if (n.has(t)) n.delete(t)
+      else n.add(t)
+      try { localStorage.setItem('yyc3-board-collapsed', JSON.stringify([...n])) } catch { /* 静默 */ }
+      return n
+    })
+  }
 
   const startStage = async (artistId: number): Promise<void> => {
     if (staffRoom === null) return
@@ -252,10 +265,12 @@ export default function BoardPage(): React.JSX.Element {
         }
         return groups.map((g) => (
           <div key={g.type} className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-pointer select-none" onClick={() => { toggleType(g.type) }} title={collapsedTypes.has(g.type) ? '展开分区' : '折叠分区'}>
+              <span className="text-sm font-semibold text-[var(--lm-fg)]">{collapsedTypes.has(g.type) ? '▸' : '▾'}</span>
               <span className="text-sm font-semibold text-[var(--lm-fg)]">{g.type}</span>
               <span className="text-xs text-fg-muted">{String(g.list.length)} 间 · 空闲 {String(g.list.filter((r) => roomStatus(r) === 'FREE').length)}</span>
             </div>
+            {!collapsedTypes.has(g.type) && (
             <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}>
               {g.list.map((r) => {
                 const st = roomStatus(r)
@@ -376,6 +391,7 @@ export default function BoardPage(): React.JSX.Element {
           )
         })}
       </div>
+            )}
     </div>
   ))
 })()}

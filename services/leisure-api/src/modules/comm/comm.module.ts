@@ -756,15 +756,31 @@ export class CommService {
 
   /* ── 客资体系(P5 2026-11-07):客户线索最小闭环;ADMIN 全量/ARTIST 本人归属 ── */
 
-  async listCustomers(storeId: number, viewer: { scope: string; id: number }) {
+  async listCustomers(storeId: number, viewer: { scope: string; id: number }, q?: string, status?: string) {
+    const kw = q?.trim() ?? ''
     const rows = await this.prisma.customerLead.findMany({
       where: {
         storeId,
         ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}),
+        ...(status !== undefined && status !== '' ? { status } : {}),
+        ...(kw !== ''
+          ? {
+              OR: [
+                { name: { contains: kw } },
+                { phone: { contains: kw } },
+                { note: { contains: kw } },
+              ],
+            }
+          : {}),
       },
       orderBy: { id: 'desc' },
       take: 200,
     })
+    const ownerIds = [...new Set(rows.map((r) => r.ownerArtistId).filter((x): x is number => x !== null))]
+    const owners = ownerIds.length > 0
+      ? await this.prisma.artist.findMany({ where: { id: { in: ownerIds } }, select: { id: true, stageName: true, realName: true } })
+      : []
+    const ownerMap = new Map(owners.map((o) => [o.id, o.stageName ?? o.realName ?? String(o.id)]))
     return {
       rows: rows.map((r) => ({
         id: r.id,
@@ -774,6 +790,7 @@ export class CommService {
         status: r.status,
         note: r.note,
         ownerArtistId: r.ownerArtistId,
+        ownerName: r.ownerArtistId !== null ? ownerMap.get(r.ownerArtistId) ?? null : null,
         createdAt: r.createdAt.toISOString(),
       })),
     }
@@ -939,9 +956,9 @@ export class CustomerController {
   constructor(private readonly svc: CommService) {}
 
   @Get()
-  async list(@Req() req: Request): Promise<unknown> {
+  async list(@Req() req: Request, @Query('q') q?: string, @Query('status') status?: string): Promise<unknown> {
     const u = op(req)
-    return this.svc.listCustomers(u.storeId, u)
+    return this.svc.listCustomers(u.storeId, u, q, status)
   }
 
   @Post()

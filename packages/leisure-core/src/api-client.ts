@@ -258,7 +258,7 @@ export interface StoreArtistSettingsUpdate {
 }
 
 /** 预约行(列表用;artistName 以档案艺名优先) */
-export interface BookingRow extends Omit<ArtistBooking, 'bookingTime' | 'roomId' | 'roomName' | 'groupId' | 'artistId' | 'artistName'> {
+export interface BookingRow extends Omit<ArtistBooking, 'bookingTime' | 'roomId' | 'roomName' | 'groupId' | 'artistId' | 'artistName' | 'customerLeadId' | 'customerName'> {
   bookingTime: string | null
   roomId: number | null
   roomName: string | null
@@ -266,6 +266,8 @@ export interface BookingRow extends Omit<ArtistBooking, 'bookingTime' | 'roomId'
   artistId: number | null
   artistName: string | null
   badgeNo: string | null
+  customerId: number | null
+  customerName: string | null
 }
 
 export interface TransportRequest {
@@ -629,6 +631,8 @@ export class LeisureApiClient {
       groupId?: number
       artistId?: number
       artistName?: string
+      /** 关联客资 id(客资体系衔接) */
+      customerId?: number
       bookingNo?: string
       /** 押金(元,默认 0;登记口径,收款在线下) */
       deposit?: number

@@ -166,6 +166,21 @@ export function RoomAdminPanel({ open, onClose, onChanged }: { open: boolean; on
                           <span className="text-xs">停用</span>
                         </ConfirmButton>
                       )}
+                      {r.status !== 'OCCUPIED' && (
+                        <ConfirmButton
+                          confirmTitle="确认删除包厢"
+                          confirmDesc={'「' + r.roomNo + '」将物理删除;存在场次/在场/预订记录将被拒绝(409)。'}
+                          onConfirm={() => {
+                            void req('DELETE', '/store/rooms/' + String(r.id)).then(async () => {
+                              toast.success('包厢已删除')
+                              await load()
+                              onChanged?.()
+                            }).catch((e) => toastError(e))
+                          }}
+                        >
+                          <span className="text-xs text-error">删除</span>
+                        </ConfirmButton>
+                      )}
                     </div>
                   </td>
                 </tr>

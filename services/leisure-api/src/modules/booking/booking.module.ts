@@ -59,6 +59,10 @@ class CreateBookingDto {
   @IsString()
   @Length(1, 64)
   artistName?: string
+  /** 关联客资 id(客资体系衔接;存 customer_lead_id+冗余名) */
+  @IsOptional()
+  @IsInt()
+  customerId?: number
   /** 外部预约号(如小程序/电话登记号);缺省自动生成 */
   @IsOptional()
   @IsString()
@@ -128,6 +132,8 @@ export class BookingService {
         artistId: r.artistId,
         artistName: r.artistId !== null ? r.artist?.stageName ?? r.artistName : r.artistName,
         badgeNo: r.artist?.badgeNo ?? null,
+        customerId: r.customerLeadId,
+        customerName: r.customerName,
         status: r.status,
         deposit: Number(r.deposit),
         holdUntil: r.holdUntil !== null ? r.holdUntil.toISOString() : null,
@@ -162,6 +168,12 @@ export class BookingService {
       const group = await this.prisma.artistGroup.findFirst({ where: { id: body.groupId, storeId } })
       if (group === null) throw new NotFoundException('组别不存在')
     }
+    let customerName: string | null = null
+    if (body.customerId !== undefined) {
+      const lead = await this.prisma.customerLead.findFirst({ where: { id: body.customerId, storeId } })
+      if (lead === null) throw new NotFoundException('客资不存在')
+      customerName = lead.name
+    }
 
     // 预约号:外部号优先;否则 BK{yyyymmdd}-{当日序号},冲突时补随机尾号(最多 3 次)
     let bookingNo = body.bookingNo ?? ''
@@ -189,6 +201,8 @@ export class BookingService {
         groupId: body.groupId ?? null,
         artistId: body.artistId ?? null,
         artistName,
+        customerLeadId: body.customerId ?? null,
+        customerName,
         deposit: body.deposit ?? 0,
         holdMinutes: body.holdMinutes ?? 30,
         // 锁钟截止=到店时间+锁钟分钟(仅指名包厢时有意义;无房预约不锁)

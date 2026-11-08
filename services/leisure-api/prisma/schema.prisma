@@ -693,7 +693,9 @@ model ArtistBooking {
   deposit      Decimal   @default(0) @db.Decimal(10, 2) // 押金(登记口径)
   holdMinutes  Int       @default(30) @map("hold_minutes") // 锁钟分钟数
   holdUntil    DateTime? @map("hold_until") // bookingTime+holdMinutes;期内该房拒绝他人开房(40915)
-  callId       Int?      @map("call_id") // 到店自动叫钟记录 id(ARRIVED 且指名房+艺人时生成)
+  callId        Int?      @map("call_id") // 到店自动叫钟记录 id(ARRIVED 且指名房+艺人时生成)
+  customerLeadId Int?     @map("customer_lead_id") // 预定挂客资(2026-11-08 衔接客资体系)
+  customerName  String?   @map("customer_name") @db.VarChar(64)
 
   artist Artist? @relation(fields: [artistId], references: [id])
 

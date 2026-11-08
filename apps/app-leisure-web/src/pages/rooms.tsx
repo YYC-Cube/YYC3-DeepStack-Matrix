@@ -170,6 +170,20 @@ export default function RoomsPage() {
               停用
             </ConfirmButton>
           )}
+          {r.status !== 'OCCUPIED' && (
+            <ConfirmButton
+              confirmTitle="确认删除包厢"
+              confirmDesc={'「' + r.roomNo + '」将物理删除;存在场次/在场/预订记录将被拒绝(409)。'}
+              onConfirm={() => {
+                void req('DELETE', '/store/rooms/' + String(r.id)).then(async () => {
+                  toast.success('包厢已删除')
+                  await load()
+                }).catch((e) => toastError(e))
+              }}
+            >
+              删除
+            </ConfirmButton>
+          )}
         </div>
       ),
     },

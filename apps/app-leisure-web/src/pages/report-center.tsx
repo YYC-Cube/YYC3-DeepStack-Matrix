@@ -128,7 +128,7 @@ export default function ReportCenterPage() {
               <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => void openPreview(r)}>
                 {busy === r.key ? '查询中…' : '预览'}
               </Button>
-              <Button size="sm" className="text-primary" disabled={busy !== ''} onClick={() => void download(r, 'xlsx')}>
+              <Button size="sm" className="bg-primary text-[#06122a] font-medium" disabled={busy !== ''} onClick={() => void download(r, 'xlsx')}>
                 {busy === r.key + '-dl' ? '导出中…' : '导出 xlsx'}
               </Button>
               <Button variant="outline" size="sm" disabled={busy !== ''} onClick={() => void download(r, 'csv')}>

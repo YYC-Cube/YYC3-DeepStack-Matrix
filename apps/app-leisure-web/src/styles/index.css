@@ -5,3 +5,17 @@
 @import './tailwind.css';
 @import './theme.css';
 @import './tokens.css';
+
+/* ── 窄屏表单单列自适应兜底(2026-11-08 Owner 指令#4:横向容器自适应)──
+   语义:≤640px 时多列表单网格统一压单列,字段名不再竖排挤压 */
+@media (max-width: 640px) {
+  .grid.grid-cols-2,
+  .grid.grid-cols-3,
+  .grid.grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+  /* Dialog 弹层窄屏满宽留边 */
+  [data-slot="dialog-content"], [role="dialog"] {
+    max-width: calc(100vw - 24px) !important;
+  }
+}

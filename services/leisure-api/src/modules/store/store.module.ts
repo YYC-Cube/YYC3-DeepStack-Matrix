@@ -242,6 +242,14 @@ export class StoreAdminService {
     if (sessionCount > 0) {
       throw new ConflictException('该包厢存在上钟场次记录,请使用停用')
     }
+    const roomSessCount = await this.prisma.roomSession.count({ where: { roomId: id } })
+    if (roomSessCount > 0) {
+      throw new ConflictException('该包厢存在进行中/历史在场记录,请使用停用')
+    }
+    const bookingCount = await this.prisma.artistBooking.count({ where: { roomId: id } })
+    if (bookingCount > 0) {
+      throw new ConflictException('该包厢存在预订记录,请先取消预订')
+    }
     await this.prisma.room.delete({ where: { id } })
     await this.audit(storeId, operatorId, 'ROOM_DELETE', 'room', String(id), before, null)
   }

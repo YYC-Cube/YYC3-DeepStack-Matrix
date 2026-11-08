@@ -49,10 +49,12 @@ export default function BoardPage(): React.JSX.Element {
   /** 房账当前消费(点单聚合,sessionId → 金额) */
   const [consumptionMap, setConsumptionMap] = useState<Map<number, number>>(new Map())
 
-  // 预定弹窗(房间卡快捷预定:直接建 BOOKED 预约)
+  // 预定弹窗(房间卡快捷预定:直接建 BOOKED 预约;2026-11-08 挂客资)
   const [reserveFor, setReserveFor] = useState<RoomRow | null>(null)
   const [reserveTime, setReserveTime] = useState('')
   const [reserveArtist, setReserveArtist] = useState('')
+  const [reserveCustomer, setReserveCustomer] = useState('')
+  const [reserveLeads, setReserveLeads] = useState<Array<{ id: number; name: string; phone: string | null }>>([])
 
   // 开房/关房(共享组件 room-ops)
   const [openRoom, setOpenRoom] = useState<RoomRow | null>(null)
@@ -154,10 +156,12 @@ export default function BoardPage(): React.JSX.Element {
       await client.bookings.create({
         roomId: reserveFor.id,
         artistId: reserveArtist === '' ? undefined : Number(reserveArtist),
+        customerId: reserveCustomer === '' ? undefined : Number(reserveCustomer),
         bookingTime: reserveTime === '' ? undefined : new Date(reserveTime).toISOString(),
       })
       toast.success(reserveFor.roomNo + ' 预定成功(BOOKED,到店后转 ARRIVED)')
       setReserveFor(null)
+      setReserveCustomer('')
       await load()
     } catch (e) {
       toastError(e, '预定失败')
@@ -380,8 +384,24 @@ export default function BoardPage(): React.JSX.Element {
                 ))}
               </select>
             </div>
+            <div className="space-y-1">
+              <Label>关联客资(可选;客资体系衔接)</Label>
+              <select
+                className="w-full h-9 rounded-md bg-[rgba(0,40,80,0.3)] border border-[rgba(0,212,255,0.2)] px-2 text-sm text-[var(--lm-fg)] outline-none focus:border-primary"
+                value={reserveCustomer}
+                onChange={(e) => { setReserveCustomer(e.target.value) }}
+                onFocus={() => {
+                  void req<{ rows: Array<{ id: number; name: string; phone: string | null }> }>('GET', '/customers').then((r) => setReserveLeads(r.rows)).catch(() => undefined)
+                }}
+              >
+                <option value="">不关联</option>
+                {reserveLeads.map((l) => (
+                  <option key={l.id} value={String(l.id)}>{l.name}{l.phone !== null ? ' · ' + l.phone : ''}</option>
+                ))}
+              </select>
+            </div>
             <p className="text-xs text-fg-muted">
-              创建后包厢显示「已预定」色;客到店在「预约管理」转 ARRIVED,开房即正常计费。
+              创建后包厢显示「已预定」色;客到店在「预约管理」转 ARRIVED,开房即正常计费。预订记录将挂客资+指名销售经理,可在预约管理追溯。
             </p>
           </div>
           <DialogFooter>

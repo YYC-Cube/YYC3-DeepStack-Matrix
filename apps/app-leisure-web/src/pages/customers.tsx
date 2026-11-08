@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth'
 import { ConfirmButton, DataTable, PageHeader, StatusBadge, type Column } from '@/components/kit'
 
 interface LeadRow {
@@ -41,6 +42,15 @@ interface BookingLite {
   roomName: string | null
   artistName: string | null
   bookingTime: string | null
+}
+interface TodoBoardRow {
+  id: number
+  leadId: number
+  leadName: string
+  leadPhone: string | null
+  content: string
+  dueAt: string | null
+  overdue: boolean
 }
 const KIND_LABEL: Record<string, string> = { MANUAL: '跟进', ARRIVED: '到店', CONSUME: '消费', SYSTEM: '系统', TODO: '待办' }
 /** 跟进提醒阈值(天):超过即置顶+角标 */
@@ -88,6 +98,9 @@ export default function CustomersPage(): React.JSX.Element {
   const [detailFor, setDetailFor] = useState<LeadRow | null>(null)
   const [detailFu, setDetailFu] = useState<FollowupRow[]>([])
   const [detailBooks, setDetailBooks] = useState<BookingLite[]>([])
+  /** 视图切换:列表 / 待办日历(按到期日排布) */
+  const [view, setView] = useState<'list' | 'calendar'>('list')
+  const [todoRows, setTodoRows] = useState<TodoBoardRow[]>([])
 
   const openFollowups = (r: LeadRow): void => {
     setFuFor(r)
@@ -169,6 +182,52 @@ export default function CustomersPage(): React.JSX.Element {
       toastError(e, '客资加载失败')
     }
   }, [q, status])
+
+  const loadTodos = useCallback(async (): Promise<void> => {
+    try {
+      const res = await req<{ rows: TodoBoardRow[] }>('GET', '/customers/todo-board')
+      setTodoRows(res.rows)
+    } catch (e) {
+      toastError(e, '待办加载失败')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (view === 'calendar') void loadTodos()
+  }, [view, loadTodos])
+
+  /** 导出(当前筛选;fetch blob 带 Authorization,对齐报表中心) */
+  const exportCustomers = async (fmt: 'xlsx' | 'csv'): Promise<void> => {
+    const params = new URLSearchParams({ fmt })
+    if (q.trim() !== '') params.set('q', q.trim())
+    if (status !== '') params.set('status', status)
+    const res = await fetch('/api/v1/customers/export?' + params.toString(), {
+      headers: { Authorization: 'Bearer ' + (useAuthStore.getState().token ?? '') },
+    })
+    if (!res.ok) {
+      toast.error('导出失败(HTTP ' + String(res.status) + ')')
+      return
+    }
+    const blob = await res.blob()
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = '客资列表-' + new Date().toISOString().slice(0, 10) + '.' + fmt
+    a.click()
+    URL.revokeObjectURL(a.href)
+    toast.success('已导出 ' + fmt.toUpperCase())
+  }
+
+  /** 客资重复检测(录手机号失焦时):命中非本人客资 → 提示 */
+  const checkDup = async (phone: string): Promise<void> => {
+    if (phone.trim().length < 4) return
+    try {
+      const res = await req<{ rows: LeadRow[] }>('GET', '/customers?q=' + encodeURIComponent(phone.trim()))
+      const hit = res.rows.find((x) => x.phone === phone.trim() && x.id !== form?.id)
+      if (hit !== undefined) {
+        toast.warning('提示:该电话已存在客资「' + hit.name + '」(' + (STATUS_LABEL[hit.status] ?? hit.status) + '),请确认是否重复录入')
+      }
+    } catch { /* 静默 */ }
+  }
 
   useEffect(() => {
     void load()
@@ -282,7 +341,15 @@ export default function CustomersPage(): React.JSX.Element {
       <PageHeader
         title="客户(客资体系)"
         desc="客户线索名录:来源/状态(跟进中·已成交·已流失)/跟进备注;管理端全量,销售端仅本人归属;员工录入客资归属个人"
-        actions={<Button onClick={() => setForm({ name: '', phone: '', source: '', status: 'FOLLOW', note: '', ownerArtistId: '' })}>+ 录入客资</Button>}
+        actions={
+          <div className="flex gap-2">
+            <Button variant={view === 'list' ? 'default' : 'outline'} size="sm" onClick={() => { setView('list') }}>列表</Button>
+            <Button variant={view === 'calendar' ? 'default' : 'outline'} size="sm" onClick={() => { setView('calendar') }}>待办日历</Button>
+            <Button variant="outline" size="sm" onClick={() => { void exportCustomers('xlsx') }}>导出 xlsx</Button>
+            <Button variant="outline" size="sm" onClick={() => { void exportCustomers('csv') }}>CSV</Button>
+            <Button onClick={() => setForm({ name: '', phone: '', source: '', status: 'FOLLOW', note: '', ownerArtistId: '' })}>+ 录入客资</Button>
+          </div>
+        }
       />
       <Card className="p-4 mb-3 flex flex-row flex-wrap items-center gap-3">
         <Input className="w-52" placeholder="搜索:姓名/电话/备注" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -298,6 +365,9 @@ export default function CustomersPage(): React.JSX.Element {
         </select>
         <Button variant="outline" size="sm" onClick={() => { void load() }}>查询</Button>
       </Card>
+      {/* list 视图:统计条+表格(calendar 视图显示待办日历) */}
+      {view === 'list' && (
+      <>
       {/* 来源转化统计条(按当前筛选聚合) */}
       {sourceStats.length > 0 && (
         <Card className="p-3 flex flex-row flex-wrap items-center gap-4">
@@ -326,6 +396,46 @@ export default function CustomersPage(): React.JSX.Element {
         </Card>
       )}
       <DataTable columns={columns} rows={sortedRows} loading={rows === undefined} />
+      </>
+      )}
+
+      {/* calendar 视图:待办日历(按到期日排布) */}
+      {view === 'calendar' && (
+        <Card className="p-4 space-y-4">
+          <div className="text-xs text-fg-muted">跟进待办日历(按到期日排布;点击「完成」核销;过期置顶红显)</div>
+          {todoRows.length === 0 && <div className="text-sm text-fg-muted py-4 text-center">暂无未完成待办;在「列表」视图点客资「跟进」可创建</div>}
+          {(() => {
+            const byDay = new Map<string, TodoBoardRow[]>()
+            for (const t of todoRows) {
+              const day = t.dueAt !== null ? t.dueAt.slice(0, 10) : '未设到期'
+              const arr = byDay.get(day) ?? []
+              arr.push(t)
+              byDay.set(day, arr)
+            }
+            return [...byDay.entries()].map(([day, items]) => (
+              <div key={day} className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className={'text-sm font-semibold ' + (day !== '未设到期' && day < new Date().toISOString().slice(0, 10) ? 'text-error' : 'text-[var(--lm-fg)]')}>{day}</span>
+                  <span className="text-xs text-fg-muted">{String(items.length)} 项{day !== '未设到期' && day < new Date().toISOString().slice(0, 10) ? ' · 已过期' : ''}</span>
+                </div>
+                {items.map((t) => (
+                  <div key={t.id} className={'border rounded-lg px-2.5 py-1.5 text-sm ' + (t.overdue ? 'border-error/50 bg-error/5' : 'border-line')}>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{t.leadName}</span>
+                      {t.leadPhone !== null && <span className="text-xs text-fg-muted">{t.leadPhone}</span>}
+                      <button className="ml-auto text-xs text-primary hover:underline" onClick={() => {
+                        const r = (rows ?? []).find((x) => x.id === t.leadId)
+                        if (r !== undefined) openFollowups(r)
+                      }}>跟进 →</button>
+                    </div>
+                    <p className="text-xs text-fg-muted mt-0.5 break-all">{t.content}</p>
+                  </div>
+                ))}
+              </div>
+            ))
+          })()}
+        </Card>
+      )}
 
       {/* 跟进时间线弹窗(一客多条) */}
       <Dialog open={fuFor !== null} onOpenChange={(o) => { if (!o) setFuFor(null) }}>
@@ -435,7 +545,7 @@ export default function CustomersPage(): React.JSX.Element {
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-fg-muted">电话</Label>
-                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} onBlur={(e) => { void checkDup(e.target.value) }} placeholder="失焦自动查重" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-fg-muted">来源(抖音/朋友介绍/路过…)</Label>

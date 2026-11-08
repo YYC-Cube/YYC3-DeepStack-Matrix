@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
+import type { SelfOrder } from '@yyc3/leisure-core'
 import { PageHeader } from '@/components/kit'
 import { RoomAdminPanel } from '@/components/room-admin'
 import { RoomCloseDialog, RoomOpenDialog, type OpenSessionRow, type RoomRow, type ArtistRow } from '@/components/room-ops'
@@ -68,6 +69,8 @@ export default function BoardPage(): React.JSX.Element {
   const [orderGoods, setOrderGoods] = useState<Array<{ id: number; name: string; salePrice: string | number; unit: string | null }>>([])
   const [orderItems, setOrderItems] = useState<Record<number, number>>({})
   const [orderPickerOpen, setOrderPickerOpen] = useState(false)
+  /** 本房已点明细(点单弹窗展开;self-orders by sessionId) */
+  const [orderHistory, setOrderHistory] = useState<SelfOrder[]>([])
   /** 分区折叠(大包 17 间占屏;记忆于 localStorage) */
   const [collapsedTypes, setCollapsedTypes] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('yyc3-board-collapsed') ?? '[]') as string[]) } catch { return new Set() }
@@ -364,6 +367,12 @@ export default function BoardPage(): React.JSX.Element {
                       setOrderRoom(r)
                       setOrderItems({})
                       void client.goods.list({ onSale: true }).then((res) => setOrderGoods(res.rows.map((g) => ({ id: g.id, name: g.name, salePrice: g.salePrice, unit: g.unit ?? null }))))
+                      const os = openSessions.find((s) => s.roomId === r.id)
+                      if (os !== undefined) {
+                        void client.selfOrders.list({ sessionId: os.id }).then((res) => setOrderHistory(res.rows.filter((x) => x.status !== 'CANCELLED'))).catch(() => undefined)
+                      } else {
+                        setOrderHistory([])
+                      }
                     }}
                     title="为本房点单:多商品入房账"
                   >
@@ -492,6 +501,29 @@ export default function BoardPage(): React.JSX.Element {
             <DialogTitle>点单 · {orderRoom?.roomNo ?? ''}</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5">
+            {/* 本房已点明细(P5 2026-11-08:点单前先看本房已点) */}
+            {orderHistory.length > 0 && (
+              <div className="border border-line rounded-lg px-2.5 py-1.5 mb-2">
+                <div className="text-[10px] text-fg-muted mb-1">本房已点({String(orderHistory.length)} 单)</div>
+                <div className="space-y-0.5 max-h-28 overflow-y-auto">
+                  {(() => {
+                    const agg = new Map<string, number>()
+                    for (const o of orderHistory) {
+                      for (const it of o.items) {
+                        agg.set(it.name, (agg.get(it.name) ?? 0) + it.qty)
+                      }
+                    }
+                    if (agg.size === 0) return <div className="text-xs text-fg-muted">无明细</div>
+                    return [...agg.entries()].map(([name, qty]) => (
+                      <div key={name} className="flex justify-between text-xs">
+                        <span>{name}</span>
+                        <span className="text-fg-muted">× {String(qty)}</span>
+                      </div>
+                    ))
+                  })()}
+                </div>
+              </div>
+            )}
             {orderGoods.length === 0 && <div className="text-xs text-fg-muted py-3 text-center">暂无在售商品;请先在「商品管理」上架</div>}
             {orderGoods.map((g) => {
               const q = orderItems[g.id] ?? 0

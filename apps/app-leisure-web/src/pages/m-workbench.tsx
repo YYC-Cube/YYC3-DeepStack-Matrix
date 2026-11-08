@@ -101,6 +101,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [liveRooms, setLiveRooms] = useState<number>(0)
   /** 分账月报卡(S4-3:三向对账三数;仅 setting:manage 拉取) */
   const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> } | null>(null)
+  /** 客资转化排行卡(2026-11-08:按销售经理 Top5;全员可见) */
+  const [ownerRankCard, setOwnerRankCard] = useState<Array<{ owner: string; total: number; deal: number; rate: number }>>([])
   /** 任务预警(今日概况行:进行中/达标数;全员可见本人) */
   const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [tab, setTab] = useState('manage')
@@ -137,6 +139,13 @@ export default function MWorkbenchPage(): React.JSX.Element {
       .then((r) => setSplitCard(r))
       .catch(() => undefined)
   }, [permCodes])
+
+  // 客资转化排行(2026-11-08:全员可见;失败静默)
+  useEffect(() => {
+    void req<{ rows: Array<{ owner: string; total: number; deal: number; rate: number }> }>('GET', '/customers/stats/by-owner')
+      .then((r) => setOwnerRankCard(r.rows))
+      .catch(() => undefined)
+  }, [])
 
   // 任务预警(2026-11-06):进行中任务数+达标数(全员,ARTIST 端点自动过滤本人)
   useEffect(() => {

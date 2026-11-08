@@ -17,15 +17,27 @@ import {
   Put,
   Query,
   Req,
+  Res,
   BadRequestException,
 } from '@nestjs/common'
 import { IsIn, IsInt, IsOptional, IsString, Length, Matches } from 'class-validator'
-import type { Request } from 'express'
+import type { Request, Response } from 'express'
 import { JwtModule, JwtService } from '@nestjs/jwt'
 import { env } from '../../config/env.js'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { RequirePerm, type ReqWithUser } from '../../common/guards/jwt.guard.js'
 import type { ChatBroadcaster } from '../../ws/chat-ws.js'
+import { toXlsx } from '../../common/utils/xlsx.js'
+
+/** CSV(BOM+转义;与 report 模块 toCsv 同构) */
+function toCsv(headers: string[], rows: Array<Array<string | number | null | boolean | Date>>): string {
+  const esc = (v: string | number | null | boolean | Date): string => {
+    const s = v instanceof Date ? v.toISOString() : String(v ?? '')
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+  }
+  const lines = [headers.map(esc).join(','), ...rows.map((r) => r.map(esc).join(','))]
+  return '\uFEFF' + lines.join('\r\n')
+}
 
 const CHAT_GROUP_NAME_RE = /^.{1,64}$/
 
@@ -803,6 +815,26 @@ export class CommService {
         }
       }
     }
+    // TODO 到期通知矩阵(2026-11-08 惰性触发+同标题幂等):到期未完成 → notice 提醒录入人(接通告矩阵)
+    for (const f of followups) {
+      if (f.kind === 'TODO' && !f.isDone && f.dueAt !== null && f.dueAt.getTime() < nowMs) {
+        const lead = rows.find((x) => x.id === f.leadId)
+        const title = '客资待办到期:' + (lead?.name ?? '客资#' + String(f.leadId)) + ' ' + f.dueAt.toISOString().slice(5, 10)
+        const dup = await this.prisma.notice.findFirst({ where: { storeId, title, deletedAt: null } })
+        if (dup === null) {
+          await this.prisma.notice.create({
+            data: {
+              storeId,
+              title,
+              body: '待办「' + f.content + '」已到期,请尽快跟进客资「' + (lead?.name ?? String(f.leadId)) + '」。',
+              publishedBy: f.createdBy,
+              visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+              remind: true,
+            },
+          })
+        }
+      }
+    }
     return {
       rows: rows.map((r) => ({
         id: r.id,
@@ -882,6 +914,94 @@ export class CommService {
     await this.prisma.auditLog.create({
       data: { storeId, actorId: operator.id, action: 'CUSTOMER_TODO_DONE', targetType: 'customer_lead', targetId: String(leadId), beforeJson: { isDone: false } as object, afterJson: { isDone: true } as object },
     })
+  }
+
+  /** TODO 看板(全部未完成待办;按到期日排布,过期置顶;日历视图数据源) */
+  async todoBoard(storeId: number): Promise<{ rows: Array<{ id: number; leadId: number; leadName: string; leadPhone: string | null; content: string; dueAt: string | null; overdue: boolean }> }> {
+    const rows = await this.prisma.customerFollowup.findMany({
+      where: { storeId, kind: 'TODO', isDone: false },
+      orderBy: [{ dueAt: 'asc' }, { id: 'asc' }],
+      take: 200,
+    })
+    const leadIds = [...new Set(rows.map((r) => r.leadId))]
+    const leads = leadIds.length > 0
+      ? await this.prisma.customerLead.findMany({ where: { id: { in: leadIds } }, select: { id: true, name: true, phone: true } })
+      : []
+    const leadMap = new Map(leads.map((l) => [l.id, l]))
+    const nowMs = Date.now()
+    return {
+      rows: rows.map((r) => {
+        const lead = leadMap.get(r.leadId)
+        return {
+          id: r.id,
+          leadId: r.leadId,
+          leadName: lead?.name ?? ('客资#' + String(r.leadId)),
+          leadPhone: lead?.phone ?? null,
+          content: r.content,
+          dueAt: r.dueAt !== null && r.dueAt !== undefined ? r.dueAt.toISOString() : null,
+          overdue: r.dueAt !== null && r.dueAt !== undefined && r.dueAt.getTime() < nowMs,
+        }
+      }),
+    }
+  }
+
+  /** 转化率排行(按销售经理聚合;衔接员工绩效) */
+  async ownerStats(storeId: number): Promise<{ rows: Array<{ owner: string; total: number; deal: number; rate: number }> }> {
+    const all = await this.prisma.customerLead.findMany({
+      where: { storeId },
+      select: { ownerArtistId: true, status: true },
+    })
+    const artistIds = [...new Set(all.map((r) => r.ownerArtistId).filter((x): x is number => x !== null))]
+    const artists = artistIds.length > 0
+      ? await this.prisma.artist.findMany({ where: { id: { in: artistIds } }, select: { id: true, stageName: true, realName: true } })
+      : []
+    const artistMap = new Map(artists.map((a) => [a.id, a.stageName ?? a.realName ?? String(a.id)]))
+    const m = new Map<string, { total: number; deal: number }>()
+    for (const r of all) {
+      const o = r.ownerArtistId !== null ? artistMap.get(r.ownerArtistId) ?? ('销售#' + String(r.ownerArtistId)) : '未归属'
+      const e = m.get(o) ?? { total: 0, deal: 0 }
+      e.total += 1
+      if (r.status === 'DEAL') e.deal += 1
+      m.set(o, e)
+    }
+    return {
+      rows: [...m.entries()]
+        .map(([owner, st]) => ({ owner, total: st.total, deal: st.deal, rate: st.total > 0 ? Math.round((st.deal / st.total) * 100) : 0 }))
+        .sort((a, b) => b.rate - a.rate || b.total - a.total)
+        .slice(0, 20),
+    }
+  }
+
+  /** 客资导出(xlsx/csv;对齐报表中心导出体系;@Res 直写) */
+  async exportCustomers(
+    storeId: number,
+    viewer: { scope: string; id: number },
+    q: { q?: string; status?: string; fmt: 'xlsx' | 'csv' },
+    res: Response,
+  ): Promise<void> {
+    const out = await this.listCustomers(storeId, viewer, q.q, q.status)
+    const headers = ['客户', '电话', '来源', '状态', '归属销售经理', '最近跟进', '跟进次数', '录入时间']
+    const rows = out.rows.map((r) => [
+      r.name,
+      r.phone ?? '',
+      r.source ?? '',
+      r.status === 'FOLLOW' ? '跟进中' : r.status === 'DEAL' ? '已成交' : '已流失',
+      r.ownerName ?? '',
+      r.lastFollowContent ?? '',
+      r.followupCount,
+      r.createdAt.slice(0, 16).replace('T', ' '),
+    ])
+    const name = '客资列表-' + new Date().toISOString().slice(0, 10)
+    if (q.fmt === 'csv') {
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+      res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(name) + '.csv')
+      res.send(toCsv(headers, rows))
+      return
+    }
+    const buf = toXlsx([{ name: '客资列表', rows: [headers, ...rows] }])
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(name) + '.xlsx')
+    res.send(buf)
   }
 
   async createCustomer(storeId: number, operator: { scope: string; id: number }, body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<{ id: number }> {
@@ -1043,10 +1163,38 @@ export class TaskController {
 export class CustomerController {
   constructor(private readonly svc: CommService) {}
 
+  /** 客资列表(搜索/筛选+TODO 到期惰性 notice) */
   @Get()
   async list(@Req() req: Request, @Query('q') q?: string, @Query('status') status?: string): Promise<unknown> {
     const u = op(req)
     return this.svc.listCustomers(u.storeId, u, q, status)
+  }
+
+  /** TODO 看板(全部未完成待办,按到期日排布;日历视图数据源) */
+  @Get('todo-board')
+  async todoBoard(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.todoBoard(u.storeId)
+  }
+
+  /** 转化率排行(按销售经理;衔接员工绩效) */
+  @Get('stats/by-owner')
+  async statsByOwner(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.ownerStats(u.storeId)
+  }
+
+  /** 客资导出(xlsx/csv;对齐报表中心导出体系;@Res 直写绕信封) */
+  @Get('export')
+  async export(
+    @Req() req: Request,
+    @Query('fmt') fmt: string | undefined,
+    @Query('q') q: string | undefined,
+    @Query('status') status: string | undefined,
+    @Res() res: Response,
+  ): Promise<void> {
+    const u = op(req)
+    await this.svc.exportCustomers(u.storeId, u, { q, status, fmt: fmt === 'csv' ? 'csv' : 'xlsx' }, res)
   }
 
   @Post()

@@ -1003,6 +1003,7 @@ model CustomerLead {
   status        String    @default("FOLLOW") @db.VarChar(16)
   note          String?   @db.VarChar(500)
   ownerArtistId Int?      @map("owner_artist_id")
+  tags          String?   @db.VarChar(200) // 自定义标签(逗号分隔;2026-11-08)
   createdBy     Int       @map("created_by")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")

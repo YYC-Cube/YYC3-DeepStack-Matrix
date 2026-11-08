@@ -101,8 +101,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [liveRooms, setLiveRooms] = useState<number>(0)
   /** 分账月报卡(S4-3:三向对账三数;仅 setting:manage 拉取) */
   const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> } | null>(null)
-  /** 客资转化排行卡(2026-11-08:按销售经理 Top5;全员可见) */
-  const [ownerRankCard, setOwnerRankCard] = useState<Array<{ owner: string; total: number; deal: number; rate: number }>>([])
+  /** 客资转化排行卡(2026-11-08:按销售经理 Top5;全员可见;点击带 owner 过滤跳客资列表) */
+  const [ownerRankCard, setOwnerRankCard] = useState<Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }>>([])
   /** 任务预警(今日概况行:进行中/达标数;全员可见本人) */
   const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [tab, setTab] = useState('manage')
@@ -142,7 +142,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
 
   // 客资转化排行(2026-11-08:全员可见;失败静默)
   useEffect(() => {
-    void req<{ rows: Array<{ owner: string; total: number; deal: number; rate: number }> }>('GET', '/customers/stats/by-owner')
+    void req<{ rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }>('GET', '/customers/stats/by-owner')
       .then((r) => setOwnerRankCard(r.rows))
       .catch(() => undefined)
   }, [])
@@ -348,6 +348,34 @@ export default function MWorkbenchPage(): React.JSX.Element {
           ))}
         </div>
       </div>
+
+      {/* 客资转化排行(2026-11-08:按销售经理 Top5;点击带 owner 过滤跳客资列表) */}
+      {ownerRankCard.length > 0 && (
+        <div
+          className="mx-3 mt-3 rounded-2xl p-3 cursor-pointer"
+          style={{ background: 'var(--lm-card)', border: '1px solid color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-[var(--lm-fg)]">客资转化排行</span>
+            <span className="text-[10px] text-fg-muted">按销售经理 · 点行进列表</span>
+          </div>
+          <div className="space-y-1">
+            {ownerRankCard.slice(0, 5).map((o, i) => (
+              <div
+                key={o.owner}
+                className={'flex items-center gap-2 text-xs ' + (o.ownerArtistId !== null ? 'cursor-pointer hover:bg-primary/5 rounded px-1' : '')}
+                onClick={() => { if (o.ownerArtistId !== null) navigate('/customers?ownerArtistId=' + String(o.ownerArtistId)) }}
+                title={o.ownerArtistId !== null ? '查看该经理客资列表' : undefined}
+              >
+                <span className="text-fg-muted w-4">{String(i + 1)}.</span>
+                <span className="flex-1 truncate">{o.owner}</span>
+                <span className="text-fg-muted">客资 {String(o.total)} · 成交 {String(o.deal)}</span>
+                <span className={o.rate >= 30 ? 'text-[#00cc88] font-semibold' : 'text-[var(--lm-fg)] font-semibold'}>{String(o.rate)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 分账月报(S4-3:本月计提净额/结算中/已付+平衡徽标;点击进 /split) */}
       {splitCard !== null && (

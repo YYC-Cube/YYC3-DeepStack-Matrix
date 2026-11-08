@@ -19,12 +19,13 @@ import {
   Put,
   Query,
   Req,
+  Res,
   BadRequestException,
   ForbiddenException,
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common'
-import type { Request } from 'express'
+import type { Request, Response } from 'express'
 import {
   diffMinutes,
   resolveBusinessDate,
@@ -40,6 +41,7 @@ import {
   type VoiceBoxTransport,
 } from '@yyc3/leisure-core'
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { toXlsx } from '../../common/utils/xlsx.js'
 import { env } from '../../config/env.js'
 import type { ReqWithUser } from '../../common/guards/jwt.guard.js'
 import { SessionModule, SessionService } from '../session/session.module.js'
@@ -1338,6 +1340,41 @@ export class RoomController {
       businessDate,
       status,
     })
+  }
+
+  /** 单房点单明细导出(xlsx;逐单逐商品行;2026-11-08 看盘点单历史导出) */
+  @Get('self-orders/export')
+  async exportOrders(
+    @Req() req: Request,
+    @Query('sessionId') sessionId: string,
+    @Query('fmt') fmt: string | undefined,
+    @Res() res: Response,
+  ): Promise<void> {
+    const user = op(req)
+    const sid = Number(sessionId)
+    if (!Number.isFinite(sid)) throw new BadRequestException('sessionId 必填')
+    const out = await this.svc.listOrders({ storeId: user.storeId ?? 1, sessionId: sid })
+    const headers = ['单号', '下单时间', '状态', '商品', '数量', '单价', '小计', '单合计']
+    const statusText: Record<string, string> = { PLACED: '已下单', DELIVERED: '已送达', SETTLED: '已结算', CANCELLED: '已取消' }
+    const rows: Array<Array<string | number>> = []
+    for (const o of out.rows as Array<{ id: number; placedAt: string | Date; status: string; items: Array<{ name: string; qty: number; unitPrice: number }>; totalAmount: number }>) {
+      const placed = typeof o.placedAt === 'string' ? o.placedAt.slice(0, 16).replace('T', ' ') : new Date(o.placedAt).toISOString().slice(0, 16).replace('T', ' ')
+      for (const it of o.items) {
+        rows.push([String(o.id), placed, statusText[o.status] ?? o.status, it.name, it.qty, it.unitPrice, Math.round(it.qty * it.unitPrice * 100) / 100, o.totalAmount])
+      }
+      if (o.items.length === 0) rows.push([String(o.id), placed, statusText[o.status] ?? o.status, '(无明细)', 0, 0, 0, o.totalAmount])
+    }
+    const name = '点单明细-会话' + String(sid) + '-' + new Date().toISOString().slice(0, 10)
+    if (fmt === 'csv') {
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+      res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(name) + '.csv')
+      res.send('\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n'))
+      return
+    }
+    const buf = toXlsx([{ name: '点单明细', rows: [headers, ...rows] }])
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(name) + '.xlsx')
+    res.send(buf)
   }
 
   @Post('self-orders/:id/deliver')

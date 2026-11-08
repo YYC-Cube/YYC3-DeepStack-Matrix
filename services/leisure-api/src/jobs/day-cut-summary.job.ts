@@ -232,6 +232,37 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
         'daily summary materialized: store=' + storeName + ' bd=' + target +
         ' split(entryNet=' + String(splitEntryNet) + ' settled=' + String(splitSettled) + ' diff=' + String(splitDiff) + ')',
       )
+
+      // 客资日报(2026-11-08):昨日新增跟进/待办完成数/当前超期数 → 管理 notice(有活动才发;同标题幂等)
+      const fuFrom = new Date(targetDate + 'T00:00:00')
+      const fuTo = new Date(targetDate + 'T23:59:59.999')
+      const [newFollowups, doneTodos] = await Promise.all([
+        this.prisma.customerFollowup.count({ where: { storeId, createdAt: { gte: fuFrom, lte: fuTo } } }),
+        this.prisma.auditLog.count({ where: { storeId, action: 'CUSTOMER_TODO_DONE', createdAt: { gte: fuFrom, lte: fuTo } } }),
+      ])
+      const overdueTodos = await this.prisma.customerFollowup.count({
+        where: { storeId, kind: 'TODO', isDone: false, dueAt: { lt: new Date() } },
+      })
+      if (newFollowups > 0 || doneTodos > 0 || overdueTodos > 0) {
+        const reportTitle = '客资日报(' + target + ')'
+        const dupReport = await this.prisma.notice.findFirst({
+          where: { storeId, title: reportTitle, deletedAt: null },
+        })
+        if (dupReport === null) {
+          await this.prisma.notice.create({
+            data: {
+              storeId,
+              title: reportTitle,
+              body: '昨日新增跟进 ' + String(newFollowups) + ' 条 · 待办完成 ' + String(doneTodos) + ' 项 · 当前超期未办 ' + String(overdueTodos) + ' 项。' +
+                (overdueTodos > 0 ? '存在超期待办,请及时跟进客资!' : ''),
+              publishedBy: 0,
+              visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+              remind: overdueTodos > 0,
+            },
+          })
+          this.logger.log('customer daily report: store=' + storeName + ' fu=' + String(newFollowups) + ' done=' + String(doneTodos) + ' overdue=' + String(overdueTodos))
+        }
+      }
     } catch (err) {
       await this.prisma.jobRunLog.create({
         data: {

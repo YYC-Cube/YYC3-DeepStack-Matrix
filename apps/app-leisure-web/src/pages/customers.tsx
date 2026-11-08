@@ -3,6 +3,7 @@
  * ADMIN 全量,ARTIST(销售端)仅本人归属;DataTable 移动端自动卡片化
  */
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
@@ -18,6 +19,7 @@ interface LeadRow {
   note: string | null
   ownerArtistId: number | null
   ownerName: string | null
+  tags: string
   lastFollowAt: string | null
   lastFollowContent: string | null
   followupCount: number
@@ -79,6 +81,7 @@ interface FormState {
   status: string
   note: string
   ownerArtistId: string
+  tags: string
 }
 
 export default function CustomersPage(): React.JSX.Element {
@@ -88,18 +91,25 @@ export default function CustomersPage(): React.JSX.Element {
   const [q, setQ] = useState('')
   const [status, setStatus] = useState('')
   const [artists, setArtists] = useState<ArtistOption[]>([])
+  /** 归属过滤(排行卡跳转 ?ownerArtistId=;可清除) */
+  const [searchParams, setSearchParams] = useSearchParams()
+  const ownerFilter = searchParams.get('ownerArtistId') ?? ''
   /** 跟进时间线弹窗 */
   const [fuFor, setFuFor] = useState<LeadRow | null>(null)
   const [fuRows, setFuRows] = useState<FollowupRow[]>([])
   const [fuInput, setFuInput] = useState('')
   const [fuTodo, setFuTodo] = useState(false)
   const [fuDue, setFuDue] = useState('')
+  /** 月视图选中日(明细面板) */
+  const [detailDay, setDetailDay] = useState('')
   /** 客资详情页化(档案卡:基本信息+时间线+关联预订一屏) */
   const [detailFor, setDetailFor] = useState<LeadRow | null>(null)
   const [detailFu, setDetailFu] = useState<FollowupRow[]>([])
   const [detailBooks, setDetailBooks] = useState<BookingLite[]>([])
   /** 视图切换:列表 / 待办日历(按到期日排布) */
-  const [view, setView] = useState<'list' | 'calendar'>('list')
+  const [view, setView] = useState<'list' | 'calendar' | 'month'>('list')
+  /** 月视图当前月(YYYY-MM) */
+  const [monthCursor, setMonthCursor] = useState(() => new Date().toISOString().slice(0, 7))
   const [todoRows, setTodoRows] = useState<TodoBoardRow[]>([])
 
   const openFollowups = (r: LeadRow): void => {
@@ -176,12 +186,13 @@ export default function CustomersPage(): React.JSX.Element {
       const params = new URLSearchParams()
       if (q.trim() !== '') params.set('q', q.trim())
       if (status !== '') params.set('status', status)
+      if (ownerFilter !== '') params.set('ownerArtistId', ownerFilter)
       const res = await req<{ rows: LeadRow[] }>('GET', '/customers' + (params.toString() !== '' ? '?' + params.toString() : ''))
       setRows(res.rows)
     } catch (e) {
       toastError(e, '客资加载失败')
     }
-  }, [q, status])
+  }, [q, status, ownerFilter])
 
   const loadTodos = useCallback(async (): Promise<void> => {
     try {
@@ -251,6 +262,7 @@ export default function CustomersPage(): React.JSX.Element {
         status: form.status,
         note: form.note === '' ? undefined : form.note.trim(),
         ownerArtistId: form.ownerArtistId === '' ? undefined : Number(form.ownerArtistId),
+        tags: form.tags === '' ? undefined : form.tags.trim(),
       }
       if (form.id !== undefined) {
         await req('PUT', '/customers/' + String(form.id), body)
@@ -302,6 +314,13 @@ export default function CustomersPage(): React.JSX.Element {
         <span className="text-fg-muted">({String(r.followupCount)})</span>
       </span>
     ) : <span className="text-xs text-fg-muted">—</span> },
+    { key: 'tags', header: '标签', render: (r) => r.tags !== '' && r.tags !== null ? (
+      <span className="flex gap-1 flex-wrap">
+        {r.tags.split(',').filter((t) => t.trim() !== '').map((t) => (
+          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full border border-line text-fg-muted">{t.trim()}</span>
+        ))}
+      </span>
+    ) : '—' },
     { key: 'note', header: '跟进备注', render: (r) => r.note ?? '—' },
     { key: 'createdAt', header: '录入时间', render: (r) => r.createdAt.slice(0, 16).replace('T', ' ') },
     {
@@ -317,6 +336,7 @@ export default function CustomersPage(): React.JSX.Element {
             status: r.status,
             note: r.note ?? '',
             ownerArtistId: r.ownerArtistId !== null ? String(r.ownerArtistId) : '',
+            tags: r.tags ?? '',
           })}>编辑</Button>
           <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => { openFollowups(r) }}>跟进</Button>
           <ConfirmButton
@@ -345,9 +365,10 @@ export default function CustomersPage(): React.JSX.Element {
           <div className="flex gap-2">
             <Button variant={view === 'list' ? 'default' : 'outline'} size="sm" onClick={() => { setView('list') }}>列表</Button>
             <Button variant={view === 'calendar' ? 'default' : 'outline'} size="sm" onClick={() => { setView('calendar') }}>待办日历</Button>
+            <Button variant={view === 'month' ? 'default' : 'outline'} size="sm" onClick={() => { setView('month') }}>月视图</Button>
             <Button variant="outline" size="sm" onClick={() => { void exportCustomers('xlsx') }}>导出 xlsx</Button>
             <Button variant="outline" size="sm" onClick={() => { void exportCustomers('csv') }}>CSV</Button>
-            <Button onClick={() => setForm({ name: '', phone: '', source: '', status: 'FOLLOW', note: '', ownerArtistId: '' })}>+ 录入客资</Button>
+            <Button onClick={() => setForm({ name: '', phone: '', source: '', status: 'FOLLOW', note: '', ownerArtistId: '', tags: '' })}>+ 录入客资</Button>
           </div>
         }
       />
@@ -368,6 +389,12 @@ export default function CustomersPage(): React.JSX.Element {
       {/* list 视图:统计条+表格(calendar 视图显示待办日历) */}
       {view === 'list' && (
       <>
+      {ownerFilter !== '' && (
+        <Card className="p-2.5 flex items-center gap-2">
+          <span className="text-xs">过滤中:归属销售经理 #{ownerFilter}</span>
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setSearchParams({})}>清除过滤</Button>
+        </Card>
+      )}
       {/* 来源转化统计条(按当前筛选聚合) */}
       {sourceStats.length > 0 && (
         <Card className="p-3 flex flex-row flex-wrap items-center gap-4">
@@ -434,6 +461,69 @@ export default function CustomersPage(): React.JSX.Element {
               </div>
             ))
           })()}
+        </Card>
+      )}
+
+      {/* month 视图:整月网格(每日格=待办条数+预览;点格显当日明细) */}
+      {view === 'month' && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => { const [y, mo] = monthCursor.split('-').map(Number); setMonthCursor(mo === 1 ? String(y - 1) + '-12' : y + '-' + String(mo - 1).padStart(2, '0')) }}>← 上月</Button>
+            <span className="text-sm font-semibold">{monthCursor}</span>
+            <Button variant="outline" size="sm" onClick={() => { const [y, mo] = monthCursor.split('-').map(Number); setMonthCursor(mo === 12 ? String(y + 1) + '-01' : y + '-' + String(mo + 1).padStart(2, '0')) }}>下月 →</Button>
+            <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setMonthCursor(new Date().toISOString().slice(0, 7)) }}>回到本月</Button>
+          </div>
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-fg-muted">
+            {['一', '二', '三', '四', '五', '六', '日'].map((d) => <span key={d}>{d}</span>)}
+          </div>
+          {(() => {
+            const [y, mo] = monthCursor.split('-').map(Number)
+            const first = new Date(y, mo - 1, 1)
+            const lead = (first.getDay() + 6) % 7 // 周一为一周首
+            const days = new Date(y, mo, 0).getDate()
+            const cells: Array<{ day: number | null; items: TodoBoardRow[] }> = []
+            for (let i = 0; i < lead; i++) cells.push({ day: null, items: [] })
+            for (let d = 1; d <= days; d++) {
+              const dayStr = monthCursor + '-' + String(d).padStart(2, '0')
+              cells.push({ day: d, items: todoRows.filter((t) => (t.dueAt ?? '').slice(0, 10) === dayStr) })
+            }
+            return (
+              <div className="grid grid-cols-7 gap-1">
+                {cells.map((c, ci) => (
+                  <div
+                    key={ci}
+                    className={'min-h-16 rounded border p-1 text-xs ' + (c.day === null ? 'border-transparent' : c.items.length > 0 ? 'border-primary/40 bg-primary/5 cursor-pointer hover:bg-primary/10' : 'border-line')}
+                    onClick={() => { if (c.items.length > 0) setDetailDay(String(c.day ?? '')) }}
+                  >
+                    {c.day !== null && <div className="font-medium mb-0.5">{String(c.day)}</div>}
+                    {c.items.slice(0, 2).map((t) => (
+                      <div key={t.id} className={'truncate rounded px-0.5 mb-0.5 ' + (t.overdue ? 'bg-error/15 text-error' : 'bg-primary/10 text-primary')} title={t.leadName + ':' + t.content}>
+                        {t.leadName}
+                      </div>
+                    ))}
+                    {c.items.length > 2 && <div className="text-[10px] text-fg-muted">+{String(c.items.length - 2)}</div>}
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+          {detailDay !== '' && (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold">{monthCursor}-{detailDay.padStart(2, '0')} 明细</span>
+                <Button variant="ghost" size="sm" className="text-xs" onClick={() => setDetailDay('')}>收起</Button>
+              </div>
+              {todoRows.filter((t) => (t.dueAt ?? '').slice(0, 10) === monthCursor + '-' + detailDay.padStart(2, '0')).map((t) => (
+                <div key={t.id} className={'border rounded-lg px-2.5 py-1.5 text-sm ' + (t.overdue ? 'border-error/50' : 'border-line')}>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{t.leadName}</span>
+                    {t.leadPhone !== null && <span className="text-xs text-fg-muted">{t.leadPhone}</span>}
+                    <span className="text-[10px] text-fg-muted ml-auto">{t.content}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       )}
 
@@ -567,6 +657,10 @@ export default function CustomersPage(): React.JSX.Element {
               <div className="space-y-1">
                 <Label className="text-xs text-fg-muted">跟进备注</Label>
                 <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="最近沟通/意向/预算" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-fg-muted">标签(逗号分隔;如:抖音,高意向,生日月)</Label>
+                <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="抖音,高意向" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs text-fg-muted">归属销售经理(衔接员工体系;空=录入人)</Label>

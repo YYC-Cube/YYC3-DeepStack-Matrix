@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router'
 import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth'
 import type { SelfOrder } from '@yyc3/leisure-core'
 import { PageHeader } from '@/components/kit'
 import { RoomAdminPanel } from '@/components/room-admin'
@@ -504,7 +505,30 @@ export default function BoardPage(): React.JSX.Element {
             {/* 本房已点明细(P5 2026-11-08:点单前先看本房已点) */}
             {orderHistory.length > 0 && (
               <div className="border border-line rounded-lg px-2.5 py-1.5 mb-2">
-                <div className="text-[10px] text-fg-muted mb-1">本房已点({String(orderHistory.length)} 单)</div>
+                <div className="text-[10px] text-fg-muted mb-1 flex items-center justify-between">
+                  <span>本房已点({String(orderHistory.length)} 单)</span>
+                  <button
+                    className="text-primary hover:underline"
+                    onClick={() => {
+                      const os = openSessions.find((s) => s.roomId === orderRoom?.id)
+                      if (os === undefined) return
+                      void fetch('/api/v1/self-orders/export?sessionId=' + String(os.id) + '&fmt=xlsx', {
+                        headers: { Authorization: 'Bearer ' + (useAuthStore.getState().token ?? '') },
+                      }).then(async (res) => {
+                        if (!res.ok) { toast.error('导出失败'); return }
+                        const blob = await res.blob()
+                        const a = document.createElement('a')
+                        a.href = URL.createObjectURL(blob)
+                        a.download = '点单明细-会话' + String(os.id) + '.xlsx'
+                        a.click()
+                        URL.revokeObjectURL(a.href)
+                        toast.success('已导出 xlsx')
+                      }).catch(() => toast.error('导出失败'))
+                    }}
+                  >
+                    导出明细 xlsx ↓
+                  </button>
+                </div>
                 <div className="space-y-0.5 max-h-28 overflow-y-auto">
                   {(() => {
                     const agg = new Map<string, number>()

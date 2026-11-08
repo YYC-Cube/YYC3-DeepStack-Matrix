@@ -768,12 +768,13 @@ export class CommService {
 
   /* ── 客资体系(P5 2026-11-07):客户线索最小闭环;ADMIN 全量/ARTIST 本人归属 ── */
 
-  async listCustomers(storeId: number, viewer: { scope: string; id: number }, q?: string, status?: string) {
+  async listCustomers(storeId: number, viewer: { scope: string; id: number }, q?: string, status?: string, ownerArtistId?: number) {
     const kw = q?.trim() ?? ''
     const rows = await this.prisma.customerLead.findMany({
       where: {
         storeId,
         ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}),
+        ...(ownerArtistId !== undefined ? { ownerArtistId } : {}),
         ...(status !== undefined && status !== '' ? { status } : {}),
         ...(kw !== ''
           ? {
@@ -781,6 +782,7 @@ export class CommService {
                 { name: { contains: kw } },
                 { phone: { contains: kw } },
                 { note: { contains: kw } },
+                { tags: { contains: kw } },
               ],
             }
           : {}),
@@ -845,6 +847,7 @@ export class CommService {
         note: r.note,
         ownerArtistId: r.ownerArtistId,
         ownerName: r.ownerArtistId !== null ? ownerMap.get(r.ownerArtistId) ?? null : null,
+        tags: r.tags ?? '',
         lastFollowAt: lastMap.get(r.id)?.at ?? null,
         lastFollowContent: lastMap.get(r.id)?.content ?? null,
         followupCount: cntMap.get(r.id) ?? 0,
@@ -946,7 +949,7 @@ export class CommService {
   }
 
   /** 转化率排行(按销售经理聚合;衔接员工绩效) */
-  async ownerStats(storeId: number): Promise<{ rows: Array<{ owner: string; total: number; deal: number; rate: number }> }> {
+  async ownerStats(storeId: number): Promise<{ rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }> {
     const all = await this.prisma.customerLead.findMany({
       where: { storeId },
       select: { ownerArtistId: true, status: true },
@@ -966,7 +969,10 @@ export class CommService {
     }
     return {
       rows: [...m.entries()]
-        .map(([owner, st]) => ({ owner, total: st.total, deal: st.deal, rate: st.total > 0 ? Math.round((st.deal / st.total) * 100) : 0 }))
+        .map(([owner, st]) => {
+          const artistId = artistIds.find((id) => artistMap.get(id) === owner) ?? null
+          return { owner, ownerArtistId: artistId, total: st.total, deal: st.deal, rate: st.total > 0 ? Math.round((st.deal / st.total) * 100) : 0 }
+        })
         .sort((a, b) => b.rate - a.rate || b.total - a.total)
         .slice(0, 20),
     }
@@ -976,10 +982,10 @@ export class CommService {
   async exportCustomers(
     storeId: number,
     viewer: { scope: string; id: number },
-    q: { q?: string; status?: string; fmt: 'xlsx' | 'csv' },
+    q: { q?: string; status?: string; ownerArtistId?: number; fmt: 'xlsx' | 'csv' },
     res: Response,
   ): Promise<void> {
-    const out = await this.listCustomers(storeId, viewer, q.q, q.status)
+    const out = await this.listCustomers(storeId, viewer, q.q, q.status, q.ownerArtistId)
     const headers = ['客户', '电话', '来源', '状态', '归属销售经理', '最近跟进', '跟进次数', '录入时间']
     const rows = out.rows.map((r) => [
       r.name,
@@ -1004,7 +1010,16 @@ export class CommService {
     res.send(buf)
   }
 
-  async createCustomer(storeId: number, operator: { scope: string; id: number }, body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<{ id: number }> {
+  async createCustomer(storeId: number, operator: { scope: string; id: number }, body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number; tags?: string }): Promise<{ id: number }> {
+    // phone 唯一软约束(2026-11-08):同店同号存在未流失(FOLLOW/DEAL)客资 → 拒绝重复录入
+    if (body.phone !== undefined && body.phone.trim() !== '') {
+      const dup = await this.prisma.customerLead.findFirst({
+        where: { storeId, phone: body.phone.trim(), status: { not: 'LOST' } },
+      })
+      if (dup !== null) {
+        throw new BadRequestException('该电话已有在跟客资「' + dup.name + '」(' + (dup.status === 'FOLLOW' ? '跟进中' : '已成交') + '),请勿重复录入;如确为新客请先调整原客资状态')
+      }
+    }
     const created = await this.prisma.customerLead.create({
       data: {
         storeId,
@@ -1014,6 +1029,7 @@ export class CommService {
         status: body.status ?? 'FOLLOW',
         note: body.note,
         ownerArtistId: body.ownerArtistId ?? (operator.scope === 'ARTIST' ? operator.id : undefined),
+        tags: body.tags,
         createdBy: operator.id,
       },
     })
@@ -1023,11 +1039,20 @@ export class CommService {
     return { id: created.id }
   }
 
-  async updateCustomer(id: number, storeId: number, viewer: { scope: string; id: number }, body: { name?: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number }): Promise<void> {
+  async updateCustomer(id: number, storeId: number, viewer: { scope: string; id: number }, body: { name?: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number; tags?: string }): Promise<void> {
     const before = await this.prisma.customerLead.findFirst({
       where: { id, storeId, ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}) },
     })
     if (before === null) throw new NotFoundException('客资不存在或无权操作')
+    // phone 唯一软约束(改号时同样校验;排除自身)
+    if (body.phone !== undefined && body.phone.trim() !== '') {
+      const dup = await this.prisma.customerLead.findFirst({
+        where: { storeId, phone: body.phone.trim(), status: { not: 'LOST' }, id: { not: id } },
+      })
+      if (dup !== null) {
+        throw new BadRequestException('该电话已有在跟客资「' + dup.name + '」,请勿重复录入')
+      }
+    }
     await this.prisma.customerLead.update({
       where: { id },
       data: {
@@ -1037,6 +1062,7 @@ export class CommService {
         ...(body.status !== undefined ? { status: body.status } : {}),
         ...(body.note !== undefined ? { note: body.note } : {}),
         ...(body.ownerArtistId !== undefined ? { ownerArtistId: body.ownerArtistId } : {}),
+        ...(body.tags !== undefined ? { tags: body.tags } : {}),
       },
     })
     await this.prisma.auditLog.create({
@@ -1165,9 +1191,14 @@ export class CustomerController {
 
   /** 客资列表(搜索/筛选+TODO 到期惰性 notice) */
   @Get()
-  async list(@Req() req: Request, @Query('q') q?: string, @Query('status') status?: string): Promise<unknown> {
+  async list(
+    @Req() req: Request,
+    @Query('q') q?: string,
+    @Query('status') status?: string,
+    @Query('ownerArtistId') ownerArtistId?: string,
+  ): Promise<unknown> {
     const u = op(req)
-    return this.svc.listCustomers(u.storeId, u, q, status)
+    return this.svc.listCustomers(u.storeId, u, q, status, ownerArtistId !== undefined && ownerArtistId !== '' ? Number(ownerArtistId) : undefined)
   }
 
   /** TODO 看板(全部未完成待办,按到期日排布;日历视图数据源) */
@@ -1191,16 +1222,22 @@ export class CustomerController {
     @Query('fmt') fmt: string | undefined,
     @Query('q') q: string | undefined,
     @Query('status') status: string | undefined,
+    @Query('ownerArtistId') ownerArtistId: string | undefined,
     @Res() res: Response,
   ): Promise<void> {
     const u = op(req)
-    await this.svc.exportCustomers(u.storeId, u, { q, status, fmt: fmt === 'csv' ? 'csv' : 'xlsx' }, res)
+    await this.svc.exportCustomers(
+      u.storeId,
+      u,
+      { q, status, fmt: fmt === 'csv' ? 'csv' : 'xlsx', ownerArtistId: ownerArtistId !== undefined && ownerArtistId !== '' ? Number(ownerArtistId) : undefined },
+      res,
+    )
   }
 
   @Post()
   async create(
     @Req() req: Request,
-    @Body() body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number },
+    @Body() body: { name: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number; tags?: string },
   ): Promise<unknown> {
     const u = op(req)
     if (body.name === undefined || body.name.trim() === '') throw new BadRequestException('姓名必填')
@@ -1211,7 +1248,7 @@ export class CustomerController {
   async update(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { name?: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number },
+    @Body() body: { name?: string; phone?: string; source?: string; status?: string; note?: string; ownerArtistId?: number; tags?: string },
   ): Promise<unknown> {
     const u = op(req)
     await this.svc.updateCustomer(id, u.storeId, u, body)

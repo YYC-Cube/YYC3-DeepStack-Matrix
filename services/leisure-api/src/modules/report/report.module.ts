@@ -123,6 +123,44 @@ export class ReportService {
     return { from: new Date(fromStr), to: new Date(toStr), fromStr, toStr }
   }
 
+  /** 13. 客资跟进统计(2026-11-08):区间内跟进明细+汇总尾行(新增/待办完成/当前超期) */
+  async customerFollowupReport(storeId: number, range: { from: Date; to: Date }): Promise<Array<Array<string | number>>> {
+    const [fus, doneCount, overdueCount] = await Promise.all([
+      this.prisma.customerFollowup.findMany({
+        where: { storeId, createdAt: { gte: range.from, lte: range.to } },
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
+      this.prisma.auditLog.count({
+        where: { storeId, action: 'CUSTOMER_TODO_DONE', createdAt: { gte: range.from, lte: range.to } },
+      }),
+      this.prisma.customerFollowup.count({
+        where: { storeId, kind: 'TODO', isDone: false, dueAt: { lt: new Date() } },
+      }),
+    ])
+    const leadIds = [...new Set(fus.map((f) => f.leadId))]
+    const leads = leadIds.length > 0
+      ? await this.prisma.customerLead.findMany({ where: { id: { in: leadIds } }, select: { id: true, name: true } })
+      : []
+    const leadMap = new Map(leads.map((l) => [l.id, l.name]))
+    const adminIds = [...new Set(fus.map((f) => f.createdBy))]
+    const admins = adminIds.length > 0
+      ? await this.prisma.adminUser.findMany({ where: { id: { in: adminIds } }, select: { id: true, name: true } })
+      : []
+    const adminMap = new Map(admins.map((a) => [a.id, a.name]))
+    const kindText: Record<string, string> = { MANUAL: '跟进', ARRIVED: '到店', CONSUME: '消费', SYSTEM: '系统', TODO: '待办' }
+    const rows: Array<Array<string | number>> = fus.map((f) => [
+      f.createdAt.toISOString().slice(0, 16).replace('T', ' '),
+      leadMap.get(f.leadId) ?? '客资#' + String(f.leadId),
+      kindText[f.kind] ?? f.kind,
+      f.content,
+      adminMap.get(f.createdBy) ?? String(f.createdBy),
+    ])
+    rows.push(['— 汇总 —', '区间新增跟进', String(fus.length), '待办完成', String(doneCount)])
+    rows.push(['— 汇总 —', '当前超期未办', String(overdueCount), '', ''])
+    return rows
+  }
+
   async storeCutOf(storeId: number): Promise<string> {
     const store = await this.prisma.store.findUnique({ where: { id: storeId } })
     return store?.businessDayCutTime ?? env().BUSINESS_DAY_CUT
@@ -665,6 +703,28 @@ export class ReportController {
   async reconSnapshot(@Req() req: Request, @Body() body: { businessDate: string }): Promise<unknown> {
     const user = (req as ReqWithUser).user
     return this.svc.reconSnapshot(user?.storeId ?? 1, body.businessDate, user?.sub)
+  }
+
+  /** 13. 客资跟进统计(json 预览/xlsx/csv;2026-11-08 客资体系第 13 卡) */
+  @RequirePerm('setting:manage')
+  @Get('customer-followups')
+  async customerFollowups(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('businessDateFrom') from?: string,
+    @Query('businessDateTo') to?: string,
+    @Query('format') format?: string,
+  ): Promise<void> {
+    await this.send(
+      res,
+      'setting:manage',
+      'customer-followups',
+      { format, businessDateFrom: from, businessDateTo: to },
+      (s, r) => this.svc.customerFollowupReport(s, r),
+      ['时间', '客资', '类别', '内容', '记录人'],
+      (d) => d as Array<Array<string | number>>,
+      req,
+    )
   }
 
   /** 双轨对账:14 天门禁视图(逐日总体 + 连续 MATCHED 天数) */

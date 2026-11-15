@@ -105,6 +105,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [ownerRankCard, setOwnerRankCard] = useState<Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }>>([])
   /** 客资动态卡(2026-11-10:昨日新增跟进/待办完成/当前超期;日报进移动工作台) */
   const [custDaily, setCustDaily] = useState<{ newFollowups: number; doneTodos: number; overdue: number } | null>(null)
+  /** 排行时间维度(month|quarter|all) */
+  const [rankRange, setRankRange] = useState<'month' | 'quarter' | 'all'>('month')
   /** 任务预警(今日概况行:进行中/达标数;全员可见本人) */
   const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [tab, setTab] = useState('manage')
@@ -142,12 +144,12 @@ export default function MWorkbenchPage(): React.JSX.Element {
       .catch(() => undefined)
   }, [permCodes])
 
-  // 客资转化排行(2026-11-08:全员可见;失败静默)
+  // 客资转化排行(2026-11-08:全员可见;时间维度切换;失败静默)
   useEffect(() => {
-    void req<{ rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }>('GET', '/customers/stats/by-owner')
+    void req<{ rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }>('GET', '/customers/stats/by-owner?range=' + rankRange)
       .then((r) => setOwnerRankCard(r.rows))
       .catch(() => undefined)
-  }, [])
+  }, [rankRange])
 
   // 客资动态(2026-11-10:日报三数;全员可见;失败静默)
   useEffect(() => {
@@ -397,7 +399,17 @@ export default function MWorkbenchPage(): React.JSX.Element {
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-[var(--lm-fg)]">客资转化排行</span>
-            <span className="text-[10px] text-fg-muted">按销售经理 · 点行进列表</span>
+            <div className="flex gap-1">
+              {([['month', '本月'], ['quarter', '本季'], ['all', '全部']] as Array<[string, string]>).map(([k, label]) => (
+                <button
+                  key={k}
+                  className={'text-[10px] px-1.5 py-0.5 rounded-full border ' + (rankRange === k ? 'border-primary text-primary bg-primary/10' : 'border-line text-fg-muted')}
+                  onClick={(e) => { e.stopPropagation(); setRankRange(k as 'month' | 'quarter' | 'all') }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="space-y-1">
             {ownerRankCard.slice(0, 5).map((o, i) => (

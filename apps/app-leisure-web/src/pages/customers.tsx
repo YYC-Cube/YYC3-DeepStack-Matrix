@@ -113,6 +113,36 @@ export default function CustomersPage(): React.JSX.Element {
   const [fuDue, setFuDue] = useState('')
   /** 月视图选中日(明细面板) */
   const [detailDay, setDetailDay] = useState('')
+  /** 标签池管理弹窗 */
+  const [tagPoolOpen, setTagPoolOpen] = useState(false)
+  const [tagPool, setTagPool] = useState<Array<{ tag: string; count: number }>>([])
+  const [renameFrom, setRenameFrom] = useState('')
+  const [renameTo, setRenameTo] = useState('')
+  /** 拖拽落点格(高亮) */
+  const [dropTargetDay, setDropTargetDay] = useState('')
+
+  const loadTagPool = (): void => {
+    void req<{ rows: Array<{ tag: string; count: number }> }>('GET', '/customers/tags').then((r) => setTagPool(r.rows)).catch(() => undefined)
+  }
+
+  const renameTag = (): void => {
+    if (renameFrom.trim() === '' || renameTo.trim() === '') return
+    void req('POST', '/customers/tags/rename', { from: renameFrom.trim(), to: renameTo.trim() }).then(async (r) => {
+      toast.success('已重命名(更新 ' + String((r as { updated: number }).updated) + ' 条客资)')
+      setRenameFrom('')
+      setRenameTo('')
+      loadTagPool()
+      await load()
+    }).catch((e) => toastError(e))
+  }
+
+  const removeTagPool = (tag: string): void => {
+    void req('POST', '/customers/tags/remove', { tag }).then(async () => {
+      toast.success('标签已移除')
+      loadTagPool()
+      await load()
+    }).catch((e) => toastError(e))
+  }
   /** 客资详情页化(档案卡:基本信息+时间线+关联预订一屏) */
   const [detailFor, setDetailFor] = useState<LeadRow | null>(null)
   const [detailFu, setDetailFu] = useState<FollowupRow[]>([])
@@ -244,13 +274,22 @@ export default function CustomersPage(): React.JSX.Element {
   }
 
   /** 客资重复检测(录手机号失焦时):命中非本人客资 → 提示 */
-  const checkDup = async (phone: string): Promise<void> => {
-    if (phone.trim().length < 4) return
+  const checkDup = async (phone: string, name?: string): Promise<void> => {
+    if (phone.trim().length < 4 && (name === undefined || name.trim() === '')) return
     try {
-      const res = await req<{ rows: LeadRow[] }>('GET', '/customers?q=' + encodeURIComponent(phone.trim()))
-      const hit = res.rows.find((x) => x.phone === phone.trim() && x.id !== form?.id)
-      if (hit !== undefined) {
-        toast.warning('提示:该电话已存在客资「' + hit.name + '」(' + (STATUS_LABEL[hit.status] ?? hit.status) + '),请确认是否重复录入')
+      const res = await req<{ rows: LeadRow[] }>('GET', '/customers?q=' + encodeURIComponent(phone.trim() !== '' ? phone.trim() : (name ?? '')))
+      const others = res.rows.filter((x) => x.id !== form?.id)
+      const samePhone = others.find((x) => x.phone === phone.trim() && phone.trim() !== '')
+      if (samePhone !== undefined) {
+        toast.warning('查重:该电话已存在客资「' + samePhone.name + '」(' + (STATUS_LABEL[samePhone.status] ?? samePhone.status) + '),请确认是否重复录入')
+        return
+      }
+      // 模糊命中:姓名相同且电话后四位一致
+      if (name !== undefined && name.trim() !== '' && phone.trim().length >= 4) {
+        const fuzzy = others.find((x) => x.name === name.trim() && x.phone !== null && x.phone.slice(-4) === phone.trim().slice(-4))
+        if (fuzzy !== undefined) {
+          toast.warning('查重:疑似同客「' + fuzzy.name + '」(姓名一致+电话后四位 ' + fuzzy.phone!.slice(-4) + '),请确认')
+        }
       }
     } catch { /* 静默 */ }
   }
@@ -395,6 +434,7 @@ export default function CustomersPage(): React.JSX.Element {
             <Button variant={view === 'month' ? 'default' : 'outline'} size="sm" onClick={() => { setView('month') }}>月视图</Button>
             <Button variant="outline" size="sm" onClick={() => { void exportCustomers('xlsx') }}>导出 xlsx</Button>
             <Button variant="outline" size="sm" onClick={() => { void exportCustomers('csv') }}>CSV</Button>
+            <Button variant="outline" size="sm" onClick={() => { loadTagPool(); setTagPoolOpen(true) }}>标签池</Button>
             <Button onClick={() => setForm({ name: '', phone: '', source: '', status: 'FOLLOW', note: '', ownerArtistId: '', tags: '' })}>+ 录入客资</Button>
           </div>
         }
@@ -531,7 +571,26 @@ export default function CustomersPage(): React.JSX.Element {
                 {cells.map((c, ci) => (
                   <div
                     key={ci}
-                    className={'min-h-16 rounded border p-1 text-xs ' + (c.day === null ? 'border-transparent' : c.items.length > 0 ? 'border-primary/40 bg-primary/5 cursor-pointer hover:bg-primary/10' : 'border-line')}
+                    className={'min-h-16 rounded border p-1 text-xs ' + (c.day === null ? 'border-transparent' : c.items.length > 0 ? 'border-primary/40 bg-primary/5 cursor-pointer hover:bg-primary/10' : 'border-line') + (dropTargetDay === String(c.day ?? '') ? ' ring-2 ring-primary' : '')}
+                    onDragOver={(e) => {
+                      if (c.day === null) return
+                      e.preventDefault()
+                      setDropTargetDay(String(c.day))
+                    }}
+                    onDragLeave={() => { if (dropTargetDay === String(c.day ?? '')) setDropTargetDay('') }}
+                    onDrop={(e) => {
+                      e.preventDefault()
+                      setDropTargetDay('')
+                      if (c.day === null) return
+                      try {
+                        const d = JSON.parse(e.dataTransfer.getData('text/plain')) as { leadId: number; fid: number }
+                        const dueAt = monthCursor + '-' + String(c.day).padStart(2, '0') + 'T00:00:00.000Z'
+                        void req('POST', '/customers/' + String(d.leadId) + '/followups/' + String(d.fid) + '/reschedule', { dueAt }).then(async () => {
+                          toast.success('已改期至 ' + monthCursor + '-' + String(c.day).padStart(2, '0'))
+                          await loadTodos()
+                        }).catch((err) => toastError(err))
+                      } catch { /* 非 JSON 静默 */ }
+                    }}
                     onClick={() => {
                       if (c.items.length === 0) return
                       if (c.items.length === 1) {
@@ -546,7 +605,16 @@ export default function CustomersPage(): React.JSX.Element {
                   >
                     {c.day !== null && <div className="font-medium mb-0.5">{String(c.day)}</div>}
                     {c.items.slice(0, 2).map((t) => (
-                      <div key={t.id} className={'truncate rounded px-0.5 mb-0.5 ' + (t.overdue ? 'bg-error/15 text-error' : 'bg-primary/10 text-primary')} title={t.leadName + ':' + t.content}>
+                      <div
+                        key={t.id}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('text/plain', JSON.stringify({ leadId: t.leadId, fid: t.id }))
+                          e.dataTransfer.effectAllowed = 'move'
+                        }}
+                        className={'truncate rounded px-0.5 mb-0.5 cursor-move ' + (t.overdue ? 'bg-error/15 text-error' : 'bg-primary/10 text-primary')}
+                        title={t.leadName + ':' + t.content + '(拖到其他日期=改期)'}
+                      >
                         {t.leadName}
                       </div>
                     ))}
@@ -608,6 +676,14 @@ export default function CustomersPage(): React.JSX.Element {
             {fuTodo && <input type="datetime-local" className="h-8 rounded border border-line bg-transparent px-1 text-xs" value={fuDue} onChange={(e) => setFuDue(e.target.value)} />}
             <Input value={fuInput} onChange={(e) => setFuInput(e.target.value)} placeholder={fuTodo ? '待办事项(须带到期时间)' : '记录本次跟进(沟通/意向/预算)'} onKeyDown={(e) => { if (e.key === 'Enter' && !fuTodo) addFollowup() }} />
             <Button disabled={fuInput.trim() === '' || (fuTodo && fuDue === '')} onClick={() => { addFollowup() }}>记录</Button>
+          </div>
+          <div className="flex gap-1 flex-wrap pt-1">
+            <span className="text-[10px] text-fg-muted shrink-0">快捷:</span>
+            {['电话回访', '微信问候', '邀约到店', '生日祝福'].map((tpl) => (
+              <button key={tpl} className="text-[10px] px-1.5 py-0.5 rounded-full border border-line text-fg-muted hover:border-primary hover:text-primary" onClick={() => { setFuInput(tpl + ':') }}>
+                {tpl}
+              </button>
+            ))}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setFuFor(null)}>关闭</Button>
@@ -707,7 +783,7 @@ export default function CustomersPage(): React.JSX.Element {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs text-fg-muted">姓名(必填)</Label>
-                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} onBlur={(e) => { void checkDup(form.phone, e.target.value) }} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-fg-muted">电话</Label>
@@ -756,6 +832,37 @@ export default function CustomersPage(): React.JSX.Element {
           <DialogFooter>
             <Button variant="outline" onClick={() => setForm(null)}>取消</Button>
             <Button disabled={busy} onClick={() => { void save() }}>保存</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 标签池管理弹窗(聚合+重命名+移除;零迁移) */}
+      <Dialog open={tagPoolOpen} onOpenChange={(o) => { if (!o) setTagPoolOpen(false) }}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>标签池({String(tagPool.length)} 个标签)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            {tagPool.length === 0 && <div className="text-sm text-fg-muted py-3 text-center">标签池为空;在录入/编辑客资时填写标签</div>}
+            {tagPool.map((t) => (
+              <div key={t.tag} className="flex items-center gap-2 border border-line rounded-lg px-2.5 py-1.5 text-sm">
+                <span className="font-medium" style={{ color: tagColor(t.tag) }}>{t.tag}</span>
+                <span className="text-xs text-fg-muted flex-1">× {String(t.count)}</span>
+                <button className="text-xs text-primary hover:underline" onClick={() => { setRenameFrom(t.tag); setRenameTo(t.tag) }}>重命名</button>
+                <button className="text-xs text-error hover:underline" onClick={() => { removeTagPool(t.tag) }}>移除</button>
+              </div>
+            ))}
+          </div>
+          {renameFrom !== '' && (
+            <div className="flex items-center gap-2 border-t border-line pt-3">
+              <span className="text-xs text-fg-muted shrink-0">「{renameFrom}」→</span>
+              <Input value={renameTo} onChange={(e) => setRenameTo(e.target.value)} className="h-8" />
+              <Button size="sm" disabled={renameTo.trim() === ''} onClick={() => { renameTag() }}>确认</Button>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setRenameFrom(''); setRenameTo('') }}>取消</Button>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTagPoolOpen(false)}>关闭</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -31,6 +31,7 @@ const REPORTS: ReportDef[] = [
   { key: 'ticket-use', path: '/reports/tickets/use', title: '台票使用明细', perm: 'ticket:ledger:view', roomDims: false, desc: '票种/数量/关联场次(§8.2 补齐)' },
   { key: 'split-entries', path: '/split/report/entries', title: '分账计提明细', perm: 'setting:manage', roomDims: false, desc: '分账对象/方案/类目/金额/状态(17 号 S2)' },
   { key: 'split-settlements', path: '/split/report/settlements', title: '分账结算汇总', perm: 'setting:manage', roomDims: false, desc: '结算单/对象/周期/支付方式/状态(17 号 S2)' },
+  { key: 'custfu', path: '/reports/customer-followups', title: '客资跟进统计', perm: 'setting:manage', roomDims: false, desc: '跟进明细 + 待办完成/当前超期汇总(客资体系)' },
 ]
 
 interface Preview {

@@ -929,6 +929,50 @@ export class CommService {
     await this.prisma.customerFollowup.update({ where: { id: fid }, data: { dueAt: new Date(dueAt) } })
   }
 
+  /** 标签池(动态聚合:distinct 标签+使用计数;零迁移) */
+  async tagsPool(storeId: number): Promise<{ rows: Array<{ tag: string; count: number }> }> {
+    const rows = await this.prisma.customerLead.findMany({
+      where: { storeId, tags: { not: null } },
+      select: { tags: true },
+    })
+    const m = new Map<string, number>()
+    for (const r of rows) {
+      for (const t of (r.tags ?? '').split(',')) {
+        const tag = t.trim()
+        if (tag !== '') m.set(tag, (m.get(tag) ?? 0) + 1)
+      }
+    }
+    return { rows: [...m.entries()].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count) }
+  }
+
+  /** 标签重命名(全量 replace;重名自动去重) */
+  async renameTag(storeId: number, from: string, to: string): Promise<{ updated: number }> {
+    const rows = await this.prisma.customerLead.findMany({ where: { storeId, tags: { contains: from } }, select: { id: true, tags: true } })
+    let updated = 0
+    for (const r of rows) {
+      const parts = (r.tags ?? '').split(',').map((t) => t.trim()).filter((t) => t !== '')
+      const next = [...new Set(parts.map((t) => (t === from ? to.trim() : t)))]
+      const nv = next.join(',')
+      if (nv !== (r.tags ?? '')) {
+        await this.prisma.customerLead.update({ where: { id: r.id }, data: { tags: nv } })
+        updated += 1
+      }
+    }
+    return { updated }
+  }
+
+  /** 标签移除(全量剔除该标签) */
+  async removeTag(storeId: number, tag: string): Promise<{ updated: number }> {
+    const rows = await this.prisma.customerLead.findMany({ where: { storeId, tags: { contains: tag } }, select: { id: true, tags: true } })
+    let updated = 0
+    for (const r of rows) {
+      const next = (r.tags ?? '').split(',').map((t) => t.trim()).filter((t) => t !== '' && t !== tag)
+      await this.prisma.customerLead.update({ where: { id: r.id }, data: { tags: next.join(',') } })
+      updated += 1
+    }
+    return { updated }
+  }
+
   /** 客资 360°:房账消费历史(房账直读列 customer_lead_id;含每账点单合计) */
   async roomHistory(leadId: number, storeId: number) {
     const sessions = await this.prisma.roomSession.findMany({
@@ -1014,10 +1058,15 @@ export class CommService {
     }
   }
 
-  /** 转化率排行(按销售经理聚合;衔接员工绩效) */
-  async ownerStats(storeId: number): Promise<{ rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }> {
+  /** 转化率排行(按销售经理聚合;衔接员工绩效;range=本月/本季/全部) */
+  async ownerStats(storeId: number, range: 'month' | 'quarter' | 'all' = 'all'): Promise<{ range: string; rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }> {
+    const since = range === 'month'
+      ? new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      : range === 'quarter'
+        ? new Date(new Date().getFullYear(), Math.floor(new Date().getMonth() / 3) * 3, 1)
+        : null
     const all = await this.prisma.customerLead.findMany({
-      where: { storeId },
+      where: { storeId, ...(since !== null ? { createdAt: { gte: since } } : {}) },
       select: { ownerArtistId: true, status: true },
     })
     const artistIds = [...new Set(all.map((r) => r.ownerArtistId).filter((x): x is number => x !== null))]
@@ -1034,6 +1083,7 @@ export class CommService {
       m.set(o, e)
     }
     return {
+      range,
       rows: [...m.entries()]
         .map(([owner, st]) => {
           const artistId = artistIds.find((id) => artistMap.get(id) === owner) ?? null
@@ -1277,6 +1327,31 @@ export class CustomerController {
     )
   }
 
+  /** 标签池(聚合+使用计数) */
+  @Get('tags')
+  async tagsPool(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.tagsPool(u.storeId)
+  }
+
+  /** 标签重命名(全量 replace) */
+  @Post('tags/rename')
+  async renameTag(@Req() req: Request, @Body() body: { from: string; to: string }): Promise<unknown> {
+    const u = op(req)
+    if (body.from === undefined || body.from.trim() === '' || body.to === undefined || body.to.trim() === '') {
+      throw new BadRequestException('from/to 必填')
+    }
+    return this.svc.renameTag(u.storeId, body.from.trim(), body.to.trim())
+  }
+
+  /** 标签移除(全量剔除) */
+  @Post('tags/remove')
+  async removeTag(@Req() req: Request, @Body() body: { tag: string }): Promise<unknown> {
+    const u = op(req)
+    if (body.tag === undefined || body.tag.trim() === '') throw new BadRequestException('tag 必填')
+    return this.svc.removeTag(u.storeId, body.tag.trim())
+  }
+
   /** TODO 看板(全部未完成待办,按到期日排布;日历视图数据源) */
   @Get('todo-board')
   async todoBoard(@Req() req: Request): Promise<unknown> {
@@ -1284,11 +1359,12 @@ export class CustomerController {
     return this.svc.todoBoard(u.storeId)
   }
 
-  /** 转化率排行(按销售经理;衔接员工绩效) */
+  /** 转化率排行(按销售经理;衔接员工绩效;range=month|quarter|all) */
   @Get('stats/by-owner')
-  async statsByOwner(@Req() req: Request): Promise<unknown> {
+  async statsByOwner(@Req() req: Request, @Query('range') range?: string): Promise<unknown> {
     const u = op(req)
-    return this.svc.ownerStats(u.storeId)
+    const r = range === 'month' || range === 'quarter' ? range : 'all'
+    return this.svc.ownerStats(u.storeId, r)
   }
 
   /** 客资日报三数(移动工作台卡;昨日新增跟进/待办完成/当前超期) */

@@ -84,6 +84,14 @@ interface FormState {
   tags: string
 }
 
+/** 标签色板(按标签名稳定取色;10 预设) */
+const TAG_PALETTE = ['#00d4ff', '#00cc88', '#ffaa00', '#ff6699', '#7b8cff', '#c084fc', '#38bdf8', '#f97316', '#22d3ee', '#a3e635']
+function tagColor(tag: string): string {
+  let h = 0
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) % 997
+  return TAG_PALETTE[h % TAG_PALETTE.length]
+}
+
 export default function CustomersPage(): React.JSX.Element {
   const [rows, setRows] = useState<LeadRow[]>()
   const [form, setForm] = useState<FormState | null>(null)
@@ -94,6 +102,9 @@ export default function CustomersPage(): React.JSX.Element {
   /** 归属过滤(排行卡跳转 ?ownerArtistId=;可清除) */
   const [searchParams, setSearchParams] = useSearchParams()
   const ownerFilter = searchParams.get('ownerArtistId') ?? ''
+  /** 分页 */
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
   /** 跟进时间线弹窗 */
   const [fuFor, setFuFor] = useState<LeadRow | null>(null)
   const [fuRows, setFuRows] = useState<FollowupRow[]>([])
@@ -186,16 +197,17 @@ export default function CustomersPage(): React.JSX.Element {
 
   const load = useCallback(async (): Promise<void> => {
     try {
-      const params = new URLSearchParams()
+      const params = new URLSearchParams({ page: String(page), pageSize: '20' })
       if (q.trim() !== '') params.set('q', q.trim())
       if (status !== '') params.set('status', status)
       if (ownerFilter !== '') params.set('ownerArtistId', ownerFilter)
-      const res = await req<{ rows: LeadRow[] }>('GET', '/customers' + (params.toString() !== '' ? '?' + params.toString() : ''))
+      const res = await req<{ rows: LeadRow[]; total: number }>('GET', '/customers' + (params.toString() !== '' ? '?' + params.toString() : ''))
       setRows(res.rows)
+      setTotal(res.total)
     } catch (e) {
       toastError(e, '客资加载失败')
     }
-  }, [q, status, ownerFilter])
+  }, [q, status, ownerFilter, page])
 
   const loadTodos = useCallback(async (): Promise<void> => {
     try {
@@ -319,16 +331,21 @@ export default function CustomersPage(): React.JSX.Element {
     ) : <span className="text-xs text-fg-muted">—</span> },
     { key: 'tags', header: '标签', render: (r) => r.tags !== '' && r.tags !== null ? (
       <span className="flex gap-1 flex-wrap">
-        {r.tags.split(',').filter((t) => t.trim() !== '').map((t) => (
-          <button
-            key={t}
-            className={'text-[10px] px-1.5 py-0.5 rounded-full border ' + (q.trim() === t.trim() ? 'border-primary text-primary bg-primary/10' : 'border-line text-fg-muted hover:border-primary')}
-            title="点击按该标签筛选"
-            onClick={() => { setQ(t.trim()); void load() }}
-          >
-            {t.trim()}
-          </button>
-        ))}
+        {r.tags.split(',').filter((t) => t.trim() !== '').map((t) => {
+          const c = tagColor(t.trim())
+          const active = q.trim() === t.trim()
+          return (
+            <button
+              key={t}
+              className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+              style={active ? { background: c, color: '#06122a' } : { border: '1px solid ' + c, color: c }}
+              title="点击按该标签筛选"
+              onClick={() => { const nv = active ? '' : t.trim(); setQ(nv); setPage(1); void load() }}
+            >
+              {t.trim()}
+            </button>
+          )
+        })}
       </span>
     ) : '—' },
     { key: 'note', header: '跟进备注', render: (r) => r.note ?? '—' },
@@ -394,7 +411,7 @@ export default function CustomersPage(): React.JSX.Element {
           <option value="DEAL">已成交</option>
           <option value="LOST">已流失</option>
         </select>
-        <Button variant="outline" size="sm" onClick={() => { void load() }}>查询</Button>
+        <Button variant="outline" size="sm" onClick={() => { setPage(1); void load() }}>查询</Button>
       </Card>
       {/* list 视图:统计条+表格(calendar 视图显示待办日历) */}
       {view === 'list' && (
@@ -402,7 +419,7 @@ export default function CustomersPage(): React.JSX.Element {
       {ownerFilter !== '' && (
         <Card className="p-2.5 flex items-center gap-2">
           <span className="text-xs">过滤中:归属销售经理 #{ownerFilter}</span>
-          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setSearchParams({})}>清除过滤</Button>
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { setSearchParams({}); setPage(1) }}>清除过滤</Button>
         </Card>
       )}
       {/* 来源转化统计条(按当前筛选聚合) */}
@@ -432,7 +449,7 @@ export default function CustomersPage(): React.JSX.Element {
           ))}
         </Card>
       )}
-      <DataTable columns={columns} rows={sortedRows} loading={rows === undefined} />
+      <DataTable columns={columns} rows={sortedRows} loading={rows === undefined} total={total} page={page} pageSize={20} onPageChange={setPage} />
       </>
       )}
 
@@ -515,7 +532,17 @@ export default function CustomersPage(): React.JSX.Element {
                   <div
                     key={ci}
                     className={'min-h-16 rounded border p-1 text-xs ' + (c.day === null ? 'border-transparent' : c.items.length > 0 ? 'border-primary/40 bg-primary/5 cursor-pointer hover:bg-primary/10' : 'border-line')}
-                    onClick={() => { if (c.items.length > 0) setDetailDay(String(c.day ?? '')) }}
+                    onClick={() => {
+                      if (c.items.length === 0) return
+                      if (c.items.length === 1) {
+                        // 单客资格:直开该客时间线弹窗
+                        const t = c.items[0]
+                        const r = (rows ?? []).find((x) => x.id === t.leadId)
+                        openFollowups(r ?? { id: t.leadId, name: t.leadName, phone: t.leadPhone, source: null, status: 'FOLLOW', note: t.content, ownerArtistId: null, ownerName: null, tags: '', lastFollowAt: null, lastFollowContent: null, followupCount: 0, todoOverdue: t.overdue, todoDueAt: t.dueAt, todoContent: t.content, createdAt: t.dueAt ?? '' })
+                        return
+                      }
+                      setDetailDay(String(c.day ?? ''))
+                    }}
                   >
                     {c.day !== null && <div className="font-medium mb-0.5">{String(c.day)}</div>}
                     {c.items.slice(0, 2).map((t) => (
@@ -616,6 +643,19 @@ export default function CustomersPage(): React.JSX.Element {
                       <span className={s.status === 'OPEN' ? 'text-warning' : 'text-fg-muted'}>{s.status === 'OPEN' ? '消费中' : s.status === 'CLEANING' ? '清扫中' : '已结'}</span>
                       <span className="text-fg-muted">{s.startAt.slice(5, 16).replace('T', ' ')}{s.endAt !== null ? ' → ' + s.endAt.slice(11, 16) : ''}</span>
                       <span className="ml-auto">点单 ¥{String(s.orderTotal)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-fg-muted mb-1.5">未完成 TODO({String(detailFu.filter((f) => f.kind === 'TODO' && !f.isDone).length)} 项)</div>
+                {detailFu.filter((f) => f.kind === 'TODO' && !f.isDone).length === 0 && <div className="text-xs text-fg-muted">无未完成待办 ✓</div>}
+                <div className="space-y-1">
+                  {detailFu.filter((f) => f.kind === 'TODO' && !f.isDone).map((f) => (
+                    <div key={f.id} className={'flex items-center gap-2 text-xs border rounded px-2 py-1 ' + (f.dueAt !== null && new Date(f.dueAt).getTime() < Date.now() ? 'border-error/50 bg-error/5' : 'border-warning/40')}>
+                      <span className={'shrink-0 ' + (f.dueAt !== null && new Date(f.dueAt).getTime() < Date.now() ? 'text-error font-medium' : 'text-warning')}>待办</span>
+                      <span className="flex-1 break-all">{f.content}</span>
+                      {f.dueAt !== null && <span className="text-fg-muted shrink-0">到期 {f.dueAt.slice(5, 16).replace('T', ' ')}</span>}
                     </div>
                   ))}
                 </div>

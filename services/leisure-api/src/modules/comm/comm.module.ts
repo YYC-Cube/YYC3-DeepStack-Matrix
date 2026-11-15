@@ -768,28 +768,33 @@ export class CommService {
 
   /* ── 客资体系(P5 2026-11-07):客户线索最小闭环;ADMIN 全量/ARTIST 本人归属 ── */
 
-  async listCustomers(storeId: number, viewer: { scope: string; id: number }, q?: string, status?: string, ownerArtistId?: number) {
+  async listCustomers(storeId: number, viewer: { scope: string; id: number }, q?: string, status?: string, ownerArtistId?: number, page = 1, pageSize = 20) {
     const kw = q?.trim() ?? ''
-    const rows = await this.prisma.customerLead.findMany({
-      where: {
-        storeId,
-        ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}),
-        ...(ownerArtistId !== undefined ? { ownerArtistId } : {}),
-        ...(status !== undefined && status !== '' ? { status } : {}),
-        ...(kw !== ''
-          ? {
-              OR: [
-                { name: { contains: kw } },
-                { phone: { contains: kw } },
-                { note: { contains: kw } },
-                { tags: { contains: kw } },
-              ],
-            }
-          : {}),
-      },
-      orderBy: { id: 'desc' },
-      take: 200,
-    })
+    const where = {
+      storeId,
+      ...(viewer.scope === 'ARTIST' ? { ownerArtistId: viewer.id } : {}),
+      ...(ownerArtistId !== undefined ? { ownerArtistId } : {}),
+      ...(status !== undefined && status !== '' ? { status } : {}),
+      ...(kw !== ''
+        ? {
+            OR: [
+              { name: { contains: kw } },
+              { phone: { contains: kw } },
+              { note: { contains: kw } },
+              { tags: { contains: kw } },
+            ],
+          }
+        : {}),
+    }
+    const [rows, total] = await Promise.all([
+      this.prisma.customerLead.findMany({
+        where,
+        orderBy: { id: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.customerLead.count({ where }),
+    ])
     const ownerIds = [...new Set(rows.map((r) => r.ownerArtistId).filter((x): x is number => x !== null))]
     const owners = ownerIds.length > 0
       ? await this.prisma.artist.findMany({ where: { id: { in: ownerIds } }, select: { id: true, stageName: true, realName: true } })
@@ -817,24 +822,30 @@ export class CommService {
         }
       }
     }
-    // TODO 到期通知矩阵(2026-11-08 惰性触发+同标题幂等):到期未完成 → notice 提醒录入人(接通告矩阵)
-    for (const f of followups) {
-      if (f.kind === 'TODO' && !f.isDone && f.dueAt !== null && f.dueAt.getTime() < nowMs) {
-        const lead = rows.find((x) => x.id === f.leadId)
-        const title = '客资待办到期:' + (lead?.name ?? '客资#' + String(f.leadId)) + ' ' + f.dueAt.toISOString().slice(5, 10)
-        const dup = await this.prisma.notice.findFirst({ where: { storeId, title, deletedAt: null } })
-        if (dup === null) {
-          await this.prisma.notice.create({
-            data: {
-              storeId,
-              title,
-              body: '待办「' + f.content + '」已到期,请尽快跟进客资「' + (lead?.name ?? String(f.leadId)) + '」。',
-              publishedBy: f.createdBy,
-              visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
-              remind: true,
-            },
-          })
-        }
+    // TODO 到期通知矩阵(2026-11-08 惰性触发+同标题幂等):到期未完成 → notice 提醒录入人+归属销售经理(接通告矩阵)
+    const todoOverdueList = followups.filter((f) => f.kind === 'TODO' && !f.isDone && f.dueAt !== null && f.dueAt.getTime() < nowMs)
+    const ownerIdsForTodo = [...new Set(todoOverdueList.map((f) => rows.find((x) => x.id === f.leadId)?.ownerArtistId).filter((x): x is number => x !== null))]
+    const todoOwners = ownerIdsForTodo.length > 0
+      ? await this.prisma.artist.findMany({ where: { id: { in: ownerIdsForTodo } }, select: { id: true, stageName: true, realName: true } })
+      : []
+    const todoOwnerMap = new Map(todoOwners.map((a) => [a.id, a.stageName ?? a.realName ?? String(a.id)]))
+    for (const f of todoOverdueList) {
+      const lead = rows.find((x) => x.id === f.leadId)
+      const ownerName = lead?.ownerArtistId !== null && lead?.ownerArtistId !== undefined ? todoOwnerMap.get(lead.ownerArtistId) ?? null : null
+      const dueStr = f.dueAt !== null ? f.dueAt.toISOString().slice(5, 10) : ''
+      const title = '客资待办到期:' + (lead?.name ?? '客资#' + String(f.leadId)) + ' ' + dueStr
+      const dup = await this.prisma.notice.findFirst({ where: { storeId, title, deletedAt: null } })
+      if (dup === null) {
+        await this.prisma.notice.create({
+          data: {
+            storeId,
+            title,
+            body: '待办「' + f.content + '」已到期,请尽快跟进客资「' + (lead?.name ?? String(f.leadId)) + '」' + (ownerName !== null ? '(归属销售经理:' + ownerName + ')' : '') + '。',
+            publishedBy: f.createdBy,
+            visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
+            remind: true,
+          },
+        })
       }
     }
     return {
@@ -856,6 +867,9 @@ export class CommService {
         todoContent: todoMap.get(r.id)?.content ?? null,
         createdAt: r.createdAt.toISOString(),
       })),
+      total,
+      page,
+      pageSize,
     }
   }
 
@@ -1241,16 +1255,26 @@ export class TaskController {
 export class CustomerController {
   constructor(private readonly svc: CommService) {}
 
-  /** 客资列表(搜索/筛选+TODO 到期惰性 notice) */
+  /** 客资列表(搜索/筛选+TODO 到期惰性 notice;分页) */
   @Get()
   async list(
     @Req() req: Request,
     @Query('q') q?: string,
     @Query('status') status?: string,
     @Query('ownerArtistId') ownerArtistId?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
   ): Promise<unknown> {
     const u = op(req)
-    return this.svc.listCustomers(u.storeId, u, q, status, ownerArtistId !== undefined && ownerArtistId !== '' ? Number(ownerArtistId) : undefined)
+    return this.svc.listCustomers(
+      u.storeId,
+      u,
+      q,
+      status,
+      ownerArtistId !== undefined && ownerArtistId !== '' ? Number(ownerArtistId) : undefined,
+      page !== undefined && page !== '' ? Number(page) : 1,
+      pageSize !== undefined && pageSize !== '' ? Number(pageSize) : 20,
+    )
   }
 
   /** TODO 看板(全部未完成待办,按到期日排布;日历视图数据源) */

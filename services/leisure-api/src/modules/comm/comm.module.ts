@@ -41,6 +41,32 @@ function toCsv(headers: string[], rows: Array<Array<string | number | null | boo
 
 const CHAT_GROUP_NAME_RE = /^.{1,64}$/
 
+/* ── 客资日报单源(2026-11-16:日切 job 与 daily-summary 端点共用;日报/告警/动态卡三处同源) ── */
+
+/** 客资日报三数(昨日相对 day 或今天):新增跟进/待办完成/当前超期 */
+export async function customerDailyStatsFor(
+  prisma: PrismaService,
+  storeId: number,
+  base?: Date,
+): Promise<{ newFollowups: number; doneTodos: number; overdue: number }> {
+  const now = new Date()
+  const anchor = base ?? now
+  const yFrom = new Date(anchor.getTime() - 86_400_000)
+  yFrom.setHours(0, 0, 0, 0)
+  const yTo = new Date(yFrom.getTime() + 86_400_000 - 1)
+  const [newFu, doneFu, overdue] = await Promise.all([
+    prisma.customerFollowup.count({ where: { storeId, createdAt: { gte: yFrom, lte: yTo } } }),
+    prisma.auditLog.count({ where: { storeId, action: 'CUSTOMER_TODO_DONE', createdAt: { gte: yFrom, lte: yTo } } }),
+    prisma.customerFollowup.count({ where: { storeId, kind: 'TODO', isDone: false, dueAt: { lt: now } } }),
+  ])
+  return { newFollowups: newFu, doneTodos: doneFu, overdue }
+}
+
+/** 客资日报统一文案模板(日报 notice/告警附段/工作台卡三处同源) */
+export function customerDailyText(stats: { newFollowups: number; doneTodos: number; overdue: number }): string {
+  return '客资日报:昨日新增跟进 ' + String(stats.newFollowups) + ' 条 · 待办完成 ' + String(stats.doneTodos) + ' 项 · 超期未办 ' + String(stats.overdue) + ' 项'
+}
+
 /* ── DTO ── */
 
 class FeedbackDto {
@@ -929,20 +955,48 @@ export class CommService {
     await this.prisma.customerFollowup.update({ where: { id: fid }, data: { dueAt: new Date(dueAt) } })
   }
 
-  /** 标签池(动态聚合:distinct 标签+使用计数;零迁移) */
-  async tagsPool(storeId: number): Promise<{ rows: Array<{ tag: string; count: number }> }> {
+  /** 标签池(动态聚合:distinct 标签+使用计数+最近使用时间;零迁移) */
+  async tagsPool(storeId: number): Promise<{ rows: Array<{ tag: string; count: number; lastUsedAt: string | null }> }> {
     const rows = await this.prisma.customerLead.findMany({
       where: { storeId, tags: { not: null } },
-      select: { tags: true },
+      select: { tags: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
     })
-    const m = new Map<string, number>()
+    const m = new Map<string, { count: number; lastUsedAt: Date | null }>()
     for (const r of rows) {
       for (const t of (r.tags ?? '').split(',')) {
         const tag = t.trim()
-        if (tag !== '') m.set(tag, (m.get(tag) ?? 0) + 1)
+        if (tag === '') continue
+        const e = m.get(tag) ?? { count: 0, lastUsedAt: null }
+        e.count += 1
+        // 行按 updatedAt desc 排序 → 首次遇到即最近使用
+        if (e.lastUsedAt === null) e.lastUsedAt = r.updatedAt
+        m.set(tag, e)
       }
     }
-    return { rows: [...m.entries()].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count) }
+    return {
+      rows: [...m.entries()]
+        .map(([tag, e]) => ({ tag, count: e.count, lastUsedAt: e.lastUsedAt !== null ? e.lastUsedAt.toISOString() : null }))
+        .sort((a, b) => b.count - a.count || (b.lastUsedAt ?? '').localeCompare(a.lastUsedAt ?? '')),
+    }
+  }
+
+  /** 标签合并(fromA/fromB 两条标签合一 → to;去重) */
+  async mergeTags(storeId: number, fromA: string, fromB: string, to: string): Promise<{ updated: number }> {
+    const rows = await this.prisma.customerLead.findMany({
+      where: { storeId, OR: [{ tags: { contains: fromA } }, { tags: { contains: fromB } }] },
+      select: { id: true, tags: true },
+    })
+    let updated = 0
+    for (const r of rows) {
+      const next = [...new Set((r.tags ?? '').split(',').map((t) => t.trim()).map((t) => (t === fromA || t === fromB ? to.trim() : t)).filter((t) => t !== ''))]
+      const nv = next.join(',')
+      if (nv !== (r.tags ?? '')) {
+        await this.prisma.customerLead.update({ where: { id: r.id }, data: { tags: nv } })
+        updated += 1
+      }
+    }
+    return { updated }
   }
 
   /** 标签重命名(全量 replace;重名自动去重) */
@@ -1004,18 +1058,9 @@ export class CommService {
     }
   }
 
-  /** 客资日报三数(移动工作台卡;昨日新增跟进/待办完成/当前超期) */
+  /** 客资日报三数(移动工作台卡;单源 customerDailyStatsFor) */
   async dailySummaryCounts(storeId: number) {
-    const now = new Date()
-    const yFrom = new Date(now.getTime() - 86_400_000)
-    yFrom.setHours(0, 0, 0, 0)
-    const yTo = new Date(yFrom.getTime() + 86_400_000 - 1)
-    const [newFu, doneFu, overdue] = await Promise.all([
-      this.prisma.customerFollowup.count({ where: { storeId, createdAt: { gte: yFrom, lte: yTo } } }),
-      this.prisma.auditLog.count({ where: { storeId, action: 'CUSTOMER_TODO_DONE', createdAt: { gte: yFrom, lte: yTo } } }),
-      this.prisma.customerFollowup.count({ where: { storeId, kind: 'TODO', isDone: false, dueAt: { lt: now } } }),
-    ])
-    return { newFollowups: newFu, doneTodos: doneFu, overdue }
+    return customerDailyStatsFor(this.prisma, storeId)
   }
 
   /** 完成待办跟进 */
@@ -1350,6 +1395,36 @@ export class CustomerController {
     const u = op(req)
     if (body.tag === undefined || body.tag.trim() === '') throw new BadRequestException('tag 必填')
     return this.svc.removeTag(u.storeId, body.tag.trim())
+  }
+
+  /** 标签合并(fromA/fromB 合一 → to) */
+  @Post('tags/merge')
+  async mergeTags(@Req() req: Request, @Body() body: { fromA: string; fromB: string; to: string }): Promise<unknown> {
+    const u = op(req)
+    if (body.fromA === undefined || body.fromA.trim() === '' || body.fromB === undefined || body.fromB.trim() === '' || body.to === undefined || body.to.trim() === '') {
+      throw new BadRequestException('fromA/fromB/to 必填')
+    }
+    return this.svc.mergeTags(u.storeId, body.fromA.trim(), body.fromB.trim(), body.to.trim())
+  }
+
+  /** 客资跟进批量录入(多客资同内容;上限 50) */
+  @Post('followups-batch')
+  async followupsBatch(
+    @Req() req: Request,
+    @Body() body: { leadIds: number[]; content: string; kind?: string; dueAt?: string },
+  ): Promise<unknown> {
+    const u = op(req)
+    if (!Array.isArray(body.leadIds) || body.leadIds.length === 0) throw new BadRequestException('leadIds 必填')
+    if (body.content === undefined || body.content.trim() === '') throw new BadRequestException('内容必填')
+    if (body.leadIds.length > 50) throw new BadRequestException('单次批量上限 50 条客资')
+    let created = 0
+    for (const leadId of body.leadIds.slice(0, 50)) {
+      try {
+        await this.svc.createFollowup(Number(leadId), u.storeId, u, body)
+        created += 1
+      } catch { /* 单条失败跳过(客资不存在等) */ }
+    }
+    return { created }
   }
 
   /** TODO 看板(全部未完成待办,按到期日排布;日历视图数据源) */

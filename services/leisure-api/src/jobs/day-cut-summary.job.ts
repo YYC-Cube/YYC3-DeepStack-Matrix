@@ -10,6 +10,7 @@ import {
   shiftBusinessDate,
 } from '@yyc3/leisure-core'
 import { PrismaService } from '../prisma/prisma.service.js'
+import { customerDailyText } from '../modules/comm/comm.module.js'
 import { snapshotReconSelf } from '../modules/report/report.module.js'
 
 const TICK_MS = 60_000
@@ -233,7 +234,8 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
         ' split(entryNet=' + String(splitEntryNet) + ' settled=' + String(splitSettled) + ' diff=' + String(splitDiff) + ')',
       )
 
-      // 客资日报(2026-11-08):昨日新增跟进/待办完成数/当前超期数 → 管理 notice(有活动才发;同标题幂等)
+      // 客资日报(2026-11-08;2026-11-16 单源化:customerDailyStatsFor+customerDailyText 与端点/动态卡三处同源)
+      // 口径:targetDate 营业日全天的跟进/完成;超期为「当前」时点数
       const fuFrom = new Date(targetDate + 'T00:00:00')
       const fuTo = new Date(targetDate + 'T23:59:59.999')
       const [newFollowups, doneTodos] = await Promise.all([
@@ -253,7 +255,8 @@ export class DayCutSummaryJob implements OnModuleInit, OnModuleDestroy {
             data: {
               storeId,
               title: reportTitle,
-              body: '昨日新增跟进 ' + String(newFollowups) + ' 条 · 待办完成 ' + String(doneTodos) + ' 项 · 当前超期未办 ' + String(overdueTodos) + ' 项。' +
+              // 统一文案模板(与 workbench 动态卡/daily-summary 端点同源 customerDailyText)
+              body: customerDailyText({ newFollowups, doneTodos, overdue: overdueTodos }) + '。' +
                 (overdueTodos > 0 ? '存在超期待办,请及时跟进客资!' : ''),
               publishedBy: 0,
               visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',

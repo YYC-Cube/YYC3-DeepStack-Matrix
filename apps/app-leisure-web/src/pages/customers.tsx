@@ -115,14 +115,22 @@ export default function CustomersPage(): React.JSX.Element {
   const [detailDay, setDetailDay] = useState('')
   /** 标签池管理弹窗 */
   const [tagPoolOpen, setTagPoolOpen] = useState(false)
-  const [tagPool, setTagPool] = useState<Array<{ tag: string; count: number }>>([])
+  const [tagPool, setTagPool] = useState<Array<{ tag: string; count: number; lastUsedAt: string | null }>>([])
   const [renameFrom, setRenameFrom] = useState('')
   const [renameTo, setRenameTo] = useState('')
+  /** 标签合并(A+B → A) */
+  const [mergeA, setMergeA] = useState('')
+  const [mergeB, setMergeB] = useState('')
+  const [mergeTo, setMergeTo] = useState('')
+  /** 批量跟进多选(id 集合)+批量内容弹窗 */
+  const [selIds, setSelIds] = useState<Set<number>>(new Set())
+  const [batchOpen, setBatchOpen] = useState(false)
+  const [batchContent, setBatchContent] = useState('')
   /** 拖拽落点格(高亮) */
   const [dropTargetDay, setDropTargetDay] = useState('')
 
   const loadTagPool = (): void => {
-    void req<{ rows: Array<{ tag: string; count: number }> }>('GET', '/customers/tags').then((r) => setTagPool(r.rows)).catch(() => undefined)
+    void req<{ rows: Array<{ tag: string; count: number; lastUsedAt: string | null }> }>('GET', '/customers/tags').then((r) => setTagPool(r.rows)).catch(() => undefined)
   }
 
   const renameTag = (): void => {
@@ -134,6 +142,33 @@ export default function CustomersPage(): React.JSX.Element {
       loadTagPool()
       await load()
     }).catch((e) => toastError(e))
+  }
+
+  /** 批量跟进(多客资同内容;逐条 POST followups) */
+  const submitBatch = async (): Promise<void> => {
+    if (batchContent.trim() === '') return
+    let ok = 0
+    for (const leadId of selIds) {
+      const lead = (rows ?? []).find((x) => x.id === leadId)
+      if (lead === undefined) continue
+      try {
+        await req('POST', '/customers/' + String(leadId) + '/followups', { content: batchContent.trim() })
+        ok += 1
+      } catch { /* 单条失败跳过 */ }
+    }
+    toast.success('批量跟进完成(' + String(ok) + '/' + String(selIds.size) + ')')
+    setBatchOpen(false)
+    setBatchContent('')
+    setSelIds(new Set())
+    await load()
+  }
+  const toggleSel = (id: number): void => {
+    setSelIds((s) => {
+      const n = new Set(s)
+      if (n.has(id)) n.delete(id)
+      else n.add(id)
+      return n
+    })
   }
 
   const removeTagPool = (tag: string): void => {
@@ -347,6 +382,15 @@ export default function CustomersPage(): React.JSX.Element {
   })()
 
   const columns: Array<Column<LeadRow>> = [
+    { key: 'sel', header: '选', render: (r) => (
+      <input
+        type="checkbox"
+        checked={selIds.has(r.id)}
+        onChange={() => { toggleSel(r.id) }}
+        className="cursor-pointer"
+        title="勾选=批量跟进目标"
+      />
+    ) },
     { key: 'name', header: '客户', render: (r) => {
       const days = daysSinceFollow(r)
       const hot = r.todoOverdue || days >= FOLLOW_REMIND_DAYS
@@ -435,6 +479,7 @@ export default function CustomersPage(): React.JSX.Element {
             <Button variant="outline" size="sm" onClick={() => { void exportCustomers('xlsx') }}>导出 xlsx</Button>
             <Button variant="outline" size="sm" onClick={() => { void exportCustomers('csv') }}>CSV</Button>
             <Button variant="outline" size="sm" onClick={() => { loadTagPool(); setTagPoolOpen(true) }}>标签池</Button>
+            <Button variant="outline" size="sm" disabled={selIds.size === 0} onClick={() => { setBatchOpen(true) }}>批量跟进({String(selIds.size)})</Button>
             <Button onClick={() => setForm({ name: '', phone: '', source: '', status: 'FOLLOW', note: '', ownerArtistId: '', tags: '' })}>+ 录入客资</Button>
           </div>
         }
@@ -637,6 +682,22 @@ export default function CustomersPage(): React.JSX.Element {
                     {t.leadPhone !== null && <span className="text-xs text-fg-muted">{t.leadPhone}</span>}
                     <span className="text-[10px] text-fg-muted ml-auto">{t.content}</span>
                   </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-fg-muted">改期:</span>
+                    <input
+                      type="date"
+                      className="h-6 rounded border border-line bg-transparent px-1 text-xs"
+                      value={(t.dueAt ?? '').slice(0, 10)}
+                      onChange={(e) => {
+                        const nv = e.target.value
+                        if (nv === '' || t.id === null) return
+                        void req('POST', '/customers/' + String(t.leadId) + '/followups/' + String(t.id) + '/reschedule', { dueAt: nv + 'T00:00:00.000Z' }).then(async () => {
+                          toast.success('已改期至 ' + nv)
+                          await loadTodos()
+                        }).catch((err) => toastError(err))
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -836,6 +897,23 @@ export default function CustomersPage(): React.JSX.Element {
         </DialogContent>
       </Dialog>
 
+      {/* 批量跟进弹窗(多客资同内容;逐条写入时间线) */}
+      <Dialog open={batchOpen} onOpenChange={(o) => { if (!o) setBatchOpen(false) }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>批量跟进({String(selIds.size)} 条客资)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Input value={batchContent} onChange={(e) => setBatchContent(e.target.value)} placeholder="跟进内容(多客资同内容)" />
+            <p className="text-xs text-fg-muted">将逐条写入所选客资的跟进时间线;请确认勾选无误。</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchOpen(false)}>取消</Button>
+            <Button disabled={batchContent.trim() === ''} onClick={() => { void submitBatch() }}>批量提交</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* 标签池管理弹窗(聚合+重命名+移除;零迁移) */}
       <Dialog open={tagPoolOpen} onOpenChange={(o) => { if (!o) setTagPoolOpen(false) }}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
@@ -861,6 +939,38 @@ export default function CustomersPage(): React.JSX.Element {
               <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setRenameFrom(''); setRenameTo('') }}>取消</Button>
             </div>
           )}
+          {/* 合并(两标签合一) */}
+          <div className="border-t border-line pt-3 space-y-1.5">
+            <div className="text-xs font-semibold text-fg-muted">合并标签(A+B → A)</div>
+            {tagPool.length < 2 ? (
+              <div className="text-xs text-fg-muted">标签不足两个,无可合并项</div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <select className="h-8 rounded border border-line bg-transparent px-1 text-xs" value={mergeA} onChange={(e) => setMergeA(e.target.value)}>
+                  <option value="">标签 A</option>
+                  {tagPool.map((t) => <option key={t.tag} value={t.tag}>{t.tag}({String(t.count)})</option>)}
+                </select>
+                <span className="text-xs text-fg-muted">+</span>
+                <select className="h-8 rounded border border-line bg-transparent px-1 text-xs" value={mergeB} onChange={(e) => setMergeB(e.target.value)}>
+                  <option value="">标签 B</option>
+                  {tagPool.map((t) => <option key={t.tag} value={t.tag}>{t.tag}({String(t.count)})</option>)}
+                </select>
+                <span className="text-xs text-fg-muted">→</span>
+                <select className="h-8 rounded border border-line bg-transparent px-1 text-xs" value={mergeTo} onChange={(e) => setMergeTo(e.target.value)}>
+                  <option value="">目标标签</option>
+                  {tagPool.map((t) => <option key={t.tag} value={t.tag}>{t.tag}</option>)}
+                </select>
+                <Button size="sm" disabled={mergeA === '' || mergeB === '' || mergeA === mergeB} onClick={() => {
+                  void req('POST', '/customers/tags/merge', { fromA: mergeA, fromB: mergeB, to: mergeTo }).then(async (r) => {
+                    toast.success('已合并(更新 ' + String((r as { updated: number }).updated) + ' 条客资)')
+                    setMergeA(''); setMergeB(''); setMergeTo('')
+                    loadTagPool()
+                    await load()
+                  }).catch((e) => toastError(e))
+                }}>合并</Button>
+              </div>
+            )}
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setTagPoolOpen(false)}>关闭</Button>
           </DialogFooter>

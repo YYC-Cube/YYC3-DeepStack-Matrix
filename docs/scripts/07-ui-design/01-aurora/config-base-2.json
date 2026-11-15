@@ -1,9 +1,0 @@
-{
-  "base": "Radix UI",
-  "animations": "Framer Motion",
-  "icons": "Lucide React",
-  "forms": "React Hook Form",
-  "testing": "Jest",
-  "build": "Vite",
-  "package": "pnpm"
-}

@@ -908,6 +908,58 @@ export class CommService {
     return { id: created.id }
   }
 
+  /** 完成 TODO 改期(月视图跨月改期) */
+  async rescheduleFollowup(leadId: number, fid: number, storeId: number, dueAt: string): Promise<void> {
+    const f = await this.prisma.customerFollowup.findFirst({ where: { id: fid, leadId, storeId } })
+    if (f === null) throw new NotFoundException('跟进记录不存在')
+    await this.prisma.customerFollowup.update({ where: { id: fid }, data: { dueAt: new Date(dueAt) } })
+  }
+
+  /** 客资 360°:房账消费历史(房账直读列 customer_lead_id;含每账点单合计) */
+  async roomHistory(leadId: number, storeId: number) {
+    const sessions = await this.prisma.roomSession.findMany({
+      where: { customerLeadId: leadId, storeId },
+      orderBy: { id: 'desc' },
+      take: 10,
+    })
+    const ids = sessions.map((s) => s.id)
+    const orders = ids.length > 0
+      ? await this.prisma.selfOrder.findMany({ where: { sessionId: { in: ids }, status: { not: 'CANCELLED' } } })
+      : []
+    const bySession = new Map<number, number>()
+    let itemCount = 0
+    for (const o of orders) {
+      bySession.set(o.sessionId, (bySession.get(o.sessionId) ?? 0) + Number(o.totalAmount))
+      itemCount += Array.isArray(o.items) ? o.items.length : 0
+    }
+    return {
+      rows: sessions.map((s) => ({
+        id: s.id,
+        roomNo: s.roomNo,
+        startAt: s.startAt.toISOString(),
+        endAt: s.endAt !== null && s.endAt !== undefined ? s.endAt.toISOString() : null,
+        status: s.status,
+        orderTotal: bySession.get(s.id) ?? 0,
+      })),
+      totalOrders: orders.length,
+      itemCount,
+    }
+  }
+
+  /** 客资日报三数(移动工作台卡;昨日新增跟进/待办完成/当前超期) */
+  async dailySummaryCounts(storeId: number) {
+    const now = new Date()
+    const yFrom = new Date(now.getTime() - 86_400_000)
+    yFrom.setHours(0, 0, 0, 0)
+    const yTo = new Date(yFrom.getTime() + 86_400_000 - 1)
+    const [newFu, doneFu, overdue] = await Promise.all([
+      this.prisma.customerFollowup.count({ where: { storeId, createdAt: { gte: yFrom, lte: yTo } } }),
+      this.prisma.auditLog.count({ where: { storeId, action: 'CUSTOMER_TODO_DONE', createdAt: { gte: yFrom, lte: yTo } } }),
+      this.prisma.customerFollowup.count({ where: { storeId, kind: 'TODO', isDone: false, dueAt: { lt: now } } }),
+    ])
+    return { newFollowups: newFu, doneTodos: doneFu, overdue }
+  }
+
   /** 完成待办跟进 */
   async doneFollowup(leadId: number, fid: number, storeId: number, operator: { scope: string; id: number }): Promise<void> {
     const f = await this.prisma.customerFollowup.findFirst({ where: { id: fid, leadId, storeId } })
@@ -1215,6 +1267,13 @@ export class CustomerController {
     return this.svc.ownerStats(u.storeId)
   }
 
+  /** 客资日报三数(移动工作台卡;昨日新增跟进/待办完成/当前超期) */
+  @Get('daily-summary')
+  async dailySummary(@Req() req: Request): Promise<unknown> {
+    const u = op(req)
+    return this.svc.dailySummaryCounts(u.storeId)
+  }
+
   /** 客资导出(xlsx/csv;对齐报表中心导出体系;@Res 直写绕信封) */
   @Get('export')
   async export(
@@ -1260,6 +1319,27 @@ export class CustomerController {
   async followups(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
     const u = op(req)
     return this.svc.listFollowups(id, u.storeId)
+  }
+
+  /** 客资 360°:房账消费历史(直读列;含每账点单合计) */
+  @Get(':id/room-history')
+  async roomHistory(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    return this.svc.roomHistory(id, u.storeId)
+  }
+
+  /** TODO 改期(月视图) */
+  @Post(':id/followups/:fid/reschedule')
+  async reschedule(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Param('fid', ParseIntPipe) fid: number,
+    @Body() body: { dueAt: string },
+  ): Promise<unknown> {
+    const u = op(req)
+    if (body.dueAt === undefined || body.dueAt === '') throw new BadRequestException('dueAt 必填')
+    await this.svc.rescheduleFollowup(id, fid, u.storeId, body.dueAt)
+    return { ok: true }
   }
 
   /** 新增跟进(手动/TODO 待办) */

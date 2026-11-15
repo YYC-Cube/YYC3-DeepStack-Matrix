@@ -103,6 +103,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> } | null>(null)
   /** 客资转化排行卡(2026-11-08:按销售经理 Top5;全员可见;点击带 owner 过滤跳客资列表) */
   const [ownerRankCard, setOwnerRankCard] = useState<Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }>>([])
+  /** 客资动态卡(2026-11-10:昨日新增跟进/待办完成/当前超期;日报进移动工作台) */
+  const [custDaily, setCustDaily] = useState<{ newFollowups: number; doneTodos: number; overdue: number } | null>(null)
   /** 任务预警(今日概况行:进行中/达标数;全员可见本人) */
   const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [tab, setTab] = useState('manage')
@@ -144,6 +146,13 @@ export default function MWorkbenchPage(): React.JSX.Element {
   useEffect(() => {
     void req<{ rows: Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }> }>('GET', '/customers/stats/by-owner')
       .then((r) => setOwnerRankCard(r.rows))
+      .catch(() => undefined)
+  }, [])
+
+  // 客资动态(2026-11-10:日报三数;全员可见;失败静默)
+  useEffect(() => {
+    void req<{ newFollowups: number; doneTodos: number; overdue: number }>('GET', '/customers/daily-summary')
+      .then((r) => setCustDaily(r))
       .catch(() => undefined)
   }, [])
 
@@ -348,6 +357,37 @@ export default function MWorkbenchPage(): React.JSX.Element {
           ))}
         </div>
       </div>
+
+      {/* 客资动态(2026-11-10:日报三数;点击进 /customers) */}
+      {custDaily !== null && (
+        <div
+          className="mx-3 mt-3 rounded-2xl p-3 cursor-pointer"
+          style={{ background: 'var(--lm-card)', border: '1px solid color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
+          onClick={() => { navigate('/customers') }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-[var(--lm-fg)]">客资动态</span>
+            <span className={'text-[10px] px-1.5 py-0.5 rounded-full ' + (custDaily.overdue > 0 ? 'text-[#ff5555]' : 'text-[#00cc88]')}
+              style={{ background: custDaily.overdue > 0 ? 'rgba(255,85,85,0.12)' : 'rgba(0,204,136,0.12)' }}>
+              {custDaily.overdue > 0 ? '超期 ' + String(custDaily.overdue) : '无超期'}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 rounded-xl py-2.5 text-center" style={{ background: 'var(--lm-bg)' }}>
+            <div>
+              <div className="text-base font-bold text-[var(--lm-fg)]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.newFollowups)}</div>
+              <div className="text-[10px] text-fg-muted">昨日跟进</div>
+            </div>
+            <div>
+              <div className="text-base font-bold text-[var(--lm-fg)]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.doneTodos)}</div>
+              <div className="text-[10px] text-fg-muted">待办完成</div>
+            </div>
+            <div>
+              <div className="text-base font-bold" style={{ color: custDaily.overdue > 0 ? '#ff5555' : 'var(--lm-fg)', fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.overdue)}</div>
+              <div className="text-[10px] text-fg-muted">超期未办</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 客资转化排行(2026-11-08:按销售经理 Top5;点击带 owner 过滤跳客资列表) */}
       {ownerRankCard.length > 0 && (

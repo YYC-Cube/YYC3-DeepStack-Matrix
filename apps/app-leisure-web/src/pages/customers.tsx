@@ -106,6 +106,8 @@ export default function CustomersPage(): React.JSX.Element {
   const [detailFor, setDetailFor] = useState<LeadRow | null>(null)
   const [detailFu, setDetailFu] = useState<FollowupRow[]>([])
   const [detailBooks, setDetailBooks] = useState<BookingLite[]>([])
+  /** 房账消费历史(360°:直读列) */
+  const [detailRooms, setDetailRooms] = useState<Array<{ id: number; roomNo: string; startAt: string; endAt: string | null; status: string; orderTotal: number }>>([])
   /** 视图切换:列表 / 待办日历(按到期日排布) */
   const [view, setView] = useState<'list' | 'calendar' | 'month'>('list')
   /** 月视图当前月(YYYY-MM) */
@@ -124,6 +126,7 @@ export default function CustomersPage(): React.JSX.Element {
     setDetailFor(r)
     void req<{ rows: FollowupRow[] }>('GET', '/customers/' + String(r.id) + '/followups').then((res) => setDetailFu(res.rows)).catch(() => undefined)
     void req<{ rows: BookingLite[] }>('GET', '/bookings?customerId=' + String(r.id) + '&pageSize=20').then((res) => setDetailBooks(res.rows)).catch(() => undefined)
+    void req<{ rows: Array<{ id: number; roomNo: string; startAt: string; endAt: string | null; status: string; orderTotal: number }> }>('GET', '/customers/' + String(r.id) + '/room-history').then((res) => setDetailRooms(res.rows)).catch(() => undefined)
   }
 
   const addFollowup = (): void => {
@@ -317,7 +320,14 @@ export default function CustomersPage(): React.JSX.Element {
     { key: 'tags', header: '标签', render: (r) => r.tags !== '' && r.tags !== null ? (
       <span className="flex gap-1 flex-wrap">
         {r.tags.split(',').filter((t) => t.trim() !== '').map((t) => (
-          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full border border-line text-fg-muted">{t.trim()}</span>
+          <button
+            key={t}
+            className={'text-[10px] px-1.5 py-0.5 rounded-full border ' + (q.trim() === t.trim() ? 'border-primary text-primary bg-primary/10' : 'border-line text-fg-muted hover:border-primary')}
+            title="点击按该标签筛选"
+            onClick={() => { setQ(t.trim()); void load() }}
+          >
+            {t.trim()}
+          </button>
         ))}
       </span>
     ) : '—' },
@@ -456,6 +466,18 @@ export default function CustomersPage(): React.JSX.Element {
                       }}>跟进 →</button>
                     </div>
                     <p className="text-xs text-fg-muted mt-0.5 break-all">{t.content}</p>
+                    <div className="flex gap-1 mt-1">
+                      <button className="text-[10px] text-primary hover:underline" onClick={() => {
+                        void req('POST', '/customers/' + String(t.leadId) + '/followups/' + String(t.id) + '/reschedule', { dueAt: new Date(Date.now() + 86_400_000).toISOString() }).then(async () => {
+                          toast.success('已改期至明天')
+                          await loadTodos()
+                        }).catch((e) => toastError(e))
+                      }}>改期+1 天</button>
+                      <button className="text-[10px] text-success hover:underline" onClick={() => {
+                        const r = (rows ?? []).find((x) => x.id === t.leadId)
+                        if (r !== undefined) openFollowups(r)
+                      }}>跟进 →</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -583,6 +605,20 @@ export default function CustomersPage(): React.JSX.Element {
                 {detailFor.todoOverdue && (
                   <div className="col-span-2 text-xs text-error">⚠ 待办到期:{detailFor.todoContent ?? ''}(到期 {detailFor.todoDueAt !== null ? detailFor.todoDueAt.slice(5, 16).replace('T', ' ') : ''})</div>
                 )}
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-fg-muted mb-1.5">房账消费历史(直读;含点单合计)</div>
+                {detailRooms.length === 0 && <div className="text-xs text-fg-muted">暂无房账记录</div>}
+                <div className="space-y-1">
+                  {detailRooms.map((s) => (
+                    <div key={s.id} className="flex items-center gap-2 text-xs border border-line rounded px-2 py-1">
+                      <span className="font-medium">{s.roomNo}</span>
+                      <span className={s.status === 'OPEN' ? 'text-warning' : 'text-fg-muted'}>{s.status === 'OPEN' ? '消费中' : s.status === 'CLEANING' ? '清扫中' : '已结'}</span>
+                      <span className="text-fg-muted">{s.startAt.slice(5, 16).replace('T', ' ')}{s.endAt !== null ? ' → ' + s.endAt.slice(11, 16) : ''}</span>
+                      <span className="ml-auto">点单 ¥{String(s.orderTotal)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div>
                 <div className="text-xs font-semibold text-fg-muted mb-1.5">关联预订历史</div>

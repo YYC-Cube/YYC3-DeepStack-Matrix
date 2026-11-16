@@ -113,6 +113,8 @@ export default function CustomersPage(): React.JSX.Element {
   const [fuDue, setFuDue] = useState('')
   /** 月视图选中日(明细面板) */
   const [detailDay, setDetailDay] = useState('')
+  /** 时间线已展开历史月(点组头开/关;最近月恒开) */
+  const [openedMonths, setOpenedMonths] = useState<Set<string>>(new Set())
   /** 标签池管理弹窗 */
   const [tagPoolOpen, setTagPoolOpen] = useState(false)
   const [tagPool, setTagPool] = useState<Array<{ tag: string; count: number; lastUsedAt: string | null }>>([])
@@ -126,6 +128,9 @@ export default function CustomersPage(): React.JSX.Element {
   const [selIds, setSelIds] = useState<Set<number>>(new Set())
   const [batchOpen, setBatchOpen] = useState(false)
   const [batchContent, setBatchContent] = useState('')
+  /** 粘贴解析模式(Excel 两列:客名+内容) */
+  const [pasteText, setPasteText] = useState('')
+  const [pasteReport, setPasteReport] = useState('')
   /** 拖拽落点格(高亮) */
   const [dropTargetDay, setDropTargetDay] = useState('')
 
@@ -161,6 +166,30 @@ export default function CustomersPage(): React.JSX.Element {
     setBatchContent('')
     setSelIds(new Set())
     await load()
+  }
+
+  /** 粘贴解析逐条提交(Excel 两列:客名+内容;客名按当前列表匹配) */
+  const submitPaste = async (): Promise<void> => {
+    const lines = pasteText.split('\n').map((l) => l.trim()).filter((l) => l !== '')
+    if (lines.length === 0) return
+    let ok = 0
+    const fail: string[] = []
+    for (const line of lines) {
+      const sep = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : (line.includes(';') ? ';' : ''))
+      if (sep === '') { fail.push('格式跳过:' + line.slice(0, 20)); continue }
+      const parts = line.split(sep)
+      const lname = parts[0].trim()
+      const content = parts.slice(1).join(' ').trim()
+      if (lname === '' || content === '') { fail.push('缺内容:' + lname); continue }
+      const lead = (rows ?? []).find((x) => x.name === lname)
+      if (lead === undefined) { fail.push('未找到客资:' + lname); continue }
+      try {
+        await req('POST', '/customers/' + String(lead.id) + '/followups', { content })
+        ok += 1
+      } catch { fail.push('失败:' + lname) }
+    }
+    setPasteReport('成功 ' + String(ok) + ' / 共 ' + String(lines.length) + (fail.length > 0 ? ';失败:' + fail.join(';') : ''))
+    if (ok > 0) await load()
   }
   const toggleSel = (id: number): void => {
     setSelIds((s) => {
@@ -378,7 +407,9 @@ export default function CustomersPage(): React.JSX.Element {
       if (aHot !== bHot) return bHot - aHot
       return b.id - a.id
     })
-    return list
+    // overdue=1(动态卡超期数字跳转):仅显带超期未办 TODO 的客资
+    const f = searchParams.get('overdue')
+    return f === '1' ? list.filter((x) => x.todoOverdue) : list
   })()
 
   const columns: Array<Column<LeadRow>> = [
@@ -713,21 +744,54 @@ export default function CustomersPage(): React.JSX.Element {
           </DialogHeader>
           <div className="space-y-2">
             {fuRows.length === 0 && <div className="text-xs text-fg-muted py-2">暂无跟进记录;下方输入第一条</div>}
-            {fuRows.map((f) => (
-              <div key={f.id} className={'border rounded-lg px-2.5 py-1.5 ' + (f.kind === 'TODO' && !f.isDone ? 'border-warning/50 bg-warning/5' : 'border-line')}>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{KIND_LABEL[f.kind] ?? f.kind}</span>
-                  {f.kind === 'TODO' && !f.isDone && f.dueAt !== null && (
-                    <span className={'text-[10px] ' + (new Date(f.dueAt).getTime() < Date.now() ? 'text-error font-medium' : 'text-fg-muted')}>到期 {f.dueAt.slice(5, 16).replace('T', ' ')}</span>
-                  )}
-                  <span className="text-[10px] text-fg-muted ml-auto">{f.createdAt.slice(5, 16).replace('T', ' ')} · {f.creatorName}</span>
-                </div>
-                <p className={'text-xs mt-1 break-all ' + (f.kind === 'TODO' && f.isDone ? 'line-through text-fg-muted' : '')}>{f.content}</p>
-                {f.kind === 'TODO' && !f.isDone && (
-                  <button className="text-[10px] text-success hover:underline mt-1" onClick={() => { if (fuFor !== null) doneTodo(fuFor, f.id) }}>✓ 完成待办</button>
-                )}
-              </div>
-            ))}
+            {/* 按月折叠分组(最近月默认展开,历史月默认收起;点组头开/关) */}
+            {(() => {
+              const byMonth = new Map<string, FollowupRow[]>()
+              for (const f of fuRows) {
+                const mkey = f.createdAt.slice(0, 7)
+                const arr = byMonth.get(mkey) ?? []
+                arr.push(f)
+                byMonth.set(mkey, arr)
+              }
+              const months = [...byMonth.keys()].sort((a, b) => b.localeCompare(a))
+              return months.map((mkey, mi) => {
+                const list = byMonth.get(mkey) ?? []
+                const open = mi === 0 || openedMonths.has(mkey) // 最近月默认展开;历史月默认收起,点组头开/关
+                const label = mkey === new Date().toISOString().slice(0, 7) ? '本月' : mkey
+                return (
+                  <div key={mkey} className="border border-line rounded-lg">
+                    <button
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:text-[var(--lm-fg)]"
+                      onClick={() => { setOpenedMonths((s) => { const n = new Set(s); if (open) n.delete(mkey); else n.add(mkey); return n }) }}
+                    >
+                      <span>{open ? '▾' : '▸'}</span>
+                      <span>{label}</span>
+                      <span className="text-fg-muted font-normal">({String(list.length)} 条)</span>
+                      <span className="ml-auto font-normal">{open ? '收起' : '展开'}</span>
+                    </button>
+                    {open && (
+                      <div className="space-y-1.5 px-1 pb-1.5">
+                        {list.map((f) => (
+                          <div key={f.id} className={'border rounded-lg px-2.5 py-1.5 ' + (f.kind === 'TODO' && !f.isDone ? 'border-warning/50 bg-warning/5' : 'border-line')}>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{KIND_LABEL[f.kind] ?? f.kind}</span>
+                              {f.kind === 'TODO' && !f.isDone && f.dueAt !== null && (
+                                <span className={'text-[10px] ' + (new Date(f.dueAt).getTime() < Date.now() ? 'text-error font-medium' : 'text-fg-muted')}>到期 {f.dueAt.slice(5, 16).replace('T', ' ')}</span>
+                              )}
+                              <span className="text-[10px] text-fg-muted ml-auto">{f.createdAt.slice(5, 16).replace('T', ' ')} · {f.creatorName}</span>
+                            </div>
+                            <p className={'text-xs mt-1 break-all ' + (f.kind === 'TODO' && f.isDone ? 'line-through text-fg-muted' : '')}>{f.content}</p>
+                            {f.kind === 'TODO' && !f.isDone && (
+                              <button className="text-[10px] text-success hover:underline mt-1" onClick={() => { if (fuFor !== null) doneTodo(fuFor, f.id) }}>✓ 完成待办</button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })
+            })()}
           </div>
           <div className="flex items-center gap-2 pt-2 border-t border-line">
             <label className="flex items-center gap-1 text-xs text-fg-muted cursor-pointer select-none shrink-0">
@@ -897,19 +961,31 @@ export default function CustomersPage(): React.JSX.Element {
         </DialogContent>
       </Dialog>
 
-      {/* 批量跟进弹窗(多客资同内容;逐条写入时间线) */}
+      {/* 批量跟进弹窗(同内容多选 / 粘贴解析逐条两模式) */}
       <Dialog open={batchOpen} onOpenChange={(o) => { if (!o) setBatchOpen(false) }}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>批量跟进({String(selIds.size)} 条客资)</DialogTitle>
+            <DialogTitle>批量跟进(已选 {String(selIds.size)} 条客资)</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
-            <Input value={batchContent} onChange={(e) => setBatchContent(e.target.value)} placeholder="跟进内容(多客资同内容)" />
-            <p className="text-xs text-fg-muted">将逐条写入所选客资的跟进时间线;请确认勾选无误。</p>
+            <Input value={batchContent} onChange={(e) => setBatchContent(e.target.value)} placeholder="模式①:同内容(写入所有勾选客资)" />
+            <p className="text-xs text-fg-muted">勾选客资 + 上方同内容 → 批量提交。</p>
+            <div className="border-t border-line pt-2 space-y-1.5">
+              <Label className="text-xs text-fg-muted">模式②:粘贴解析(Excel 两列:客资名[TAB/逗号]内容;每行一条)</Label>
+              <textarea
+                className="w-full h-24 rounded border border-line bg-transparent p-2 text-xs font-mono"
+                placeholder={'客资名\t跟进内容'}
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+              />
+              <Button size="sm" variant="outline" disabled={pasteText.trim() === ''} onClick={() => { void submitPaste() }}>
+                解析并逐条提交
+              </Button>
+              {pasteReport !== '' && <p className="text-xs text-fg-muted">{pasteReport}</p>}
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBatchOpen(false)}>取消</Button>
-            <Button disabled={batchContent.trim() === ''} onClick={() => { void submitBatch() }}>批量提交</Button>
+            <Button variant="outline" onClick={() => { setBatchOpen(false); setPasteText(''); setPasteReport('') }}>关闭</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

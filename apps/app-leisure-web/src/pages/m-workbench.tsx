@@ -375,15 +375,15 @@ export default function MWorkbenchPage(): React.JSX.Element {
             </span>
           </div>
           <div className="grid grid-cols-3 rounded-xl py-2.5 text-center" style={{ background: 'var(--lm-bg)' }}>
-            <div>
+            <div className="cursor-pointer" onClick={() => { navigate('/customers?view=list') }} title="查看客资列表">
               <div className="text-base font-bold text-[var(--lm-fg)]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.newFollowups)}</div>
               <div className="text-[10px] text-fg-muted">昨日跟进</div>
             </div>
-            <div>
+            <div className="cursor-pointer" onClick={() => { navigate('/customers?view=list') }} title="查看客资列表">
               <div className="text-base font-bold text-[var(--lm-fg)]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.doneTodos)}</div>
               <div className="text-[10px] text-fg-muted">待办完成</div>
             </div>
-            <div>
+            <div className="cursor-pointer" onClick={() => { navigate('/customers?overdue=1') }} title="查看超期待办客资">
               <div className="text-base font-bold" style={{ color: custDaily.overdue > 0 ? '#ff5555' : 'var(--lm-fg)', fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.overdue)}</div>
               <div className="text-[10px] text-fg-muted">超期未办</div>
             </div>

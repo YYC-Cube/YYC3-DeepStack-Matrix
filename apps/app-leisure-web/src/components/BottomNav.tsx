@@ -68,11 +68,11 @@ export function BottomNav(): React.JSX.Element {
           </span>
         </div>
 
-        {/* 客户(客资体系;2026-11-07 新增) */}
+        {/* 客户(客资体系;2026-11-07 新增;2026-11-16 改跳移动原生页——桌面页真机横向溢出) */}
         <div
           className="flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer"
-          onClick={() => { navigate('/customers') }}
-          style={{ color: on('/customers') ? activeColor : idleColor }}
+          onClick={() => { navigate('/m/customers') }}
+          style={{ color: on('/m/customers') ? activeColor : idleColor }}
         >
           <Users className="w-5 h-5" />
           <span className="text-[10px]">客户</span>

@@ -41,6 +41,13 @@ function IndexRedirect(): null {
   return null
 }
 
+/** 移动端改道:桌面专属页在 <768px 一律送移动原生页(2026-11-16;客户 Tab 曾直跳桌面页横向溢出) */
+function MobileGate({ to, children }: { to: string; children: React.JSX.Element }): React.JSX.Element | null {
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  if (isMobile) return <Navigate to={to} replace />
+  return children
+}
+
 const LoginPage = sus(lazy(() => import('@/pages/login')))
 const ChangePasswordPage = sus(lazy(() => import('@/pages/change-password')))
 const ArtistsPage = sus(lazy(() => import('@/pages/artists')))
@@ -56,6 +63,7 @@ const SettingsArtistPage = sus(lazy(() => import('@/pages/settings-artist')))
 const RoomsPage = sus(lazy(() => import('@/pages/rooms')))
 const GoodsPage = sus(lazy(() => import('@/pages/goods')))
 const CustomersPage = sus(lazy(() => import('@/pages/customers')))
+const MCustomersPage = sus(lazy(() => import('@/pages/m-customers')))
 const ReportCenterPage = sus(lazy(() => import('@/pages/report-center')))
 const TodoPage = sus(lazy(() => import('@/pages/placeholder')))
 const BoardPage = sus(lazy(() => import('@/pages/board')))
@@ -109,6 +117,7 @@ export const router = createHashRouter([
       { path: 'm/stats/reviews', element: <MStatsReviewsPage /> },
       { path: 'm/stats/transfer', element: <MStatsTransferPage /> },
       { path: 'm/tasks', element: <MTasksPage /> },
+      { path: 'm/customers', element: <MCustomersPage /> },
       { path: 'tasks', element: <TasksAdminPage /> },
       { index: true, element: <IndexRedirect /> },
       // 档案域
@@ -151,7 +160,7 @@ export const router = createHashRouter([
       { path: 'profile', element: <ProfilePage /> },
       { path: 'store/rooms', element: <RoomsPage /> },
       { path: 'goods', element: <GoodsPage /> },
-      { path: 'customers', element: <CustomersPage /> },
+      { path: 'customers', element: <MobileGate to="/m/customers"><CustomersPage /></MobileGate> },
       { path: 'rooms/board', element: <BoardPage /> },
       { path: 'clock-screen', element: <ClockScreenPage /> },
       { path: 'reports/recon', element: <ReconPage /> },

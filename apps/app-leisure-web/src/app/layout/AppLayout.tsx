@@ -81,10 +81,13 @@ export function AppLayout() {
     try { localStorage.setItem('yyc3-sidebar-collapsed', v ? '1' : '0') } catch { /* 静默 */ }
   }
   const navigate = useNavigate()
+  const location = useLocation()
   const name = useAuthStore((s) => s.name)
   const logout = useAuthStore((s) => s.logout)
   const isMobile = useIsMobile()
   const online = useOnlineStatus()
+  // 移动原生页(/m*)标记:窄屏表单单列兜底(index.css)只作用桌面页,不误伤 m-* 宫格
+  const nativeMobile = location.pathname.startsWith('/m/')
 
   return (
     <div
@@ -153,7 +156,7 @@ export function AppLayout() {
         </header>
         {/* 横向子菜单条(2026-11-04 导航优化:当前域的子菜单横向平铺,长侧栏一屏可达) */}
         {!isMobile && <HorizontalSubNav />}
-        <main className="flex-1 overflow-y-auto p-5 pb-20 md:pb-5">
+        <main className={'lm-page flex-1 overflow-y-auto p-5 pb-20 md:pb-5' + (nativeMobile ? ' lm-m-native' : '')}>
           <Outlet />
         </main>
       </div>

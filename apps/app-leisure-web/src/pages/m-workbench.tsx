@@ -100,7 +100,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [metrics, setMetrics] = useState<ReconListResult['selfMetrics'] | null>(null)
   const [liveRooms, setLiveRooms] = useState<number>(0)
   /** 分账月报卡(S4-3:三向对账三数;仅 setting:manage 拉取) */
-  const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> } | null>(null)
+  const [splitCard, setSplitCard] = useState<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, { amount: number; count: number }> } | null>(null)
   /** 客资转化排行卡(2026-11-08:按销售经理 Top5;全员可见;点击带 owner 过滤跳客资列表) */
   const [ownerRankCard, setOwnerRankCard] = useState<Array<{ owner: string; ownerArtistId: number | null; total: number; deal: number; rate: number }>>([])
   /** 客资动态卡(2026-11-10:昨日新增跟进/待办完成/当前超期;日报进移动工作台) */
@@ -139,7 +139,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
   // 分账月报(S4-3):setting:manage 权限才拉;失败静默(卡片不渲染)
   useEffect(() => {
     if (!permCodes.includes('setting:manage')) return
-    void req<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, number> }>('GET', '/split/balance')
+    void req<{ entryNet: number; settledSum: number; balanced: boolean; byStatus: Record<string, { amount: number; count: number }> }>('GET', '/split/balance')
       .then((r) => setSplitCard(r))
       .catch(() => undefined)
   }, [permCodes])
@@ -360,12 +360,12 @@ export default function MWorkbenchPage(): React.JSX.Element {
         </div>
       </div>
 
-      {/* 客资动态(2026-11-10:日报三数;点击进 /customers) */}
+      {/* 客资动态(2026-11-10:日报三数;2026-11-16 点击进 /m/customers 移动原生页) */}
       {custDaily !== null && (
         <div
           className="mx-3 mt-3 rounded-2xl p-3 cursor-pointer"
           style={{ background: 'var(--lm-card)', border: '1px solid color-mix(in srgb, var(--lm-primary) 14%, transparent)' }}
-          onClick={() => { navigate('/customers') }}
+          onClick={() => { navigate('/m/customers') }}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-[var(--lm-fg)]">客资动态</span>
@@ -375,15 +375,15 @@ export default function MWorkbenchPage(): React.JSX.Element {
             </span>
           </div>
           <div className="grid grid-cols-3 rounded-xl py-2.5 text-center" style={{ background: 'var(--lm-bg)' }}>
-            <div className="cursor-pointer" onClick={() => { navigate('/customers?view=list') }} title="查看客资列表">
+            <div className="cursor-pointer" onClick={() => { navigate('/m/customers') }} title="查看客资列表">
               <div className="text-base font-bold text-[var(--lm-fg)]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.newFollowups)}</div>
               <div className="text-[10px] text-fg-muted">昨日跟进</div>
             </div>
-            <div className="cursor-pointer" onClick={() => { navigate('/customers?view=list') }} title="查看客资列表">
+            <div className="cursor-pointer" onClick={() => { navigate('/m/customers') }} title="查看客资列表">
               <div className="text-base font-bold text-[var(--lm-fg)]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.doneTodos)}</div>
               <div className="text-[10px] text-fg-muted">待办完成</div>
             </div>
-            <div className="cursor-pointer" onClick={() => { navigate('/customers?overdue=1') }} title="查看超期待办客资">
+            <div className="cursor-pointer" onClick={() => { navigate('/m/customers?overdue=1') }} title="查看超期待办客资">
               <div className="text-base font-bold" style={{ color: custDaily.overdue > 0 ? '#ff5555' : 'var(--lm-fg)', fontVariantNumeric: 'tabular-nums' }}>{String(custDaily.overdue)}</div>
               <div className="text-[10px] text-fg-muted">超期未办</div>
             </div>
@@ -416,7 +416,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
               <div
                 key={o.owner}
                 className={'flex items-center gap-2 text-xs ' + (o.ownerArtistId !== null ? 'cursor-pointer hover:bg-primary/5 rounded px-1' : '')}
-                onClick={() => { if (o.ownerArtistId !== null) navigate('/customers?ownerArtistId=' + String(o.ownerArtistId)) }}
+                onClick={() => { if (o.ownerArtistId !== null) navigate('/m/customers?ownerArtistId=' + String(o.ownerArtistId)) }}
                 title={o.ownerArtistId !== null ? '查看该经理客资列表' : undefined}
               >
                 <span className="text-fg-muted w-4">{String(i + 1)}.</span>
@@ -454,7 +454,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
               <span className="text-[11px] text-fg-muted">计提净额</span>
             </div>
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-base font-bold tabular-nums text-[var(--lm-fg)]">¥{String(Math.round((splitCard.byStatus?.ACCRUED ?? 0) * 100) / 100)}</span>
+              <span className="text-base font-bold tabular-nums text-[var(--lm-fg)]">¥{String(Math.round((splitCard.byStatus?.ACCRUED?.amount ?? 0) * 100) / 100)}</span>
               <span className="text-[11px] text-fg-muted">待结算</span>
             </div>
             <div className="flex flex-col items-center gap-0.5">

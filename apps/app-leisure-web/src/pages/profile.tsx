@@ -31,11 +31,12 @@ function InfoRow({ icon: Icon, label, value, extra }: {
   extra?: string
 }): React.JSX.Element {
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 border-b border-[rgba(0,212,255,0.06)] last:border-b-0">
+    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 px-3 py-2.5 border-b border-[rgba(0,212,255,0.06)] last:border-b-0">
       <Icon className="w-4 h-4 text-[#00d4ff] shrink-0" />
       <span className="text-xs text-fg-muted w-20 shrink-0">{label}</span>
-      <span className="text-sm text-[var(--lm-fg)] truncate">{value}</span>
-      {extra !== undefined && <span className="ml-auto text-[10px] text-fg-muted shrink-0">{extra}</span>}
+      <span className="text-sm text-[var(--lm-fg)] truncate flex-1 min-w-0">{value}</span>
+      {/* 窄屏:extra 提示整行换行,值列不再被挤成单字符(2026-11-16 移动视觉批) */}
+      {extra !== undefined && <span className="text-[10px] text-fg-muted shrink-0 text-right basis-full grow sm:basis-auto sm:grow-0">{extra}</span>}
     </div>
   )
 }

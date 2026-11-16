@@ -139,7 +139,8 @@ interface AiPanelState {
 
 const PANEL_MIN_W = 360;
 const PANEL_MIN_H = 460;
-const AI_POS_KEY = 'leisure-ai-pos-v1';
+// v2(2026-11-16):v1 存的旧拖拽位会把浮球压进底部导航区(真机截图实锤);升版一次性重置到安全默认位
+const AI_POS_KEY = 'leisure-ai-pos-v2';
 
 const DEFAULT_PANEL: AiPanelState = {
   bx: 0,

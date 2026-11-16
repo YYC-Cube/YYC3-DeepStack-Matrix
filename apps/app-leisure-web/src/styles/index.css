@@ -7,11 +7,13 @@
 @import './tokens.css';
 
 /* ── 窄屏表单单列自适应兜底(2026-11-08 Owner 指令#4:横向容器自适应)──
-   语义:≤640px 时多列表单网格统一压单列,字段名不再竖排挤压 */
+   语义:≤640px 时桌面页多列表单网格统一压单列,字段名不再竖排挤压
+   2026-11-16 修复:限定 .lm-page(桌面页);移动原生页(/m*,main 挂 .lm-m-native)豁免——
+   曾误伤 m-workbench 概况/常用/分组宫格(4 列被压成 1 列,真机截图实锤) */
 @media (max-width: 640px) {
-  .grid.grid-cols-2,
-  .grid.grid-cols-3,
-  .grid.grid-cols-4 {
+  .lm-page:not(.lm-m-native) .grid.grid-cols-2,
+  .lm-page:not(.lm-m-native) .grid.grid-cols-3,
+  .lm-page:not(.lm-m-native) .grid.grid-cols-4 {
     grid-template-columns: 1fr !important;
   }
   /* Dialog 弹层窄屏满宽留边 */

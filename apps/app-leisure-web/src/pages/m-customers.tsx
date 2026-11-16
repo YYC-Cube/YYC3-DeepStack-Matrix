@@ -6,10 +6,10 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Button, Input } from '@yyc3/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
-import { ChevronDown, ChevronUp, Search } from 'lucide-react'
+import { ChevronDown, ChevronUp, Plus, Search } from 'lucide-react'
 
 interface LeadRow {
   id: number
@@ -67,6 +67,26 @@ export default function MCustomersPage(): React.JSX.Element {
   const [fuRows, setFuRows] = useState<FollowupRow[]>([])
   const [fuText, setFuText] = useState('')
   const [todoMode, setTodoMode] = useState(false)
+  /** 快录轻表单(2026-11-16 移动原生化批:客名+电话两字段,录入即全闭环) */
+  const [addOpen, setAddOpen] = useState(false)
+  const [addForm, setAddForm] = useState<{ name: string; phone: string }>({ name: '', phone: '' })
+  const [addBusy, setAddBusy] = useState(false)
+
+  async function submitAdd(): Promise<void> {
+    if (addForm.name.trim() === '') { toast.error('客名必填'); return }
+    setAddBusy(true)
+    try {
+      await req('POST', '/customers', { name: addForm.name.trim(), phone: addForm.phone.trim() })
+      toast.success('客资已建档(默认跟进中)')
+      setAddOpen(false)
+      setAddForm({ name: '', phone: '' })
+      await load(1, false)
+    } catch (e) {
+      toastError(e)
+    } finally {
+      setAddBusy(false)
+    }
+  }
 
   const load = useCallback(async (nextPage: number, append: boolean): Promise<void> => {
     try {
@@ -150,7 +170,7 @@ export default function MCustomersPage(): React.JSX.Element {
 
   return (
     <div className="space-y-3">
-      {/* 搜索+筛选(吸顶;chips 单行横滑) */}
+      {/* 搜索+筛选(吸顶;chips 单行横滑)+快录入口 */}
       <div className="sticky top-0 z-10 -mx-1 px-1 pt-1 pb-2 space-y-2" style={{ background: 'linear-gradient(180deg, rgba(6,18,38,0.96) 70%, transparent)' }}>
         <div className="relative">
           <Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-fg-muted" />
@@ -158,8 +178,14 @@ export default function MCustomersPage(): React.JSX.Element {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="搜客名 / 电话"
-            className="pl-8"
+            className="pl-8 pr-20"
           />
+          <button
+            className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 rounded text-[11px] bg-primary/15 text-primary whitespace-nowrap"
+            onClick={() => setAddOpen(true)}
+          >
+            <Plus className="w-3 h-3 inline mr-0.5" />快录
+          </button>
         </div>
         <div className="flex gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
           {FILTERS.map((f) => (
@@ -302,8 +328,32 @@ export default function MCustomersPage(): React.JSX.Element {
         </Button>
       )}
       <div className="text-center text-[10px] text-fg-muted pt-2 pb-2">
-        <ChevronDown className="w-3 h-3 inline" /> 完整管理(录入/编辑/标签池/批量/导出)请用 web 端客资页
+        <ChevronDown className="w-3 h-3 inline" /> 完整管理(编辑/标签池/批量/导出)请用 web 端客资页
       </div>
+
+      {/* 快录轻表单(客名+电话;建档默认「跟进中」) */}
+      <Dialog open={addOpen} onOpenChange={(o) => { if (!o) setAddOpen(false) }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>快录客资</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-xs text-fg-muted">客名 *</label>
+              <Input value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} placeholder="客户姓名" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-fg-muted">电话(可留空)</label>
+              <Input value={addForm.phone} onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })} placeholder="手机号" inputMode="tel" />
+            </div>
+            <div className="text-[10px] text-fg-muted">建档后默认「跟进中」;标签/来源/归属可在 web 端补全</div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>取消</Button>
+            <Button disabled={addBusy} onClick={() => { void submitAdd() }}>建档</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

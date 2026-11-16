@@ -32,11 +32,12 @@ import { fmtMoney, num } from '@/lib/format'
 export function PageHeader({ title, desc, actions }: { title: string; desc?: string; actions?: ReactNode }) {
   return (
     <div className="flex items-start justify-between mb-4 gap-4 flex-wrap">
-      <div>
+      {/* 2026-11-16 移动审计批:窄屏 desc 限两行防横溢,操作区换行平铺(全站桌面页手机直访统一闭环) */}
+      <div className="min-w-0 flex-1 basis-full sm:basis-auto">
         <h1 className="text-xl font-semibold text-[#e0f0ff]">{title}</h1>
-        {desc !== undefined && <p className="text-sm text-[#8b9bb4] mt-1">{desc}</p>}
+        {desc !== undefined && <p className="text-sm text-[#8b9bb4] mt-1 line-clamp-2 md:line-clamp-none">{desc}</p>}
       </div>
-      {actions !== undefined && <div className="flex items-center gap-2">{actions}</div>}
+      {actions !== undefined && <div className="flex items-center gap-2 gap-y-1.5 flex-wrap">{actions}</div>}
     </div>
   )
 }

@@ -72,7 +72,7 @@ const TAB_GROUPS: Array<{ key: string; label: string; domains: string[] }> = [
 
 /** 更多组补充项(个人域;不在 MENU) */
 const MORE_EXTRAS = [
-  { key: 'profile', label: '个人信息', path: '/profile', perm: '*', icon: UserRound },
+  { key: 'profile', label: '个人信息', path: '/m/profile', perm: '*', icon: UserRound },
   { key: 'theme', label: '主题定制', path: '/settings/theme', perm: 'setting:manage', icon: PieChart },
 ] as const
 

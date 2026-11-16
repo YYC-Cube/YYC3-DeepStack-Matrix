@@ -181,9 +181,14 @@ function savePanelState(s: AiPanelState): void {
   }
 }
 
-function clampPanel(s: AiPanelState, vw: number, vh: number): AiPanelState {
+function clampPanel(s: AiPanelState, vw: number, vh: number, isMobile = false): AiPanelState {
+  // 2026-11-16 补 bx/by 钳制(此前只钳面板 px/py,浮球拖到边界外/底栏下的值会原样落盘):
+  // 浮球 56 上限口径;移动端底部预留 64px(底栏 56 + 8 余量),桌面留 8px
+  const bubbleBottomPad = isMobile ? 64 : 8;
   return {
     ...s,
+    bx: Math.min(Math.max(0, s.bx), Math.max(0, vw - 56)),
+    by: Math.min(Math.max(0, s.by), Math.max(0, vh - 56 - bubbleBottomPad)),
     px: Math.min(Math.max(0, s.px), Math.max(0, vw - PANEL_MIN_W)),
     py: Math.min(Math.max(0, s.py), Math.max(0, vh - PANEL_MIN_H)),
     pw: Math.min(s.pw, Math.max(PANEL_MIN_W, vw - 16)),
@@ -235,18 +240,18 @@ export function AIAssistant({
   const panelDragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
   const resizeRef = useRef<{ startX: number; startY: number; baseW: number; baseH: number } | null>(null);
 
-  // 视口变化时收拢位置
+  // 视口变化时收拢位置(isMobile 入钳制:移动端浮球避底栏)
   useEffect(() => {
-    const onResize = (): void => setPanel((p) => clampPanel(p, window.innerWidth, window.innerHeight));
+    const onResize = (): void => setPanel((p) => clampPanel(p, window.innerWidth, window.innerHeight, isMobile));
     window.addEventListener('resize', onResize);
     // 工作台等外部入口:window.dispatchEvent(new Event('yyc3-ai-toggle')) 切换浮窗
     const onToggle = (): void => setIsOpen((o) => !o);
     window.addEventListener('yyc3-ai-toggle', onToggle);
     return () => {
+      window.removeEventListener('resize', onResize);
       window.removeEventListener('yyc3-ai-toggle', onToggle);
     };
-    return () => { window.removeEventListener('resize', onResize); };
-  }, []);
+  }, [isMobile]);
 
   // ⌘J / Ctrl+J 开关
   useEffect(() => {
@@ -386,6 +391,7 @@ export function AIAssistant({
         { ...p, bx: d.baseX + dx, by: d.baseY + dy },
         window.innerWidth,
         window.innerHeight,
+        isMobile,
       ));
     }
   };

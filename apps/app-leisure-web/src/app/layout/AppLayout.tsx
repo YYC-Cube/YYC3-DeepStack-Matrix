@@ -116,7 +116,7 @@ export function AppLayout() {
           {!isMobile && <span className="text-sm text-[#8b9bb4]">Web 管理端</span>}
           {isMobile && (
             <button
-              onClick={() => { navigate('/profile') }}
+              onClick={() => { navigate('/m/profile') }}
               className="flex items-center gap-2"
               title="个人信息"
             >

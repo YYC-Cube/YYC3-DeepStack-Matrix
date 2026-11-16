@@ -21,6 +21,7 @@ import {
   Receipt,
   ReceiptText,
   Settings,
+  ShoppingBag,
   Sparkles,
   Ticket,
   UserRound,
@@ -80,6 +81,7 @@ const MORE_EXTRAS = [
 const GROUP_EXTRAS: Record<string, Array<{ key: string; label: string; path: string; perm: string; icon: typeof Gauge }>> = {
   manage: [
     { key: 'tasks', label: '任务中心', path: '/m/tasks', perm: '*', icon: ClipboardList },
+    { key: 'goods', label: '商品管理', path: '/m/goods', perm: 'setting:manage', icon: ShoppingBag },
   ],
   stats: [
     { key: 'st-att', label: '出勤仪表', path: '/m/stats/attendance', perm: 'attend:summary:view', icon: Radar },

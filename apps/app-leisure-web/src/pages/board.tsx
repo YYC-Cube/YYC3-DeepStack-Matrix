@@ -13,6 +13,7 @@ import type { SelfOrder } from '@yyc3/leisure-core'
 import { PageHeader } from '@/components/kit'
 import { RoomAdminPanel } from '@/components/room-admin'
 import { RoomCloseDialog, RoomOpenDialog, type OpenSessionRow, type RoomRow, type ArtistRow } from '@/components/room-ops'
+import { RoomOrderDialog } from '@/components/room-order'
 import PersonPicker from '@/components/person-picker'
 
 interface CloseResult {
@@ -65,13 +66,8 @@ export default function BoardPage(): React.JSX.Element {
   // 上钟/送花(2026-11-04 房态重构:开房与上钟解耦;统一选人器)
   const [staffRoom, setStaffRoom] = useState<RoomRow | null>(null)
   const [flowerRoom, setFlowerRoom] = useState<RoomRow | null>(null)
-  // 通用点单(P3 2026-11-07):多商品数量→入房账;选人=本房进行中上钟人员
+  // 通用点单(P3 2026-11-07;2026-11-17 抽共享组件 room-order,与 m-board 共用禁双实现)
   const [orderRoom, setOrderRoom] = useState<RoomRow | null>(null)
-  const [orderGoods, setOrderGoods] = useState<Array<{ id: number; name: string; salePrice: string | number; unit: string | null }>>([])
-  const [orderItems, setOrderItems] = useState<Record<number, number>>({})
-  const [orderPickerOpen, setOrderPickerOpen] = useState(false)
-  /** 本房已点明细(点单弹窗展开;self-orders by sessionId) */
-  const [orderHistory, setOrderHistory] = useState<SelfOrder[]>([])
   /** 分区折叠(大包 17 间占屏;记忆于 localStorage) */
   const [collapsedTypes, setCollapsedTypes] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('yyc3-board-collapsed') ?? '[]') as string[]) } catch { return new Set() }
@@ -131,41 +127,7 @@ export default function BoardPage(): React.JSX.Element {
     }
   }
 
-  /** 通用点单提交(P3):多商品数量→selfOrders.place+deliver→入本房账;artistId=本房进行中上钟人员 */
-  const submitOrder = async (artistId: number): Promise<void> => {
-    if (orderRoom === null) return
-    const items = Object.entries(orderItems)
-      .filter(([, q]) => q > 0)
-      .map(([gid, q]) => ({ goodsId: Number(gid), qty: q }))
-    if (items.length === 0) {
-      toast.error('请至少选择一件商品数量')
-      return
-    }
-    setBusy(true)
-    try {
-      const openSession = openSessions.find((s) => s.roomId === orderRoom.id)
-      if (openSession === undefined) {
-        toast.error('本房无进行中房账')
-        setOrderRoom(null)
-        return
-      }
-      const order = await client.selfOrders.place({ sessionId: openSession.id, artistId, items })
-      await client.selfOrders.deliver(order.orderId)
-      const goodsRes = await client.goods.list({})
-      const total = items.reduce((sum, it) => {
-        const g = goodsRes.rows.find((x) => x.id === it.goodsId)
-        return sum + (g !== undefined ? Number(g.salePrice) * it.qty : 0)
-      }, 0)
-      toast.success('点单成功 · 共 ¥' + String(total) + ' 已计入 ' + orderRoom.roomNo + ' 房账')
-      setOrderRoom(null)
-      setOrderItems({})
-      await load()
-    } catch (e) {
-      toastError(e, '点单失败')
-    } finally {
-      setBusy(false)
-    }
-  }
+  /** 通用点单提交(P3)→已抽共享组件 room-order.tsx(2026-11-17);本页仅持有 orderRoom 状态 */
 
   const createReserve = async (): Promise<void> => {
     if (reserveFor === null) return    setBusy(true)
@@ -364,17 +326,7 @@ export default function BoardPage(): React.JSX.Element {
                     size="sm"
                     variant="outline"
                     className="h-7 px-2 text-xs"
-                    onClick={() => {
-                      setOrderRoom(r)
-                      setOrderItems({})
-                      void client.goods.list({ onSale: true }).then((res) => setOrderGoods(res.rows.map((g) => ({ id: g.id, name: g.name, salePrice: g.salePrice, unit: g.unit ?? null }))))
-                      const os = openSessions.find((s) => s.roomId === r.id)
-                      if (os !== undefined) {
-                        void client.selfOrders.list({ sessionId: os.id }).then((res) => setOrderHistory(res.rows.filter((x) => x.status !== 'CANCELLED'))).catch(() => undefined)
-                      } else {
-                        setOrderHistory([])
-                      }
-                    }}
+                    onClick={() => { setOrderRoom(r) }}
                     title="为本房点单:多商品入房账"
                   >
                     点单
@@ -495,95 +447,12 @@ export default function BoardPage(): React.JSX.Element {
         }}
       />
 
-      {/* 通用点单弹窗(P3):商品数量 + 选进行中上钟人员 */}
-      <Dialog open={orderRoom !== null} onOpenChange={(o) => { if (!o) { setOrderRoom(null); setOrderItems({}) } }}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>点单 · {orderRoom?.roomNo ?? ''}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-1.5">
-            {/* 本房已点明细(P5 2026-11-08:点单前先看本房已点) */}
-            {orderHistory.length > 0 && (
-              <div className="border border-line rounded-lg px-2.5 py-1.5 mb-2">
-                <div className="text-[10px] text-fg-muted mb-1 flex items-center justify-between">
-                  <span>本房已点({String(orderHistory.length)} 单)</span>
-                  <button
-                    className="text-primary hover:underline"
-                    onClick={() => {
-                      const os = openSessions.find((s) => s.roomId === orderRoom?.id)
-                      if (os === undefined) return
-                      void fetch('/api/v1/self-orders/export?sessionId=' + String(os.id) + '&fmt=xlsx', {
-                        headers: { Authorization: 'Bearer ' + (useAuthStore.getState().token ?? '') },
-                      }).then(async (res) => {
-                        if (!res.ok) { toast.error('导出失败'); return }
-                        const blob = await res.blob()
-                        const a = document.createElement('a')
-                        a.href = URL.createObjectURL(blob)
-                        a.download = '点单明细-会话' + String(os.id) + '.xlsx'
-                        a.click()
-                        URL.revokeObjectURL(a.href)
-                        toast.success('已导出 xlsx')
-                      }).catch(() => toast.error('导出失败'))
-                    }}
-                  >
-                    导出明细 xlsx ↓
-                  </button>
-                </div>
-                <div className="space-y-0.5 max-h-28 overflow-y-auto">
-                  {(() => {
-                    const agg = new Map<string, number>()
-                    for (const o of orderHistory) {
-                      for (const it of o.items) {
-                        agg.set(it.name, (agg.get(it.name) ?? 0) + it.qty)
-                      }
-                    }
-                    if (agg.size === 0) return <div className="text-xs text-fg-muted">无明细</div>
-                    return [...agg.entries()].map(([name, qty]) => (
-                      <div key={name} className="flex justify-between text-xs">
-                        <span>{name}</span>
-                        <span className="text-fg-muted">× {String(qty)}</span>
-                      </div>
-                    ))
-                  })()}
-                </div>
-              </div>
-            )}
-            {orderGoods.length === 0 && <div className="text-xs text-fg-muted py-3 text-center">暂无在售商品;请先在「商品管理」上架</div>}
-            {orderGoods.map((g) => {
-              const q = orderItems[g.id] ?? 0
-              return (
-                <div key={g.id} className="flex items-center gap-2 border border-line rounded-lg px-2 py-1.5">
-                  <span className="text-sm flex-1 min-w-0 truncate">{g.name}<span className="text-fg-muted text-xs"> ¥{String(g.salePrice)}{g.unit !== null ? '/' + g.unit : ''}</span></span>
-                  <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => { if (q > 0) setOrderItems({ ...orderItems, [g.id]: q - 1 }) }}>−</Button>
-                  <input
-                    className="w-10 h-6 text-center text-sm border border-line rounded bg-transparent"
-                    value={String(q)}
-                    onChange={(e) => setOrderItems({ ...orderItems, [g.id]: Math.max(0, Math.floor(Number(e.target.value) || 0)) })}
-                  />
-                  <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => setOrderItems({ ...orderItems, [g.id]: q + 1 })}>+</Button>
-                </div>
-              )
-            })}
-            <div className="text-right text-sm pt-1">
-              合计 <span className="text-primary font-semibold">¥{String(orderGoods.reduce((sum, g) => sum + (orderItems[g.id] ?? 0) * Number(g.salePrice), 0))}</span>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setOrderRoom(null); setOrderItems({}) }}>取消</Button>
-            <Button disabled={busy || orderGoods.every((g) => (orderItems[g.id] ?? 0) === 0)} onClick={() => { setOrderPickerOpen(true) }}>选人下单</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <PersonPicker
-        open={orderPickerOpen}
-        title={'点单选人 · ' + (orderRoom?.roomNo ?? '') + '(进行中上钟人员)'}
-        line="SELL"
-        busyOnly
-        onClose={() => { setOrderPickerOpen(false) }}
-        onPick={(p) => {
-          setOrderPickerOpen(false)
-          if (p !== null && !Array.isArray(p)) void submitOrder(p.id)
-        }}
+      {/* 通用点单弹窗(P3;2026-11-17 共享组件 room-order,桌面/移动同源) */}
+      <RoomOrderDialog
+        room={orderRoom}
+        openSessions={openSessions}
+        onClose={() => { setOrderRoom(null) }}
+        onPlaced={() => { void load() }}
       />
     </div>
   )

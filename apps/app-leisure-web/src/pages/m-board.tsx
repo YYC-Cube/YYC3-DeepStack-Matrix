@@ -10,6 +10,7 @@ import { RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { RoomCloseDialog, RoomOpenDialog, type OpenSessionRow, type RoomRow, type ArtistRow } from '@/components/room-ops'
+import { RoomOrderDialog } from '@/components/room-order'
 import PersonPicker from '@/components/person-picker'
 
 const STATUS_TEXT: Record<string, string> = {
@@ -38,6 +39,8 @@ export default function MBoardPage(): React.JSX.Element {
   const [openRoom, setOpenRoom] = useState<RoomRow | null>(null)
   const [closeRoom, setCloseRoom] = useState<RoomRow | null>(null)
   // 上钟选人器(2026-11-04 房态重构:开房与上钟解耦)
+  /** 点单目标房(2026-11-17 移动点单批:共享 room-order 弹窗) */
+  const [orderRoom, setOrderRoom] = useState<RoomRow | null>(null)
   const [staffRoom, setStaffRoom] = useState<RoomRow | null>(null)
   const [closeSession, setCloseSession] = useState<OpenSessionRow | null>(null)
   const [busy, setBusy] = useState(false)
@@ -250,11 +253,14 @@ export default function MBoardPage(): React.JSX.Element {
                 )}
                 {st === 'OCCUPIED' && open !== undefined && (
                   <>
-                    <Button size="sm" className="h-7 px-2.5 text-xs flex-1" onClick={() => { setStaffRoom(r) }}>
+                    <Button size="sm" className="h-7 px-2 text-xs flex-1" onClick={() => { setStaffRoom(r) }}>
                       上钟
                     </Button>
-                    <Button size="sm" className="h-7 px-2.5 text-xs flex-1" onClick={() => { setCloseRoom(r); setCloseSession(open) }}>
-                      关房结算
+                    <Button size="sm" className="h-7 px-2 text-xs flex-1" onClick={() => { setOrderRoom(r) }}>
+                      点单
+                    </Button>
+                    <Button size="sm" className="h-7 px-2 text-xs flex-1" onClick={() => { setCloseRoom(r); setCloseSession(open) }}>
+                      结算
                     </Button>
                   </>
                 )}
@@ -290,6 +296,13 @@ export default function MBoardPage(): React.JSX.Element {
         session={closeSession}
         onClose={() => { setCloseRoom(null); setCloseSession(null) }}
         onClosed={load}
+      />
+      {/* 点单共享弹窗(2026-11-17 移动点单批:与桌面 board 同源 room-order,禁双实现) */}
+      <RoomOrderDialog
+        room={orderRoom}
+        openSessions={openSessions}
+        onClose={() => { setOrderRoom(null) }}
+        onPlaced={load}
       />
       <PersonPicker
         open={staffRoom !== null}

@@ -8,7 +8,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Button, Input } from '@yyc3/ui'
 import { toast } from 'sonner'
-import { BadgeCheck, ChevronDown, ChevronUp, KeyRound, LogOut, ShieldCheck, Store, UserCircle2, CalendarDays } from 'lucide-react'
+import { BadgeCheck, ChevronDown, ChevronRight, ChevronUp, KeyRound, LogOut, ShieldCheck, Store, UserCircle2, CalendarDays, Users } from 'lucide-react'
+import { req } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 
@@ -51,6 +52,8 @@ export default function MProfilePage(): React.JSX.Element {
   const [newPassword, setNew] = useState('')
   const [confirm, setConfirm] = useState('')
   const [busy, setBusy] = useState(false)
+  /** 我的客资数(listCustomers 按 viewer 过滤;pageSize=1 只取 total) */
+  const [leadCount, setLeadCount] = useState<number | null>(null)
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -62,6 +65,9 @@ export default function MProfilePage(): React.JSX.Element {
 
   useEffect(() => {
     void load()
+    void req<{ rows: unknown[]; total: number }>('GET', '/customers?page=1&pageSize=1')
+      .then((r) => { setLeadCount(r.total) })
+      .catch(() => undefined)
   }, [load])
 
   function policyError(pwd: string, old: string): string | null {
@@ -155,6 +161,20 @@ export default function MProfilePage(): React.JSX.Element {
           <InfoRow icon={CalendarDays} label="创建时间" value={me?.createdAt !== undefined ? me.createdAt.slice(0, 10) : '—'} />
         </div>
       </div>
+
+      {/* 我的客资入口(2026-11-17:销售经理角色直达本人归属客资;后端 listCustomers 已按 viewer 过滤) */}
+      <button
+        className="rounded-2xl p-4 w-full flex items-center gap-3 text-left"
+        style={{ background: 'var(--lm-card)' }}
+        onClick={() => { navigate('/m/customers') }}
+      >
+        <Users className="w-5 h-5 text-primary shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-[var(--lm-fg)]">我的客资{leadCount !== null ? <span className="ml-1.5 text-primary">{String(leadCount)}</span> : ''}</div>
+          <div className="text-[11px] text-fg-muted mt-0.5">跟进/待办/超期 · 管理端全量,销售端仅本人归属</div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-fg-muted shrink-0" />
+      </button>
 
       {/* 修改密码(折叠) */}
       <div className="rounded-2xl p-3" style={{ background: 'var(--lm-card)' }}>

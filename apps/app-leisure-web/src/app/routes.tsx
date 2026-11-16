@@ -65,6 +65,7 @@ const GoodsPage = sus(lazy(() => import('@/pages/goods')))
 const CustomersPage = sus(lazy(() => import('@/pages/customers')))
 const MCustomersPage = sus(lazy(() => import('@/pages/m-customers')))
 const MProfilePage = sus(lazy(() => import('@/pages/m-profile')))
+const MGoodsPage = sus(lazy(() => import('@/pages/m-goods')))
 const ReportCenterPage = sus(lazy(() => import('@/pages/report-center')))
 const TodoPage = sus(lazy(() => import('@/pages/placeholder')))
 const BoardPage = sus(lazy(() => import('@/pages/board')))
@@ -120,6 +121,7 @@ export const router = createHashRouter([
       { path: 'm/tasks', element: <MTasksPage /> },
       { path: 'm/customers', element: <MCustomersPage /> },
       { path: 'm/profile', element: <MProfilePage /> },
+      { path: 'm/goods', element: <MGoodsPage /> },
       { path: 'tasks', element: <TasksAdminPage /> },
       { index: true, element: <IndexRedirect /> },
       // 档案域
@@ -164,6 +166,7 @@ export const router = createHashRouter([
       { path: 'goods', element: <GoodsPage /> },
       { path: 'customers', element: <MobileGate to="/m/customers"><CustomersPage /></MobileGate> },
       { path: 'profile', element: <MobileGate to="/m/profile"><ProfilePage /></MobileGate> },
+      { path: 'goods', element: <MobileGate to="/m/goods"><GoodsPage /></MobileGate> },
       { path: 'rooms/board', element: <BoardPage /> },
       { path: 'clock-screen', element: <ClockScreenPage /> },
       { path: 'reports/recon', element: <ReconPage /> },

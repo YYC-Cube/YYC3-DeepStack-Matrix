@@ -113,8 +113,10 @@ export default function CustomersPage(): React.JSX.Element {
   const [fuDue, setFuDue] = useState('')
   /** 月视图选中日(明细面板) */
   const [detailDay, setDetailDay] = useState('')
-  /** 时间线已展开历史月(点组头开/关;最近月恒开) */
-  const [openedMonths, setOpenedMonths] = useState<Set<string>>(new Set())
+  /** 时间线已展开历史月(点组头开/关;最近月恒开;localStorage 持久化=折叠状态记忆) */
+  const [openedMonths, setOpenedMonths] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('yyc3-fu-opened-months') ?? '[]') as string[]) } catch { return new Set() }
+  })
   /** 标签池管理弹窗 */
   const [tagPoolOpen, setTagPoolOpen] = useState(false)
   const [tagPool, setTagPool] = useState<Array<{ tag: string; count: number; lastUsedAt: string | null }>>([])
@@ -131,6 +133,8 @@ export default function CustomersPage(): React.JSX.Element {
   /** 粘贴解析模式(Excel 两列:客名+内容) */
   const [pasteText, setPasteText] = useState('')
   const [pasteReport, setPasteReport] = useState('')
+  /** 粘贴解析「未命中自动建档」开关 */
+  const [autoCreate, setAutoCreate] = useState(false)
   /** 拖拽落点格(高亮) */
   const [dropTargetDay, setDropTargetDay] = useState('')
 
@@ -168,11 +172,12 @@ export default function CustomersPage(): React.JSX.Element {
     await load()
   }
 
-  /** 粘贴解析逐条提交(Excel 两列:客名+内容;客名按当前列表匹配) */
+  /** 粘贴解析逐条提交(Excel 两列:客名+内容;客名按当前列表匹配;可开关自动建档) */
   const submitPaste = async (): Promise<void> => {
     const lines = pasteText.split('\n').map((l) => l.trim()).filter((l) => l !== '')
     if (lines.length === 0) return
     let ok = 0
+    let created = 0
     const fail: string[] = []
     for (const line of lines) {
       const sep = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : (line.includes(';') ? ';' : ''))
@@ -181,14 +186,22 @@ export default function CustomersPage(): React.JSX.Element {
       const lname = parts[0].trim()
       const content = parts.slice(1).join(' ').trim()
       if (lname === '' || content === '') { fail.push('缺内容:' + lname); continue }
-      const lead = (rows ?? []).find((x) => x.name === lname)
+      let lead = (rows ?? []).find((x) => x.name === lname)
+      // 自动建档(开关开启且未命中;行格式「客名,电话,内容」时电话一并建档,否则仅名建档)
+      if (lead === undefined && autoCreate && parts.length >= 2 && parts[1].match(/^\d{7,}$/)) {
+        try {
+          const cr = await req<{ id: number }>('POST', '/customers', { name: lname, phone: parts[1] })
+          created += 1
+          lead = { id: cr.id, name: lname, phone: parts[1], source: null, status: 'FOLLOW', note: null, ownerArtistId: null, ownerName: null, tags: '', lastFollowAt: null, lastFollowContent: null, followupCount: 0, todoOverdue: false, todoDueAt: null, todoContent: null, createdAt: new Date().toISOString() } as LeadRow
+        } catch { fail.push('建档失败:' + lname); continue }
+      }
       if (lead === undefined) { fail.push('未找到客资:' + lname); continue }
       try {
         await req('POST', '/customers/' + String(lead.id) + '/followups', { content })
         ok += 1
       } catch { fail.push('失败:' + lname) }
     }
-    setPasteReport('成功 ' + String(ok) + ' / 共 ' + String(lines.length) + (fail.length > 0 ? ';失败:' + fail.join(';') : ''))
+    setPasteReport('成功 ' + String(ok) + ' / 共 ' + String(lines.length) + (created > 0 ? ';新建客资 ' + String(created) : '') + (fail.length > 0 ? ';失败:' + fail.join(';') : ''))
     if (ok > 0) await load()
   }
   const toggleSel = (id: number): void => {
@@ -762,7 +775,7 @@ export default function CustomersPage(): React.JSX.Element {
                   <div key={mkey} className="border border-line rounded-lg">
                     <button
                       className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:text-[var(--lm-fg)]"
-                      onClick={() => { setOpenedMonths((s) => { const n = new Set(s); if (open) n.delete(mkey); else n.add(mkey); return n }) }}
+                      onClick={() => { setOpenedMonths((s) => { const n = new Set(s); if (open) n.delete(mkey); else n.add(mkey); try { localStorage.setItem('yyc3-fu-opened-months', JSON.stringify([...n])) } catch { /* 静默 */ } return n }) }}
                     >
                       <span>{open ? '▾' : '▸'}</span>
                       <span>{label}</span>
@@ -857,6 +870,18 @@ export default function CustomersPage(): React.JSX.Element {
                       <span className={'shrink-0 ' + (f.dueAt !== null && new Date(f.dueAt).getTime() < Date.now() ? 'text-error font-medium' : 'text-warning')}>待办</span>
                       <span className="flex-1 break-all">{f.content}</span>
                       {f.dueAt !== null && <span className="text-fg-muted shrink-0">到期 {f.dueAt.slice(5, 16).replace('T', ' ')}</span>}
+                      <button
+                        className="shrink-0 text-[10px] text-success hover:underline"
+                        title="完成并自动生成下期(+7 天同内容待办)"
+                        onClick={() => {
+                          void req('POST', '/customers/' + String(detailFor.id) + '/followups', { content: f.content, kind: 'TODO', dueAt: new Date((f.dueAt !== null ? new Date(f.dueAt).getTime() : Date.now()) + 7 * 86_400_000).toISOString() }).then(async () => {
+                            toast.success('已生成下期待办(+7 天)')
+                            await load()
+                          }).catch((e) => toastError(e))
+                        }}
+                      >
+                        循环+7 天
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -972,6 +997,10 @@ export default function CustomersPage(): React.JSX.Element {
             <p className="text-xs text-fg-muted">勾选客资 + 上方同内容 → 批量提交。</p>
             <div className="border-t border-line pt-2 space-y-1.5">
               <Label className="text-xs text-fg-muted">模式②:粘贴解析(Excel 两列:客资名[TAB/逗号]内容;每行一条)</Label>
+              <label className="flex items-center gap-1.5 text-xs text-fg-muted cursor-pointer select-none">
+                <input type="checkbox" checked={autoCreate} onChange={(e) => setAutoCreate(e.target.checked)} />
+                客名未命中时自动建档(行格式「客名,电话,内容」可一并建档电话)
+              </label>
               <textarea
                 className="w-full h-24 rounded border border-line bg-transparent p-2 text-xs font-mono"
                 placeholder={'客资名\t跟进内容'}

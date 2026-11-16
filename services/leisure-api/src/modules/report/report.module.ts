@@ -158,6 +158,15 @@ export class ReportService {
     ])
     rows.push(['— 汇总 —', '区间新增跟进', String(fus.length), '待办完成', String(doneCount)])
     rows.push(['— 汇总 —', '当前超期未办', String(overdueCount), '', ''])
+    // 跟进人维度透视(2026-11-16):按记录人聚合跟进量(降序)
+    const byCreator = new Map<string, number>()
+    for (const f of fus) {
+      const cname = adminMap.get(f.createdBy) ?? String(f.createdBy)
+      byCreator.set(cname, (byCreator.get(cname) ?? 0) + 1)
+    }
+    for (const [cname, n] of [...byCreator.entries()].sort((a, b) => b[1] - a[1])) {
+      rows.push(['— 记录人 —', cname, '跟进量', String(n), ''])
+    }
     return rows
   }
 

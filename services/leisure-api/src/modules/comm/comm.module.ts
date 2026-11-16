@@ -1063,8 +1063,8 @@ export class CommService {
     return customerDailyStatsFor(this.prisma, storeId)
   }
 
-  /** 完成待办跟进 */
-  async doneFollowup(leadId: number, fid: number, storeId: number, operator: { scope: string; id: number }): Promise<void> {
+  /** 完成待办跟进(cycle=true 循环待办:自动生成下期 +7 天同内容 TODO) */
+  async doneFollowup(leadId: number, fid: number, storeId: number, operator: { scope: string; id: number }, cycle = false): Promise<void> {
     const f = await this.prisma.customerFollowup.findFirst({ where: { id: fid, leadId, storeId } })
     if (f === null) throw new NotFoundException('跟进记录不存在')
     if (f.isDone) return // 幂等
@@ -1072,6 +1072,20 @@ export class CommService {
     await this.prisma.auditLog.create({
       data: { storeId, actorId: operator.id, action: 'CUSTOMER_TODO_DONE', targetType: 'customer_lead', targetId: String(leadId), beforeJson: { isDone: false } as object, afterJson: { isDone: true } as object },
     })
+    // 循环待办(2026-11-16):完成时自动生成下期(+7 天同内容 TODO,kind=TODO)
+    if (cycle && f.kind === 'TODO') {
+      const base = f.dueAt ?? new Date()
+      await this.prisma.customerFollowup.create({
+        data: {
+          storeId,
+          leadId,
+          content: f.content,
+          kind: 'TODO',
+          dueAt: new Date(base.getTime() + 7 * 86_400_000),
+          createdBy: operator.id,
+        },
+      })
+    }
   }
 
   /** TODO 看板(全部未完成待办;按到期日排布,过期置顶;日历视图数据源) */
@@ -1529,15 +1543,16 @@ export class CustomerController {
     return this.svc.createFollowup(id, u.storeId, u, body)
   }
 
-  /** 完成待办跟进 */
+  /** 完成待办跟进(body.cycle=true 循环待办:自动生成下期 +7 天) */
   @Post(':id/followups/:fid/done')
   async doneFollowup(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
     @Param('fid', ParseIntPipe) fid: number,
+    @Body() body: { cycle?: boolean },
   ): Promise<unknown> {
     const u = op(req)
-    await this.svc.doneFollowup(id, fid, u.storeId, u)
+    await this.svc.doneFollowup(id, fid, u.storeId, u, body.cycle === true)
     return { ok: true }
   }
 

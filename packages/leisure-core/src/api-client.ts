@@ -156,6 +156,8 @@ export interface MeOrdersResult {
     items: Array<{ goodsId: number; name: string; qty: number; unitPrice: number }> | null
   }>
   summary: { orderTotal: number; feeTotal: number; count: number }
+  /** 我的包厢(2026-11-17 H5 自点单:本人当前 OPEN 房账;不在房=null) */
+  currentRoom: { sessionId: number; roomNo: string; startAt: string } | null
 }
 
 /** 双轨对账单日结果(overall: NO_DATA/PENDING_LEGACY/MATCHED/EXPLAINED/OPEN) */

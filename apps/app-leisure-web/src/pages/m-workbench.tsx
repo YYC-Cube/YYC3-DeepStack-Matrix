@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@yyc3/ui'
 import { client, req, toastError } from '@/lib/api'
+import { loadAllBadges, loadBadgeCache, type NavBadges } from '@/lib/nav-badges'
 import { useAuthStore } from '@/stores/auth'
 import { MENU } from '@/app/layout/Sidebar'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
@@ -92,6 +93,7 @@ const GROUP_EXTRAS: Record<string, Array<{ key: string; label: string; path: str
   ],
   fund: [
     { key: 'chat', label: '沟通', path: '/m/chat', perm: '*', icon: Receipt },
+    { key: 'queue', label: '点单履约', path: '/orders/queue', perm: '*', icon: ReceiptText },
     { key: 'fb', label: '功能定制', path: '/m/feedback', perm: '*', icon: Settings },
   ],
 }
@@ -109,6 +111,11 @@ export default function MWorkbenchPage(): React.JSX.Element {
   const [custDaily, setCustDaily] = useState<{ newFollowups: number; doneTodos: number; overdue: number } | null>(null)
   /** 排行时间维度(month|quarter|all) */
   const [rankRange, setRankRange] = useState<'month' | 'quarter' | 'all'>('month')
+  /** 角标同步行(2026-11-17:与 BottomNav 同源 lib/nav-badges;先显缓存再校准) */
+  const [navBadges, setNavBadges] = useState<NavBadges>(() => {
+    const c = loadBadgeCache()
+    return { chat: c.chat ?? 0, cust: c.cust ?? 0, booked: c.booked ?? 0, cleaning: c.cleaning ?? 0 }
+  })
   /** 任务预警(今日概况行:进行中/达标数;全员可见本人) */
   const [taskAlert, setTaskAlert] = useState<{ total: number; done: number } | null>(null)
   const [tab, setTab] = useState('manage')
@@ -145,6 +152,13 @@ export default function MWorkbenchPage(): React.JSX.Element {
       .then((r) => setSplitCard(r))
       .catch(() => undefined)
   }, [permCodes])
+
+  // 角标同步行(与 BottomNav 同源;60s 轻校准)
+  useEffect(() => {
+    void loadAllBadges().then(setNavBadges).catch(() => undefined)
+    const timer = setInterval(() => { void loadAllBadges().then(setNavBadges).catch(() => undefined) }, 60_000)
+    return () => { clearInterval(timer) }
+  }, [])
 
   // 客资转化排行(2026-11-08:全员可见;时间维度切换;失败静默)
   useEffect(() => {
@@ -320,6 +334,26 @@ export default function MWorkbenchPage(): React.JSX.Element {
           </div>
         </div>
       )}
+
+      {/* 角标同步行(2026-11-17 角标深化批:三数与 BottomNav 同源 lib/nav-badges;点击直达对应 Tab 页) */}
+      <div className="mx-3 mt-2 rounded-xl px-3 py-2 flex items-center gap-2 text-[11px]" style={{ background: 'var(--lm-card)', border: '1px solid color-mix(in srgb, var(--lm-primary) 10%, transparent)' }}>
+        <span className="text-fg-muted shrink-0">待办</span>
+        <button className="flex items-center gap-1 shrink-0" onClick={() => { navigate('/m/board') }}>
+          <span className="w-2 h-2 rounded-full" style={{ background: '#ffaa00' }} />
+          <span className={navBadges.booked > 0 ? 'text-[#ffaa00] font-semibold' : 'text-fg-muted'}>到店 {String(navBadges.booked)}</span>
+          <span className="w-2 h-2 rounded-full ml-1" style={{ background: '#3aa0d8' }} />
+          <span className={navBadges.cleaning > 0 ? 'text-[#3aa0d8] font-semibold' : 'text-fg-muted'}>清扫 {String(navBadges.cleaning)}</span>
+        </button>
+        <span className="flex-1" />
+        <button className="flex items-center gap-1 shrink-0" onClick={() => { navigate('/m/chat') }}>
+          <span className="w-2 h-2 rounded-full" style={{ background: '#ff5555' }} />
+          <span className={navBadges.chat > 0 ? 'text-[#ff5555] font-semibold' : 'text-fg-muted'}>未读 {String(navBadges.chat)}</span>
+        </button>
+        <button className="flex items-center gap-1 shrink-0" onClick={() => { navigate('/m/customers') }}>
+          <span className="w-2 h-2 rounded-full" style={{ background: '#ff5555' }} />
+          <span className={navBadges.cust > 0 ? 'text-[#ff5555] font-semibold' : 'text-fg-muted'}>超期 {String(navBadges.cust)}</span>
+        </button>
+      </div>
 
       {/* 今日概况(点击进报表中心) */}
       <div

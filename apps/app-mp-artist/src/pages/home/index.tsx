@@ -94,7 +94,10 @@ export default function Home() {
       )}
 
 <View className="mp-card">
-        <Button className="mp-btn" onClick={() => Taro.switchTab({ url: '/pages/attendance/index' })}>
+        <Button className="mp-btn" onClick={() => Taro.navigateTo({ url: '/pages/room/index' })}>
+          我的包厢 / 自点单
+        </Button>
+        <Button className="mp-btn-outline" onClick={() => Taro.switchTab({ url: '/pages/attendance/index' })}>
           扫码签到 / 签退
         </Button>
         <Button

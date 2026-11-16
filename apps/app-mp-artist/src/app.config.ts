@@ -5,6 +5,7 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/tickets/index',
     'pages/orders/index',
+    'pages/room/index',
     'pages/register/index',
     'pages/tasks/index',
     'pages/chat/index',

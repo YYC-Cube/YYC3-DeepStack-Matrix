@@ -105,6 +105,7 @@ export const MENU: MenuGroup[] = [
     icon: LayoutDashboard,
     items: [
       { key: 'customers', label: '客户(客资体系)', path: '/customers', perm: '*' },
+      { key: 'order-queue', label: '点单履约队列', path: '/orders/queue', perm: '*' },
       { key: 'a21', label: '销售经理订单(销售端 H5 已上线)', path: '/todo/a21', perm: 'order:view', badge: 'II' },
       { key: 'a22', label: '展示控制台', path: '/showcase', perm: 'showcase:view' },
       { key: 'a23', label: '服务评价', path: '/reviews', perm: 'review:view' },

@@ -1169,7 +1169,7 @@ export class RoomService {
 
   /** 销售端「我的订单」(a21:房账+自点单归一视图;scope=ARTIST 强制本人) */
   async myOrders(artistId: number): Promise<MeOrdersResult> {
-    const [orderRows, sessionRows] = await Promise.all([
+    const [orderRows, sessionRows, inRoomRows] = await Promise.all([
       this.prisma.selfOrder.findMany({
         where: { artistId },
         orderBy: { id: 'desc' },
@@ -1180,6 +1180,11 @@ export class RoomService {
         where: { artistId, roomSessionId: { not: null } },
         orderBy: { id: 'desc' },
         take: 100,
+      }),
+      // 我的包厢(2026-11-17 H5 自点单:本人当前 OPEN 房账在场记录)
+      this.prisma.roomSessionArtist.findMany({
+        where: { artistId, leftAt: null },
+        take: 50,
       }),
     ])
     const rsRows = await this.prisma.roomSession.findMany({
@@ -1221,9 +1226,27 @@ export class RoomService {
       })
     }
     orders.sort((a, b) => (a.placedAt ?? '') < (b.placedAt ?? '') ? 1 : -1)
+    // 我的包厢:在场记录 → 最新一条映射 OPEN 房账(关房/离场后自然为 null)
+    let currentRoom: MeOrdersResult['currentRoom'] = null
+    const openRsIds = new Set(
+      (await this.prisma.roomSession.findMany({
+        where: { id: { in: inRoomRows.map((r) => r.sessionId) }, status: 'OPEN' },
+        select: { id: true },
+      })).map((r) => r.id),
+    )
+    const active = inRoomRows
+      .filter((r) => openRsIds.has(r.sessionId))
+      .sort((a, b) => b.id - a.id)[0]
+    if (active !== undefined) {
+      const rs = await this.prisma.roomSession.findUnique({ where: { id: active.sessionId }, select: { roomNo: true, startAt: true } })
+      if (rs !== null) {
+        currentRoom = { sessionId: active.sessionId, roomNo: rs.roomNo, startAt: rs.startAt.toISOString() }
+      }
+    }
     return {
       orders,
       summary: { orderTotal, feeTotal, count: orders.length },
+      currentRoom,
     }
   }
 }

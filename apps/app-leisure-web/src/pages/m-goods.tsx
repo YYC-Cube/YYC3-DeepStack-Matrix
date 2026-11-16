@@ -40,8 +40,13 @@ export default function MGoodsPage(): React.JSX.Element {
   const canManage = permCodes.includes('setting:manage')
   const [rows, setRows] = useState<GoodsRow[]>([])
   const [showOff, setShowOff] = useState(false)
+  const [cat, setCat] = useState('') // ''=全部分类
   const [form, setForm] = useState<GoodsForm | null>(null)
   const [busy, setBusy] = useState(false)
+
+  // 分类池(数据驱动;在售+全部两态并集)
+  const cats = [''].concat([...new Set(rows.map((g) => g.category ?? '未分类'))])
+  const shown = cat === '' ? rows : rows.filter((g) => (g.category ?? '未分类') === cat)
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -133,8 +138,22 @@ export default function MGoodsPage(): React.JSX.Element {
         )}
       </div>
 
+      {/* 分类 Tab(2026-11-17:啤酒/小吃/果盘…数据驱动筛选) */}
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
+        {cats.map((c) => (
+          <button
+            key={c}
+            className={'px-2.5 py-1 rounded-full border text-xs whitespace-nowrap shrink-0 ' +
+              (cat === c ? 'border-primary text-primary bg-primary/10 font-medium' : 'border-line text-fg-muted')}
+            onClick={() => setCat(c)}
+          >
+            {c === '' ? '全部分类' : c}
+          </button>
+        ))}
+      </div>
+
       {/* 商品卡列表 */}
-      {rows.map((g) => (
+      {shown.map((g) => (
         <div key={g.id} className="rounded-2xl border border-line p-3 flex gap-2.5" style={{ background: 'var(--lm-card)' }}>
           {g.imageUrl !== null && g.imageUrl !== '' ? (
             <img src={g.imageUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
@@ -228,31 +247,73 @@ export default function MGoodsPage(): React.JSX.Element {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-fg-muted">图片(可选,自动压缩)</Label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="text-xs"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0]
-                    if (f === undefined) return
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      const img = new Image()
-                      img.onload = () => {
-                        const scale = Math.min(1, 480 / Math.max(img.width, img.height))
-                        const canvas = document.createElement('canvas')
-                        canvas.width = Math.round(img.width * scale)
-                        canvas.height = Math.round(img.height * scale)
-                        canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
-                        setForm({ ...form, imageUrl: canvas.toDataURL('image/jpeg', 0.75) })
-                      }
-                      img.src = String(reader.result)
-                    }
-                    reader.readAsDataURL(f)
-                  }}
-                />
-                {form.imageUrl !== '' && <img src={form.imageUrl} alt="" className="w-16 h-16 rounded object-cover mt-1" />}
+                <Label className="text-xs text-fg-muted">图片(可选,自动压缩;点图可替换)</Label>
+                <div className="flex items-center gap-2">
+                  {form.imageUrl !== '' ? (
+                    <>
+                      <label className="relative cursor-pointer">
+                        <img src={form.imageUrl} alt="" className="w-16 h-16 rounded object-cover border border-line" />
+                        <span className="absolute inset-0 rounded flex items-center justify-center text-[10px] text-white bg-black/0 hover:bg-black/40 transition-colors">换图</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0]
+                            if (f === undefined) return
+                            const reader = new FileReader()
+                            reader.onload = () => {
+                              const img = new Image()
+                              img.onload = () => {
+                                const scale = Math.min(1, 480 / Math.max(img.width, img.height))
+                                const canvas = document.createElement('canvas')
+                                canvas.width = Math.round(img.width * scale)
+                                canvas.height = Math.round(img.height * scale)
+                                canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
+                                setForm({ ...form, imageUrl: canvas.toDataURL('image/jpeg', 0.75) })
+                              }
+                              img.src = String(reader.result)
+                            }
+                            reader.readAsDataURL(f)
+                          }}
+                        />
+                      </label>
+                      <button
+                        className="px-2 py-1 rounded text-[11px] border border-line text-fg-muted"
+                        onClick={() => setForm({ ...form, imageUrl: '' })}
+                      >
+                        移除图片
+                      </button>
+                    </>
+                  ) : (
+                    <label className="px-3 py-2 rounded text-[11px] border border-dashed border-line text-fg-muted cursor-pointer">
+                      + 上传图片
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0]
+                          if (f === undefined) return
+                          const reader = new FileReader()
+                          reader.onload = () => {
+                            const img = new Image()
+                            img.onload = () => {
+                              const scale = Math.min(1, 480 / Math.max(img.width, img.height))
+                              const canvas = document.createElement('canvas')
+                              canvas.width = Math.round(img.width * scale)
+                              canvas.height = Math.round(img.height * scale)
+                              canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
+                              setForm({ ...form, imageUrl: canvas.toDataURL('image/jpeg', 0.75) })
+                            }
+                            img.src = String(reader.result)
+                          }
+                          reader.readAsDataURL(f)
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
               <label className="flex items-center gap-2 text-xs text-fg-muted">
                 <input type="checkbox" checked={form.onSale} onChange={(e) => setForm({ ...form, onSale: e.target.checked })} />

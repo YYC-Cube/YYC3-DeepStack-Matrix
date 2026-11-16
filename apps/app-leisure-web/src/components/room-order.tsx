@@ -62,14 +62,14 @@ export function RoomOrderDialog({ room, openSessions, onClose, onPlaced }: {
         onClose()
         return
       }
-      const order = await client.selfOrders.place({ sessionId: os.id, artistId, items: list })
-      await client.selfOrders.deliver(order.orderId)
+      // 2026-11-17 履约态分离:提交即 PLACED(待吧台送达);不再即时 deliver——履约队列页统一送达/取消
+      await client.selfOrders.place({ sessionId: os.id, artistId, items: list })
       const goodsRes = await client.goods.list({})
       const total = list.reduce((sum, it) => {
         const g = goodsRes.rows.find((x) => x.id === it.goodsId)
         return sum + (g !== undefined ? Number(g.salePrice) * it.qty : 0)
       }, 0)
-      toast.success('点单成功 · 共 ¥' + String(total) + ' 已计入 ' + room.roomNo + ' 房账')
+      toast.success('已下单 ¥' + String(total) + ' · 待送达(计入 ' + room.roomNo + ' 房账)')
       onClose()
       onPlaced()
     } catch (e) {

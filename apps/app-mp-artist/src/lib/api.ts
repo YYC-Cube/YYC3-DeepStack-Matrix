@@ -273,6 +273,35 @@ export function myOrders(): Promise<MeOrdersResult> {
     .catch(translate)
 }
 
+/** 在售商品目录(13 号自点单:仅列在售;分类分组前端做) */
+export function goodsOnSale(): Promise<Array<{ id: number; name: string; category: string | null; unit: string | null; salePrice: string | number; imageUrl: string | null }>> {
+  return Taro.request({
+    url: API_BASE + '/goods?onSale=true',
+    method: 'GET',
+    header: authHeaders(),
+    timeout: 10_000,
+  })
+    .then((res) => envelope<{ rows: Array<{ id: number; name: string; category: string | null; unit: string | null; salePrice: string | number; imageUrl: string | null }> }>(res).rows)
+    .catch(translate)
+}
+
+/** 自点单提交幂等键计数器(时间戳+持久化计数,与 getStableCode 同风格;幂等键非加密用途) */
+let idemCounter = 0
+
+/** 自点单提交(13 号:后端四重校验[房 OPEN/本人在房/在售/限额];ARTIST scope 强制本人;幂等键防重) */
+export function placeSelfOrder(p: { sessionId: number; items: Array<{ goodsId: number; qty: number }> }): Promise<{ orderId: number; totalAmount: number }> {
+  idemCounter += 1
+  return Taro.request({
+    url: API_BASE + '/self-orders',
+    method: 'POST',
+    data: p,
+    header: { ...authHeaders(), 'Idempotency-Key': 'mp-' + String(Date.now()) + '-' + String(idemCounter) },
+    timeout: 15_000,
+  })
+    .then((res) => envelope<{ orderId: number; totalAmount: number }>(res))
+    .catch(translate)
+}
+
 /** 统一错误文案(401 清态;其余透出后端中文文案) */
 /** 任务中心(销售端本人;完成度实时聚合;notifyAt=达标/超期通知时刻) */
 export function myTasks(): Promise<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string; notifyAt: string | null }> }> {

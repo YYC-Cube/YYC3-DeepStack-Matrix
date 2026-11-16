@@ -66,6 +66,7 @@ const CustomersPage = sus(lazy(() => import('@/pages/customers')))
 const MCustomersPage = sus(lazy(() => import('@/pages/m-customers')))
 const MProfilePage = sus(lazy(() => import('@/pages/m-profile')))
 const MGoodsPage = sus(lazy(() => import('@/pages/m-goods')))
+const OrderQueuePage = sus(lazy(() => import('@/pages/order-queue')))
 const ReportCenterPage = sus(lazy(() => import('@/pages/report-center')))
 const TodoPage = sus(lazy(() => import('@/pages/placeholder')))
 const BoardPage = sus(lazy(() => import('@/pages/board')))
@@ -122,6 +123,7 @@ export const router = createHashRouter([
       { path: 'm/customers', element: <MCustomersPage /> },
       { path: 'm/profile', element: <MProfilePage /> },
       { path: 'm/goods', element: <MGoodsPage /> },
+      { path: 'orders/queue', element: <OrderQueuePage /> },
       { path: 'tasks', element: <TasksAdminPage /> },
       { index: true, element: <IndexRedirect /> },
       // 档案域

@@ -35,6 +35,8 @@ export default function MBoardPage(): React.JSX.Element {
   const [openSessions, setOpenSessions] = useState<OpenSessionRow[]>([])
   const [bookedRoomIds, setBookedRoomIds] = useState<Set<number>>(new Set())
   const [consumptionMap, setConsumptionMap] = useState<Map<number, number>>(new Map())
+  /** 已点笔数(sessionId→单数;2026-11-17b 房卡一屏感知消费) */
+  const [orderCountMap, setOrderCountMap] = useState<Map<number, number>>(new Map())
   const [filter, setFilter] = useState<string>('全部')
   const [openRoom, setOpenRoom] = useState<RoomRow | null>(null)
   const [closeRoom, setCloseRoom] = useState<RoomRow | null>(null)
@@ -65,10 +67,13 @@ export default function MBoardPage(): React.JSX.Element {
       }
       setBookedRoomIds(bookedSet)
       const consumption = new Map<number, number>()
+      const orderCount = new Map<number, number>()
       for (const row of [...placedRes.rows, ...deliveredRes.rows]) {
         consumption.set(row.sessionId, (consumption.get(row.sessionId) ?? 0) + Number(row.totalAmount))
+        orderCount.set(row.sessionId, (orderCount.get(row.sessionId) ?? 0) + 1)
       }
       setConsumptionMap(consumption)
+      setOrderCountMap(orderCount)
     } catch (e) {
       toastError(e, '加载失败')
     }
@@ -228,6 +233,9 @@ export default function MBoardPage(): React.JSX.Element {
               {st === 'OCCUPIED' && open !== undefined && (
                 <div className="relative mt-1 text-xs text-fg-muted">
                   当前消费 <span className="text-[var(--lm-fg)] font-semibold">¥{String(consumption)}</span>
+                  {(orderCountMap.get(open.id) ?? 0) > 0 && (
+                    <span className="ml-1.5 text-primary">· 已点 {String(orderCountMap.get(open.id))} 笔</span>
+                  )}
                 </div>
               )}
               {st === 'BOOKED' && <div className="relative mt-1 text-[11px]" style={{ color: STATUS_COLOR.BOOKED }}>今日有客预约</div>}

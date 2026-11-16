@@ -28,7 +28,7 @@ function elapsed(startAt: string): string {
 
 export default function RoomPage(): React.JSX.Element {
   const [authed, setAuthed] = useState(true)
-  const [room, setRoom] = useState<{ sessionId: number; roomNo: string; startAt: string } | null>(null)
+  const [room, setRoom] = useState<{ sessionId: number; roomNo: string; startAt: string; peers: string[]; consumption: number } | null>(null)
   const [goods, setGoods] = useState<GoodsLite[]>([])
   const [cat, setCat] = useState('') // ''=全部
   const [cart, setCart] = useState<Record<number, number>>({})
@@ -110,6 +110,20 @@ export default function RoomPage(): React.JSX.Element {
                 待送达 {String(pendingCount)}
               </Text>
             )}
+          </View>
+          {/* 13 号完整字段:房内同伴 + 累计消费(2026-11-17b) */}
+          {room.peers.length > 0 && (
+            <View style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+              {room.peers.map((p) => (
+                <Text key={p} style={{ fontSize: '11px', color: '#00d4ff', background: 'rgba(0,212,255,0.08)', borderRadius: '10px', padding: '3px 10px' }}>
+                  👤 {p}
+                </Text>
+              ))}
+            </View>
+          )}
+          <View style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center' }}>
+            <Text style={{ fontSize: '12px', color: '#8b9bb4', flex: 1 }}>本房累计消费(含待送达)</Text>
+            <Text style={{ fontSize: '16px', fontWeight: 700, color: '#e0f0ff' }}>¥{String(room.consumption)}</Text>
           </View>
         </View>
       ) : (

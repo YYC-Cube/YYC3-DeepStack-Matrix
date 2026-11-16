@@ -51,6 +51,8 @@ export default function BoardPage(): React.JSX.Element {
   const [bookedRoomIds, setBookedRoomIds] = useState<Set<number>>(new Set())
   /** 房账当前消费(点单聚合,sessionId → 金额) */
   const [consumptionMap, setConsumptionMap] = useState<Map<number, number>>(new Map())
+  /** 已点笔数(sessionId → 单数;2026-11-17b 房卡一屏感知消费) */
+  const [orderCountMap, setOrderCountMap] = useState<Map<number, number>>(new Map())
 
   // 预定弹窗(房间卡快捷预定:直接建 BOOKED 预约;2026-11-08 挂客资)
   const [reserveFor, setReserveFor] = useState<RoomRow | null>(null)
@@ -169,12 +171,15 @@ export default function BoardPage(): React.JSX.Element {
         if (b.roomId !== null) bookedSet.add(b.roomId)
       }
       setBookedRoomIds(bookedSet)
-      // 房账当前消费(按房账聚合点单)
+      // 房账当前消费(按房账聚合点单)+已点笔数(2026-11-17b 房卡一屏感知)
       const consumption = new Map<number, number>()
+      const orderCount = new Map<number, number>()
       for (const row of [...placedRes.rows, ...deliveredRes.rows]) {
         consumption.set(row.sessionId, (consumption.get(row.sessionId) ?? 0) + Number(row.totalAmount))
+        orderCount.set(row.sessionId, (orderCount.get(row.sessionId) ?? 0) + 1)
       }
       setConsumptionMap(consumption)
+      setOrderCountMap(orderCount)
     } catch (e) {
       toastError(e, '加载失败')
     }
@@ -271,6 +276,9 @@ export default function BoardPage(): React.JSX.Element {
                   <div>计时消费中 {elapsedLabel(open.startAt)}</div>
                   <div>
                     当前消费 <span className="text-[var(--lm-fg)] font-medium">¥{String(consumption)}</span>
+                    {(orderCountMap.get(open.id) ?? 0) > 0 && (
+                      <span className="ml-1.5 text-primary">· 已点 {String(orderCountMap.get(open.id))} 笔</span>
+                    )}
                   </div>
                 </div>
               )}

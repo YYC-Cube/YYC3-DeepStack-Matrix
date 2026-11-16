@@ -4,7 +4,7 @@
  * 视图:今日 PLACED 队列(单号/房/点单人/明细/金额/等待时长)+ 送达/取消操作;今日已送达折叠段
  * 口径:送达/取消端点现成(POST /self-orders/:id/deliver|cancel);房账消费聚合已含 PLACED(两态同算)
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Card } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
@@ -28,21 +28,61 @@ function waitLabel(placedAt: string | null): string {
   return mins >= 60 ? String(Math.floor(mins / 60)) + ' 小时 ' + String(mins % 60) + ' 分' : String(mins) + ' 分钟'
 }
 
+/** 新单提示音(2026-11-17:Web Audio 双短音;AudioContext 需用户手势解锁,首次点击页面时 resume) */
+let audioCtx: AudioContext | null = null
+function playQueueAlert(): void {
+  try {
+    type AudioWindow = Window & { webkitAudioContext?: typeof AudioContext }
+    audioCtx = audioCtx ?? new AudioContext()
+    const ctx = audioCtx
+    void ctx.resume()
+    const now = ctx.currentTime
+    for (const [i, freq] of [880, 1320].entries()) {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.frequency.value = freq
+      osc.type = 'sine'
+      gain.gain.setValueAtTime(0.001, now + i * 0.18)
+      gain.gain.exponentialRampToValueAtTime(0.25, now + i * 0.18 + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.18 + 0.16)
+      osc.connect(gain).connect(ctx.destination)
+      osc.start(now + i * 0.18)
+      osc.stop(now + i * 0.18 + 0.18)
+    }
+    // 移动端附加振动(不支持时静默)
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate([120, 80, 120]) } catch { /* 静默 */ }
+    }
+  } catch { /* 音频不可用静默 */ }
+}
+
 export default function OrderQueuePage(): React.JSX.Element {
   const [rows, setRows] = useState<QueueRow[]>([])
   const [roomNoById, setRoomNoById] = useState<Map<number, string>>(new Map())
   const [artistNameById, setArtistNameById] = useState<Map<number, string>>(new Map())
   const [busy, setBusy] = useState(false)
+  /** 新单提示音开关(持久;吧台可静音;默认开) */
+  const [soundOn, setSoundOn] = useState(() => localStorage.getItem('yyc3-queue-sound') !== '0')
+  const knownIdsRef = useRef<Set<number> | null>(null) // null=首载(不响)
 
   const load = useCallback(async (): Promise<void> => {
     try {
       const bd = client.businessDateOf()
       const res = await req<{ rows: QueueRow[] }>('GET', '/self-orders?businessDate=' + bd + '&pageSize=200')
+      const placedIds = new Set(res.rows.filter((r) => r.status === 'PLACED').map((r) => r.id))
+      if (knownIdsRef.current !== null && soundOn) {
+        let fresh = false
+        for (const id of placedIds) {
+          if (!knownIdsRef.current.has(id)) { fresh = true; break }
+        }
+        if (fresh) playQueueAlert()
+      }
+      knownIdsRef.current = placedIds
       setRows(res.rows)
     } catch (e) {
       toastError(e, '队列加载失败')
     }
-  }, [])
+  }, [soundOn])
 
   // 房号/点单人名映射(裸行无名称;rooms+artists 一次拉取,零 API 改动)
   useEffect(() => {
@@ -62,6 +102,23 @@ export default function OrderQueuePage(): React.JSX.Element {
     const timer = setInterval(() => { void load() }, 30_000) // 履约页轻轮询 30s
     return () => { clearInterval(timer) }
   }, [load])
+
+  // AudioContext 手势解锁(浏览器策略:首次点击时 resume;顺带恢复轮询即时性)
+  useEffect(() => {
+    const unlock = (): void => {
+      try { void audioCtx?.resume() } catch { /* 静默 */ }
+    }
+    window.addEventListener('pointerdown', unlock, { once: true })
+    return () => { window.removeEventListener('pointerdown', unlock) }
+  }, [])
+
+  const toggleSound = (): void => {
+    setSoundOn((v) => {
+      const next = !v
+      localStorage.setItem('yyc3-queue-sound', next ? '1' : '0')
+      return next
+    })
+  }
 
   async function act(id: number, action: 'deliver' | 'cancel'): Promise<void> {
     if (action === 'cancel') {
@@ -88,6 +145,16 @@ export default function OrderQueuePage(): React.JSX.Element {
       <PageHeader
         title="点单履约"
         desc="吧台/厨房履约视图:点单提交即入队(PLACED 待送达);送达后房账明细转 DELIVERED;房账消费两种状态同算,关房一并结算"
+        actions={
+          <button
+            className={'px-2.5 py-1 rounded-full border text-xs whitespace-nowrap ' +
+              (soundOn ? 'border-primary text-primary bg-primary/10' : 'border-line text-fg-muted')}
+            onClick={toggleSound}
+            title="新单入队提示音(Web Audio 短音+振动)"
+          >
+            {soundOn ? '🔔 提示音开' : '🔕 提示音关'}
+          </button>
+        }
       />
 
       <Card className="p-3">

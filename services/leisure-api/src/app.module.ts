@@ -12,6 +12,7 @@ import { IdempotencyInterceptor } from './common/interceptors/idempotency.interc
 import { TransformInterceptor } from './common/interceptors/transform.interceptor.js'
 import { JwtGuard } from './common/guards/jwt.guard.js'
 import { DayCutSummaryJob } from './jobs/day-cut-summary.job.js'
+import { OrderFulfillmentJob } from './jobs/order-fulfillment.job.js'
 import { AuthModule } from './modules/auth/auth.module.js'
 import { ArtistModule } from './modules/artist/artist.module.js'
 import { AttendanceModule } from './modules/attendance/attendance.module.js'
@@ -62,6 +63,7 @@ import { SplitHandoverModule } from './modules/split/split-handover.module.js'
   providers: [
     PrismaService,
     DayCutSummaryJob,
+    OrderFulfillmentJob,
     { provide: APP_FILTER, useClass: LeisureExceptionFilter },
     { provide: APP_GUARD, useClass: JwtGuard },
     // 幂等在外层(快照存信封后的最终体),信封转换在内层

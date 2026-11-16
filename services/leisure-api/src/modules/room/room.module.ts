@@ -1240,7 +1240,28 @@ export class RoomService {
     if (active !== undefined) {
       const rs = await this.prisma.roomSession.findUnique({ where: { id: active.sessionId }, select: { roomNo: true, startAt: true } })
       if (rs !== null) {
-        currentRoom = { sessionId: active.sessionId, roomNo: rs.roomNo, startAt: rs.startAt.toISOString() }
+        // 13 号「我的包厢」完整字段:房内同伴(在场名单艺名)+累计消费(该房账 PLACED+DELIVERED 合计;CANCELLED 不计)
+        const [peerRows, consumptionAgg] = await Promise.all([
+          this.prisma.roomSessionArtist.findMany({
+            where: { sessionId: active.sessionId, leftAt: null },
+            include: { artist: { select: { stageName: true, realName: true } } },
+          }),
+          this.prisma.selfOrder.aggregate({
+            where: { sessionId: active.sessionId, status: { not: 'CANCELLED' } },
+            _sum: { totalAmount: true },
+          }),
+        ])
+        const peers = peerRows
+          .sort((a, b) => a.id - b.id)
+          .map((p) => p.artist.stageName ?? p.artist.realName)
+          .filter((n) => n !== '')
+        currentRoom = {
+          sessionId: active.sessionId,
+          roomNo: rs.roomNo,
+          startAt: rs.startAt.toISOString(),
+          peers,
+          consumption: round2(Number(consumptionAgg._sum.totalAmount ?? 0)),
+        }
       }
     }
     return {

@@ -4,6 +4,7 @@
  * 发布+编辑走 setting:manage;查看任意登录者(销售端/管理端全可见,按职级白名单过滤)
  */
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
@@ -54,6 +55,7 @@ function emptyForm(): FormState {
 }
 
 export default function NoticesPage(): React.JSX.Element {
+  const navigate = useNavigate()
   const [rows, setRows] = useState<NoticeRow[]>([])
   const [form, setForm] = useState<FormState | null>(null)
   const [busy, setBusy] = useState(false)
@@ -162,7 +164,13 @@ export default function NoticesPage(): React.JSX.Element {
         {rows.map((r) => (
           <Card key={r.id} className="p-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-[var(--lm-fg)]">{r.title}</span>
+              <span
+                className={'text-sm font-medium text-[var(--lm-fg)]' + (r.body.includes('/orders/queue') ? ' cursor-pointer hover:text-primary' : '')}
+                title={r.body.includes('/orders/queue') ? '点击直达履约队列' : undefined}
+                onClick={() => { if (r.body.includes('/orders/queue')) navigate('/orders/queue') }}
+              >
+                {r.title}
+              </span>
               {r.reachRate !== null && r.reachRate !== undefined && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-full border"

@@ -264,8 +264,16 @@ export default function MBoardPage(): React.JSX.Element {
                     <Button size="sm" className="h-7 px-2 text-xs flex-1" onClick={() => { setStaffRoom(r) }}>
                       上钟
                     </Button>
-                    <Button size="sm" className="h-7 px-2 text-xs flex-1" onClick={() => { setOrderRoom(r) }}>
+                    <Button size="sm" className="h-7 px-2 text-xs flex-1 relative" onClick={() => { setOrderRoom(r) }}>
                       点单
+                      {(orderCountMap.get(open.id) ?? 0) > 0 && (
+                        <span
+                          className="absolute -top-1.5 -right-1.5 min-w-[15px] h-[15px] px-0.5 rounded-full text-[8px] font-bold flex items-center justify-center"
+                          style={{ background: '#ff5555', color: '#fff', boxShadow: '0 0 5px rgba(255,85,85,0.5)' }}
+                        >
+                          {String(orderCountMap.get(open.id))}
+                        </span>
+                      )}
                     </Button>
                     <Button size="sm" className="h-7 px-2 text-xs flex-1" onClick={() => { setCloseRoom(r); setCloseSession(open) }}>
                       结算

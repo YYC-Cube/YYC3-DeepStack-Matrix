@@ -578,12 +578,20 @@ export default function MWorkbenchPage(): React.JSX.Element {
             {announcements.length === 0 && (
               <div className="text-sm text-fg-muted py-6 text-center">暂无通告;制度与工作通知发布后在此显示</div>
             )}
-            {announcements.map((a, i) => (
-              <div key={i} className="rounded-lg border border-line p-3">
-                <div className="text-xs text-fg-muted mb-1">{a.date}</div>
-                <div className="text-sm text-[var(--lm-fg)]">{a.text}</div>
-              </div>
-            ))}
+            {announcements.map((a, i) => {
+              const jump = a.text.includes('/orders/queue') ? '/orders/queue' : null
+              return (
+                <div
+                  key={i}
+                  className={'rounded-lg border border-line p-3' + (jump !== null ? ' cursor-pointer hover:border-primary/40' : '')}
+                  onClick={() => { if (jump !== null) { setShowNotices(false); navigate(jump) } }}
+                >
+                  <div className="text-xs text-fg-muted mb-1">{a.date}</div>
+                  <div className="text-sm text-[var(--lm-fg)]">{a.text}</div>
+                  {jump !== null && <div className="text-[10px] text-primary mt-1">点击直达履约队列 →</div>}
+                </div>
+              )
+            })}
             <div className="text-[10px] text-fg-muted pt-1">制度/工作通告内容管理即将上线(后台发布 → 全端推送此处)</div>
           </div>
         </DialogContent>

@@ -2,12 +2,13 @@
  * 我的包厢+自点单(/pages/room;2026-11-17 H5 自点单批;13 号《包厢操作与销售经理自点单》销售端半场)
  * 流程:myOrders().currentRoom(本人当前 OPEN 房账;不在房=空态)→ 在售商品目录(分类 Tab)→ 步进购物车 → 提交
  * 后端四重校验现成(房 OPEN 40908/本人在房 40909/在售/限额 40910;ARTIST scope 强制本人;Idempotency-Key 幂等)
- * 提交后订单=PLACED 待吧台送达(13 号完整履约形态);我的今日待送达数在卡头展示
+ * 提交后订单=PLACED 待吧台送达(13 号完整履约形态);包厢卡含同伴/累计消费(13 号完整字段)
+ * 离线兜底(2026-11-17b):room 数据 localStorage 先显后校准(弱网体验;同角标策略);申请更正/退单走 feedback 回馈通道
  */
-import { useCallback, useRef, useState } from 'react'
-import { View, Text, Button, Image } from '@tarojs/components'
+import { useCallback, useState } from 'react'
+import { View, Text, Button, Image, Input } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { myOrders, goodsOnSale, placeSelfOrder, errText, loadAuth } from '../../lib/api'
+import { myOrders, goodsOnSale, placeSelfOrder, feedback, errText, loadAuth } from '../../lib/api'
 
 interface GoodsLite {
   id: number
@@ -18,6 +19,16 @@ interface GoodsLite {
   imageUrl: string | null
 }
 
+interface RoomInfo {
+  sessionId: number
+  roomNo: string
+  startAt: string
+  peers: string[]
+  consumption: number
+}
+
+const ROOM_CACHE_KEY = 'yyc3-mp-room-cache'
+
 /** 分钟时长(X 小时 Y 分) */
 function elapsed(startAt: string): string {
   const mins = Math.max(0, Math.floor((Date.now() - new Date(startAt).getTime()) / 60_000))
@@ -26,15 +37,32 @@ function elapsed(startAt: string): string {
   return h > 0 ? String(h) + ' 小时 ' + String(m) + ' 分' : String(m) + ' 分钟'
 }
 
+function loadRoomCache(): RoomInfo | null {
+  try {
+    const raw = localStorage.getItem(ROOM_CACHE_KEY)
+    if (raw === '' || raw === null) return null
+    return JSON.parse(raw) as RoomInfo
+  } catch { return null }
+}
+
+function saveRoomCache(r: RoomInfo | null): void {
+  try {
+    if (r === null) localStorage.removeItem(ROOM_CACHE_KEY)
+    else localStorage.setItem(ROOM_CACHE_KEY, JSON.stringify(r))
+  } catch { /* 静默 */ }
+}
+
 export default function RoomPage(): React.JSX.Element {
   const [authed, setAuthed] = useState(true)
-  const [room, setRoom] = useState<{ sessionId: number; roomNo: string; startAt: string; peers: string[]; consumption: number } | null>(null)
+  // 离线兜底:先显上次缓存,再校准(校准后落盘)
+  const [room, setRoom] = useState<RoomInfo | null>(() => loadRoomCache())
   const [goods, setGoods] = useState<GoodsLite[]>([])
   const [cat, setCat] = useState('') // ''=全部
   const [cart, setCart] = useState<Record<number, number>>({})
-  const [pendingCount, setPendingCount] = useState(0) // 今日待送达
+  const [pendingCount, setPendingCount] = useState(0)
   const [busy, setBusy] = useState(false)
-  const catRef = useRef('')
+  const [correctOpen, setCorrectOpen] = useState(false)
+  const [correctDetail, setCorrectDetail] = useState('')
 
   const load = useCallback(async (): Promise<void> => {
     const auth = loadAuth()
@@ -43,12 +71,14 @@ export default function RoomPage(): React.JSX.Element {
     try {
       const me = await myOrders()
       setRoom(me.currentRoom)
-      setPendingCount(me.orders.filter((o) => o.kind === 'SELF_ORDER' && (o.status === 'PLACED')).length)
+      saveRoomCache(me.currentRoom)
+      setPendingCount(me.orders.filter((o) => o.kind === 'SELF_ORDER' && o.status === 'PLACED').length)
       if (me.currentRoom !== null && goods.length === 0) {
         const list = await goodsOnSale()
         setGoods(list)
       }
     } catch (e) {
+      // 弱网:保留缓存 room 继续展示(离线兜底),仅提示
       Taro.showToast({ title: errText(e), icon: 'none' })
     }
   }, [goods.length])
@@ -57,7 +87,7 @@ export default function RoomPage(): React.JSX.Element {
     void load()
   })
 
-  const cats = ['' ].concat([...new Set(goods.map((g) => g.category ?? '其他'))])
+  const cats = [''].concat([...new Set(goods.map((g) => g.category ?? '其他'))])
   const shown = cat === '' ? goods : goods.filter((g) => (g.category ?? '其他') === cat)
   const cartCount = Object.values(cart).reduce((s, q) => s + q, 0)
   const cartTotal = goods.reduce((s, g) => s + (cart[g.id] ?? 0) * Number(g.salePrice), 0)
@@ -75,6 +105,29 @@ export default function RoomPage(): React.JSX.Element {
       Taro.showToast({ title: '下单成功 ¥' + String(out.totalAmount) + ' 待送达', icon: 'success' })
       setCart({})
       await load()
+    } catch (e) {
+      Taro.showToast({ title: errText(e), icon: 'none' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function submitCorrection(): Promise<void> {
+    if (room === null) return
+    if (correctDetail.trim() === '') {
+      Taro.showToast({ title: '请填写说明', icon: 'none' })
+      return
+    }
+    setBusy(true)
+    try {
+      await feedback({
+        module: '包厢更正/退单',
+        title: '包厢 ' + room.roomNo + ' 更正/退单申请',
+        detail: correctDetail.trim() + '(房账 #' + String(room.sessionId) + ';累计消费 ¥' + String(room.consumption) + ')',
+      })
+      Taro.showToast({ title: '已提交,管理端将尽快处理', icon: 'none' })
+      setCorrectOpen(false)
+      setCorrectDetail('')
     } catch (e) {
       Taro.showToast({ title: errText(e), icon: 'none' })
     } finally {
@@ -111,7 +164,7 @@ export default function RoomPage(): React.JSX.Element {
               </Text>
             )}
           </View>
-          {/* 13 号完整字段:房内同伴 + 累计消费(2026-11-17b) */}
+          {/* 13 号完整字段:房内同伴 */}
           {room.peers.length > 0 && (
             <View style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
               {room.peers.map((p) => (
@@ -121,10 +174,29 @@ export default function RoomPage(): React.JSX.Element {
               ))}
             </View>
           )}
+          {/* 累计消费 */}
           <View style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center' }}>
             <Text style={{ fontSize: '12px', color: '#8b9bb4', flex: 1 }}>本房累计消费(含待送达)</Text>
             <Text style={{ fontSize: '16px', fontWeight: 700, color: '#e0f0ff' }}>¥{String(room.consumption)}</Text>
           </View>
+          {/* 申请更正/退单(走 feedback 回馈通道;管理端收到后人工处理) */}
+          {correctOpen ? (
+            <View style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(0,212,255,0.1)' }}>
+              <Text className="mp-muted" style={{ display: 'block' }}>说明问题(如:数量错了/多点了/不要了/价格异议):</Text>
+              <Input
+                value={correctDetail}
+                onInput={(e) => setCorrectDetail(e.detail.value)}
+                placeholder="一句话说明要更正/退的内容"
+                style={{ marginTop: '8px' }}
+              />
+              <View style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                <Button className="mp-btn" style={{ flex: 1 }} disabled={busy} onClick={() => { void submitCorrection() }}>提交申请</Button>
+                <Button className="mp-btn-outline" onClick={() => setCorrectOpen(false)}>取消</Button>
+              </View>
+            </View>
+          ) : (
+            <Button className="mp-btn-outline" style={{ marginTop: '10px' }} onClick={() => setCorrectOpen(true)}>申请更正/退单</Button>
+          )}
         </View>
       ) : (
         <View className="mp-card">

@@ -333,11 +333,19 @@ export default function BoardPage(): React.JSX.Element {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 px-2 text-xs"
+                    className="h-7 px-2 text-xs relative"
                     onClick={() => { setOrderRoom(r) }}
                     title="为本房点单:多商品入房账"
                   >
                     点单
+                    {(orderCountMap.get(openSessions.find((s) => s.roomId === r.id)?.id ?? 0) ?? 0) > 0 && (
+                      <span
+                        className="absolute -top-1.5 -right-1.5 min-w-[15px] h-[15px] px-0.5 rounded-full text-[8px] font-bold flex items-center justify-center"
+                        style={{ background: '#ff5555', color: '#fff', boxShadow: '0 0 5px rgba(255,85,85,0.5)' }}
+                      >
+                        {String(orderCountMap.get(openSessions.find((s) => s.roomId === r.id)?.id ?? 0))}
+                      </span>
+                    )}
                   </Button>
                 )}
                 {st === 'OCCUPIED' && (

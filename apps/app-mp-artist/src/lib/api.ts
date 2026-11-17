@@ -302,6 +302,17 @@ export function placeSelfOrder(p: { sessionId: number; items: Array<{ goodsId: n
     .catch(translate)
 }
 
+/** 反馈/申请更正(2026-11-17b:包厢页「申请更正/退单」走此通道;后端 /feedback 已有,perm '*') */
+export function feedback(p: { module: string; title: string; detail: string; photoKeys?: string[] }): Promise<{ id: number }> {
+  return Taro.request({
+    url: API_BASE + '/feedback',
+    method: 'POST',
+    data: p,
+    header: authHeaders(),
+    timeout: 15_000,
+  }).then((res) => envelope<{ id: number }>(res)).catch(translate)
+}
+
 /** 统一错误文案(401 清态;其余透出后端中文文案) */
 /** 任务中心(销售端本人;完成度实时聚合;notifyAt=达标/超期通知时刻) */
 export function myTasks(): Promise<{ rows: Array<{ id: number; type: string; title: string; targetName: string; targetCount: number; progress: number; rawProgress: number; recurrence: string; startAt: string; endAt: string; notifyAt: string | null }> }> {

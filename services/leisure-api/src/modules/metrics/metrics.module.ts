@@ -30,8 +30,23 @@ interface BizCache {
 export class MetricsService {
   private cache: BizCache | null = null
   private readonly cacheMs = 60_000
+  /** DB 探针(2026-11-17 NAS45 事故批:独立短缓存;NAS45 掉线时 lm_db_up=0,NAS prometheus 告警)*/
+  private dbProbe: { at: number; up: number } | null = null
 
   constructor(private readonly prisma: PrismaService) {}
+
+  private async dbUp(): Promise<number> {
+    if (this.dbProbe !== null && Date.now() - this.dbProbe.at < 10_000) return this.dbProbe.up
+    let up = 0
+    try {
+      await this.prisma.$queryRaw`SELECT 1`
+      up = 1
+    } catch {
+      up = 0
+    }
+    this.dbProbe = { at: Date.now(), up }
+    return up
+  }
 
   private async biz(): Promise<BizCache> {
     if (this.cache !== null && Date.now() - this.cache.at < this.cacheMs) return this.cache
@@ -71,6 +86,7 @@ export class MetricsService {
   async render(): Promise<string> {
     const mem = process.memoryUsage()
     const uptime = Math.floor((Date.now() - BOOT_AT) / 1000)
+    const dbUp = await this.dbUp().catch(() => 0)
     let biz: BizCache = { at: 0, artists: 0, openSessions: 0, roomsTotal: 0, activeTasks: 0, chatMessages: 0, txnsToday: 0, settleBuckets: [0, 0, 0, 0, 0, 0], settleSum: 0, settleCount: 0 }
     try {
       biz = await this.biz()
@@ -81,6 +97,9 @@ export class MetricsService {
       '# HELP lm_uptime_seconds Process uptime in seconds',
       '# TYPE lm_uptime_seconds gauge',
       'lm_uptime_seconds ' + String(uptime),
+      '# HELP lm_db_up Database reachable (SELECT 1; 1=up 0=down)',
+      '# TYPE lm_db_up gauge',
+      'lm_db_up ' + String(dbUp),
       '# HELP lm_process_heap_bytes Node heap used bytes',
       '# TYPE lm_process_heap_bytes gauge',
       'lm_process_heap_bytes ' + String(mem.heapUsed),

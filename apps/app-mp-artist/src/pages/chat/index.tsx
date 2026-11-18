@@ -569,7 +569,7 @@ export default function Chat() {
       })}
       {groups.length === 0 && (
         <View className="mp-card">
-          <Text className="mp-muted">暂无群组(管理员可建群)</Text>
+          <Text className="mp-muted">暂无群组(由管理职 VP/总监建群后可见)</Text>
         </View>
       )}
     </View>

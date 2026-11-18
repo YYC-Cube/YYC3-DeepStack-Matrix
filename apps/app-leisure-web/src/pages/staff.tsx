@@ -116,6 +116,9 @@ export default function StaffPage(): React.JSX.Element {
   }
 
   async function resetPassword(row: StaffRow): Promise<void> {
+    // 2026-11-18 Owner 反馈「密码重置无法提交确认」:重置前加确认弹窗(姓名+提示临时密码首登必改)
+    const ok = window.confirm('确认重置「' + (row.name ?? String(row.id)) + '」的密码?\n重置后其原密码立即失效,新临时密码首登强制改密。')
+    if (!ok) return
     try {
       const out = await req<{ tempPassword: string }>('POST', '/staff/users/' + String(row.id) + '/reset-password')
       setTempPwd(out.tempPassword)

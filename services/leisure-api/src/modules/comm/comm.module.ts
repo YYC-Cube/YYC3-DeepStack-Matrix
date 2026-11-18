@@ -19,6 +19,7 @@ import {
   Req,
   Res,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common'
 import { IsIn, IsInt, IsOptional, IsString, Length, Matches } from 'class-validator'
 import type { Request, Response } from 'express'
@@ -296,7 +297,50 @@ export class CommService {
     }
   }
 
+  /** 群成员真名单(2026-11-18 Owner 反馈「群成员」:店群=在册销售经理+管理端账号;组别群=本组销售经理) */
+  async chatGroupMembers(storeId: number, chatGroupId: number): Promise<{ rows: Array<{ name: string; scope: string; title: string | null }>; total: number }> {
+    const g = await this.prisma.chatGroup.findFirst({ where: { id: chatGroupId, storeId } })
+    if (g === null) throw new BadRequestException('群不存在')
+    if (g.groupId === null) {
+      const [artists, admins] = await Promise.all([
+        this.prisma.artist.findMany({
+          where: { storeId, deletedAt: null, status: 1 },
+          select: { stageName: true, realName: true },
+          orderBy: { id: 'asc' },
+        }),
+        this.prisma.adminUser.findMany({
+          where: { status: 1, OR: [{ storeId }, { storeId: null }] },
+          select: { name: true, title: true },
+          orderBy: { id: 'asc' },
+        }),
+      ])
+      const rows = [
+        ...admins.map((a) => ({ name: a.name, scope: 'ADMIN', title: a.title })),
+        ...artists.map((a) => ({ name: a.stageName ?? a.realName, scope: 'ARTIST', title: null })),
+      ]
+      return { rows, total: rows.length }
+    }
+    const members = await this.prisma.artist.findMany({
+      where: { storeId, deletedAt: null, status: 1, groupId: g.groupId },
+      select: { stageName: true, realName: true },
+      orderBy: { id: 'asc' },
+    })
+    const rows = members.map((a) => ({ name: a.stageName ?? a.realName, scope: 'ARTIST', title: null as string | null }))
+    return { rows, total: rows.length }
+  }
+
   async createGroup(storeId: number, body: ChatGroupDto, operator: { id: number; scope: string }): Promise<{ id: number }> {
+    // 建群权限(2026-11-18 Owner 真机反馈「建群权限」):从 setting:manage 放开至管理职(VP/总监)+管理员角色兜底
+    if (operator.scope !== 'ADMIN') throw new ForbiddenException('仅管理端可建群')
+    const me = await this.prisma.adminUser.findUnique({ where: { id: operator.id }, select: { title: true, roleId: true } })
+    const role = me?.roleId !== null && me?.roleId !== undefined
+      ? await this.prisma.role.findUnique({ where: { id: me.roleId }, select: { name: true } })
+      : null
+    const isMgrTitle = me?.title === 'VP' || me?.title === 'MANAGER_DIRECTOR'
+    const isSuper = role?.name === '管理员'
+    if (!isMgrTitle && !isSuper) {
+      throw new ForbiddenException('仅管理职(销售副总/销售总监)或管理员可建群;如需建群请联系管理职')
+    }
     let groupId: number | null = null
     if (body.groupId !== undefined) {
       const g = await this.prisma.artistGroup.findFirst({ where: { id: body.groupId, storeId, deletedAt: null } })
@@ -1621,6 +1665,13 @@ export class ChatController {
     return this.svc.listGroups(u.storeId, u)
   }
 
+  /** 群成员真名单(2026-11-18;店群=在册销售经理+管理端,组别群=本组销售经理) */
+  @Get('groups/:id/members')
+  async groupMembers(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    return this.svc.chatGroupMembers(u.storeId, id)
+  }
+
   /** 全店高频表情统计(面板高频行;近 500 条聚合,60s 缓存) */
   @Get('emoji-stats')
   async emojiStats(@Req() req: Request): Promise<unknown> {
@@ -1628,8 +1679,7 @@ export class ChatController {
     return this.svc.emojiStats(u.storeId)
   }
 
-  /** 建群(管理端;组别群=动态成员) */
-  @RequirePerm('setting:manage')
+  /** 建群(管理职 VP/总监+管理员;组别群=动态成员;403 文案明确指引) */
   @Post('groups')
   async createGroup(@Req() req: Request, @Body() body: ChatGroupDto): Promise<unknown> {
     const u = op(req)

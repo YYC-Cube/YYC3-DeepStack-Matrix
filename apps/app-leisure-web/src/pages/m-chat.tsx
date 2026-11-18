@@ -70,6 +70,9 @@ export default function MChatPage(): React.JSX.Element {
   const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
   /** 全集面板当前类别 tab */
   const [emojiTab, setEmojiTab] = useState(0)
+  /** 群成员真名单(2026-11-18 Owner 反馈「群成员」;GET /chat/groups/:id/members) */
+  const [members, setMembers] = useState<Array<{ name: string; scope: string; title: string | null }>>([])
+  const [membersOpen, setMembersOpen] = useState(false)
   /** 全店高频表情(打开面板时拉取 top8;/chat/emoji-stats) */
   const [hotEmojis, setHotEmojis] = useState<Array<{ emoji: string; count: number }>>([])
   /** 向前分页(before 游标;进房拉最近 50 条) */
@@ -337,6 +340,32 @@ export default function MChatPage(): React.JSX.Element {
     </Dialog>
   )
 
+  /** 群成员真名单 Dialog(2026-11-18:店群=管理端+在册销售经理;组别群=本组销售经理) */
+  const membersDialog = (
+    <Dialog open={membersOpen} onOpenChange={(o) => { if (!o) setMembersOpen(false) }}>
+      <DialogContent className="max-w-xs">
+        <DialogHeader>
+          <DialogTitle>群成员({String(members.length)})</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-1 max-h-[50vh] overflow-y-auto">
+          {members.map((m, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm py-1 border-b border-line last:border-b-0">
+              <span className={'text-[9px] px-1 rounded ' + (m.scope === 'ADMIN' ? 'bg-primary/15 text-primary' : 'bg-fg-muted/10 text-fg-muted')}>
+                {m.scope === 'ADMIN' ? '管理' : '销售'}
+              </span>
+              <span className="flex-1 truncate">{m.name}</span>
+              {m.title !== null && m.title !== '' && <span className="text-[10px] text-fg-muted">{m.title}</span>}
+            </div>
+          ))}
+          {members.length === 0 && <div className="text-xs text-fg-muted py-4 text-center">暂无成员</div>}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setMembersOpen(false)}>关闭</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+
   /** 表情全集面板(leisure-core EMOJI_GROUPS 单源;8 类 Tab + 网格) */
   const emojiPanelDialog = (
     <Dialog open={emojiPanelFor !== null} onOpenChange={(o) => { if (!o) setEmojiPanelFor(null) }}>
@@ -407,6 +436,16 @@ export default function MChatPage(): React.JSX.Element {
           <Button variant="outline" size="sm" onClick={() => { setActive(null); void loadGroups() }}>← 返回</Button>
           <span className="text-sm font-semibold">{active.name}</span>
           <span className="text-[10px] text-fg-muted">{active.kind === 'STORE' ? '店群' : '组别群'}</span>
+          <button
+            className="ml-auto text-xs text-fg-muted hover:text-primary"
+            onClick={() => {
+              void req<{ rows: Array<{ name: string; scope: string; title: string | null }>; total: number }>('GET', '/chat/groups/' + String(active.id) + '/members')
+                .then((r) => { setMembers(r.rows); setMembersOpen(true) })
+                .catch((e) => toastError(e, '成员加载失败'))
+            }}
+          >
+            成员
+          </button>
         </div>
         <Input
           value={searchKw}
@@ -606,6 +645,7 @@ export default function MChatPage(): React.JSX.Element {
         )}
         {previewDialog}
         {memberCardDialog}
+        {membersDialog}
         {emojiPanelDialog}
       </div>
     )
@@ -641,6 +681,7 @@ export default function MChatPage(): React.JSX.Element {
 
       {previewDialog}
       {memberCardDialog}
+      {membersDialog}
 
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o) setCreateOpen(false) }}>
         <DialogContent className="max-w-sm">

@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import { Download, LogOut } from 'lucide-react'
-import { Button, Toaster } from '@yyc3/ui'
+import { Button } from '@yyc3/ui'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth'
 import { useIsMobile, usePWAInstall, useOnlineStatus } from '@/lib/pwa'
@@ -164,7 +164,7 @@ export function AppLayout() {
       <CommandPalette />
       {/* AI 助手浮窗(可拖拽/可缩放;mock 应答,III 期接推理服务) */}
       <AIAssistant isMobile={isMobile} />
-      <Toaster position="top-center" theme="dark" />
+      {/* Toaster 已移至 app/App.tsx 全局单实例(2026-11-18:顶层路由 login/change-password 曾无 toast) */}
     </div>
   )
 }

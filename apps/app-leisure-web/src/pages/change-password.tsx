@@ -26,23 +26,28 @@ export default function ChangePasswordPage(): React.JSX.Element {
   const [newPassword, setNew] = useState('')
   const [confirm, setConfirm] = useState('')
   const [busy, setBusy] = useState(false)
+  /** 行内错误提示(2026-11-18 兜底:toast 曾因顶层路由无 Toaster 静默;双通道保底) */
+  const [inlineErr, setInlineErr] = useState('')
 
   if (token === null || token === '') {
     void navigate('/login')
   }
 
   async function submit(): Promise<void> {
+    setInlineErr('')
     if (oldPassword === '' || newPassword === '') {
-      toast.error('请填写原密码与新密码')
+      const m = '请填写原密码与新密码'
+      setInlineErr(m); toast.error(m)
       return
     }
     const err = policyError(newPassword, oldPassword)
     if (err !== null) {
-      toast.error(err)
+      setInlineErr(err); toast.error(err)
       return
     }
     if (newPassword !== confirm) {
-      toast.error('两次输入的新密码不一致')
+      const m = '两次输入的新密码不一致'
+      setInlineErr(m); toast.error(m)
       return
     }
     setBusy(true)
@@ -58,7 +63,8 @@ export default function ChangePasswordPage(): React.JSX.Element {
         data?: { accessToken: string; name: string; permCodes: string[]; mustChangePassword: boolean }
       }
       if (json.code !== 0 || json.data === undefined) {
-        toast.error(json.msg)
+        const m = json.msg !== '' ? json.msg : '修改失败'
+        setInlineErr(m); toast.error(m)
         return
       }
       login({
@@ -70,7 +76,8 @@ export default function ChangePasswordPage(): React.JSX.Element {
       toast.success('密码已更新')
       navigate('/')
     } catch {
-      toast.error('修改失败,请检查网络')
+      const m = '修改失败,请检查网络'
+      setInlineErr(m); toast.error(m)
     } finally {
       setBusy(false)
     }
@@ -78,16 +85,21 @@ export default function ChangePasswordPage(): React.JSX.Element {
 
   return (
     <div
-      className="h-screen w-screen flex items-center justify-center"
+      className="min-h-screen w-screen flex items-center justify-center p-4"
       style={{ background: 'linear-gradient(135deg, var(--lm-bg) 0%, var(--lm-panel) 30%, #081430 60%, #040c1a 100%)' }}
     >
-      <Card className="w-[400px] p-8 flex flex-col gap-5">
+      <Card className="w-full max-w-[400px] p-8 flex flex-col gap-5">
         <div className="text-center">
           <h1 className="text-lg font-semibold text-primary">修改密码</h1>
           <p className="text-xs text-fg-muted mt-1">
             {mustChange ? '首次登录须先修改默认密码后方可使用系统' : name + ' · 修改登录密码'}
           </p>
         </div>
+        {inlineErr !== '' && (
+          <div className="text-xs text-[#ff6666] bg-[rgba(255,85,85,0.1)] border border-[rgba(255,85,85,0.3)] rounded px-3 py-2" role="alert">
+            ⚠ {inlineErr}
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <label className="text-xs text-fg-muted">原密码</label>
           <Input type="password" value={oldPassword} onChange={(e) => setOld(e.target.value)} autoComplete="current-password" />

@@ -76,10 +76,10 @@ export default function Login() {
 
   return (
     <div
-      className="h-screen w-screen flex items-center justify-center"
+      className="min-h-screen w-screen flex items-center justify-center p-4"
       style={{ background: 'linear-gradient(135deg, var(--lm-bg) 0%, var(--lm-panel) 30%, #081430 60%, #040c1a 100%)' }}
     >
-      <Card className="w-[380px] p-8 flex flex-col gap-5">
+      <Card className="w-full max-w-[380px] p-8 flex flex-col gap-5">
         <div className="text-center">
           <h1 className="text-lg font-semibold text-primary">YYC³ LeisureManage</h1>
           <p className="text-xs text-fg-muted mt-1">销售管理系统 · Web 管理端</p>

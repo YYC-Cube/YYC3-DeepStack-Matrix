@@ -33,6 +33,8 @@ interface MsgRow {
   images: string[]
   reactions: ReactionGroup[]
   createdAt: string
+  /** 引用摘要(2026-11-19 沟通闭环;只读渲染) */
+  reply?: { id: number; senderName: string; content: string } | null
 }
 
 function readMap(): Record<string, number> {
@@ -404,6 +406,11 @@ export default function Chat() {
               <View key={m.id} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start', margin: '6px 0' }}>
                 <View style={{ maxWidth: '80%', borderRadius: 16, padding: '6px 10px', background: mine ? 'rgba(0,212,255,0.14)' : 'rgba(139,155,180,0.12)', border: mentionMe && !mine ? '1px solid #f5a623' : '1px solid transparent' }}>
                   <Text className="mp-muted" style={{ fontSize: '10px' }}>{m.senderName} · {m.createdAt.slice(11, 16)}{mentionMe && !mine ? ' · @提及我' : ''}</Text>
+                  {m.reply !== null && m.reply !== undefined && (
+                    <View style={{ marginTop: '4px', padding: '4px 8px', borderRadius: 8, background: 'rgba(139,155,180,0.12)', borderLeft: '2px solid #00d4ff' }}>
+                      <Text style={{ fontSize: '11px', color: '#8b9bb4' }}>↩ {m.reply.senderName}:{m.reply.content}</Text>
+                    </View>
+                  )}
                   {m.images.length > 0 && (
                     <View style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                       {m.images.map((img, i) => (

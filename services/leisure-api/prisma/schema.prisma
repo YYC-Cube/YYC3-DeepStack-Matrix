@@ -1077,6 +1077,8 @@ model ChatMessage {
   images      Json?
   // 表情回应(2026-11-07):[{emoji, by:[{scope,id,name}]}];toggle 语义
   reactions   Json?
+  // 引用回复(2026-11-19 沟通闭环批:自引用被引消息;渲染=引用摘要条+点击定位)
+  replyToId   Int?      @map("reply_to_id")
   createdAt   DateTime @default(now()) @map("created_at")
 
   chatGroup ChatGroup @relation(fields: [chatGroupId], references: [id])

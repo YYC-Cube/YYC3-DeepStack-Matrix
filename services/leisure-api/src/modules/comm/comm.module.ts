@@ -103,6 +103,10 @@ class ChatMessageDto {
   content?: string
   @IsOptional()
   images?: unknown
+  /** 引用回复(2026-11-19 沟通闭环批:被引消息 id;须同群) */
+  @IsOptional()
+  @IsInt()
+  replyToId?: number
 }
 
 class ReactDto {
@@ -390,6 +394,19 @@ export class CommService {
     const created = await this.prisma.chatGroup.create({
       data: { storeId, name: body.name, groupId, createdById: operator.id, ownerId: operator.id },
     })
+    // SYSTEM 欢迎消息(2026-11-19 沟通闭环:空群断链修复——进群即见创建信息)
+    const creator = await this.prisma.adminUser.findUnique({ where: { id: operator.id }, select: { name: true } })
+    await this.prisma.chatMessage.create({
+      data: {
+        storeId,
+        chatGroupId: created.id,
+        senderScope: 'ADMIN',
+        senderId: 0,
+        senderName: '系统',
+        content: '\'' + (creator?.name ?? '管理职') + '\' 创建了群聊「' + body.name + '」,欢迎加入。',
+        type: 'SYSTEM',
+      },
+    })
     await this.prisma.auditLog.create({
       data: {
         storeId,
@@ -446,18 +463,30 @@ export class CommService {
       take: afterId !== undefined ? 200 : 50,
     })
     const ordered = afterId !== undefined ? rows : rows.reverse()
+    // 引用摘要联查(2026-11-19 沟通闭环:reply_to_id → 被引消息 发送者/内容截断)
+    const refIds = [...new Set(ordered.map((m) => m.replyToId).filter((x): x is number => x !== null))]
+    const refMsgs = refIds.length > 0
+      ? await this.prisma.chatMessage.findMany({ where: { id: { in: refIds } }, select: { id: true, senderName: true, content: true, type: true } })
+      : []
+    const refMap = new Map(refMsgs.map((r) => [r.id, r]))
     return {
-      rows: ordered.map((m) => ({
-        id: m.id,
-        senderScope: m.senderScope,
-        senderId: m.senderId,
-        senderName: m.senderName,
-        content: m.content,
-        type: m.type,
-        images: Array.isArray(m.images) ? (m.images as string[]) : [],
-        reactions: Array.isArray(m.reactions) ? (m.reactions as Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>) : [],
-        createdAt: m.createdAt.toISOString(),
-      })),
+      rows: ordered.map((m) => {
+        const ref = m.replyToId !== null ? refMap.get(m.replyToId) : undefined
+        return {
+          id: m.id,
+          senderScope: m.senderScope,
+          senderId: m.senderId,
+          senderName: m.senderName,
+          content: m.content,
+          type: m.type,
+          images: Array.isArray(m.images) ? (m.images as string[]) : [],
+          reactions: Array.isArray(m.reactions) ? (m.reactions as Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>) : [],
+          reply: ref !== undefined
+            ? { id: ref.id, senderName: ref.senderName, content: ref.type === 'IMAGE' ? '[图片]' : ref.content.slice(0, 60) }
+            : null,
+          createdAt: m.createdAt.toISOString(),
+        }
+      }),
     }
   }
 
@@ -491,6 +520,13 @@ export class CommService {
     if (images.length > 4) throw new BadRequestException('单条消息图片最多 4 张')
     const content = body.content ?? ''
     if (content.trim() === '' && images.length === 0) throw new BadRequestException('消息内容不能为空')
+    // 引用回复(2026-11-19:被引消息须同群存在)
+    let replyToId: number | undefined = undefined
+    if (body.replyToId !== undefined) {
+      const ref = await this.prisma.chatMessage.findFirst({ where: { id: body.replyToId, chatGroupId } })
+      if (ref === null) throw new BadRequestException('被引用消息不存在或不属于本群')
+      replyToId = body.replyToId
+    }
     const created = await this.prisma.chatMessage.create({
       data: {
         storeId,
@@ -501,6 +537,7 @@ export class CommService {
         content: body.content ?? '',
         type: images.length > 0 ? 'IMAGE' : 'TEXT',
         images: images.length > 0 ? (images as object) : undefined,
+        ...(replyToId !== undefined ? { replyToId } : {}),
       },
     })
     const msg = {
@@ -511,6 +548,7 @@ export class CommService {
       content: created.content,
       type: created.type,
       images: Array.isArray(created.images) ? (created.images as string[]) : [],
+      replyToId: created.replyToId,
       createdAt: created.createdAt.toISOString(),
     }
     // WS 实时广播(房间=chat:<groupId>;前端轮询为 fallback 仍在)+全店 chat:ping(群列表未读角标实时,不要求 join)

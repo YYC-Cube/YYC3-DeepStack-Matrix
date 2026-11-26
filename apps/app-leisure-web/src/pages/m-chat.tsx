@@ -34,6 +34,9 @@ interface MsgRow {
   type: string
   images: string[]
   reactions: ReactionGroup[]
+  /** 引用摘要(2026-11-19 沟通闭环;listMessages 联查) */
+  reply?: { id: number; senderName: string; content: string } | null
+  replyToId?: number
   createdAt: string
 }
 
@@ -76,6 +79,12 @@ export default function MChatPage(): React.JSX.Element {
   /** 群成员真名单(2026-11-18 Owner 反馈「群成员」;GET /chat/groups/:id/members) */
   const [members, setMembers] = useState<Array<{ name: string; scope: string; title: string | null }>>([])
   const [membersOpen, setMembersOpen] = useState(false)
+  /** 引用回复(2026-11-19 沟通闭环;输入框上方引用条,发送带 replyToId) */
+  const [replyTo, setReplyTo] = useState<{ id: number; senderName: string; content: string } | null>(null)
+  /** @提及自动补全(输入 @ 触发成员过滤 popover) */
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null)
+  /** 草稿(切群/刷新保留;yyc3-chat-drafts {gid: draft}) */
+  const draftsKey = 'yyc3-chat-drafts'
   /** 全店高频表情(打开面板时拉取 top8;/chat/emoji-stats) */
   const [hotEmojis, setHotEmojis] = useState<Array<{ emoji: string; count: number }>>([])
   /** 向前分页(before 游标;进房拉最近 50 条) */
@@ -244,10 +253,48 @@ export default function MChatPage(): React.JSX.Element {
     if (stickRef.current) el.scrollTop = el.scrollHeight
   }, [msgs])
 
+  /** 草稿持久化+@提及补全检测(2026-11-19 沟通闭环;切群/刷新不丢草稿) */
+  function handleDraftChange(v: string, g: GroupRow | null): void {
+    setDraft(v)
+    try {
+      if (g !== null) {
+        const d = JSON.parse(localStorage.getItem('yyc3-chat-drafts') ?? '{}') as Record<string, string>
+        d[String(g.id)] = v
+        localStorage.setItem('yyc3-chat-drafts', JSON.stringify(d))
+      }
+    } catch { /* 静默 */ }
+    // @query 检测(字符串法:末个 @ 后无空格且 ≤20 字=补全态)
+    const at = v.lastIndexOf('@')
+    if (at >= 0) {
+      const tail = v.slice(at + 1)
+      setMentionQuery(tail.includes(' ') || tail.length > 20 ? null : tail)
+    } else {
+      setMentionQuery(null)
+    }
+    if (at >= 0 && members.length === 0 && g !== null) {
+      void req<{ rows: Array<{ name: string; scope: string; title: string | null }> }>('GET', '/chat/groups/' + String(g.id) + '/members')
+        .then((r) => setMembers(r.rows))
+        .catch(() => undefined)
+    }
+  }
+
+  /** 补全点选:替换末个 @ 之后内容 → @名字+空格 */
+  function pickMention(name: string): void {
+    const at = draft.lastIndexOf('@')
+    if (at < 0) return
+    setDraft(draft.slice(0, at) + '@' + name + ' ')
+    setMentionQuery(null)
+  }
+
   const openRoom = (g: GroupRow): void => {
     setActive(g)
     lastIdRef.current = 0
     setMsgs([])
+    // 草稿恢复(2026-11-19 沟通闭环:切群不丢草稿)
+    try {
+      const d = JSON.parse(localStorage.getItem('yyc3-chat-drafts') ?? '{}') as Record<string, string>
+      setDraft(d[String(g.id)] ?? '')
+    } catch { setDraft('') }
     setPendingImages([])
     setCanLoadOlder(true)
     stickRef.current = true
@@ -269,11 +316,13 @@ export default function MChatPage(): React.JSX.Element {
       const m = await req<MsgRow>('POST', '/chat/groups/' + String(active.id) + '/messages', {
         content: draft.trim(),
         ...(pendingImages.length > 0 ? { images: pendingImages } : {}),
+        ...(replyTo !== null ? { replyToId: replyTo.id } : {}),
       })
       setPendingImages([])
       setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
       lastIdRef.current = Math.max(lastIdRef.current, m.id)
       setDraft('')
+      setReplyTo(null)
     } catch (e) {
       toastError(e)
     } finally {
@@ -470,8 +519,23 @@ export default function MChatPage(): React.JSX.Element {
           )}
           {shown.map((m) => (
             <div key={m.id} className={'flex ' + (m.senderScope === 'ADMIN' ? 'justify-end' : 'justify-start')}>
-              <div className={'max-w-[78%] rounded-2xl px-3 py-1.5 ' + (m.senderScope === 'ADMIN' ? 'bg-primary/15' : 'bg-fg-muted/10')}>
+              <div
+                data-mid={m.id}
+                className={'max-w-[78%] rounded-2xl px-3 py-1.5 ' + (m.senderScope === 'ADMIN' ? 'bg-primary/15' : 'bg-fg-muted/10')}
+              >
                 <div className="text-[10px] text-fg-muted">{m.senderName} · {m.createdAt.slice(11, 16)}</div>
+                {/* 引用摘要条(点击滚动定位原消息) */}
+                {m.reply !== null && m.reply !== undefined && (
+                  <button
+                    className="block w-full text-left text-[11px] text-fg-muted bg-fg-muted/10 rounded px-1.5 py-0.5 mt-0.5 hover:text-primary"
+                    onClick={() => {
+                      const el = document.querySelector('[data-mid="' + String(m.reply!.id) + '"]')
+                      if (el !== null) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('ring-1', 'ring-primary'); setTimeout(() => { el.classList.remove('ring-1', 'ring-primary') }, 1500) }
+                    }}
+                  >
+                    ↩ {m.reply.senderName}:{m.reply.content}
+                  </button>
+                )}
                 {m.images !== undefined && m.images.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-0.5">
                     {m.images.map((img, i) => (
@@ -562,6 +626,16 @@ export default function MChatPage(): React.JSX.Element {
                             撤回
                           </button>
                         )}
+                        {/* 引用回复(2026-11-19 沟通闭环) */}
+                        {m.type !== 'RETRACTED' && (
+                          <button
+                            className="text-[10px] text-fg-muted hover:text-primary"
+                            title="引用此消息回复"
+                            onClick={() => { setReplyTo({ id: m.id, senderName: m.senderName, content: m.type === 'IMAGE' ? '[图片]' : m.content.slice(0, 40) }) }}
+                          >
+                            引用
+                          </button>
+                        )}
                       </div>
                     )}
                   </>
@@ -582,7 +656,7 @@ export default function MChatPage(): React.JSX.Element {
             </button>
           )}
         </div>
-        <div className="flex gap-2 pt-2 border-t border-line items-center">
+        <div className="relative flex gap-2 pt-2 border-t border-line items-center">
           <input
             type="file"
             accept="image/*"
@@ -623,11 +697,37 @@ export default function MChatPage(): React.JSX.Element {
           >
             @
           </button>
+          {/* 引用条(2026-11-19 引用回复) */}
+          {replyTo !== null && (
+            <div className="flex items-center gap-2 text-xs bg-fg-muted/10 border-l-2 border-primary rounded px-2 py-1 mb-1">
+              <span className="text-primary shrink-0">回复 {replyTo.senderName}:</span>
+              <span className="text-fg-muted truncate flex-1">{replyTo.content}</span>
+              <button className="text-fg-muted hover:text-error shrink-0" onClick={() => setReplyTo(null)}>×</button>
+            </div>
+          )}
+          {/* @提及补全 popover(字符串法检测;点选替换) */}
+          {mentionQuery !== null && (
+            <div className="absolute bottom-full left-0 right-0 mb-1 max-h-44 overflow-y-auto rounded-lg border border-line bg-[var(--lm-card, #0a1628)] shadow-lg z-20">
+              {members.filter((m) => m.name.includes(mentionQuery)).slice(0, 8).map((m) => (
+                <button
+                  key={m.name}
+                  className="w-full text-left px-3 py-1.5 text-sm hover:bg-primary/10"
+                  onClick={() => { pickMention(m.name) }}
+                >
+                  {m.name}
+                  {m.scope === 'ADMIN' && <span className="text-[9px] text-primary ml-1.5">管理</span>}
+                </button>
+              ))}
+              {members.filter((m) => m.name.includes(mentionQuery)).length === 0 && (
+                <div className="px-3 py-2 text-xs text-fg-muted">无匹配成员</div>
+              )}
+            </div>
+          )}
           <Input
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="输入消息…"
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send() } }}
+            onChange={(e) => handleDraftChange(e.target.value, active)}
+            placeholder="输入消息…(@ 可提及成员)"
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && mentionQuery === null) { e.preventDefault(); void send() } }}
           />
           <Button disabled={busy || (draft.trim() === '' && pendingImages.length === 0)} onClick={() => { void send() }}>发送</Button>
         </div>

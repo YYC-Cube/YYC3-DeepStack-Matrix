@@ -6,7 +6,7 @@
  * 里不得再包一层(否则双 header/双底栏/双浮窗)。
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { createHashRouter, Navigate } from "react-router";
+import { createHashRouter, Navigate, useLocation } from "react-router";
 
 import { Login } from "./components/Login";
 import { ModelProviderPanel } from "./components/ModelProviderPanel";
@@ -37,8 +37,20 @@ function useAuthed(): boolean {
   return v;
 }
 
-/** 应用壳:轻头部(logo/标题)+ 页面 + 自适应底部导航 + AI 浮窗 */
+/** 应用壳:轻头部(logo/标题)+ 页面 + 自适应底部导航 + AI 浮窗;
+ *  embed 态(AI 浮窗 iframe 内嵌,?embed=1)只渲染页面本体,壳/底栏/浮窗全隐藏 */
 function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
+  const isEmbed = new URLSearchParams(useLocation().search).get("embed") === "1";
+  if (isEmbed) {
+    return (
+      <div
+        className="h-screen w-screen overflow-auto"
+        style={{ background: "linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)" }}
+      >
+        {children}
+      </div>
+    );
+  }
   return (
     <div
       className="h-screen w-screen flex flex-col overflow-hidden"

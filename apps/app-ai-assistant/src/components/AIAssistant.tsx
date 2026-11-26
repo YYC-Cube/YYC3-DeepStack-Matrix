@@ -14,6 +14,7 @@
 
 import {
   Activity,
+  ArrowLeft,
   BookOpen,
   Check,
   Command,
@@ -36,6 +37,7 @@ import {
   Sliders,
   Sparkles,
   Trash2,
+  Users,
   X,
   Zap
 } from "lucide-react";
@@ -101,6 +103,29 @@ const PROMPT_PRESETS: PromptPreset[] = [
   { id: "p5", name: "智能生活助手", prompt: "你是 Family π³ 的 AI 生活助手。帮助用户管理家庭事务、查询家人状态、规划生活日程、提供建议。一切以中文交互，保持简洁友好温暖。", category: "通用" },
 ];
 
+// ============================================================
+// 应用页面页签(浮窗内嵌 iframe 独控:独立实例/独立路由,主屏零感知)
+// ============================================================
+
+interface AppPageEntry {
+  /** 应用内路由(不含 hash) */
+  path: string;
+  icon: typeof Zap;
+  name: string;
+  desc: string;
+  color: string;
+}
+
+const APP_PAGES: AppPageEntry[] = [
+  { path: "/models", icon: Cpu, name: "模型管理", desc: "服务商注册表 · 已配置模型", color: "#aa55ff" },
+  { path: "/settings", icon: Sliders, name: "系统设置", desc: "13 项配置 · 网络连接 · 安全", color: "#ff9900" },
+];
+
+/** 浮窗内嵌地址:同源 + embed=1(AppShell 识别后只渲染页面本体) */
+function widgetPageEmbedSrc(path: string): string {
+  return `${window.location.origin}/#${path}?embed=1`;
+}
+
 // Simulated AI responses
 function generateMockResponse(userMsg: string): string {
   const lower = userMsg.toLowerCase();
@@ -137,10 +162,28 @@ interface AIAssistantProps {
 }
 
 export function AIAssistant({ isMobile }: AIAssistantProps) {
-  // Panel state
-  const [isOpen, setIsOpen] = useState(false);
+  // Panel state(URL 参数引导:e2e/自动化可用 #/x?widget=1&tab=pages 直开面板页签)
+  const bootQp = new URLSearchParams(window.location.hash.split("?")[1] ?? "");
+  const [isOpen, setIsOpen] = useState(() => bootQp.get("widget") === "1");
   const [isMaximized, setIsMaximized] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "commands" | "prompts" | "settings">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "pages" | "commands" | "prompts" | "settings">(
+    bootQp.get("tab") === "pages" ? "pages" : "chat",
+  );
+  // 页面内嵌视图:null=卡片列表;否则 iframe 渲染对应系统页(浮窗独控)
+  const [pageView, setPageView] = useState<AppPageEntry | null>(null);
+  const maximizeBeforePage = useRef(false);
+
+  const openPageView = useCallback((page: AppPageEntry) => {
+    maximizeBeforePage.current = isMaximized;
+    setPageView(page);
+    // 页面按桌面布局设计:自动近全屏,返回列表时还原
+    setIsMaximized(true);
+  }, [isMaximized]);
+
+  const closePageView = useCallback(() => {
+    setPageView(null);
+    setIsMaximized(maximizeBeforePage.current);
+  }, []);
 
   // 从 useModelProvider 获取动态模型列表
   const { availableModels, ollamaLoading } = useModelProvider();
@@ -370,6 +413,7 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
         <div className="shrink-0 flex items-center gap-0.5 px-3 py-2 border-b border-[rgba(0,180,255,0.08)] bg-[rgba(0,40,80,0.1)]">
           {([
             { key: "chat" as const, icon: MessageSquare, label: "对话" },
+            { key: "pages" as const, icon: Users, label: "页面" },
             { key: "commands" as const, icon: Command, label: "命令" },
             { key: "prompts" as const, icon: BookOpen, label: "提示词" },
             { key: "settings" as const, icon: Sliders, label: "配置" },
@@ -469,6 +513,66 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
                 </div>
               </div>
             </>
+          )}
+
+          {/* === Pages Tab(系统页内嵌 iframe 独控:浮窗独有,主屏零感知) === */}
+          {activeTab === "pages" && (
+            pageView !== null ? (
+              <div className="flex-1 overflow-hidden flex flex-col">
+                {/* 嵌入态顶栏:返回 + 页名 + 独立实例徽标 */}
+                <div className="shrink-0 flex items-center gap-2 px-3 py-2 border-b border-[rgba(0,180,255,0.1)] bg-[rgba(0,40,80,0.12)]">
+                  <button
+                    onClick={closePageView}
+                    className="flex items-center gap-1 px-2 py-1 rounded-md text-[rgba(0,212,255,0.6)] hover:text-[#00d4ff] hover:bg-[rgba(0,212,255,0.08)] transition-all"
+                    style={{ fontSize: "0.66rem" }}
+                  >
+                    <ArrowLeft className="w-3 h-3" />
+                    返回列表
+                  </button>
+                  <span className="text-[#e0f0ff] font-medium" style={{ fontSize: "0.74rem" }}>{pageView.name}</span>
+                  <span
+                    className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[rgba(0,255,136,0.08)] border border-[rgba(0,255,136,0.2)] text-[rgba(0,255,136,0.7)]"
+                    style={{ fontSize: "0.56rem" }}
+                  >
+                    <Shield className="w-2.5 h-2.5" />
+                    浮窗独立实例 · 主屏不受影响
+                  </span>
+                </div>
+                <div className="flex-1 overflow-hidden bg-[#040c1a]">
+                  <iframe
+                    key={widgetPageEmbedSrc(pageView.path)}
+                    src={widgetPageEmbedSrc(pageView.path)}
+                    title={pageView.name}
+                    className="w-full h-full border-0"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-auto p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {APP_PAGES.map(page => (
+                    <button
+                      key={page.path}
+                      onClick={() => openPageView(page)}
+                      className="group flex flex-col items-start gap-1.5 p-2.5 rounded-xl border border-[rgba(0,180,255,0.1)] bg-[rgba(0,40,80,0.15)] hover:bg-[rgba(0,60,120,0.25)] hover:border-[rgba(0,212,255,0.3)] transition-all text-left"
+                    >
+                      <span
+                        className="flex items-center justify-center w-7 h-7 rounded-lg"
+                        style={{ background: `${page.color}18`, border: `1px solid ${page.color}40` }}
+                      >
+                        <page.icon className="w-3.5 h-3.5" style={{ color: page.color }} />
+                      </span>
+                      <span className="text-[#e0f0ff] font-medium" style={{ fontSize: "0.72rem" }}>{page.name}</span>
+                      <span className="text-[rgba(0,212,255,0.35)]" style={{ fontSize: "0.6rem", lineHeight: 1.4 }}>{page.desc}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-3 pt-2.5 border-t border-[rgba(0,180,255,0.08)] text-[rgba(0,212,255,0.3)] flex items-center gap-1" style={{ fontSize: "0.6rem" }}>
+                  <Shield className="w-3 h-3" />
+                  页面在浮窗内独立实例渲染,主屏路由不受影响
+                </p>
+              </div>
+            )
           )}
 
           {/* === Commands Tab === */}

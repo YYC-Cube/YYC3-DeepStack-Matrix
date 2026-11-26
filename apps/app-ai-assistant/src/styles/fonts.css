@@ -9,4 +9,6 @@
  * @tags: [style]
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+/* 字体已本地化(vendor-fonts2.sh):Rajdhani + Orbitron 全权重 woff2 落 public/fonts,
+   零运行时外链拉取(自包含红线)。原 Google Fonts @import 已移除。 */
+@import './fonts-local.css';

@@ -28,6 +28,17 @@
 3. 登录态为模块级迷你 store(localStorage `aad_authed` + 订阅),`Protected` 提供唯一 `AppShell`——路由 element 里不得再包壳(双 header 教训);
 4. vite 8(rolldown)不支持 `manualChunks` 对象形态,分包交由路由懒加载。
 
+## AI 浮窗 · 页面页签(iframe 独控,2026-11-27 增)
+
+浮窗页签(对话|**页面**|命令|提示词|配置):**页面**页签把系统页直接渲染进浮窗内部——点击卡片 → 浮窗自动近全屏 → 同源 iframe 加载 `#/models?embed=1` / `#/settings?embed=1`,AppShell 识别 embed 态只渲染页面本体。iframe = 独立实例,页内导航不触主屏路由(实测主屏 URL 零变化)。自动化/e2e 可用 URL 引导:`#/settings?widget=1&tab=pages` 直开面板至页面页签(注意 hash 导航不重载页面,FastRefresh 会保留旧 state,需 reload 让初始参数生效)。
+
+## 自包含红线
+
+本目录包含全部所用源码与资源,**零中转拉取**(详见 [docs/SELF-CONTAINED.md](docs/SELF-CONTAINED.md)):
+- 字体本地化:Rajdhani + Orbitron 全权重 woff2 落 `public/fonts/`(16 文件),原 Google Fonts @import 移除;
+- favicon:`public/favicon.svg`;
+- 溯源脚本(应用根 `extract-copy*.sh` / `vendor-fonts*.sh`)仅为抽取清单存档,构建/运行零引用。
+
 ## 验证基线(2026-11-27)
 
-tsc strict 0 错(90 文件)· vite build 213ms 绿 · 浏览器实测:登录页 → 表单登录进壳 → 模型管理(真机 Ollama 模型列表)/系统设置(13 项)/浮窗四页签 → 底部导航切换 · 仓内 gates G1-G7 全绿(本应用入 G2/G3/G5 名单,G7 元门禁覆盖)。
+tsc strict 0 错(90+ 文件)· vite build 绿(rolldown 213ms)· 浏览器实测:登录页 → 表单登录进壳 → 模型管理(真机 Ollama 模型列表)/系统设置(13 项)/浮窗四页签 → 底部导航切换 → **页面页签 iframe 内嵌模型管理(主屏路由零变化)** · 仓内 gates G1-G7 全绿(本应用入 G2/G3/G5 名单,G7 元门禁覆盖)。

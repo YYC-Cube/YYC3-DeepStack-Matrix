@@ -352,7 +352,7 @@ export function chatMessages(groupId: number, afterId?: number, beforeId?: numbe
 }
 
 /** 发消息(文本/图片) */
-export function chatSend(groupId: number, p: { content: string; images?: string[] }): Promise<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> {
+export function chatSend(groupId: number, p: { content: string; images?: string[]; replyToId?: number }): Promise<{ id: number; senderScope: string; senderId: number; senderName: string; content: string; type: string; images: string[]; reactions: Array<{ emoji: string; by: Array<{ scope: string; id: number; name: string }> }>; createdAt: string }> {
   return Taro.request({
     url: API_BASE + '/chat/groups/' + String(groupId) + '/messages',
     method: 'POST',

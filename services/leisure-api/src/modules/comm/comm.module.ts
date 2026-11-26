@@ -263,7 +263,19 @@ export class CommService {
   }
 
   /** 群列表(含可见性过滤:artist 只见店群+本人组别的动态群) */
-  async listGroups(storeId: number, viewer: { scope: string; id: number }) {
+  async listGroups(storeId: number, viewer: { scope: string; id: number }, withDismissed?: boolean) {
+    // 管理职/管理员:可带已解散群(误解散恢复区);普通成员仅 ACTIVE
+    let isMgrOrSuper = false
+    if (viewer.scope === 'ADMIN') {
+      const me0 = await this.prisma.adminUser.findUnique({ where: { id: viewer.id }, select: { title: true, roleId: true } })
+      const role0 = me0?.roleId !== null && me0?.roleId !== undefined
+        ? await this.prisma.role.findUnique({ where: { id: me0.roleId }, select: { name: true } })
+        : null
+      isMgrOrSuper = me0?.title === 'VP' || me0?.title === 'MANAGER_DIRECTOR' || role0?.name === '管理员'
+    }
+    const dismissedGroups = withDismissed === true && isMgrOrSuper
+      ? await this.prisma.chatGroup.findMany({ where: { storeId, status: 'DISMISSED' }, orderBy: { id: 'desc' }, take: 20 })
+      : []
     const groups = await this.prisma.chatGroup.findMany({
       where: { storeId, status: 'ACTIVE' },
       orderBy: { id: 'asc' },
@@ -310,6 +322,8 @@ export class CommService {
           lastPreview: lm !== undefined ? lm.senderName + ':' + lm.content.slice(0, 30) : '',
         }
       }),
+      // 已解散区(误解散恢复;管理职/管理员 withDismissed=1 时返回)
+      dismissed: dismissedGroups.map((g) => ({ id: g.id, name: g.name, status: g.status })),
     }
   }
 
@@ -341,35 +355,88 @@ export class CommService {
     })
   }
 
-  /** 群成员真名单(2026-11-18 Owner 反馈「群成员」:店群=在册销售经理+管理端账号;组别群=本组销售经理) */
-  async chatGroupMembers(storeId: number, chatGroupId: number): Promise<{ rows: Array<{ name: string; scope: string; title: string | null }>; total: number }> {
+  /** 群主转让(C1 后续:owner_id 改写+SYSTEM 通告;现群主/管理职可操作;对象限管理端在册) */
+  async transferGroup(storeId: number, chatGroupId: number, targetId: number, operator: { id: number; scope: string }): Promise<void> {
+    const g = await this.prisma.chatGroup.findFirst({ where: { id: chatGroupId, storeId, status: 'ACTIVE' } })
+    if (g === null) throw new BadRequestException('群不存在或已解散')
+    const me = await this.prisma.adminUser.findUnique({ where: { id: operator.id }, select: { title: true, roleId: true } })
+    const role = me?.roleId !== null && me?.roleId !== undefined
+      ? await this.prisma.role.findUnique({ where: { id: me.roleId }, select: { name: true } })
+      : null
+    const isOwner = g.ownerId === operator.id || g.createdById === operator.id
+    const isMgr = me?.title === 'VP' || me?.title === 'MANAGER_DIRECTOR'
+    const isSuper = role?.name === '管理员'
+    if (!isOwner && !isMgr && !isSuper) throw new ForbiddenException('仅群主或管理职可转让群主')
+    const target = await this.prisma.adminUser.findFirst({ where: { id: targetId, storeId, status: 1 }, select: { name: true } })
+    if (target === null) throw new BadRequestException('转让对象须为管理端在册账号')
+    await this.prisma.chatGroup.update({ where: { id: g.id }, data: { ownerId: targetId } })
+    await this.prisma.chatMessage.create({
+      data: {
+        storeId,
+        chatGroupId: g.id,
+        senderScope: 'ADMIN',
+        senderId: 0,
+        senderName: '系统',
+        content: '群主已转让给「' + target.name + '」。',
+        type: 'SYSTEM',
+      },
+    })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operator.id,
+        action: 'CHAT_GROUP_TRANSFER',
+        targetType: 'chat_group',
+        targetId: String(g.id),
+        beforeJson: { ownerId: g.ownerId } as object,
+        afterJson: { ownerId: targetId } as object,
+      },
+    })
+  }
+
+  /** 误解散恢复(C1 配套:DISMISSED→ACTIVE;管理职 VP·总监/管理员) */
+  async restoreGroup(storeId: number, chatGroupId: number, operator: { id: number; scope: string }): Promise<void> {
+    const me = await this.prisma.adminUser.findUnique({ where: { id: operator.id }, select: { title: true, roleId: true } })
+    const role = me?.roleId !== null && me?.roleId !== undefined
+      ? await this.prisma.role.findUnique({ where: { id: me.roleId }, select: { name: true } })
+      : null
+    const isMgr = me?.title === 'VP' || me?.title === 'MANAGER_DIRECTOR'
+    const isSuper = role?.name === '管理员'
+    if (!isMgr && !isSuper) throw new ForbiddenException('仅管理职(销售副总/销售总监)或管理员可恢复已解散群')
+    const g = await this.prisma.chatGroup.findFirst({ where: { id: chatGroupId, storeId, status: 'DISMISSED' } })
+    if (g === null) throw new BadRequestException('群不存在或未处于解散态')
+    await this.prisma.chatGroup.update({ where: { id: g.id }, data: { status: 'ACTIVE' } })
+  }
+
+  /** 群成员真名单(2026-11-18 Owner 反馈「群成员」:店群=在册销售经理+管理端账号;组别群=本组销售经理;id=转让/定位用) */
+  async chatGroupMembers(storeId: number, chatGroupId: number): Promise<{ rows: Array<{ id: number; name: string; scope: string; title: string | null }>; total: number }> {
     const g = await this.prisma.chatGroup.findFirst({ where: { id: chatGroupId, storeId } })
     if (g === null) throw new BadRequestException('群不存在')
     if (g.groupId === null) {
       const [artists, admins] = await Promise.all([
         this.prisma.artist.findMany({
           where: { storeId, deletedAt: null, status: 1 },
-          select: { stageName: true, realName: true },
+          select: { id: true, stageName: true, realName: true },
           orderBy: { id: 'asc' },
         }),
         this.prisma.adminUser.findMany({
           where: { status: 1, OR: [{ storeId }, { storeId: null }] },
-          select: { name: true, title: true },
+          select: { id: true, name: true, title: true },
           orderBy: { id: 'asc' },
         }),
       ])
       const rows = [
-        ...admins.map((a) => ({ name: a.name, scope: 'ADMIN', title: a.title })),
-        ...artists.map((a) => ({ name: a.stageName ?? a.realName, scope: 'ARTIST', title: null })),
+        ...admins.map((a) => ({ id: a.id, name: a.name, scope: 'ADMIN', title: a.title })),
+        ...artists.map((a) => ({ id: a.id, name: a.stageName ?? a.realName, scope: 'ARTIST', title: null })),
       ]
       return { rows, total: rows.length }
     }
     const members = await this.prisma.artist.findMany({
       where: { storeId, deletedAt: null, status: 1, groupId: g.groupId },
-      select: { stageName: true, realName: true },
+      select: { id: true, stageName: true, realName: true },
       orderBy: { id: 'asc' },
     })
-    const rows = members.map((a) => ({ name: a.stageName ?? a.realName, scope: 'ARTIST', title: null as string | null }))
+    const rows = members.map((a) => ({ id: a.id, name: a.stageName ?? a.realName, scope: 'ARTIST', title: null as string | null }))
     return { rows, total: rows.length }
   }
 
@@ -989,6 +1056,7 @@ export class CommService {
             storeId,
             title,
             body: '待办「' + f.content + '」已到期,请尽快跟进客资「' + (lead?.name ?? String(f.leadId)) + '」' + (ownerName !== null ? '(归属销售经理:' + ownerName + ')' : '') + '。',
+            link: '/customers?overdue=1',
             publishedBy: f.createdBy,
             visibleTitles: 'VP,MANAGER_DIRECTOR,MANAGER',
             remind: true,
@@ -1738,9 +1806,9 @@ export class ChatController {
   constructor(private readonly svc: CommService) {}
 
   @Get('groups')
-  async groups(@Req() req: Request): Promise<unknown> {
+  async groups(@Req() req: Request, @Query('withDismissed') withDismissed?: string): Promise<unknown> {
     const u = op(req)
-    return this.svc.listGroups(u.storeId, u)
+    return this.svc.listGroups(u.storeId, u, withDismissed === '1')
   }
 
   /** 群成员真名单(2026-11-18;店群=在册销售经理+管理端,组别群=本组销售经理) */
@@ -1755,6 +1823,27 @@ export class ChatController {
   async dismissGroup(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
     const u = op(req)
     await this.svc.dismissGroup(u.storeId, id, u)
+    return { ok: true }
+  }
+
+  /** 群主转让(C1 后续:对象限管理端在册;现群主/管理职可操作) */
+  @Post('groups/:id/transfer')
+  async transferGroup(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { targetId: number },
+  ): Promise<unknown> {
+    const u = op(req)
+    if (body.targetId === undefined) throw new BadRequestException('targetId 必填')
+    await this.svc.transferGroup(u.storeId, id, body.targetId, u)
+    return { ok: true }
+  }
+
+  /** 误解散恢复(管理职 VP·总监/管理员) */
+  @Post('groups/:id/restore')
+  async restoreGroup(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    await this.svc.restoreGroup(u.storeId, id, u)
     return { ok: true }
   }
 

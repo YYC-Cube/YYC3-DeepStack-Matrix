@@ -76,9 +76,13 @@ export default function MChatPage(): React.JSX.Element {
   const [emojiPanelFor, setEmojiPanelFor] = useState<number | null>(null)
   /** 全集面板当前类别 tab */
   const [emojiTab, setEmojiTab] = useState(0)
-  /** 群成员真名单(2026-11-18 Owner 反馈「群成员」;GET /chat/groups/:id/members) */
-  const [members, setMembers] = useState<Array<{ name: string; scope: string; title: string | null }>>([])
+  /** 群成员真名单(2026-11-18 Owner 反馈「群成员」;GET /chat/groups/:id/members;id=转让 targetId) */
+  const [members, setMembers] = useState<Array<{ id: number; name: string; scope: string; title: string | null }>>([])
   const [membersOpen, setMembersOpen] = useState(false)
+  /** 群主转让 Dialog(2026-11-26 C1 后续;对象=管理端在册成员) */
+  const [transferFor, setTransferFor] = useState<GroupRow | null>(null)
+  /** 已解散区(管理职/管理员;误解散恢复) */
+  const [dismissed, setDismissed] = useState<Array<{ id: number; name: string }>>([])
   /** 引用回复(2026-11-19 沟通闭环;输入框上方引用条,发送带 replyToId) */
   const [replyTo, setReplyTo] = useState<{ id: number; senderName: string; content: string } | null>(null)
   /** @提及自动补全(输入 @ 触发成员过滤 popover) */
@@ -100,8 +104,9 @@ export default function MChatPage(): React.JSX.Element {
 
   const loadGroups = useCallback(async (): Promise<void> => {
     try {
-      const res = await req<{ rows: GroupRow[] }>('GET', '/chat/groups')
+      const res = await req<{ rows: GroupRow[]; dismissed?: Array<{ id: number; name: string }> }>('GET', '/chat/groups?withDismissed=1')
       setGroups(res.rows)
+      setDismissed(res.dismissed ?? [])
     } catch (e) {
       toastError(e, '群加载失败')
     }
@@ -272,7 +277,7 @@ export default function MChatPage(): React.JSX.Element {
       setMentionQuery(null)
     }
     if (at >= 0 && members.length === 0 && g !== null) {
-      void req<{ rows: Array<{ name: string; scope: string; title: string | null }> }>('GET', '/chat/groups/' + String(g.id) + '/members')
+      void req<{ rows: Array<{ id: number; name: string; scope: string; title: string | null }> }>('GET', '/chat/groups/' + String(g.id) + '/members')
         .then((r) => setMembers(r.rows))
         .catch(() => undefined)
     }
@@ -491,7 +496,7 @@ export default function MChatPage(): React.JSX.Element {
           <button
             className="ml-auto text-xs text-fg-muted hover:text-primary"
             onClick={() => {
-              void req<{ rows: Array<{ name: string; scope: string; title: string | null }>; total: number }>('GET', '/chat/groups/' + String(active.id) + '/members')
+              void req<{ rows: Array<{ id: number; name: string; scope: string; title: string | null }>; total: number }>('GET', '/chat/groups/' + String(active.id) + '/members')
                 .then((r) => { setMembers(r.rows); setMembersOpen(true) })
                 .catch((e) => toastError(e, '成员加载失败'))
             }}
@@ -776,19 +781,33 @@ export default function MChatPage(): React.JSX.Element {
               <div className="text-[10px] text-fg-muted">{g.kind === 'STORE' ? '店群' : '组别'}</div>
             </div>
             {g.canDismiss && g.kind === 'STORE' && (
-              <button
-                className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted hover:text-[#ff5555] hover:border-[#ff5555]/50"
-                title="解散群(软删,管理端可查审计)"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (!window.confirm('确认解散「' + g.name + '」?解散后全员不可见(软删)。')) return
-                  void req('POST', '/chat/groups/' + String(g.id) + '/dismiss', {})
-                    .then(() => { toast.success('已解散'); void loadGroups() })
-                    .catch((err2) => toastError(err2))
-                }}
-              >
-                解散
-              </button>
+              <>
+                <button
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted hover:text-primary hover:border-primary/50"
+                  title="转让群主(对象=管理端在册成员)"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void req<{ rows: Array<{ id: number; name: string; scope: string; title: string | null }> }>('GET', '/chat/groups/' + String(g.id) + '/members')
+                      .then((r) => { setMembers(r.rows); setTransferFor(g) })
+                      .catch((err2) => toastError(err2))
+                  }}
+                >
+                  转让
+                </button>
+                <button
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted hover:text-[#ff5555] hover:border-[#ff5555]/50"
+                  title="解散群(软删,管理端可查审计)"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (!window.confirm('确认解散「' + g.name + '」?解散后全员不可见(软删)。')) return
+                    void req('POST', '/chat/groups/' + String(g.id) + '/dismiss', {})
+                      .then(() => { toast.success('已解散'); void loadGroups() })
+                      .catch((err2) => toastError(err2))
+                  }}
+                >
+                  解散
+                </button>
+              </>
             )}
           </div>
         </Card>
@@ -796,6 +815,60 @@ export default function MChatPage(): React.JSX.Element {
       {groups !== undefined && groups.length === 0 && (
         <Card className="p-6 text-center text-sm text-fg-muted">暂无群组,点击「+ 建群」</Card>
       )}
+
+      {/* 已解散区(管理职/管理员;误解散恢复) */}
+      {dismissed.length > 0 && (
+        <Card className="p-3">
+          <div className="text-xs text-fg-muted mb-1.5">已解散群({String(dismissed.length)})· 可恢复</div>
+          <div className="flex gap-1.5 flex-wrap">
+            {dismissed.map((d) => (
+              <button
+                key={d.id}
+                className="text-[11px] px-2 py-0.5 rounded-full border border-line text-fg-muted hover:text-primary hover:border-primary/50"
+                onClick={() => {
+                  void req('POST', '/chat/groups/' + String(d.id) + '/restore', {})
+                    .then(() => { toast.success('「' + d.name + '」已恢复'); void loadGroups() })
+                    .catch((e2) => toastError(e2))
+                }}
+              >
+                ↺ {d.name}
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* 群主转让 Dialog(对象=管理端在册成员) */}
+      <Dialog open={transferFor !== null} onOpenChange={(o) => { if (!o) setTransferFor(null) }}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle>转让群主 · {transferFor?.name ?? ''}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1 max-h-60 overflow-y-auto">
+            {members.filter((m) => m.scope === 'ADMIN').map((m) => (
+              <button
+                key={m.name}
+                className="w-full text-left px-3 py-1.5 text-sm rounded hover:bg-primary/10"
+                onClick={() => {
+                  if (transferFor === null) return
+                  void req('POST', '/chat/groups/' + String(transferFor.id) + '/transfer', { targetId: m.id })
+                    .then(() => { toast.success('群主已转让给 ' + m.name); setTransferFor(null); void loadGroups() })
+                    .catch((e2) => toastError(e2))
+                }}
+              >
+                {m.name}
+                {m.title !== null && m.title !== '' && <span className="text-[10px] text-fg-muted ml-1.5">{m.title}</span>}
+              </button>
+            ))}
+            {members.filter((m) => m.scope === 'ADMIN').length === 0 && (
+              <div className="text-xs text-fg-muted py-3 text-center">无管理端成员(先拉成员列表)</div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferFor(null)}>取消</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {previewDialog}
       {memberCardDialog}

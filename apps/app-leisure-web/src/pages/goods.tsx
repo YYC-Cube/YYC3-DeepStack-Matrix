@@ -36,6 +36,8 @@ export default function GoodsPage(): React.JSX.Element {
   const [showOff, setShowOff] = useState(false)
   const [form, setForm] = useState<FormState | null>(null)
   const [busy, setBusy] = useState(false)
+  /** 行内错误(2026-11-18 表单反馈规范:关键表单 toast 不能是唯一通道) */
+  const [inlineErr, setInlineErr] = useState('')
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -53,7 +55,8 @@ export default function GoodsPage(): React.JSX.Element {
   async function save(): Promise<void> {
     if (form === null) return
     if (form.name.trim() === '' || form.salePrice === '' || Number(form.salePrice) <= 0) {
-      toast.error('名称必填;售价须大于 0(保存时禁 0 元)')
+      const m = '名称必填;售价须大于 0(保存时禁 0 元)'
+      setInlineErr(m); toast.error(m)
       return
     }
     setBusy(true)
@@ -67,6 +70,7 @@ export default function GoodsPage(): React.JSX.Element {
         imageUrl: form.imageUrl === '' ? null : form.imageUrl,
         onSale: form.onSale,
       }
+      setInlineErr('')
       if (form.id !== undefined) {
         await req('PUT', '/goods/' + String(form.id), body)
         toast.success('商品已更新')
@@ -197,6 +201,11 @@ export default function GoodsPage(): React.JSX.Element {
           <DialogHeader>
             <DialogTitle>{form?.id !== undefined ? '编辑商品' : '新增商品'}</DialogTitle>
           </DialogHeader>
+          {inlineErr !== '' && (
+            <div className="text-xs text-[#ff6666] bg-[rgba(255,85,85,0.1)] border border-[rgba(255,85,85,0.3)] rounded px-3 py-2" role="alert">
+              ⚠ {inlineErr}
+            </div>
+          )}
           {form !== null && (
             <div className="space-y-3">
               <div className="space-y-1">

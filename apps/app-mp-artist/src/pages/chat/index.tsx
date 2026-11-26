@@ -68,6 +68,8 @@ export default function Chat() {
   const [active, setActive] = useState<GroupRow | null>(null)
   const [msgs, setMsgs] = useState<MsgRow[]>([])
   const [draft, setDraft] = useState('')
+  /** 引用回复(2026-11-19 沟通闭环;H5 发送侧) */
+  const [replyTo, setReplyTo] = useState<{ id: number; senderName: string; content: string } | null>(null)
   const [pendingImages, setPendingImages] = useState<string[]>([])
   const [previewImg, setPreviewImg] = useState<string | null>(null)
   /** 表情全集面板(leisure-core 单源;展开消息 id+类别 tab) */
@@ -253,13 +255,14 @@ export default function Chat() {
     const g = active
     if (g === null) return
     setBusy(true)
-    chatSend(g.id, { content: draft.trim(), ...(pendingImages.length > 0 ? { images: pendingImages } : {}) })
+    chatSend(g.id, { content: draft.trim(), ...(pendingImages.length > 0 ? { images: pendingImages } : {}), ...(replyTo !== null ? { replyToId: replyTo.id } : {}) })
       .then((m) => {
         setMsgs((s) => (s.some((x) => x.id === m.id) ? s : [...s, m]))
         lastIdRef.current = Math.max(lastIdRef.current, m.id)
         writeRead(g.id, lastIdRef.current)
         setDraft('')
         setPendingImages([])
+        setReplyTo(null)
       })
       .catch((e) => setMsg_(errText(e)))
       .finally(() => setBusy(false))
@@ -411,6 +414,11 @@ export default function Chat() {
                       <Text style={{ fontSize: '11px', color: '#8b9bb4' }}>↩ {m.reply.senderName}:{m.reply.content}</Text>
                     </View>
                   )}
+                  {!mine && (
+                    <Text style={{ fontSize: '10px', color: '#8b9bb4', marginTop: '2px', display: 'block' }} onClick={() => setReplyTo({ id: m.id, senderName: m.senderName, content: m.type === 'IMAGE' ? '[图片]' : m.content.slice(0, 40) })}>
+                      ↩ 引用
+                    </Text>
+                  )}
                   {m.images.length > 0 && (
                     <View style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                       {m.images.map((img, i) => (
@@ -528,6 +536,12 @@ export default function Chat() {
               ))}
             </View>
             <Text className="mp-muted" style={{ fontSize: '10px', marginTop: '4px' }}>同一表情再点一次=取消回应;单条消息至多 8 种回应</Text>
+          </View>
+        )}
+        {replyTo !== null && (
+          <View style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', borderRadius: 8, background: 'rgba(0,212,255,0.08)', marginBottom: '4px' }}>
+            <Text style={{ flex: 1, fontSize: '11px', color: '#00d4ff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>↩ {replyTo.senderName}:{replyTo.content}</Text>
+            <Text style={{ color: '#8b9bb4', fontSize: '12px' }} onClick={() => setReplyTo(null)}>×</Text>
           </View>
         )}
         <View style={{ display: 'flex', gap: '6px', paddingTop: '8px', borderTop: '1px solid rgba(139,155,180,0.15)', alignItems: 'center' }}>

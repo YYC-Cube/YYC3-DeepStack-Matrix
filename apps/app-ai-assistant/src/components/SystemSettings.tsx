@@ -329,7 +329,7 @@ function APIEndpointConfig() {
       {/* 当前配置状态概要 */}
       <div className="mt-4 p-3 rounded-lg bg-[rgba(0,20,40,0.6)] border border-[rgba(0,180,255,0.06)]">
         <p className="text-[rgba(0,212,255,0.3)] mb-2" style={{ fontSize: "0.62rem" }}>当前配置概要</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 @md:grid-cols-4 gap-2">
           <div className="text-center">
             <p className={`font-mono ${apiConfig.enableBackend ? "text-[#00ff88]" : "text-[rgba(255,100,100,0.6)]"}`} style={{ fontSize: "0.75rem" }}>
               {apiConfig.enableBackend ? "已启用" : "Mock 模式"}
@@ -448,7 +448,7 @@ function ModelManagementSection({ settings, toggleSetting }: { settings: any; to
       {(isAdding || editModel) && (
         <div className="p-4 rounded-xl bg-[rgba(0,20,40,0.5)] border border-[rgba(0,212,255,0.2)] space-y-3">
           <h4 className="text-[#e0f0ff]" style={{ fontSize: "0.85rem" }}>{isAdding ? "添加新模型" : `编辑: ${editModel?.name}`}</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 @md:grid-cols-2 gap-3">
             <div>
               <label className="text-[rgba(0,212,255,0.5)] block mb-1" style={{ fontSize: "0.7rem" }}>模型名称 *</label>
               <input value={fName} onChange={e => setFName(e.target.value)} placeholder="例: LLaMA-70B"
@@ -648,7 +648,7 @@ export function SystemSettings() {
                 <YYC3Logo size="sm" showStatus={false} glow={false} />
                 <h3 className="text-[#e0f0ff]" style={{ fontSize: "0.95rem" }}>系统信息</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 @md:grid-cols-2 gap-3">
                 <EditableField label="系统名称" value={values.systemName} onChange={v => updateValue("systemName", v)} description="系统显示标题" />
                 <EditableField label="集群 ID" value={values.clusterId} onChange={v => updateValue("clusterId", v)} description="全局唯一集群标识" mono />
                 <EditableField label="品牌名称" value={values.brandName || "YanYuCloudCube"} onChange={v => updateValue("brandName", v)} description="品牌标识" />
@@ -787,7 +787,7 @@ export function SystemSettings() {
             {/* 节点拓扑 */}
             <div>
               <h4 className="text-[rgba(0,212,255,0.6)] mb-3" style={{ fontSize: "0.8rem" }}>节点拓扑</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 @md:grid-cols-3 gap-3">
                 {[
                   { name: "M4 Max 主节点", ip: "192.168.3.45", role: "主节点", status: "active", color: "#00d4ff" },
                   { name: "iMac 辅助节点", ip: "192.168.3.46", role: "辅助", status: "active", color: "#00ff88" },
@@ -862,7 +862,7 @@ export function SystemSettings() {
         return (
           <div className="space-y-6">
             <h3 className="text-[#e0f0ff] mb-4" style={{ fontSize: "0.95rem" }}>存储配置</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-1 @md:grid-cols-2 gap-3 mb-4">
               {[
                 { label: "总存储", value: "48 TB", used: "12.8 TB", pct: 27, color: "#00d4ff" },
                 { label: "向量数据库", value: "8 TB", used: "5.2 TB", pct: 65, color: "#00ff88" },
@@ -1276,9 +1276,12 @@ export function SystemSettings() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 h-full">
+    <div
+      className="grid gap-3 h-full"
+      style={{ gridTemplateColumns: "minmax(220px, 3fr) 9fr" }}
+    >
       {/* Left sidebar */}
-      <GlassCard className="md:col-span-3 p-3">
+      <GlassCard className="p-3 overflow-auto">
         <h3 className="text-[#e0f0ff] px-3 mb-4" style={{ fontSize: "0.9rem" }}>系统设置</h3>
         <div className="space-y-1">
           {settingsSections.map((section) => (
@@ -1323,7 +1326,7 @@ export function SystemSettings() {
       </GlassCard>
 
       {/* Right content */}
-      <GlassCard className="md:col-span-9 p-4 md:p-6 overflow-auto">
+      <GlassCard className="p-4 md:p-6 overflow-auto">
         {renderSection()}
 
         {/* Save / Reset buttons - sticky at bottom */}

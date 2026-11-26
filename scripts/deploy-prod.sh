@@ -25,13 +25,30 @@ PRE_PORT="$(sed -n 's/^DATABASE_URL_OWNER=//p' "$PROD_ENV" | tr -d '\r' | sed -E
 if [ -z "$PRE_HOST" ] || [ -z "$PRE_PORT" ]; then
   echo "❌ $PROD_ENV 缺 DATABASE_URL_OWNER(无法解析主库地址)"; exit 1
 fi
-if ! nc -z -w 5 "$PRE_HOST" "$PRE_PORT" 2>/dev/null; then
-  echo "❌ 生产主库 $PRE_HOST:$PRE_PORT 不可达(TCP 5s 超时)。"
-  echo "   疑似 NAS 45 掉线/主库故障——拒绝部署,避免在任何写路径上做半发布。"
-  echo "   处置:①检查 NAS 45 物理电源/网络(恢复即愈)②或经 Owner 授权走 promote-22 预案(scripts/promote-22.sh)"
+# 认证级探针(2026-11-19 升级:nc TCP 通≠认证/槽可用——连接槽满事故实测;
+# pg_isready:0=accepting 1=rejecting(槽满) 2=no response(主机/网络断))
+PGISO="$(command -v pg_isready || echo /opt/homebrew/bin/pg_isready)"
+PGREADY=2
+for _try in 1 2 3; do
+  "$PGISO" -h "$PRE_HOST" -p "$PRE_PORT" -U leisure -t 5 >/dev/null 2>&1
+  PGREADY=$?
+  [ "$PGREADY" = "0" ] && break
+  if [ "$PGREADY" = "2" ]; then break; fi   # 主机不可达:重试无意义
+  echo "── 主库拒绝连接(槽满?pg_isready=$PGREADY),10s 后重试($_try/3)…"
+  sleep 10
+done
+if [ "$PGREADY" != "0" ]; then
+  if [ "$PGREADY" = "2" ]; then
+    echo "❌ 生产主库 $PRE_HOST:$PRE_PORT 无响应(主机/网络断)。"
+    echo "   处置:①检查 NAS 45 物理电源/网络(恢复即愈)②或经 Owner 授权走 promote-22 预案(scripts/promote-22.sh)"
+  else
+    echo "❌ 生产主库 $PRE_HOST:$PRE_PORT 拒绝连接(槽满/认证问题,重试 3 次未过)。"
+    echo "   处置(NAS 面板/SSH):pg_stat_activity 定位→terminate prisma/idle 残留→或 restart PG 容器;清后重跑本脚本。"
+  fi
+  echo "   拒绝部署,避免在任何写路径上做半发布。"
   exit 1
 fi
-echo "── 链路探针通过: 主库 $PRE_HOST:$PRE_PORT 可达"
+echo "── 链路探针通过: 主库 $PRE_HOST:$PRE_PORT accepting"
 
 # 1) 构建
 if [ "${SKIP_BUILD:-0}" != "1" ]; then

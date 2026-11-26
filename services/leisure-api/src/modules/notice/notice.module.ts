@@ -64,6 +64,11 @@ class CreateNoticeDto {
   /** 提醒效果(新通告红点+首次弹层;默认 true) */
   @IsOptional()
   remind?: boolean
+  /** 跳转直读(2026-11-18;站内路径如 /orders/queue;空=无跳转) */
+  @IsOptional()
+  @IsString()
+  @Length(0, 255)
+  link?: string
 }
 
 class UpdateNoticeDto {
@@ -96,6 +101,10 @@ class UpdateNoticeDto {
   visibleTitles?: string
   @IsOptional()
   remind?: boolean
+  /** 跳转直读(空字符串=清除) */
+  @IsOptional()
+  @IsString()
+  link?: string
 }
 
 @Injectable()
@@ -137,6 +146,7 @@ export class NoticeService {
         id: r.id,
         title: r.title,
         body: r.body,
+        link: r.link,
         publishedBy: r.publishedBy,
         publisherName: nameMap.get(r.publishedBy) ?? null,
         createdAt: r.createdAt.toISOString(),
@@ -160,6 +170,7 @@ export class NoticeService {
         ...(body.playSpeed !== undefined ? { playSpeed: body.playSpeed } : {}),
         ...(body.visibleTitles !== undefined ? { visibleTitles: body.visibleTitles } : {}),
         ...(body.remind !== undefined ? { remind: body.remind } : {}),
+        ...(body.link !== undefined ? { link: body.link === '' ? null : body.link } : {}),
       },
     })
     await this.audit(storeId, operatorId, 'NOTICE_CREATE', 'notice', String(created.id), null, {
@@ -182,6 +193,7 @@ export class NoticeService {
         ...(body.playSpeed !== undefined ? { playSpeed: body.playSpeed } : {}),
         ...(body.visibleTitles !== undefined ? { visibleTitles: body.visibleTitles === '' ? null : body.visibleTitles } : {}),
         ...(body.remind !== undefined ? { remind: body.remind } : {}),
+        ...(body.link !== undefined ? { link: body.link === '' ? null : body.link } : {}),
       },
     })
     await this.audit(storeId, operatorId, 'NOTICE_UPDATE', 'notice', String(id), before, after)

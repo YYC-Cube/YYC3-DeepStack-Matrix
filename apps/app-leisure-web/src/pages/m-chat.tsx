@@ -14,6 +14,9 @@ interface GroupRow {
   id: number
   name: string
   kind: 'STORE' | 'GROUP'
+  ownerId: number | null
+  status: string
+  canDismiss: boolean
   msgCount: number
   lastAt: string | null
   lastPreview: string
@@ -672,6 +675,21 @@ export default function MChatPage(): React.JSX.Element {
               <div className="text-[10px] text-fg-muted">{g.msgCount > 0 ? String(g.msgCount) + ' 条' : ''}</div>
               <div className="text-[10px] text-fg-muted">{g.kind === 'STORE' ? '店群' : '组别'}</div>
             </div>
+            {g.canDismiss && g.kind === 'STORE' && (
+              <button
+                className="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted hover:text-[#ff5555] hover:border-[#ff5555]/50"
+                title="解散群(软删,管理端可查审计)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (!window.confirm('确认解散「' + g.name + '」?解散后全员不可见(软删)。')) return
+                  void req('POST', '/chat/groups/' + String(g.id) + '/dismiss', {})
+                    .then(() => { toast.success('已解散'); void loadGroups() })
+                    .catch((err2) => toastError(err2))
+                }}
+              >
+                解散
+              </button>
+            )}
           </div>
         </Card>
       ))}

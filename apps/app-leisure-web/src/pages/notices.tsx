@@ -14,6 +14,8 @@ interface NoticeRow {
   id: number
   title: string
   body: string
+  /** 跳转直读(2026-11-18;空=旧数据,回落 body 嗅探) */
+  link?: string | null
   publishedBy: number
   publisherName: string | null
   createdAt: string
@@ -35,6 +37,8 @@ interface FormState {
   playSpeed: string
   visibleTitles: string[]
   remind: boolean
+  /** 跳转直读(站内路径;空=无) */
+  link: string
 }
 
 const TITLE_OPTIONS = [
@@ -51,7 +55,7 @@ const SPEED_OPTIONS = [
 ]
 
 function emptyForm(): FormState {
-  return { title: '', body: '', playTimes: '3', playStart: '', playEnd: '', playSpeed: '22', visibleTitles: [], remind: true }
+  return { title: '', body: '', playTimes: '3', playStart: '', playEnd: '', playSpeed: '22', visibleTitles: [], remind: true, link: '' }
 }
 
 export default function NoticesPage(): React.JSX.Element {
@@ -107,6 +111,7 @@ export default function NoticesPage(): React.JSX.Element {
         playSpeed: String(r.playSpeed ?? 22),
         visibleTitles: [],
         remind: r.remind ?? true,
+        link: r.link ?? '',
       })
     }
   }
@@ -121,6 +126,7 @@ export default function NoticesPage(): React.JSX.Element {
       const body = {
         title: form.title.trim(),
         body: form.body.trim(),
+        link: form.link.trim(),
         playTimes: Number(form.playTimes) || 0,
         ...(form.playStart !== '' ? { playStart: new Date(form.playStart).toISOString() } : {}),
         ...(form.playEnd !== '' ? { playEnd: new Date(form.playEnd).toISOString() } : {}),
@@ -165,9 +171,12 @@ export default function NoticesPage(): React.JSX.Element {
           <Card key={r.id} className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <span
-                className={'text-sm font-medium text-[var(--lm-fg)]' + (r.body.includes('/orders/queue') ? ' cursor-pointer hover:text-primary' : '')}
-                title={r.body.includes('/orders/queue') ? '点击直达履约队列' : undefined}
-                onClick={() => { if (r.body.includes('/orders/queue')) navigate('/orders/queue') }}
+                className={'text-sm font-medium text-[var(--lm-fg)]' + ((r.link ?? '') !== '' || r.body.includes('/orders/queue') ? ' cursor-pointer hover:text-primary' : '')}
+                title={(r.link ?? '') !== '' || r.body.includes('/orders/queue') ? '点击直达' : undefined}
+                onClick={() => {
+                  if (r.link !== undefined && r.link !== null && r.link !== '') { navigate(r.link); return }
+                  if (r.body.includes('/orders/queue')) navigate('/orders/queue')
+                }}
               >
                 {r.title}
               </span>
@@ -225,6 +234,9 @@ export default function NoticesPage(): React.JSX.Element {
                   onChange={(e) => setForm({ ...form, body: e.target.value })}
                   placeholder="通告正文(将横向滚动展示于移动工作台)"
                 />
+              </Field>
+              <Field label="跳转路径(可选;移动端通告点击直达)">
+                <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="如 /orders/queue" />
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="播放次数(0=常驻循环)">

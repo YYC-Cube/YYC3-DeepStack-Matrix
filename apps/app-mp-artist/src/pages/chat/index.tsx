@@ -16,6 +16,8 @@ interface GroupRow {
   msgCount: number
   lastAt: string | null
   lastPreview: string
+  /** 群成员数(2026-11-18 群成员真名单;loadGroups 后逐群懒取) */
+  memberCount?: number
 }
 interface ReactionGroup {
   emoji: string
@@ -100,6 +102,14 @@ export default function Chat() {
   const loadGroups = useCallback(async (): Promise<void> => {
     try {
       const res = await chatGroups()
+      // 群成员数懒取(C2:members 端点现成;逐群一次,缓存于 state)
+      void Promise.all(res.rows.map(async (g) => {
+        try {
+          const m = await Taro.request({ url: apiBase() + '/chat/groups/' + String(g.id) + '/members', method: 'GET', header: (() => { const a = loadAuth(); return a !== null ? { Authorization: 'Bearer ' + a.token } : {} })(), timeout: 8000 })
+          const json = m.data as { code: number; data?: { total: number } }
+          if (json.code === 0 && json.data !== undefined) setGroups((prev) => prev.map((x) => (x.id === g.id ? { ...x, memberCount: json.data!.total } : x)))
+        } catch { /* 静默 */ }
+      }))
       setGroups(res.rows)
     } catch (e) {
       setMsg_(errText(e))
@@ -562,7 +572,7 @@ export default function Chat() {
                   {unread > 99 ? '99+' : String(unread)}
                 </View>
               )}
-              <Text className="mp-muted" style={{ fontSize: '10px' }}>{g.kind === 'STORE' ? '店群' : '组别'}</Text>
+              <Text className="mp-muted" style={{ fontSize: '10px' }}>{g.kind === 'STORE' ? '店群' : '组别'}{g.memberCount !== undefined ? ' · ' + String(g.memberCount) + ' 人' : ''}</Text>
             </View>
           </View>
         )

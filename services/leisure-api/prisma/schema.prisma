@@ -786,6 +786,8 @@ model Notice {
   visibleTitles String? @map("visible_titles") @db.VarChar(255)
   // 提醒效果:新通告工作台红点+首次自动弹层
   remind      Boolean   @default(true)
+  // 跳转直读(2026-11-18:notice 点击直达;替换 body 文本嗅探弱约定;空=无跳转)
+  link        String?   @db.VarChar(255)
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
 
@@ -1051,6 +1053,9 @@ model ChatGroup {
   groupId     Int?      @map("group_id") // 绑 artist_group=动态成员群;空=店群(全员)
   line        String?   @db.VarChar(16)
   createdById Int       @map("created_by_id")
+  // 群主/状态(2026-11-18:群解散结构;owner=建群人;status ACTIVE/DISMISSED)
+  ownerId     Int?      @map("owner_id")
+  status      String    @default("ACTIVE") @db.VarChar(16)
   createdAt   DateTime  @default(now()) @map("created_at")
 
   messages    ChatMessage[]

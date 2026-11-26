@@ -261,9 +261,18 @@ export class CommService {
   /** 群列表(含可见性过滤:artist 只见店群+本人组别的动态群) */
   async listGroups(storeId: number, viewer: { scope: string; id: number }) {
     const groups = await this.prisma.chatGroup.findMany({
-      where: { storeId },
+      where: { storeId, status: 'ACTIVE' },
       orderBy: { id: 'asc' },
     })
+    // canDismiss(2026-11-18 C1):群主/建群人 或 管理职 VP·总监 或 管理员角色(后端算好,前端零判断)
+    let canDismissAny = false
+    if (viewer.scope === 'ADMIN') {
+      const me = await this.prisma.adminUser.findUnique({ where: { id: viewer.id }, select: { title: true, roleId: true } })
+      const role = me?.roleId !== null && me?.roleId !== undefined
+        ? await this.prisma.role.findUnique({ where: { id: me.roleId }, select: { name: true } })
+        : null
+      canDismissAny = me?.title === 'VP' || me?.title === 'MANAGER_DIRECTOR' || role?.name === '管理员'
+    }
     const myGroupId = await this.viewerGroupId(storeId, viewer)
     const visible = groups.filter((g) => {
       if (viewer.scope !== 'ARTIST') return true
@@ -289,12 +298,43 @@ export class CommService {
           name: g.name,
           groupId: g.groupId,
           kind: g.groupId === null ? 'STORE' : 'GROUP',
+          ownerId: g.ownerId,
+          status: g.status,
+          canDismiss: canDismissAny || g.ownerId === viewer.id || g.createdById === viewer.id,
           msgCount: l?._count._all ?? 0,
           lastAt: lm?.createdAt.toISOString() ?? null,
           lastPreview: lm !== undefined ? lm.senderName + ':' + lm.content.slice(0, 30) : '',
         }
       }),
     }
+  }
+
+  /** 解散群(2026-11-18 C1:仅店群手动群;群主/建群人/管理职 VP·总监/管理员;软删=status DISMISSED+审计) */
+  async dismissGroup(storeId: number, chatGroupId: number, operator: { id: number; scope: string }): Promise<void> {
+    const g = await this.prisma.chatGroup.findFirst({ where: { id: chatGroupId, storeId } })
+    if (g === null) throw new BadRequestException('群不存在')
+    if (g.groupId !== null) throw new BadRequestException('组别群为动态成员群,不支持解散')
+    if (g.status !== 'ACTIVE') throw new BadRequestException('群已解散')
+    const me = await this.prisma.adminUser.findUnique({ where: { id: operator.id }, select: { title: true, roleId: true } })
+    const role = me?.roleId !== null && me?.roleId !== undefined
+      ? await this.prisma.role.findUnique({ where: { id: me.roleId }, select: { name: true } })
+      : null
+    const isOwner = g.ownerId === operator.id || g.createdById === operator.id
+    const isMgr = me?.title === 'VP' || me?.title === 'MANAGER_DIRECTOR'
+    const isSuper = role?.name === '管理员'
+    if (!isOwner && !isMgr && !isSuper) throw new ForbiddenException('仅群主或管理职(销售副总/销售总监)可解散群')
+    await this.prisma.chatGroup.update({ where: { id: g.id }, data: { status: 'DISMISSED' } })
+    await this.prisma.auditLog.create({
+      data: {
+        storeId,
+        actorId: operator.id,
+        action: 'CHAT_GROUP_DISMISS',
+        targetType: 'chat_group',
+        targetId: String(g.id),
+        beforeJson: null as unknown as object,
+        afterJson: { name: g.name } as object,
+      },
+    })
   }
 
   /** 群成员真名单(2026-11-18 Owner 反馈「群成员」:店群=在册销售经理+管理端账号;组别群=本组销售经理) */
@@ -348,7 +388,7 @@ export class CommService {
       groupId = g.id
     }
     const created = await this.prisma.chatGroup.create({
-      data: { storeId, name: body.name, groupId, createdById: operator.id },
+      data: { storeId, name: body.name, groupId, createdById: operator.id, ownerId: operator.id },
     })
     await this.prisma.auditLog.create({
       data: {
@@ -1670,6 +1710,14 @@ export class ChatController {
   async groupMembers(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
     const u = op(req)
     return this.svc.chatGroupMembers(u.storeId, id)
+  }
+
+  /** 解散群(C1:店群手动群;群主/管理职 VP·总监/管理员;软删 DISMISSED+审计) */
+  @Post('groups/:id/dismiss')
+  async dismissGroup(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    await this.svc.dismissGroup(u.storeId, id, u)
+    return { ok: true }
   }
 
   /** 全店高频表情统计(面板高频行;近 500 条聚合,60s 缓存) */

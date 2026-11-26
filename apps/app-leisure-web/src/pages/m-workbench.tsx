@@ -36,7 +36,7 @@ import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 import type { ReconListResult } from '@yyc3/leisure-core'
 
 /** 工作通告兜底占位(/notices 无数据时显示) */
-const FALLBACK_announcements: Array<{ id?: number; remind?: boolean; date: string; text: string }> = [
+const FALLBACK_announcements: Array<{ id?: number; remind?: boolean; date: string; text: string; link?: string }> = [
   { date: '系统', text: '欢迎使用 YYC³ LeisureManage 移动工作台 · 工作通告由管理端「工作通告」页发布' },
 ]
 
@@ -218,6 +218,7 @@ export default function MWorkbenchPage(): React.JSX.Element {
                 remind: n.remind,
                 date: n.createdAt.slice(5, 10),
                 text: n.title !== '' ? n.title + ':' + n.body : n.body,
+                link: (n as { link?: string }).link,
               })),
             )
             setMarqueeSpeed(inWindow[0]?.playSpeed ?? 22)
@@ -579,7 +580,8 @@ export default function MWorkbenchPage(): React.JSX.Element {
               <div className="text-sm text-fg-muted py-6 text-center">暂无通告;制度与工作通知发布后在此显示</div>
             )}
             {announcements.map((a, i) => {
-              const jump = a.text.includes('/orders/queue') ? '/orders/queue' : null
+              // 2026-11-18 notice.link 直读优先;兼容旧数据 body 文本嗅探
+              const jump = a.link ?? (a.text.includes('/orders/queue') ? '/orders/queue' : null)
               return (
                 <div
                   key={i}

@@ -27,7 +27,9 @@ import {
   Maximize2,
   MessageSquare,
   Minimize2,
+  Music,
   Network,
+  Phone,
   Play,
   RotateCcw,
   Send,
@@ -117,6 +119,12 @@ interface AppPageEntry {
 }
 
 const APP_PAGES: AppPageEntry[] = [
+  { path: "/ai-family", icon: Sparkles, name: "AI Family", desc: "八 Agent 时钟环 · 家族中枢", color: "#00d4ff" },
+  { path: "/ai-family/music", icon: Music, name: "音乐空间", desc: "沉浸专注 · AI 智能推荐", color: "#ffdd00" },
+  { path: "/ai-family/chat", icon: MessageSquare, name: "交流中心", desc: "家庭群聊 · 8 位家人在线", color: "#00ff88" },
+  { path: "/ai-family/comm", icon: Network, name: "通讯中心", desc: "公告/警报/消息 · 本地持久化", color: "#0088ff" },
+  { path: "/ai-family/phone", icon: Phone, name: "家人热线", desc: "专属号码 · 一个电话的温暖", color: "#00ff66" },
+  { path: "/ai-family/settings", icon: Sliders, name: "Family 设置", desc: "生态控制中心 · 13 模块测通", color: "#ff9900" },
   { path: "/models", icon: Cpu, name: "模型管理", desc: "服务商注册表 · 已配置模型", color: "#aa55ff" },
   { path: "/settings", icon: Sliders, name: "系统设置", desc: "13 项配置 · 网络连接 · 安全", color: "#ff9900" },
 ];

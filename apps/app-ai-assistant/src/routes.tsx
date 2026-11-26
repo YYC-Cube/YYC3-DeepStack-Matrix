@@ -11,6 +11,8 @@ import { createHashRouter, Navigate, useLocation } from "react-router";
 import { Login } from "./components/Login";
 import { ModelProviderPanel } from "./components/ModelProviderPanel";
 import { SystemSettings } from "./components/SystemSettings";
+import { AIFamilyPage } from "./components/AIFamilyPage";
+import { AIFamilyRouter } from "./components/ai-family/AIFamilyRouter";
 import { BottomNav } from "./components/BottomNav";
 import { AIAssistant } from "./components/AIAssistant";
 import { YYC3Logo } from "./components/YYC3Logo";
@@ -120,6 +122,23 @@ export const router = createHashRouter([
     element: (
       <Protected>
         <SystemSettings />
+      </Protected>
+    ),
+  },
+  {
+    // AI Family 七图示域:hub 时钟环 + 16 子页(浮窗「页面」页签内嵌同一批路由)
+    path: "/ai-family",
+    element: (
+      <Protected>
+        <AIFamilyPage />
+      </Protected>
+    ),
+  },
+  {
+    path: "/ai-family/:subpage",
+    element: (
+      <Protected>
+        <AIFamilyRouter />
       </Protected>
     ),
   },

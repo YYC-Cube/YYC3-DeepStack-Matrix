@@ -236,7 +236,13 @@ export default function NoticesPage(): React.JSX.Element {
                 />
               </Field>
               <Field label="跳转路径(可选;移动端通告点击直达)">
-                <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="如 /orders/queue" />
+                <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="如 /orders/queue" list="notice-link-options" />
+                <datalist id="notice-link-options">
+                  <option value="/orders/queue">点单履约队列</option>
+                  <option value="/customers?overdue=1">客资超期待办</option>
+                  <option value="/m/tasks">任务中心</option>
+                  <option value="/tickets">台票体系</option>
+                </datalist>
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="播放次数(0=常驻循环)">

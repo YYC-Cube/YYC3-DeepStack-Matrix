@@ -409,6 +409,23 @@ export class CommService {
   }
 
   /** 群成员真名单(2026-11-18 Owner 反馈「群成员」:店群=在册销售经理+管理端账号;组别群=本组销售经理;id=转让/定位用) */
+  /** 读水位上报(2026-11-19 已读回执轻量版:upsert 幂等;ARTIST 强制本人) */
+  async reportRead(chatGroupId: number, storeId: number, viewer: { scope: string; id: number }, watermark: number): Promise<void> {
+    await this.assertCanJoin(chatGroupId, storeId, viewer)
+    const uid = viewer.scope === 'ARTIST' ? viewer.id : viewer.id
+    await this.prisma.chatReadState.upsert({
+      where: { chatGroupId_userScope_userId: { chatGroupId, userScope: viewer.scope, userId: uid } },
+      create: { storeId, chatGroupId, userScope: viewer.scope, userId: uid, watermark },
+      update: { watermark, updatedAt: new Date() },
+    })
+  }
+
+  /** 已读态(2026-11-19:群成员读水位列表;「已读 N」本地计算数据源) */
+  async readStates(chatGroupId: number, storeId: number): Promise<{ rows: Array<{ userScope: string; userId: number; watermark: number }> }> {
+    const rows = await this.prisma.chatReadState.findMany({ where: { storeId, chatGroupId }, select: { userScope: true, userId: true, watermark: true } })
+    return { rows }
+  }
+
   async chatGroupMembers(storeId: number, chatGroupId: number): Promise<{ rows: Array<{ id: number; name: string; scope: string; title: string | null }>; total: number }> {
     const g = await this.prisma.chatGroup.findFirst({ where: { id: chatGroupId, storeId } })
     if (g === null) throw new BadRequestException('群不存在')
@@ -1816,6 +1833,26 @@ export class ChatController {
   async groupMembers(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
     const u = op(req)
     return this.svc.chatGroupMembers(u.storeId, id)
+  }
+
+  /** 读水位上报(2026-11-19 已读回执轻量版;幂等 upsert) */
+  @Post('groups/:id/read')
+  async reportRead(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { watermark: number },
+  ): Promise<unknown> {
+    const u = op(req)
+    if (body.watermark === undefined || !Number.isFinite(body.watermark)) throw new BadRequestException('watermark 必填')
+    await this.svc.reportRead(id, u.storeId, u, Math.floor(body.watermark))
+    return { ok: true }
+  }
+
+  /** 群成员读水位列表(「已读 N」本地计算数据源) */
+  @Get('groups/:id/read-state')
+  async readStates(@Req() req: Request, @Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    const u = op(req)
+    return this.svc.readStates(id, u.storeId)
   }
 
   /** 解散群(C1:店群手动群;群主/管理职 VP·总监/管理员;软删 DISMISSED+审计) */

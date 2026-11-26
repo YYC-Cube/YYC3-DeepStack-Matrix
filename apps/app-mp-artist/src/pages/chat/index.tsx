@@ -16,8 +16,10 @@ interface GroupRow {
   msgCount: number
   lastAt: string | null
   lastPreview: string
-  /** 群成员数(2026-11-18 群成员真名单;loadGroups 后逐群懒取) */
   memberCount?: number
+  /** 成员真名单(C2:点「成员」按钮时懒取) */
+  members?: Array<{ id: number; name: string; scope: string; title: string | null }>
+  showMembers?: boolean
 }
 interface ReactionGroup {
   emoji: string
@@ -368,6 +370,32 @@ export default function Chat() {
         <View style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '8px' }}>
           <Button className="mp-btn" style={{ flex: '0 0 auto', padding: '2px 10px' }} onClick={() => { setActive(null); void loadGroups() }}>← 返回</Button>
           <Text style={{ fontSize: '14px', fontWeight: 700, color: '#e0f0ff' }}>{active.name}</Text>
+          <Button className="mp-btn-outline" style={{ flex: '0 0 auto', padding: '2px 10px', marginLeft: 'auto' }} onClick={() => {
+            const gid = active.id
+            const cur = groups.find((x) => x.id === gid)
+            if (cur !== undefined && cur.members !== undefined) {
+              setGroups((s) => s.map((x) => (x.id === gid ? { ...x, showMembers: !(x.showMembers === true) } : x)))
+              return
+            }
+            void Taro.request({ url: apiBase() + '/chat/groups/' + String(gid) + '/members', method: 'GET', header: (() => { const a = loadAuth(); return a !== null ? { Authorization: 'Bearer ' + a.token } : {} })(), timeout: 8000 })
+              .then((res) => {
+                const json = res.data as { code: number; data?: { rows: Array<{ id: number; name: string; scope: string; title: string | null }> } }
+                if (json.code === 0 && json.data !== undefined) setGroups((s2) => s2.map((x) => (x.id === gid ? { ...x, members: json.data!.rows, showMembers: true, memberCount: json.data!.rows.length } : x)))
+              })
+              .catch(() => undefined)
+          }}>成员</Button>
+          {active.showMembers === true && (active.members ?? []).length > 0 && (
+            <View style={{ width: '100%', marginTop: '8px', padding: '8px 10px', borderRadius: 10, background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.15)' }}>
+              {(active.members ?? []).map((mm) => (
+                <View key={String(mm.id) + mm.name} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '3px 0' }}>
+                  <Text style={{ fontSize: '10px', color: mm.scope === 'ADMIN' ? '#00d4ff' : '#8b9bb4', background: 'rgba(0,212,255,0.08)', borderRadius: 6, padding: '1px 6px' }}>{mm.scope === 'ADMIN' ? '管理' : '销售'}</Text>
+                  <Text style={{ fontSize: '12px', color: '#e0f0ff' }}>{mm.name}</Text>
+                  {mm.title !== null && mm.title !== '' && <Text style={{ fontSize: '10px', color: '#8b9bb4' }}>{mm.title}</Text>}
+                </View>
+              ))}
+              <Text style={{ fontSize: '10px', color: '#8b9bb4', marginTop: '4px', display: 'block' }}>共 {String((active.members ?? []).length)} 人(店群=全员;组别群=本组销售经理)</Text>
+            </View>
+          )}
           <Text className="mp-muted">{active.kind === 'STORE' ? '店群' : '组别群'}</Text>
         </View>
         <View style={{ paddingBottom: '6px' }}>

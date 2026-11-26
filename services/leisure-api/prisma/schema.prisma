@@ -1086,6 +1086,21 @@ model ChatMessage {
   @@index([chatGroupId, id])
   @@map("chat_message")
 }
+
+/// 群成员读水位(2026-11-19 已读回执轻量版:服务端化;「已读 N」数据源)
+model ChatReadState {
+  id          Int      @id @default(autoincrement())
+  storeId     Int      @map("store_id")
+  chatGroupId Int      @map("group_id")
+  userScope   String   @map("user_scope") @db.VarChar(16)
+  userId      Int      @map("user_id")
+  watermark   Int
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([chatGroupId, userScope, userId])
+  @@index([chatGroupId])
+  @@map("chat_read_state")
+}
 /// 任务中心(对标竞品图 9「设置订房任务」;2026-11-05:给销售经理下指标,完成度实时聚合)
 model Task {
   id             Int       @id @default(autoincrement())

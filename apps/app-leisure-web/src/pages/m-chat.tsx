@@ -85,6 +85,8 @@ export default function MChatPage(): React.JSX.Element {
   const [dismissed, setDismissed] = useState<Array<{ id: number; name: string }>>([])
   /** 引用回复(2026-11-19 沟通闭环;输入框上方引用条,发送带 replyToId) */
   const [replyTo, setReplyTo] = useState<{ id: number; senderName: string; content: string } | null>(null)
+  /** 群成员读水位(2026-11-26 已读回执轻量版;「已读 N」本地计算) */
+  const [readStates, setReadStates] = useState<Array<{ userScope: string; userId: number; watermark: number }>>([])
   /** @提及自动补全(输入 @ 触发成员过滤 popover) */
   const [mentionQuery, setMentionQuery] = useState<string | null>(null)
   /** 草稿(切群/刷新保留;yyc3-chat-drafts {gid: draft}) */
@@ -310,6 +312,11 @@ export default function MChatPage(): React.JSX.Element {
         setMsgs(res.rows)
         lastIdRef.current = res.rows.length > 0 ? Math.max(...res.rows.map((m) => m.id)) : 0
         if (lastIdRef.current > 0) writeRead(g.id, lastIdRef.current)
+        // 读水位服务端上报+群成员水位拉取(2026-11-26 已读回执轻量版)
+        void req('POST', '/chat/groups/' + String(g.id) + '/read', { watermark: lastIdRef.current }).catch(() => undefined)
+        void req<{ rows: Array<{ userScope: string; userId: number; watermark: number }> }>('GET', '/chat/groups/' + String(g.id) + '/read-state')
+          .then((r) => setReadStates(r.rows))
+          .catch(() => undefined)
       })
       .catch((e) => toastError(e, '消息加载失败'))
   }
@@ -631,6 +638,11 @@ export default function MChatPage(): React.JSX.Element {
                             撤回
                           </button>
                         )}
+                        {/* 已读回执轻量版(2026-11-26:自己消息展示「已读 n」;n=水位≥本消息 id 的群成员上报数) */}
+                        {m.senderScope === 'ADMIN' && m.senderName === myName && m.type !== 'RETRACTED' && (() => {
+                          const readCnt = readStates.filter((r) => r.watermark >= m.id).length
+                          return readCnt > 0 ? <span className="text-[10px] text-fg-muted ml-1.5">已读 {String(readCnt)}</span> : null
+                        })()}
                         {/* 引用回复(2026-11-19 沟通闭环) */}
                         {m.type !== 'RETRACTED' && (
                           <button

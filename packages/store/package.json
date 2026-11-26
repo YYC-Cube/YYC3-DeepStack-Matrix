@@ -7,30 +7,127 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./ai-suggestion-slice": "./src/ai-suggestion-slice.ts",
-    "./app-slice": "./src/app-slice.ts",
-    "./db-conn-slice": "./src/db-conn-slice.ts",
-    "./follow-up-slice": "./src/follow-up-slice.ts",
-    "./fs-slice": "./src/fs-slice.ts",
-    "./log-slice": "./src/log-slice.ts",
-    "./metrics-slice": "./src/metrics-slice.ts",
-    "./model-slice": "./src/model-slice.ts",
-    "./network-slice": "./src/network-slice.ts",
-    "./node-slice": "./src/node-slice.ts",
-    "./offline-slice": "./src/offline-slice.ts",
-    "./provider-slice": "./src/provider-slice.ts",
-    "./sdk-session-slice": "./src/sdk-session-slice.ts",
-    "./settings-ssot-slice": "./src/settings-ssot-slice.ts",
-    "./ui-prefs-slice": "./src/ui-prefs-slice.ts",
-    "./user-mgmt-slice": "./src/user-mgmt-slice.ts",
-    "./use-ai-diagnostics": "./src/use-ai-diagnostics.ts",
-    "./use-model-provider": "./src/use-model-provider.ts",
-    "./use-websocket-data": "./src/use-websocket-data.ts",
-    "./use-settings-store": "./src/use-settings-store.ts",
-    "./useOfflineMode": "./src/useOfflineMode.ts",
-    "./use-big-model-sdk": "./src/use-big-model-sdk.ts",
-    "./global-store": "./src/global-store.ts"
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./ai-suggestion-slice": {
+      "types": "./dist/ai-suggestion-slice.d.ts",
+      "import": "./dist/ai-suggestion-slice.js",
+      "require": "./dist/ai-suggestion-slice.cjs"
+    },
+    "./app-slice": {
+      "types": "./dist/app-slice.d.ts",
+      "import": "./dist/app-slice.js",
+      "require": "./dist/app-slice.cjs"
+    },
+    "./db-conn-slice": {
+      "types": "./dist/db-conn-slice.d.ts",
+      "import": "./dist/db-conn-slice.js",
+      "require": "./dist/db-conn-slice.cjs"
+    },
+    "./follow-up-slice": {
+      "types": "./dist/follow-up-slice.d.ts",
+      "import": "./dist/follow-up-slice.js",
+      "require": "./dist/follow-up-slice.cjs"
+    },
+    "./fs-slice": {
+      "types": "./dist/fs-slice.d.ts",
+      "import": "./dist/fs-slice.js",
+      "require": "./dist/fs-slice.cjs"
+    },
+    "./log-slice": {
+      "types": "./dist/log-slice.d.ts",
+      "import": "./dist/log-slice.js",
+      "require": "./dist/log-slice.cjs"
+    },
+    "./metrics-slice": {
+      "types": "./dist/metrics-slice.d.ts",
+      "import": "./dist/metrics-slice.js",
+      "require": "./dist/metrics-slice.cjs"
+    },
+    "./model-slice": {
+      "types": "./dist/model-slice.d.ts",
+      "import": "./dist/model-slice.js",
+      "require": "./dist/model-slice.cjs"
+    },
+    "./network-slice": {
+      "types": "./dist/network-slice.d.ts",
+      "import": "./dist/network-slice.js",
+      "require": "./dist/network-slice.cjs"
+    },
+    "./node-slice": {
+      "types": "./dist/node-slice.d.ts",
+      "import": "./dist/node-slice.js",
+      "require": "./dist/node-slice.cjs"
+    },
+    "./offline-slice": {
+      "types": "./dist/offline-slice.d.ts",
+      "import": "./dist/offline-slice.js",
+      "require": "./dist/offline-slice.cjs"
+    },
+    "./provider-slice": {
+      "types": "./dist/provider-slice.d.ts",
+      "import": "./dist/provider-slice.js",
+      "require": "./dist/provider-slice.cjs"
+    },
+    "./sdk-session-slice": {
+      "types": "./dist/sdk-session-slice.d.ts",
+      "import": "./dist/sdk-session-slice.js",
+      "require": "./dist/sdk-session-slice.cjs"
+    },
+    "./settings-ssot-slice": {
+      "types": "./dist/settings-ssot-slice.d.ts",
+      "import": "./dist/settings-ssot-slice.js",
+      "require": "./dist/settings-ssot-slice.cjs"
+    },
+    "./ui-prefs-slice": {
+      "types": "./dist/ui-prefs-slice.d.ts",
+      "import": "./dist/ui-prefs-slice.js",
+      "require": "./dist/ui-prefs-slice.cjs"
+    },
+    "./user-mgmt-slice": {
+      "types": "./dist/user-mgmt-slice.d.ts",
+      "import": "./dist/user-mgmt-slice.js",
+      "require": "./dist/user-mgmt-slice.cjs"
+    },
+    "./use-ai-diagnostics": {
+      "types": "./dist/use-ai-diagnostics.d.ts",
+      "import": "./dist/use-ai-diagnostics.js",
+      "require": "./dist/use-ai-diagnostics.cjs"
+    },
+    "./use-model-provider": {
+      "types": "./dist/use-model-provider.d.ts",
+      "import": "./dist/use-model-provider.js",
+      "require": "./dist/use-model-provider.cjs"
+    },
+    "./use-websocket-data": {
+      "types": "./dist/use-websocket-data.d.ts",
+      "import": "./dist/use-websocket-data.js",
+      "require": "./dist/use-websocket-data.cjs"
+    },
+    "./use-settings-store": {
+      "types": "./dist/use-settings-store.d.ts",
+      "import": "./dist/use-settings-store.js",
+      "require": "./dist/use-settings-store.cjs"
+    },
+    "./useOfflineMode": {
+      "types": "./dist/useOfflineMode.d.ts",
+      "import": "./dist/useOfflineMode.js",
+      "require": "./dist/useOfflineMode.cjs"
+    },
+    "./use-big-model-sdk": {
+      "types": "./dist/use-big-model-sdk.d.ts",
+      "import": "./dist/use-big-model-sdk.js",
+      "require": "./dist/use-big-model-sdk.cjs"
+    },
+    "./global-store": {
+      "types": "./dist/global-store.d.ts",
+      "import": "./dist/global-store.js",
+      "require": "./dist/global-store.cjs"
+    }
   },
   "peerDependencies": {
     "immer": "^11",
@@ -46,7 +143,25 @@
     "@types/react": "^19.2.14",
     "immer": "^11.1.4",
     "sonner": "^2.0.7",
+    "tsup": "^9.0.0",
     "typescript": "^5.9.3",
     "zustand": "^5.0.12"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run clean && pnpm run build && pnpm run test"
   }
 }

@@ -13,8 +13,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useOfflineSlice } from "@yyc3-deepstack/store/offline-slice";
-import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import { useOfflineSlice } from "./offline-slice";
+import { useProviderSlice } from "./provider-slice";
 
 export function useOfflineMode() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);

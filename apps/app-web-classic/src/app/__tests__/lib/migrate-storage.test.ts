@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { migrateKey, migrateKeyAsArray, migrateKeyWithMerge, migrateRawString } from "@yyc3/core/migrate-storage";
+import { migrateKey, migrateKeyAsArray, migrateKeyWithMerge, migrateRawString } from "@yyc3-deepstack/core/migrate-storage";
 
 describe("migrate-storage", () => {
   beforeEach(() => {

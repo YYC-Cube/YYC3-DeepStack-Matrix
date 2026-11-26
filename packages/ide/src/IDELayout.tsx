@@ -12,7 +12,7 @@
 import * as React from "react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { useIDESettingsSlice } from "./ide-settings-slice";
 import { IDETopBar } from "./IDETopBar";
 import { IDEViewSwitcher } from "./IDEViewSwitcher";

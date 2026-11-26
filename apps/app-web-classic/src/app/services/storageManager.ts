@@ -9,8 +9,8 @@
  * @tags: [module]
  */
 
-import { DatabaseAdapter } from "@yyc3/core/database/DatabaseAdapter";
-import { connectionManager } from "@yyc3/core/database/ConnectionManager";
+import { DatabaseAdapter } from "@yyc3-deepstack/core/database/DatabaseAdapter";
+import { connectionManager } from "@yyc3-deepstack/core/database/ConnectionManager";
 import type { StorageConfig, StorageStatus, StorageEvent, OfflineQueueItem, SyncData } from "../types/storage";
 import type { Model, Agent, NodeStatusRecord } from "../types";
 

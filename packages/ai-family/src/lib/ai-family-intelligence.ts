@@ -24,7 +24,7 @@
  * @updated: 2026-04-30 */
 
 import { FAMILY_MEMBERS, MEMBERS_MAP, type FamilyMember } from "../components/shared";
-import { KnowledgeBaseAPI, type DevKnowledgeArticle, type KnowledgeSearchResult } from "@yyc3/core/local-knowledge-base";
+import { KnowledgeBaseAPI, type DevKnowledgeArticle, type KnowledgeSearchResult } from "@yyc3-deepstack/core/local-knowledge-base";
 
 // ============================================================
 //  类型定义

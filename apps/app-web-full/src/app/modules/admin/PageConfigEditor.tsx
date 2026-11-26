@@ -12,14 +12,14 @@
 import { useState, useEffect } from "react";
 import { usePageConfig, usePageConfigById } from "../../hooks/usePageConfig";
 import type { PageConfig } from "../../config";
-import { Button } from "@yyc3/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
-import { Label } from "@yyc3/ui/label";
-import { Switch } from "@yyc3/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3/ui/select";
-import { Input } from "@yyc3/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
-import { Badge } from "@yyc3/ui/badge";
+import { Button } from "@yyc3-deepstack/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3-deepstack/ui/card";
+import { Label } from "@yyc3-deepstack/ui/label";
+import { Switch } from "@yyc3-deepstack/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3-deepstack/ui/select";
+import { Input } from "@yyc3-deepstack/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3-deepstack/ui/tabs";
+import { Badge } from "@yyc3-deepstack/ui/badge";
 import { RotateCcw, Save, Eye, Code } from "lucide-react";
 
 interface PageConfigEditorProps {

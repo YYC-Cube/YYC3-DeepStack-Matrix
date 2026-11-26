@@ -15,10 +15,10 @@ import { render, screen, fireEvent, waitFor, act, cleanup } from "@testing-libra
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { DatabaseConnectionPanel } from "@yyc3/ops/database-connection-panel";
-import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
+import { useDbConnSlice } from "@yyc3-deepstack/store/db-conn-slice";
 import { toast } from "sonner";
 
-vi.mock("@yyc3/core/env-config", () => ({
+vi.mock("@yyc3-deepstack/core/env-config", () => ({
   env: vi.fn((key: string) => {
     if (key === "SQL_TEST_SIMULATE_DELAY") return 50;
     if (key === "SYSTEM_NAME") return "YYC3";
@@ -48,7 +48,7 @@ vi.mock("@yyc3/ide/code-editor", () => ({
   ),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

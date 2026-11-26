@@ -17,11 +17,11 @@ import {
   FilePlus, Clock, HardDrive, AlertTriangle, X, Search,
   RefreshCcw, Image, History, Loader2, Code2,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { useHostFileSystem, getFileTypeInfo } from "@yyc3/ops/hooks/use-host-file-system";
 import { CodeEditor, getLanguageLabel } from "@yyc3/ide/code-editor";
-import { ViewContext } from "@yyc3/core/view-context";
-import type { HostFileEntry } from "@yyc3/core/types";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import type { HostFileEntry } from "@yyc3-deepstack/core/types";
 
 // ── 样式常量 ──
 const _cyanDim = "rgba(0,212,255,0.35)";

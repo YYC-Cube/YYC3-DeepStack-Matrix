@@ -48,7 +48,7 @@ vi.mock("@yyc3/ops/hooks/use-report-exporter", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",

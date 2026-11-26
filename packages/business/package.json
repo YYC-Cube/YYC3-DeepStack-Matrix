@@ -21,8 +21,8 @@
     "sonner": "^1.7 || ^2"
   },
   "dependencies": {
-    "@yyc3/core": "workspace:*",
-    "@yyc3/ui": "workspace:*"
+    "@yyc3-deepstack/core": "workspace:*",
+    "@yyc3-deepstack/ui": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

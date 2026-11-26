@@ -30,16 +30,16 @@ import {
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useBigModelSDK } from "@yyc3/store/use-big-model-sdk";
-import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
-import { useI18n } from "@yyc3/core/i18n";
-import type { KnowledgeSearchResult } from "@yyc3/core/local-knowledge-base";
+import { useBigModelSDK } from "@yyc3-deepstack/store/use-big-model-sdk";
+import { useCopyFeedback } from "@yyc3-deepstack/core/use-copy-feedback";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import type { KnowledgeSearchResult } from "@yyc3-deepstack/core/local-knowledge-base";
 import {
   formatSearchResultForAI,
   searchKnowledge,
-} from "@yyc3/core/local-knowledge-base";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import type { ConfiguredModel } from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/local-knowledge-base";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import type { ConfiguredModel } from "@yyc3-deepstack/core/types";
 import { MOCK_CHAT_HISTORY } from "./ide-mock-data";
 import type { ChatMessage } from "./ide-types";
 

@@ -3,7 +3,7 @@
  * 状态机:空闲/签到/上钟/串台/被选中(上钟/串台来自进行中场次)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Card, Input } from '@yyc3/ui'
+import { Card, Input } from '@yyc3-deepstack/ui'
 import { client, toastError } from '@/lib/api'
 import { RT_COLOR, RT_LABEL } from '@/lib/format'
 import { PageHeader, StatusBadge, usePolling } from '@/components/kit'

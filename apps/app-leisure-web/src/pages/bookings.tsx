@@ -4,7 +4,7 @@
  * P1:押金登记 · 锁钟期(bookingTime+holdMinutes 内撞开房 40915)· 到店自动叫钟(指名房+销售经理)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input, Label } from '@yyc3/ui'
+import { Button, Card, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { DataTable, PageHeader, StatusBadge } from '@/components/kit'

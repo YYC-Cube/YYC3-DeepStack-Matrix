@@ -24,7 +24,7 @@ vi.mock("lucide-react", () => ({
   Keyboard: () => React.createElement("span", { "data-testid": "icon-keyboard" }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
   default: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));

@@ -21,7 +21,7 @@ import {
   Upload,
   type LucideIcon,
 } from 'lucide-react'
-import { Button, Card, Input, Label } from '@yyc3/ui'
+import { Button, Card, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/kit'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'

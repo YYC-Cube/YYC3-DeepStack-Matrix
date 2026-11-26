@@ -5,7 +5,7 @@
  * - 开房/关房为共享组件 room-ops(与桌面看板共用;禁复制实现)
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Card } from '@yyc3/ui'
+import { Button, Card } from '@yyc3-deepstack/ui'
 import { RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'

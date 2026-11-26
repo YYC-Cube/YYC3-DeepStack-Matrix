@@ -3,7 +3,7 @@
  * 权限变更 ≤30 秒生效(JwtGuard 实时查库);全动作审计
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, Field, PageHeader } from '@/components/kit'

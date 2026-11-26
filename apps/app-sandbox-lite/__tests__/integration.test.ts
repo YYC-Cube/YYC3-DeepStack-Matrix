@@ -33,7 +33,7 @@ Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 // ----------------------------------------------------------
 
 import { supabase } from "../lib/supabaseClient";
-import { getActiveModels, getNodesStatus, getRecentLogs } from "@yyc3/core/db-queries";
+import { getActiveModels, getNodesStatus, getRecentLogs } from "@yyc3-deepstack/core/db-queries";
 import {
   loadNetworkConfig,
   saveNetworkConfig,
@@ -46,13 +46,13 @@ import {
   getErrorLog,
   clearErrorLog,
   trySafe,
-} from "@yyc3/core/error-handler";
+} from "@yyc3-deepstack/core/error-handler";
 import {
   addToSyncQueue,
   getSyncQueue,
   processSyncQueue,
   clearSyncQueue,
-} from "@yyc3/core/backgroundSync";
+} from "@yyc3-deepstack/core/backgroundSync";
 
 describe("Integration Tests", () => {
   beforeEach(() => {

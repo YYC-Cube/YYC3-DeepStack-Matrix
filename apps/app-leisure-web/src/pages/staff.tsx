@@ -3,7 +3,7 @@
  * 建号返回一次性临时密码(首登强制改密);重置密码同;编辑含部门/角色/职级/直属上级
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, DataTable, Field, PageHeader, StatusBadge, type Column } from '@/components/kit'

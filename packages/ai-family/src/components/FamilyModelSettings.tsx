@@ -30,9 +30,9 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useFamilyMemberSlice } from "../store";
 import { useFamilySettingsSlice } from "../store/family-settings-slice";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
 import type { UnifiedFamilyMember } from "../types";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FadeIn } from "./FadeIn";
 import { DEFAULT_MODEL_ASSIGNMENTS, DEFAULT_VOICE_PROFILES, hexToRgb, type MemberModelAssignment, type VoiceProfile } from "./shared";
 

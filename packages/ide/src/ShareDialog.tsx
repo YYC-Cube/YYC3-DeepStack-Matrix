@@ -12,8 +12,8 @@
 import * as React from "react";
 import { useState } from "react";
 import { X, Share2, Copy, Check, Eye, Edit3, Shield } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
-import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useCopyFeedback } from "@yyc3-deepstack/core/use-copy-feedback";
 
 interface ShareDialogProps {
   isOpen: boolean;

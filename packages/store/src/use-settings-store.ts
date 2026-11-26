@@ -24,13 +24,13 @@
  *
  * @dependencies: React, localStorage, BroadcastChannel
  * @exports: useSettingsStore
- * @deprecated: 待废弃 — 新代码请用 settings-ssot-slice 的 useSettingsSSOT；本件按 M4-4 暂收 @yyc3/store，消费方迁移完成后可删除
+ * @deprecated: 待废弃 — 新代码请用 settings-ssot-slice 的 useSettingsSSOT；本件按 M4-4 暂收 @yyc3-deepstack/store，消费方迁移完成后可删除
  * @notes: 设置变更会自动同步到所有标签页
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { DEFAULT_WS_ENDPOINT } from "@yyc3/core/api-config";
-import { getSharedChannel } from "@yyc3/core/broadcast-channel";
+import { DEFAULT_WS_ENDPOINT } from "@yyc3-deepstack/core/api-config";
+import { getSharedChannel } from "@yyc3-deepstack/core/broadcast-channel";
 
 // ============================================================
 // 类型定义

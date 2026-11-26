@@ -1,6 +1,6 @@
 /**
  * @file: diagnostic-types.ts
- * @description: AI 辅助诊断类型桥 — 单源已上收 @yyc3/core/types（Phase 4 M4-2/3）
+ * @description: AI 辅助诊断类型桥 — 单源已上收 @yyc3-deepstack/core/types（Phase 4 M4-2/3）
  * @author: YanYuCloudCube Team
  * @version: v2.0.0
  * @updated: 2026-10-10
@@ -22,4 +22,4 @@ export type {
   DiagnosticsOptions,
   DiagnosticHistoryEntry,
   DiagnosticView,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";

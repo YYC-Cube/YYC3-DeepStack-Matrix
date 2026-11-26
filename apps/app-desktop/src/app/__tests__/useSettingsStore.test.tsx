@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useSettingsStore } from "@yyc3/store/use-settings-store";
+import { useSettingsStore } from "@yyc3-deepstack/store/use-settings-store";
 
 describe("useSettingsStore", () => {
   beforeEach(() => {

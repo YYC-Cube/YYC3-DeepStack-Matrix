@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { PageConfigEditor } from "./PageConfigEditor";
 import { getAllPages, type PageConfig } from "../config";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   Settings,
   FileText,

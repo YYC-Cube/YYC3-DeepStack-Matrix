@@ -4,7 +4,7 @@
  */
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { Button } from '@yyc3/ui'
+import { Button } from '@yyc3-deepstack/ui'
 import { req, toastError } from '@/lib/api'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 

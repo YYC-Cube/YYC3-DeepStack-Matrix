@@ -28,10 +28,10 @@ import {
 import { useContext, useState } from "react";
 import { useAIFamilyNav } from "@yyc3/ai-family/hooks/use-aifamily-nav";
 import { useAISuggestion } from "@yyc3/monitor/hooks/use-ai-suggestion";
-import { useI18n } from "@yyc3/core/i18n";
-import { ViewContext } from "@yyc3/core/view-context";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 import { ActionRecommender } from "@yyc3/monitor/action-recommender";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { PatternAnalyzer } from "@yyc3/monitor/pattern-analyzer";
 import { SDKChatPanel } from "@yyc3/monitor/sdk-chat-panel";
 

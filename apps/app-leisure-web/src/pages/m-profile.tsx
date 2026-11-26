@@ -6,7 +6,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Button, Input } from '@yyc3/ui'
+import { Button, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { BadgeCheck, ChevronDown, ChevronRight, ChevronUp, KeyRound, LogOut, ShieldCheck, Store, UserCircle2, CalendarDays, Users } from 'lucide-react'
 import { req } from '@/lib/api'

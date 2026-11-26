@@ -13,12 +13,12 @@ import React, { useState, useContext } from "react";
 import {
   Palette, Layers, BookOpen, ClipboardCheck, ChevronRight,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { DesignTokens } from "./DesignTokens";
 import { ComponentShowcase } from "./ComponentShowcase";
 import { StageReview } from "./StageReview";
 import { ViewContext } from "../../lib/view-context";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 
 export function DesignSystemPage() {
   const view = useContext(ViewContext);

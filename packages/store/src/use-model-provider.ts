@@ -19,7 +19,7 @@ import type {
   ModelProviderDef,
   ConfiguredModel,
   OllamaModel,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 import { useProviderSlice, BUILTIN_PROVIDERS as SLICE_BUILTIN_PROVIDERS } from "./provider-slice";
 
 // ============================================================

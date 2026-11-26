@@ -12,7 +12,7 @@
  */
 
 import { useState, useCallback, useEffect } from "react";
-import { getSharedChannel } from "@yyc3/core/broadcast-channel";
+import { getSharedChannel } from "@yyc3-deepstack/core/broadcast-channel";
 
 // ============================================================
 // 类型定义

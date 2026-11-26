@@ -17,8 +17,8 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { FileItem, RecentFile } from '@yyc3/core/types';
-import { migrateKey } from '@yyc3/core/migrate-storage';
+import type { FileItem, RecentFile } from '@yyc3-deepstack/core/types';
+import { migrateKey } from '@yyc3-deepstack/core/migrate-storage';
 
 // ============================================================
 // Slice Interface

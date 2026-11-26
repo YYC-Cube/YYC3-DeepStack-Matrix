@@ -23,11 +23,11 @@ import {
   Activity, Network,
 } from "lucide-react";
 import { GlassCard } from "./GlassCard";
-import { ViewContext } from "@yyc3/core/view-context";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 import { useModelProvider } from "../hooks/useModelProvider";
 import { dbConnectionStore, type DBConnection } from "../stores/dashboard-stores";
-import { env } from "@yyc3/core/env-config";
-import { getOllamaEndpointInfo, getOllamaChatUrl, getOllamaTagsUrl } from "@yyc3/core/ollama-url";
+import { env } from "@yyc3-deepstack/core/env-config";
+import { getOllamaEndpointInfo, getOllamaChatUrl, getOllamaTagsUrl } from "@yyc3-deepstack/core/ollama-url";
 import { toast } from "sonner";
 
 // ============================================================

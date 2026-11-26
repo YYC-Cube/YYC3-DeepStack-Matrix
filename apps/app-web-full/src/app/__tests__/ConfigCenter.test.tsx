@@ -58,7 +58,7 @@ const samplePages = [
   },
 ];
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
   })),
@@ -72,7 +72,7 @@ vi.mock("../config", () => ({
   resetPageConfig: vi.fn(),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "glass-card" }, children),
 }));

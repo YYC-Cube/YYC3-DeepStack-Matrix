@@ -17,7 +17,7 @@ import * as React from "react";
 
 // ─── Mocks ─────────────────────────────────────────────────
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
@@ -41,11 +41,11 @@ const DEFAULT_STATIONS = [
   { id: "cs-004", name: "YYC3-基站-4G-备份", type: "4g", status: "offline", signal: 0, latency: 0, connections: 0, maxConnections: 128, uptime: 0, location: "D栋-B1-设备间", lastCheck: Date.now() - 3600000 },
 ];
 
-vi.mock("@yyc3/core/use-persisted-state", () => ({
+vi.mock("@yyc3-deepstack/core/use-persisted-state", () => ({
   usePersistedList: (...args: any[]) => mockUsePersistedList(...args),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div data-testid="glass-card" className={className}>{children}</div>
   ),
@@ -59,7 +59,7 @@ vi.mock("sonner", () => ({
 }));
 
 import { CommStationPanel } from "@yyc3/business/comm-station-panel";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
 
 // ─── Helpers ───────────────────────────────────────────────
 

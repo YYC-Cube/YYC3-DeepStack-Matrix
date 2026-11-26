@@ -16,7 +16,7 @@ import * as React from "react";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DataEditorPanel } from "@yyc3/admin/data-editor-panel";
 
-vi.mock("@yyc3/core/db-queries", () => ({
+vi.mock("@yyc3-deepstack/core/db-queries", () => ({
   getActiveModels: vi.fn(() => ({ data: [] })),
   getNodesStatus: vi.fn(() => ({ data: [] })),
   getAllAgents: vi.fn(() => ({ data: [] })),
@@ -51,7 +51,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -59,7 +59,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

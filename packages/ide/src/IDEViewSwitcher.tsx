@@ -14,7 +14,7 @@ import {
   Maximize2, Eye, Code2, Search, MoreHorizontal,
   PanelRightClose, Columns3, LayoutTemplate,
 } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import type { IDEViewMode, IDELayoutMode } from "./ide-types";
 
 interface IDEViewSwitcherProps {

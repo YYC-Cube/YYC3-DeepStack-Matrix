@@ -23,11 +23,11 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useContext } from "react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { usePatrol } from "./hooks/usePatrol";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
-import { ViewContext } from "@yyc3/core/view-context";
-import { GlassCard } from "@yyc3/ui";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { PatrolHistory } from "./PatrolHistory";
 import { PatrolReport } from "./PatrolReport";
 import { PatrolScheduler } from "./PatrolScheduler";

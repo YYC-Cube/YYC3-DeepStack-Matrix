@@ -61,7 +61,7 @@ vi.mock("@yyc3/ops/hooks/use-local-database", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,
@@ -86,7 +86,7 @@ vi.mock("@yyc3/ops/inline-editable-table", () => ({
   InlineEditableTable: () => <div data-testid="inline-editable-table" />,
 }));
 
-vi.mock("@yyc3/core/api-config", () => ({
+vi.mock("@yyc3-deepstack/core/api-config", () => ({
   getAPIConfig: vi.fn(() => ({ enableBackend: false })),
 }));
 

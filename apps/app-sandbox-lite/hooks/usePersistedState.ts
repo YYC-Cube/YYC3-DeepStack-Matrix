@@ -19,7 +19,7 @@ import {
   idbPut,
   idbPutMany,
   onStorageChange,
-} from "@yyc3/core/yyc3-storage";
+} from "@yyc3-deepstack/core/yyc3-storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StoreName } from "../types";
 

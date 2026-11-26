@@ -6,7 +6,7 @@
  * 附:本房已点明细聚合(P5)+导出 xlsx
  */
 import { useEffect, useState } from 'react'
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@yyc3/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'

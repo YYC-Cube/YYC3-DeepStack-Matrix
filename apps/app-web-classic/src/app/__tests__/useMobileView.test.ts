@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useMobileView } from "@yyc3/core/useMobileView";
+import { useMobileView } from "@yyc3-deepstack/core/useMobileView";
 
 describe("useMobileView", () => {
   const originalInnerWidth = window.innerWidth;

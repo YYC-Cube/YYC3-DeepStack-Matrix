@@ -37,7 +37,7 @@ vi.mock("react-router", () => ({
 //  GlassCard
 // ============================================================
 
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 describe("GlassCard a11y", () => {
   beforeEach(() => {
@@ -77,7 +77,7 @@ describe("GlassCard a11y", () => {
 import { LanguageSwitcher } from "@yyc3/shell/language-switcher";
 
 // Mock useI18n
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     locale: "zh-CN",
     setLocale: vi.fn(),

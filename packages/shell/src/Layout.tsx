@@ -21,11 +21,11 @@ import { OfflineIndicator } from "./OfflineIndicator";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { CommandPalette } from "./CommandPalette";
 import { IntegratedTerminal } from "./IntegratedTerminal";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
-import { useMobileView } from "@yyc3/core/useMobileView";
-import { useKeyboardShortcuts } from "@yyc3/core/useKeyboardShortcuts";
-import { AuthContext } from "@yyc3/core/authContext";
-import { WebSocketContext, ViewContext } from "@yyc3/core/view-context";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
+import { useMobileView } from "@yyc3-deepstack/core/useMobileView";
+import { useKeyboardShortcuts } from "@yyc3-deepstack/core/useKeyboardShortcuts";
+import { AuthContext } from "@yyc3-deepstack/core/authContext";
+import { WebSocketContext, ViewContext } from "@yyc3-deepstack/core/view-context";
 
 /**
  * 路由懒加载 Suspense fallback — 赛博朋克风格加载指示器

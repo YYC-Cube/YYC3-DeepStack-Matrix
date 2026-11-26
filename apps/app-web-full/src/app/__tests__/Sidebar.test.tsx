@@ -17,7 +17,7 @@ import * as React from "react";
 import { BrowserRouter } from "react-router";
 import { Sidebar } from "@yyc3/shell/sidebar";
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -25,7 +25,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo">YYC3 Logo</div>,
 }));
 

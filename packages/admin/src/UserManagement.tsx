@@ -9,10 +9,10 @@
  * @tags: [tag1],[tag2],[tag3]
  */
 
-import { useI18n } from "@yyc3/core/i18n";
-import type { UserRecord } from "@yyc3/core/types";
-import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
-import { GlassCard } from "@yyc3/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import type { UserRecord } from "@yyc3-deepstack/core/types";
+import { useUserMgmtSlice } from "@yyc3-deepstack/store/user-mgmt-slice";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   Activity,
   Check,

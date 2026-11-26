@@ -10,10 +10,10 @@
  */
 
 import React, { Component, type ErrorInfo, type ReactNode } from "react";
-import { captureError } from "@yyc3/core/error-handler";
-import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
-import { YYC3LogoSvg } from "@yyc3/ui";
-import type { AppError, ErrorBoundaryLevel } from "@yyc3/core/types";
+import { captureError } from "@yyc3-deepstack/core/error-handler";
+import { isFigmaPlatformError } from "@yyc3-deepstack/core/figma-error-filter";
+import { YYC3LogoSvg } from "@yyc3-deepstack/ui";
+import type { AppError, ErrorBoundaryLevel } from "@yyc3-deepstack/core/types";
 import { AlertTriangle, RefreshCw, Home, ChevronDown, ChevronUp, Bug, Copy, Check } from "lucide-react";
 
 // RF-011: Re-export 已移除

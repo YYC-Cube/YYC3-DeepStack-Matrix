@@ -28,14 +28,14 @@ import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import type { FollowUpRecord } from "../types";
-import { useFollowUpSlice } from "@yyc3/store/follow-up-slice";
-import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
+import { useFollowUpSlice } from "@yyc3-deepstack/store/follow-up-slice";
+import { useUserMgmtSlice } from "@yyc3-deepstack/store/user-mgmt-slice";
 
 // ──────────────────────────────────────────────────────────────────
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
@@ -74,7 +74,7 @@ vi.mock("@yyc3/monitor/follow-up-edit-dialog", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

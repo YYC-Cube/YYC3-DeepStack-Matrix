@@ -61,7 +61,7 @@ const mockConfiguredModels = [
   },
 ];
 
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: () => ({
     configuredModels: mockConfiguredModels,
     providers: [],
@@ -80,7 +80,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   MODEL_PROVIDERS: [],
 }));
 
-vi.mock("@yyc3/store/provider-slice", () => ({
+vi.mock("@yyc3-deepstack/store/provider-slice", () => ({
   useProviderSlice: () => ({
     configuredModels: mockConfiguredModels,
     providers: [],
@@ -97,7 +97,7 @@ const mockAbort = vi.fn() as any;
 const mockResetStats = vi.fn() as any;
 const mockSetActiveSessionId = vi.fn() as any;
 
-vi.mock("@yyc3/store/use-big-model-sdk", () => ({
+vi.mock("@yyc3-deepstack/store/use-big-model-sdk", () => ({
   useBigModelSDK: () => ({
     sessions: [
       {
@@ -150,7 +150,7 @@ vi.mock("@yyc3/store/use-big-model-sdk", () => ({
 }));
 
 // Mock useI18n
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

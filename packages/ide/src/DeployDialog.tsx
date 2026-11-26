@@ -12,7 +12,7 @@
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { X, Rocket, Check, Loader2 } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 
 interface DeployDialogProps {
   isOpen: boolean;

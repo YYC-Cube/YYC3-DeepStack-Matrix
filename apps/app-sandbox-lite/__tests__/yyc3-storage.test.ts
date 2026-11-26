@@ -4,7 +4,7 @@
  * IndexedDB 存储层测试
  *
  * 覆盖范围:
- *  - StoreName 类型完整性 (所有 24 个 store 均已注册，@yyc3/core 契约)
+ *  - StoreName 类型完整性 (所有 24 个 store 均已注册，@yyc3-deepstack/core 契约)
  *  - CRUD 操作 (idbPut/idbGet/idbGetAll/idbDelete/idbClear/idbCount)
  *  - 批量写入 (idbPutMany)
  *  - exportAllData / importAllData
@@ -47,7 +47,7 @@ import {
   idbPutMany,
   importAllData,
   onStorageChange,
-} from "@yyc3/core/yyc3-storage";
+} from "@yyc3-deepstack/core/yyc3-storage";
 import type { StoreName } from "../types";
 
 describe("yyc3-storage", () => {
@@ -61,7 +61,7 @@ describe("yyc3-storage", () => {
 
   describe("StoreName 注册完整性", () => {
     it("所有 24 个 store 名称类型可用", () => {
-      // @yyc3/core 契约：14 运维/监控 store + 10 AI family/推理/音乐/通讯 store
+      // @yyc3-deepstack/core 契约：14 运维/监控 store + 10 AI family/推理/音乐/通讯 store
       expect(ALL_STORES.length).toBe(24);
     });
 
@@ -150,7 +150,7 @@ describe("yyc3-storage", () => {
     it("exportAllData 返回所有 store 数据", async () => {
       const data = await exportAllData();
       expect(typeof data).toBe("object");
-      // 应包含所有 24 个 store（@yyc3/core 主基线全集）
+      // 应包含所有 24 个 store（@yyc3-deepstack/core 主基线全集）
       const keys = Object.keys(data);
       expect(keys).toContain("alertRules");
       expect(keys).toContain("patrolHistory");

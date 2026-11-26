@@ -9,13 +9,13 @@
  * @tags: [component],[model],[unified]
  */
 
-import { useI18n } from "@yyc3/core/i18n";
-import type { ConfiguredModel } from "@yyc3/core/types";
-// 深路径导入（不走 @yyc3/store barrel）：barrel 会将全部 slice 拉入模块图，
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import type { ConfiguredModel } from "@yyc3-deepstack/core/types";
+// 深路径导入（不走 @yyc3-deepstack/store barrel）：barrel 会将全部 slice 拉入模块图，
 // 破坏消费方测试对个别 store 的 vi.mock 边界（SystemSettings 测试收集错误根因）
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import { useModelProvider } from "@yyc3/store/use-model-provider";
-import { GlassCard } from "@yyc3/ui";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import { useModelProvider } from "@yyc3-deepstack/store/use-model-provider";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   CheckCircle,
   Cpu,

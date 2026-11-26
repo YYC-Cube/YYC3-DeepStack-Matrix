@@ -2,7 +2,7 @@
  * A16 报备明细 / A17 报备汇总矩阵 / A18 补打卡(同一组件三视图)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { REPORT_TYPES } from '@yyc3/leisure-core'
 import { client, req, toastError } from '@/lib/api'

@@ -26,15 +26,15 @@ import {
   type VariableDefinition,
   type VariableValue,
   type VariableExport,
-} from "@yyc3/core/variable-center";
-import { Button } from "@yyc3/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
-import { Label } from "@yyc3/ui/label";
-import { Input } from "@yyc3/ui/input";
-import { Switch } from "@yyc3/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3/ui/select";
-import { Badge } from "@yyc3/ui/badge";
-import { ScrollArea } from "@yyc3/ui/scroll-area";
+} from "@yyc3-deepstack/core/variable-center";
+import { Button } from "@yyc3-deepstack/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3-deepstack/ui/card";
+import { Label } from "@yyc3-deepstack/ui/label";
+import { Input } from "@yyc3-deepstack/ui/input";
+import { Switch } from "@yyc3-deepstack/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3-deepstack/ui/select";
+import { Badge } from "@yyc3-deepstack/ui/badge";
+import { ScrollArea } from "@yyc3-deepstack/ui/scroll-area";
 import {
   Server,
   User,

@@ -38,7 +38,7 @@ import type {
   BrowserInfo,
   DataManagementState,
   SecurityMonitorState,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // RF-011: Re-export 已移除 — 所有类型统一从 types/index.ts 导入
 

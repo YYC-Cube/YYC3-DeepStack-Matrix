@@ -16,7 +16,7 @@ import {
   Label,
   RadioGroup,
   RadioGroupItem,
-} from '@yyc3/ui'
+} from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, toastError } from '@/lib/api'
 import type { BillPreview, DispatchQueue } from '@yyc3/leisure-core'

@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useI18n } from "@yyc3/core/i18n";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
-import { GlassCard } from "@yyc3/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 interface CommStation {
   id: string;

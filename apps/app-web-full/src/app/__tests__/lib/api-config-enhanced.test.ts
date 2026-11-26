@@ -18,9 +18,9 @@ import {
   validateConfigUpdates,
   onAPIConfigChange,
   type APIEndpoints,
-} from "@yyc3/core/api-config";
+} from "@yyc3-deepstack/core/api-config";
 
-vi.mock("@yyc3/core/error-handler", () => ({
+vi.mock("@yyc3-deepstack/core/error-handler", () => ({
   captureError: vi.fn(),
 }));
 
@@ -56,7 +56,7 @@ describe("API Configuration", () => {
 
       vi.resetModules();
 
-      const { getAPIConfig: getConfig } = await import("@yyc3/core/api-config");
+      const { getAPIConfig: getConfig } = await import("@yyc3-deepstack/core/api-config");
       const config = getConfig();
 
       expect(config.fsBase).toBe("/custom/fs");

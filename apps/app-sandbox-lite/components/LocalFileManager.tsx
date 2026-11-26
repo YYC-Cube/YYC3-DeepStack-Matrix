@@ -18,7 +18,7 @@ import { ReportGenerator } from "./ReportGenerator";
 import { CodeEditor, getLanguageLabel } from "./CodeEditor";
 import { useLocalFileSystem } from "../hooks/useLocalFileSystem";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "@yyc3/core/view-context";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 
 type ActiveTab = "files" | "logs" | "reports";
 

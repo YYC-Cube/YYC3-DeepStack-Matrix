@@ -32,7 +32,7 @@ import React from "react";
 async function loadModule() {
   // 清除模块缓存以获得干净状态
   vi.resetModules();
-  return import("@yyc3/core/api-config");
+  return import("@yyc3-deepstack/core/api-config");
 }
 
 describe("api-config", () => {

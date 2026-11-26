@@ -3,12 +3,12 @@ import { RouterProvider } from "react-router";
 import { router } from "./routes";
 import { Login } from "./components/Login";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { installGlobalErrorListeners } from "@yyc3/core/error-handler";
+import { installGlobalErrorListeners } from "@yyc3-deepstack/core/error-handler";
 import { supabase, ghostSignIn, isGhostMode } from "./lib/supabaseClient";
 import { useYYC3Head } from "./hooks/useYYC3Head";
 import { useI18nProvider, I18nContext } from "./hooks/useI18n";
-import { AuthContext } from "@yyc3/core/authContext";
-import { isFigmaPlatformError } from "@yyc3/core/figma-error-filter";
+import { AuthContext } from "@yyc3-deepstack/core/authContext";
+import { isFigmaPlatformError } from "@yyc3-deepstack/core/figma-error-filter";
 import type { UserRole, AppSession } from "./types";
 
 // ────────────────────────────────────────────────────────────────

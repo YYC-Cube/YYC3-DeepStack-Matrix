@@ -34,7 +34,7 @@ const createMockSettings = () => {
 const mockSettingsStore = createMockSettings();
 
 // Mock hooks BEFORE importing component
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: () => ({
     availableModels: [
       { id: "qwen-72b", name: "本地 Qwen-72B", isLocal: true },
@@ -46,7 +46,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   }),
 }));
 
-vi.mock("@yyc3/store/provider-slice", () => ({
+vi.mock("@yyc3-deepstack/store/provider-slice", () => ({
   useProviderSlice: () => ({
     configuredModels: [
       { id: "cm-1", model: "Qwen-72B", providerId: "ollama", providerLabel: "Ollama" },
@@ -60,11 +60,11 @@ vi.mock("@yyc3/store/provider-slice", () => ({
   }),
 }));
 
-vi.mock("@yyc3/store/use-settings-store", () => ({
+vi.mock("@yyc3-deepstack/store/use-settings-store", () => ({
   useSettingsStore: () => mockSettingsStore,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3LogoSvg: () => <div data-testid="yyc3-logo-svg" />,
 }));
 

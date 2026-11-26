@@ -412,7 +412,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("db-queries 模块应导出查询函数", async () => {
-    const mod = await import("@yyc3/core/db-queries");
+    const mod = await import("@yyc3-deepstack/core/db-queries");
     expect(typeof mod.getActiveModels).toBe("function");
     expect(typeof mod.getNodesStatus).toBe("function");
     expect(typeof mod.getRecentLogs).toBe("function");
@@ -421,7 +421,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("error-handler 模块应导出错误处理函数", async () => {
-    const mod = await import("@yyc3/core/error-handler");
+    const mod = await import("@yyc3-deepstack/core/error-handler");
     expect(typeof mod.captureError).toBe("function");
     expect(typeof mod.captureNetworkError).toBe("function");
     expect(typeof mod.captureWSError).toBe("function");
@@ -435,7 +435,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("backgroundSync 模块应导出队列操作函数", async () => {
-    const mod = await import("@yyc3/core/backgroundSync");
+    const mod = await import("@yyc3-deepstack/core/backgroundSync");
     expect(typeof mod.addToSyncQueue).toBe("function");
     expect(typeof mod.getSyncQueue).toBe("function");
     expect(typeof mod.clearSyncQueue).toBe("function");

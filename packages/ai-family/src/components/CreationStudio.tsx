@@ -19,9 +19,9 @@ import {
   ArrowLeft, Settings2, Upload, Disc3,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useI18n } from "@yyc3/core/i18n";
-import { MUSIC_LIBRARY, type MusicTrack, getRandomPhoto } from '@yyc3/core/dmusic-resources';
-import { useCopyFeedback } from '@yyc3/core/use-copy-feedback';
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { MUSIC_LIBRARY, type MusicTrack, getRandomPhoto } from '@yyc3-deepstack/core/dmusic-resources';
+import { useCopyFeedback } from '@yyc3-deepstack/core/use-copy-feedback';
 import { useFamilySettingsSlice } from '../store/family-settings-slice';
 import type { CreatedWork } from '../store/family-settings-slice';
 

@@ -21,7 +21,7 @@ import {
   getNetworkInterfaces,
   testWebSocketConnection,
   testHTTPConnection,
-} from "@yyc3/core/network-utils";
+} from "@yyc3-deepstack/core/network-utils";
 
 describe("generateWsUrl", () => {
   it("should generate WebSocket URL from address and port", () => {

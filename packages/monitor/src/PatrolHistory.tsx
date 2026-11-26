@@ -14,8 +14,8 @@ import {
   Clock, Calendar, ChevronRight, CheckCircle,
   AlertTriangle, XCircle, User, Zap, Timer,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import type { PatrolResult } from "@yyc3/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import type { PatrolResult } from "@yyc3-deepstack/core/types";
 
 interface PatrolHistoryProps {
   history: PatrolResult[];

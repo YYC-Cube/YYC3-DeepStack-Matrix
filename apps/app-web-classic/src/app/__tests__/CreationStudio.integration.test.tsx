@@ -70,7 +70,7 @@ class MockAudioContext {
 
 vi.stubGlobal("AudioContext", MockAudioContext);
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -85,7 +85,7 @@ vi.mock("@yyc3/ai-family/lib/MusicEventBus", () => ({
   },
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="glass-card">{children}</div>
   ),
@@ -95,7 +95,7 @@ vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@yyc3/core/dmusic-resources", () => ({
+vi.mock("@yyc3-deepstack/core/dmusic-resources", () => ({
   MUSIC_LIBRARY: [
     { id: "test-1", title: "测试歌曲", artist: "董小姐", album: "Test", duration: 180, audioUrl: "/test.mp3", emotion: "happy", genre: "流行" },
   ],

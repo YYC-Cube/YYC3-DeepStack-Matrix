@@ -7,7 +7,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { Maximize, RefreshCw } from 'lucide-react'
-import { Button, Card } from '@yyc3/ui'
+import { Button, Card } from '@yyc3-deepstack/ui'
 import { REPORT_TYPES } from '@yyc3/leisure-core'
 import { client, req, toastError } from '@/lib/api'
 import { fmtTime } from '@/lib/format'

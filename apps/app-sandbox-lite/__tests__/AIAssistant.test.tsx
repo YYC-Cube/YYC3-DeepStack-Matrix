@@ -57,7 +57,7 @@ vi.mock("../hooks/useSettingsStore", () => ({
   useSettingsStore: () => mockSettingsStore,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3LogoSvg: () => <div data-testid="yyc3-logo-svg" />,
 }));
 

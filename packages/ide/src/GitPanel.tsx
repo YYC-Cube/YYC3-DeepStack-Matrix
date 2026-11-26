@@ -26,14 +26,14 @@ import {
   Smartphone, Monitor, Globe, Wifi, WifiOff,
   Loader2, AlertCircle, Sparkles, MessageCircleHeart
 } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import {
   getGitService,
   type GitService,
   type GitFileChange,
   type GitCommitInfo,
   type GitBranchInfo,
-} from "@yyc3/core/GitService";
+} from "@yyc3-deepstack/core/GitService";
 
 type GitTab = "changes" | "commits" | "branches";
 

@@ -27,7 +27,7 @@ import {
   UserRound,
   Users,
 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@yyc3/ui'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@yyc3-deepstack/ui'
 import { client, req, toastError } from '@/lib/api'
 import { loadAllBadges, loadBadgeCache, type NavBadges } from '@/lib/nav-badges'
 import { useAuthStore } from '@/stores/auth'

@@ -4,7 +4,7 @@
  * 与 008/17 号规划对齐:全部 setting:manage;Entry 只增(冲正=反向条目)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, DataTable, Field, PageHeader, SelectBox, StatusBadge, type Column } from '@/components/kit'

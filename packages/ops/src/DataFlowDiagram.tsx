@@ -14,8 +14,8 @@ import {
   Server, Database, Monitor, Terminal,
   ArrowRight,
 } from "lucide-react";
-import type { DataFlowEdge } from "@yyc3/core/types";
-import type { DataFlowNode } from "@yyc3/core/types";
+import type { DataFlowEdge } from "@yyc3-deepstack/core/types";
+import type { DataFlowNode } from "@yyc3-deepstack/core/types";
 
 const nodeIcon: Record<string, React.ElementType> = {
   device: Server,

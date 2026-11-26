@@ -11,8 +11,8 @@
 
 import React from "react";
 import { Clock, Timer, ToggleLeft, ToggleRight } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import type { PatrolSchedule, PatrolInterval } from "@yyc3/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import type { PatrolSchedule, PatrolInterval } from "@yyc3-deepstack/core/types";
 
 interface PatrolSchedulerProps {
   schedule: PatrolSchedule;

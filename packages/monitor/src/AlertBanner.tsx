@@ -13,7 +13,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { AlertTriangle, XCircle, ChevronRight,
 } from "lucide-react";
-import { useAlerts } from "@yyc3/store/global-store";
+import { useAlerts } from "@yyc3-deepstack/store/global-store";
 
 interface AlertBannerProps {
   compact?: boolean;

@@ -2,7 +2,7 @@
   "name": "@yyc3/app-leisure-web",
   "version": "0.1.0",
   "private": true,
-  "description": "YYC³ LeisureManage Web 管理端(店长/管理员/财务)· React 19 + Vite 8 + @yyc3/ui + @yyc3/leisure-core",
+  "description": "YYC³ LeisureManage Web 管理端(店长/管理员/财务)· React 19 + Vite 8 + @yyc3-deepstack/ui + @yyc3/leisure-core",
   "author": "YanYuCloudCube Team <admin@0379.email>",
   "license": "MIT",
   "type": "module",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@yyc3/leisure-core": "workspace:*",
     "@yyc3/theme": "workspace:*",
-    "@yyc3/ui": "workspace:*",
+    "@yyc3-deepstack/ui": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": ">=1.54.0",

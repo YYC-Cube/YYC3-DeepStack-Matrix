@@ -27,7 +27,7 @@ vi.mock("react-router", () => ({
   RouterProvider: () => <div data-testid="router-provider" />,
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -74,15 +74,15 @@ let mockView = {
   isTouch: false,
 };
 
-vi.mock("@yyc3/store/use-websocket-data", () => ({
+vi.mock("@yyc3-deepstack/store/use-websocket-data", () => ({
   useWebSocketData: () => mockWsData,
 }));
 
-vi.mock("@yyc3/core/useMobileView", () => ({
+vi.mock("@yyc3-deepstack/core/useMobileView", () => ({
   useMobileView: () => mockView,
 }));
 
-vi.mock("@yyc3/core/useKeyboardShortcuts", () => ({
+vi.mock("@yyc3-deepstack/core/useKeyboardShortcuts", () => ({
   useKeyboardShortcuts: vi.fn(),
 }));
 
@@ -130,12 +130,12 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("@yyc3/core/supabaseClient", () => ({
+vi.mock("@yyc3-deepstack/core/supabaseClient", () => ({
   isGhostMode: () => false,
 }));
 
 // AuthContext mock
-vi.mock("@yyc3/core/authContext", () => ({
+vi.mock("@yyc3-deepstack/core/authContext", () => ({
   AuthContext: React.createContext({
     logout: vi.fn(),
     userEmail: "test@yyc3.local",
@@ -145,7 +145,7 @@ vi.mock("@yyc3/core/authContext", () => ({
 }));
 
 // Mock view-context
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "xl", isTouch: false }),
   WebSocketContext: React.createContext(null),
 }));

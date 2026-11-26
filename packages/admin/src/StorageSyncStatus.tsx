@@ -9,15 +9,15 @@
  * @tags: [component]
  */
 
-import { useI18n } from "@yyc3/core/i18n";
-import { storageManager } from "@yyc3/core/storageManager";
-import type { StorageEvent, StorageStatus } from "@yyc3/core/types";
-import { Alert, AlertDescription, AlertTitle } from "@yyc3/ui/alert";
-import { Badge } from "@yyc3/ui/badge";
-import { Button } from "@yyc3/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
-import { Progress } from "@yyc3/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3/ui/tabs";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { storageManager } from "@yyc3-deepstack/core/storageManager";
+import type { StorageEvent, StorageStatus } from "@yyc3-deepstack/core/types";
+import { Alert, AlertDescription, AlertTitle } from "@yyc3-deepstack/ui/alert";
+import { Badge } from "@yyc3-deepstack/ui/badge";
+import { Button } from "@yyc3-deepstack/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3-deepstack/ui/card";
+import { Progress } from "@yyc3-deepstack/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@yyc3-deepstack/ui/tabs";
 import { CheckCircle2, Clock, Database, HardDrive, RefreshCw, Wifi, WifiOff, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 

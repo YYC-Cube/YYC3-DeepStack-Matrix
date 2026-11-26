@@ -21,7 +21,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach , afterEach} from "vitest";
 import { render, screen, fireEvent , cleanup } from "@testing-library/react";
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   __esModule: true,
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
   default: ({ children, className }: any) => <div className={className}>{children}</div>,

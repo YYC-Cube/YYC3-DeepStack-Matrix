@@ -11,7 +11,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import type { SWStatus, CacheEntry, PWAState } from "@yyc3/core/types";
+import type { SWStatus, CacheEntry, PWAState } from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // Mock SW / Cache 数据

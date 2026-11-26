@@ -4,7 +4,7 @@
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth'
 

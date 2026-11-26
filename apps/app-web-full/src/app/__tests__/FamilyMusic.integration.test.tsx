@@ -70,7 +70,7 @@ class MockAudioContext {
 
 vi.stubGlobal("AudioContext", MockAudioContext);
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -138,7 +138,7 @@ vi.mock("@yyc3/ai-family/fade-in", () => ({
   FadeIn: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="glass-card">{children}</div>
   ),

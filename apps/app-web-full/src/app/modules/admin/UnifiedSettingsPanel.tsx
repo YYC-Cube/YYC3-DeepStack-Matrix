@@ -30,8 +30,8 @@ import {
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
-import { useI18n } from "@yyc3/core/i18n";
+import { useCopyFeedback } from "@yyc3-deepstack/core/use-copy-feedback";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { isCryptoAvailable } from "../../lib/crypto-vault";
 import { downloadFullBackup, importFullBackup } from "@yyc3/ops/full-backup";
 import { useProviderSlice, useSettingsSSOT } from "../../store";
@@ -41,8 +41,8 @@ import {
   importStoreData,
   useAlerts,
   useDatabase,
-} from "@yyc3/store/global-store";
-import { GlassCard } from "@yyc3/ui";
+} from "@yyc3-deepstack/store/global-store";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,8 +53,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@yyc3/ui/alert-dialog";
-import { Progress } from "@yyc3/ui/progress";
+} from "@yyc3-deepstack/ui/alert-dialog";
+import { Progress } from "@yyc3-deepstack/ui/progress";
 
 interface StorageInfo {
   key: string;

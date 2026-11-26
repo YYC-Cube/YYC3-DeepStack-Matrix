@@ -3,7 +3,7 @@
  * 数据源:/artists/transfer-stats(approval bizType=RESOURCE_TO_SELL 聚合)
  */
 import { useEffect, useState } from 'react'
-import { Card } from '@yyc3/ui'
+import { Card } from '@yyc3-deepstack/ui'
 import { req, toastError } from '@/lib/api'
 import { PageHeader, StatCard, StatusBadge } from '@/components/kit'
 import { MiniBars } from '@/components/mini-chart'

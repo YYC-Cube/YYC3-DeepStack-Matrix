@@ -13,7 +13,7 @@
 import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { StorageSyncStatus } from "@yyc3/admin/storage-sync-status";
-import { storageManager } from "@yyc3/core/storageManager";
+import { storageManager } from "@yyc3-deepstack/core/storageManager";
 import * as React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -32,7 +32,7 @@ const configState = {
   conflictResolution: "local" as const,
 };
 
-vi.mock("@yyc3/core/i18n", () => {
+vi.mock("@yyc3-deepstack/core/i18n", () => {
   // t 必须是稳定引用：组件 useEffect 依赖数组包含 t，
   // 若每次渲染返回新函数会触发 effect→setState→render 无限风暴（worker OOM）
   const t = (key: string, params?: Record<string, string>) => {
@@ -46,7 +46,7 @@ vi.mock("@yyc3/core/i18n", () => {
   };
 });
 
-vi.mock("@yyc3/core/storageManager", () => ({
+vi.mock("@yyc3-deepstack/core/storageManager", () => ({
   storageManager: {
     getStatus: () => ({ ...statusState }),
     getConfig: () => ({ ...configState }),
@@ -56,7 +56,7 @@ vi.mock("@yyc3/core/storageManager", () => ({
   },
 }));
 
-vi.mock("@yyc3/ui/card", () => ({
+vi.mock("@yyc3-deepstack/ui/card", () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "card" }, children),
   CardContent: ({ children }: { children: React.ReactNode }) =>
@@ -69,7 +69,7 @@ vi.mock("@yyc3/ui/card", () => ({
     React.createElement("h3", { className, "data-testid": "card-title" }, children),
 }));
 
-vi.mock("@yyc3/ui/button", () => ({
+vi.mock("@yyc3-deepstack/ui/button", () => ({
   Button: ({ children, onClick, disabled, className }: {
     children: React.ReactNode;
     onClick?: () => void;
@@ -78,17 +78,17 @@ vi.mock("@yyc3/ui/button", () => ({
   }) => React.createElement("button", { onClick, disabled, className, "data-testid": "button" }, children),
 }));
 
-vi.mock("@yyc3/ui/badge", () => ({
+vi.mock("@yyc3-deepstack/ui/badge", () => ({
   Badge: ({ children, variant }: { children: React.ReactNode; variant?: string }) =>
     React.createElement("span", { "data-testid": "badge", "data-variant": variant }, children),
 }));
 
-vi.mock("@yyc3/ui/progress", () => ({
+vi.mock("@yyc3-deepstack/ui/progress", () => ({
   Progress: ({ value, className }: { value: number; className?: string }) =>
     React.createElement("div", { className, "data-testid": "progress", "aria-valuenow": value }),
 }));
 
-vi.mock("@yyc3/ui/tabs", () => ({
+vi.mock("@yyc3-deepstack/ui/tabs", () => ({
   Tabs: ({ children, defaultValue }: { children: React.ReactNode; defaultValue?: string }) =>
     React.createElement("div", { "data-testid": "tabs", "data-default": defaultValue }, children),
   TabsContent: ({ children, value }: { children: React.ReactNode; value: string }) =>
@@ -99,7 +99,7 @@ vi.mock("@yyc3/ui/tabs", () => ({
     React.createElement("button", { "data-testid": "tabs-trigger", "data-value": value }, children),
 }));
 
-vi.mock("@yyc3/ui/alert", () => ({
+vi.mock("@yyc3-deepstack/ui/alert", () => ({
   Alert: ({ children }: { children: React.ReactNode }) =>
     React.createElement("div", { "data-testid": "alert" }, children),
   AlertDescription: ({ children }: { children: React.ReactNode }) =>

@@ -17,7 +17,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mocks ─────────────────────────────────────────────────
 
-vi.mock("@yyc3/core/database/ConnectionManager", () => ({
+vi.mock("@yyc3-deepstack/core/database/ConnectionManager", () => ({
   connectionManager: {
     getConnection: vi.fn(),
     healthCheck: vi.fn(),
@@ -25,7 +25,7 @@ vi.mock("@yyc3/core/database/ConnectionManager", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,
@@ -33,15 +33,15 @@ vi.mock("@yyc3/core/view-context", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div data-testid="glass-card" className={className}>{children}</div>
   ),
 }));
 
-import { connectionManager } from "@yyc3/core/database/ConnectionManager";
+import { connectionManager } from "@yyc3-deepstack/core/database/ConnectionManager";
 import { ConnectionMonitorPanel } from "@yyc3/ops/connection-monitor-panel";
-import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
+import { useDbConnSlice } from "@yyc3-deepstack/store/db-conn-slice";
 
 // ─── Helpers ───────────────────────────────────────────────
 

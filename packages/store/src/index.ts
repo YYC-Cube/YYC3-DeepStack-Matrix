@@ -1,6 +1,6 @@
 /**
  * @file: index.ts
- * @description: @yyc3/store · Zustand Slices 统一入口（源: 三端 store/slices 16 件 L0 上收）
+ * @description: @yyc3-deepstack/store · Zustand Slices 统一入口（源: 三端 store/slices 16 件 L0 上收）
  * @author: YanYuCloudCube Team
  * @version: v1.0.0
  * @created: 2026-10-10

@@ -21,7 +21,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 // ── Mocks ──
 
 // Mock view-context FIRST (before other imports that might depend on it)
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "lg", isTouch: false }),
   WebSocketContext: React.createContext(null),
 }));
@@ -89,12 +89,12 @@ vi.mock("../components/AlertBanner", () => ({
   AlertBanner: () => <div data-testid="alert-banner" />,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
 // ── Context setup ──
-import { ViewContext, WebSocketContext } from "@yyc3/core/view-context";
+import { ViewContext, WebSocketContext } from "@yyc3-deepstack/core/view-context";
 import type { WebSocketDataState, ViewState, NodeData } from "../types";
 import { Dashboard } from "../components/Dashboard";
 

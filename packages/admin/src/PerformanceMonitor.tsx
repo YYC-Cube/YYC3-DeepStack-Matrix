@@ -15,14 +15,14 @@ import {
   RefreshCw, Download, MonitorSpeaker, Database, Layers,
   TrendingUp, TrendingDown, Minus, AlertTriangle, RotateCcw,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, CartesianGrid, ReferenceLine,
 } from "recharts";
-import { env } from "@yyc3/core/env-config";
+import { env } from "@yyc3-deepstack/core/env-config";
 import { toast } from "sonner";
-import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
+import { useUIPrefsSlice } from "@yyc3-deepstack/store/ui-prefs-slice";
 
 // ── 样式 ──
 const f = { xs: "0.62rem", sm: "0.72rem", md: "0.82rem", lg: "0.95rem" };

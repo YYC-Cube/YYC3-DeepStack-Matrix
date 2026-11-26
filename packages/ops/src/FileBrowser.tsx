@@ -27,8 +27,8 @@ import {
   Settings, Shield, Terminal,
 } from "lucide-react";
 import React from "react";
-import type { FileItem } from "@yyc3/core/types";
-import { GlassCard } from "@yyc3/ui";
+import type { FileItem } from "@yyc3-deepstack/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 const extIcon: Record<string, React.ElementType> = {
   log: FileText,

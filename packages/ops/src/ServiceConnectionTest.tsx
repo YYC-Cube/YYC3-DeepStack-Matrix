@@ -33,14 +33,14 @@ import {
 import * as React from "react";
 import { useCallback, useContext, useRef, useState } from "react";
 import { toast } from "sonner";
-import { env } from "@yyc3/core/env-config";
-import { getOllamaChatUrl, getOllamaEndpointInfo, getOllamaTagsUrl } from "@yyc3/core/ollama-url";
-import { ViewContext } from "@yyc3/core/view-context";
-import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
-import type { DBConnection } from "@yyc3/core/types";
-import { GlassCard } from "@yyc3/ui";
+import { env } from "@yyc3-deepstack/core/env-config";
+import { getOllamaChatUrl, getOllamaEndpointInfo, getOllamaTagsUrl } from "@yyc3-deepstack/core/ollama-url";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { useDbConnSlice } from "@yyc3-deepstack/store/db-conn-slice";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import { useUIPrefsSlice } from "@yyc3-deepstack/store/ui-prefs-slice";
+import type { DBConnection } from "@yyc3-deepstack/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 // ============================================================
 // Types

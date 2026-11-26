@@ -16,13 +16,13 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { VariableCenter } from "@yyc3/admin/variable-center";
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
   })),
 }));
 
-vi.mock("@yyc3/core/variable-center", () => {
+vi.mock("@yyc3-deepstack/core/variable-center", () => {
   const sampleVariables = [
     {
       key: "device.name",
@@ -207,7 +207,7 @@ vi.mock("@yyc3/core/variable-center", () => {
   };
 });
 
-vi.mock("@yyc3/ui/button", () => ({
+vi.mock("@yyc3-deepstack/ui/button", () => ({
   Button: ({ children, onClick, disabled, variant, size, className }: {
     children: React.ReactNode;
     onClick?: () => void;
@@ -218,7 +218,7 @@ vi.mock("@yyc3/ui/button", () => ({
   }) => React.createElement("button", { onClick, disabled, "data-testid": "button", "data-variant": variant }, children),
 }));
 
-vi.mock("@yyc3/ui/card", () => ({
+vi.mock("@yyc3-deepstack/ui/card", () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "card" }, children),
   CardContent: ({ children, className }: { children: React.ReactNode; className?: string }) =>
@@ -231,12 +231,12 @@ vi.mock("@yyc3/ui/card", () => ({
     React.createElement("h3", { className, "data-testid": "card-title" }, children),
 }));
 
-vi.mock("@yyc3/ui/label", () => ({
+vi.mock("@yyc3-deepstack/ui/label", () => ({
   Label: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("label", { className }, children),
 }));
 
-vi.mock("@yyc3/ui/input", () => ({
+vi.mock("@yyc3-deepstack/ui/input", () => ({
   Input: ({ value, onChange, placeholder, disabled, type, className, min, max }: {
     value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -249,7 +249,7 @@ vi.mock("@yyc3/ui/input", () => ({
   }) => React.createElement("input", { value, placeholder, disabled, type, className, min, max, onChange, "data-testid": "input" }),
 }));
 
-vi.mock("@yyc3/ui/switch", () => ({
+vi.mock("@yyc3-deepstack/ui/switch", () => ({
   Switch: ({ checked, onCheckedChange, disabled }: {
     checked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
@@ -262,7 +262,7 @@ vi.mock("@yyc3/ui/switch", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui/select", () => ({
+vi.mock("@yyc3-deepstack/ui/select", () => ({
   Select: ({ children, value, onValueChange, disabled }: {
     children: React.ReactNode;
     value?: string;
@@ -278,7 +278,7 @@ vi.mock("@yyc3/ui/select", () => ({
   SelectValue: () => React.createElement("span", { "data-testid": "select-value" }),
 }));
 
-vi.mock("@yyc3/ui/badge", () => ({
+vi.mock("@yyc3-deepstack/ui/badge", () => ({
   Badge: ({ children, variant, className }: {
     children: React.ReactNode;
     variant?: string;
@@ -286,7 +286,7 @@ vi.mock("@yyc3/ui/badge", () => ({
   }) => React.createElement("span", { "data-testid": "badge", "data-variant": variant, className }, children),
 }));
 
-vi.mock("@yyc3/ui/scroll-area", () => ({
+vi.mock("@yyc3-deepstack/ui/scroll-area", () => ({
   ScrollArea: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "scroll-area" }, children),
 }));

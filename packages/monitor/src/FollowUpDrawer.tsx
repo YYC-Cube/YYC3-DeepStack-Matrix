@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
+import { useCopyFeedback } from "@yyc3-deepstack/core/use-copy-feedback";
 import {
   X, AlertTriangle, AlertCircle, Info, XCircle, Clock, User,
   ChevronRight, Zap, Bot, CheckCircle, Loader2,
@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { OperationChain } from "@yyc3/ops/operation-chain";
 import { QuickActionGroup } from "./QuickActionGroup";
-import type { FollowUpItem, FollowUpSeverity, FollowUpStatus } from "@yyc3/core/types";
+import type { FollowUpItem, FollowUpSeverity, FollowUpStatus } from "@yyc3-deepstack/core/types";
 
 interface FollowUpDrawerProps {
   item: FollowUpItem | null;

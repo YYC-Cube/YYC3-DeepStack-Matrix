@@ -8,15 +8,15 @@
  * @status: active
  * @tags: [store],[root]
  *
- * @brief: 全应用唯一状态入口，组合 @yyc3/store 16 件 + 端侧专属 Slice
+ * @brief: 全应用唯一状态入口，组合 @yyc3-deepstack/store 16 件 + 端侧专属 Slice
  *
  * @details:
- * - 16 件共有 Slices 已上收 @yyc3/store（M4-3），此处 re-export 保持符号不变
+ * - 16 件共有 Slices 已上收 @yyc3-deepstack/store（M4-3），此处 re-export 保持符号不变
  * - ide-settings-slice 留端侧（依赖 ide-types，随 M4-7 @yyc3/ide）
  * - family-* 13 件在 modules/ai-family/store（随 M4-6 @yyc3/ai-family）
  */
 
-// ── @yyc3/store 16 件（M4-3 上收）──
+// ── @yyc3-deepstack/store 16 件（M4-3 上收）──
 export {
   useNodeSlice,
   useMetricsSlice,
@@ -34,7 +34,7 @@ export {
   useSDKSessionSlice,
   useSettingsSSOT,
   useUIPrefsSlice,
-} from '@yyc3/store';
+} from '@yyc3-deepstack/store';
 export type {
   PoolConfig,
   AlertThresholds,
@@ -45,7 +45,7 @@ export type {
   ModelPerfEntry,
   ModelDistEntry,
   RadarEntry,
-} from '@yyc3/store';
+} from '@yyc3-deepstack/store';
 
 // ── 端侧专属：IDE 设置（依赖 ide-types，随 M4-7 @yyc3/ide 上收）──
 export { useIDESettingsSlice } from '@yyc3/ide/ide-settings-slice';
@@ -57,9 +57,9 @@ export type { VoiceProfile, VoiceConversation, FamilyMessage, FamilyUIConfig, Me
 // ── 共享类型 ──
 export type { NodeData } from '../types';
 
-import { useNodeSlice } from '@yyc3/store';
-import { useMetricsSlice } from '@yyc3/store';
-import { useAppSlice } from '@yyc3/store';
+import { useNodeSlice } from '@yyc3-deepstack/store';
+import { useMetricsSlice } from '@yyc3-deepstack/store';
+import { useAppSlice } from '@yyc3-deepstack/store';
 import { useFamilyMemberSlice, useFamilyMessageSlice } from '@yyc3/ai-family/store';
 
 /**

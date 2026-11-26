@@ -14,7 +14,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Terminal, Plus, X, ChevronUp, ChevronDown,
 } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 
 interface TerminalLine {
   type: "input" | "output" | "error" | "info" | "success";

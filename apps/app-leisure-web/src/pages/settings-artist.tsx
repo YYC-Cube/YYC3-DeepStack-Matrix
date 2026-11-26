@@ -3,7 +3,7 @@
  * 改进位阈值即时生效(进行中场次按上钟快照,§6.4)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Checkbox, Input, Label } from '@yyc3/ui'
+import { Button, Card, Checkbox, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { ARTIST_PROFILE_FIELDS } from '@yyc3/leisure-core'
 import { req, toastError } from '@/lib/api'

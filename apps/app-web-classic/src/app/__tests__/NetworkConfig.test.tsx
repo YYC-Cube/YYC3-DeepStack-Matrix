@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { NetworkConfig } from "@yyc3/admin/network-config";
 
-vi.mock("@yyc3/core/useNetworkConfig", () => ({
+vi.mock("@yyc3-deepstack/core/useNetworkConfig", () => ({
   useNetworkConfig: vi.fn(() => ({
     config: {
       serverAddress: "192.168.1.1",

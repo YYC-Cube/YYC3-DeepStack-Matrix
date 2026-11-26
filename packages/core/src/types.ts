@@ -1,6 +1,6 @@
 /**
  * @file: types.ts
- * @description: @yyc3/core 按需类型声明 — 供包内 lib 件消费的最小类型面（结构化兼容自 app types/ 分件）
+ * @description: @yyc3-deepstack/core 按需类型声明 — 供包内 lib 件消费的最小类型面（结构化兼容自 app types/ 分件）
  * @author: YanYuCloudCube Team
  * @version: v0.1.0
  * @created: 2026-10-10
@@ -16,7 +16,7 @@
 // ── 通用（源: common-types.ts）──
 export type BaseSeverity = "info" | "warning" | "error" | "critical";
 
-// ── 国际化（源: i18n-types.ts，随 i18n 上收 @yyc3/core/i18n）──
+// ── 国际化（源: i18n-types.ts，随 i18n 上收 @yyc3-deepstack/core/i18n）──
 export type Locale = "zh-CN" | "en-US";
 
 export interface LocaleInfo {

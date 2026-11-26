@@ -14,7 +14,7 @@ import {
   CheckCircle, Zap, Bot, ArrowRight,
   Shield, Loader2,
 } from "lucide-react";
-import type { AIRecommendation } from "@yyc3/core/types";
+import type { AIRecommendation } from "@yyc3-deepstack/core/types";
 
 const impactConfig: Record<string, { color: string; label: string }> = {
   high:   { color: "#00ff88", label: "高影响" },

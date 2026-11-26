@@ -22,13 +22,13 @@ describe("useClock", () => {
   });
 
   it("should return a Date object", async () => {
-    const { useClock } = await import("@yyc3/core/useClock");
+    const { useClock } = await import("@yyc3-deepstack/core/useClock");
     const { result } = renderHook(() => useClock());
     expect(result.current).toBeInstanceOf(Date);
   });
 
   it("should update over time", async () => {
-    const { useClock } = await import("@yyc3/core/useClock");
+    const { useClock } = await import("@yyc3-deepstack/core/useClock");
     const { result } = renderHook(() => useClock());
     const initial = result.current.getTime();
     act(() => {
@@ -40,7 +40,7 @@ describe("useClock", () => {
 
 describe("useVariables", () => {
   it("should return variables interface", async () => {
-    vi.doMock("@yyc3/core/variable-center", () => ({
+    vi.doMock("@yyc3-deepstack/core/variable-center", () => ({
       VARIABLE_DEFINITIONS: [],
       getVariableDefinition: vi.fn(() => undefined),
       getVariablesByCategory: vi.fn(() => []),

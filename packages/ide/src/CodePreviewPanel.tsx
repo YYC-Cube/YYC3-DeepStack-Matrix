@@ -12,7 +12,7 @@
 import * as React from "react";
 import { X, Circle, Code2, FileText } from "lucide-react";
 import { CodeEditor, getLanguageLabel } from "./CodeEditor";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import type { OpenTab } from "./ide-types";
 
 interface CodePreviewPanelProps {

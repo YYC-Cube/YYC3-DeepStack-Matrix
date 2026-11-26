@@ -133,8 +133,8 @@ export const ENV = {
   CACHE_TTL: 3600,
   LOG_LEVEL: "info",
 } as const;`,
-  "dashboard-stores": `import { createLocalStore } from "@yyc3/core/create-local-store";
-import type { NodeData } from "@yyc3/core/types";
+  "dashboard-stores": `import { createLocalStore } from "@yyc3-deepstack/core/create-local-store";
+import type { NodeData } from "@yyc3-deepstack/core/types";
 
 const DEFAULT_NODES = [
   { id: "GPU-A100-01", status: "active", gpu: 87, mem: 72, temp: 68, model: "LLaMA-70B", tasks: 128 },
@@ -167,7 +167,7 @@ import {
   Monitor, AlertTriangle, Shield, Search,
   Database, Settings, ChevronDown,
 } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 
 const NAV_GROUPS = [
   {
@@ -192,8 +192,8 @@ export function Sidebar() {
   // ... sidebar implementation
 }`,
   "dashboard-tsx": `import React from "react";
-import { GlassCard } from "@yyc3/ui";
-import { useI18n } from "@yyc3/core/i18n";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import {
   AreaChart, Area, XAxis, YAxis,
   Tooltip, ResponsiveContainer,
@@ -304,8 +304,8 @@ export default defineConfig({
   },
 });`,
   "use-i18n": `import { useState, useCallback, useMemo } from "react";
-import zhCN from "@yyc3/core/i18n/zh-CN";
-import enUS from "@yyc3/core/i18n/en-US";
+import zhCN from "@yyc3-deepstack/core/i18n/zh-CN";
+import enUS from "@yyc3-deepstack/core/i18n/en-US";
 
 type Lang = "zh-CN" | "en-US";
 

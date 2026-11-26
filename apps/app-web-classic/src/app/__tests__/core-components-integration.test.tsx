@@ -30,7 +30,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Global mocks
 // ============================================================
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -39,7 +39,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
   YYC3Logo: () => <div data-testid="yyc3-logo" />,
 }));
@@ -56,7 +56,7 @@ vi.mock("@yyc3/admin/network-config", () => ({
   NetworkConfig: () => <div data-testid="network-config-mock" />,
 }));
 
-vi.mock("@yyc3/core/api-config", () => ({
+vi.mock("@yyc3-deepstack/core/api-config", () => ({
   getAPIConfig: () => ({
     enableBackend: false,
     timeout: 15000,
@@ -79,7 +79,7 @@ vi.mock("@yyc3/core/api-config", () => ({
   ],
 }));
 
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: () => ({
     availableModels: [
       { id: "gpt-4", name: "GPT-4", isLocal: false },
@@ -105,7 +105,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   }),
 }));
 
-vi.mock("@yyc3/store/use-settings-store", () => ({
+vi.mock("@yyc3-deepstack/store/use-settings-store", () => ({
   useSettingsStore: () => ({
     settings: {
       darkMode: true, autoScale: true, healthCheck: true, alertEmail: false,
@@ -271,7 +271,7 @@ describe("SystemSettings 集成测试", () => {
 // ============================================================
 
 import { UserManagement } from "@yyc3/admin/user-management";
-import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
+import { useUserMgmtSlice } from "@yyc3-deepstack/store/user-mgmt-slice";
 
 describe("UserManagement 集成测试", () => {
   beforeEach(() => {
@@ -470,7 +470,7 @@ describe("UserManagement 集成测试", () => {
 // 3. createLocalStore 集成测试
 // ============================================================
 
-import { createLocalStore } from "@yyc3/core/create-local-store";
+import { createLocalStore } from "@yyc3-deepstack/core/create-local-store";
 
 describe("createLocalStore 集成测试", () => {
   beforeEach(() => localStorage.clear());
@@ -729,7 +729,7 @@ describe("api-config 类型导出验证", () => {
   it("getAPIConfig 应返回完整配置对象", async () => {
     // vi.importMock is not available in Bun's vitest compat layer.
     // Use dynamic import — the module is already mocked at file scope.
-    const mod = await import("@yyc3/core/api-config");
+    const mod = await import("@yyc3-deepstack/core/api-config");
     const config = mod.getAPIConfig();
     expect(config).toHaveProperty("enableBackend");
     expect(config).toHaveProperty("timeout");
@@ -740,7 +740,7 @@ describe("api-config 类型导出验证", () => {
   });
 
   it("ENDPOINT_META 应包含正确的元数据结构", async () => {
-    const mod = await import("@yyc3/core/api-config");
+    const mod = await import("@yyc3-deepstack/core/api-config");
     const ENDPOINT_META = mod.ENDPOINT_META;
     expect(ENDPOINT_META.length).toBeGreaterThan(0);
     ENDPOINT_META.forEach((meta: any) => {

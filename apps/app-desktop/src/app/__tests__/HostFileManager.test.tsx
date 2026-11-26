@@ -70,7 +70,7 @@ vi.mock("@yyc3/ide/code-editor", () => ({
   getLanguageLabel: vi.fn(() => "JavaScript"),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

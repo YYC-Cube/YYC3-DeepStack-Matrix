@@ -12,9 +12,9 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useSettingsStore } from "@yyc3/store/use-settings-store";
+import { useSettingsStore } from "@yyc3-deepstack/store/use-settings-store";
 
-vi.mock("@yyc3/core/broadcast-channel", () => ({
+vi.mock("@yyc3-deepstack/core/broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => ({
     postMessage: vi.fn(),
     addEventListener: vi.fn(),

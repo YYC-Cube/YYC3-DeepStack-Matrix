@@ -11,7 +11,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { env } from "@yyc3/core/env-config";
+import { env } from "@yyc3-deepstack/core/env-config";
 import type {
   FileItem,
   LogEntry,

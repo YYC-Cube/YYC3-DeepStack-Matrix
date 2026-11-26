@@ -11,8 +11,8 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { env } from "@yyc3/core/env-config";
-import { useFSSlice } from "@yyc3/store/fs-slice";
+import { env } from "@yyc3-deepstack/core/env-config";
+import { useFSSlice } from "@yyc3-deepstack/store/fs-slice";
 import type {
   FileItem,
   LogEntry,
@@ -20,7 +20,7 @@ import type {
   ReportConfig,
   ReportResult,
   ReportFormat,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // 默认文件树 (首次初始化)

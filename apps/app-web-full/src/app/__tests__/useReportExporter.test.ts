@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useReportExporter } from "@yyc3/ops/hooks/use-report-exporter";
 
-vi.mock("@yyc3/core/use-persisted-state", () => ({
+vi.mock("@yyc3-deepstack/core/use-persisted-state", () => ({
   usePersistedList: vi.fn((key: string, initial: any) => {
     return {
       items: initial,
@@ -24,7 +24,7 @@ vi.mock("@yyc3/core/use-persisted-state", () => ({
   }),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",

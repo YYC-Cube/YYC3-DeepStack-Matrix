@@ -37,9 +37,9 @@
   },
   "dependencies": {
     "@yyc3/theme": "workspace:*",
-    "@yyc3/ui": "workspace:*",
-    "@yyc3/core": "workspace:*",
-    "@yyc3/store": "workspace:*",
+    "@yyc3-deepstack/ui": "workspace:*",
+    "@yyc3-deepstack/core": "workspace:*",
+    "@yyc3-deepstack/store": "workspace:*",
     "@yyc3/admin": "workspace:*",
     "@yyc3/monitor": "workspace:*",
     "@yyc3/ops": "workspace:*",

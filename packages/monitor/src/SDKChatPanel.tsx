@@ -23,14 +23,14 @@ import {
   Zap,
 } from "lucide-react";
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { PROVIDER_CAPABILITIES, useBigModelSDK } from "@yyc3/store/use-big-model-sdk";
-import { useI18n } from "@yyc3/core/i18n";
-import { ViewContext } from "@yyc3/core/view-context";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import type { ChatMessage, ConfiguredModel, SDKConnectionStatus } from "@yyc3/core/types";
-import { GlassCard } from "@yyc3/ui";
+import { PROVIDER_CAPABILITIES, useBigModelSDK } from "@yyc3-deepstack/store/use-big-model-sdk";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import type { ChatMessage, ConfiguredModel, SDKConnectionStatus } from "@yyc3-deepstack/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { UnifiedModelSelector } from "./UnifiedModelSelector";
-import { YYC3LogoSvg } from "@yyc3/ui";
+import { YYC3LogoSvg } from "@yyc3-deepstack/ui";
 
 // ============================================================
 // 子组件: 连接状态指示器

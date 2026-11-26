@@ -3,7 +3,7 @@
  * 群列表(店群全员+组别动态群)→ 聊天室(3s 轮询;WS 预留);管理端可建组别群
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { EMOJI_GROUPS, REACTION_QUICK } from '@yyc3/leisure-core'
 import { req, toastError } from '@/lib/api'

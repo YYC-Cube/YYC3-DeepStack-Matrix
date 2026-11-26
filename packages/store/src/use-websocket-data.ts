@@ -32,10 +32,10 @@ import type {
   ThroughputPoint,
   WSMessage,
   WebSocketDataState,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
-import { getAPIConfig } from "@yyc3/core/api-config";
-import { dataBus } from "@yyc3/core/data-bus";
+import { getAPIConfig } from "@yyc3-deepstack/core/api-config";
+import { dataBus } from "@yyc3-deepstack/core/data-bus";
 import { useNodeSlice } from "./node-slice";
 
 // ============================================================

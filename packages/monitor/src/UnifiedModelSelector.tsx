@@ -27,9 +27,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import type { ConfiguredModel } from "@yyc3/core/types";
-import { GlassCard } from "@yyc3/ui";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import type { ConfiguredModel } from "@yyc3-deepstack/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 interface UnifiedModelSelectorProps {
   value?: string | null;

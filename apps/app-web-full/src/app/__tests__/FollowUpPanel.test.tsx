@@ -28,7 +28,7 @@ import type { FollowUpItem } from "../types";
 // Mock 共享层（与 SDKChatPanel.test.tsx 保持一致）
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {
@@ -53,7 +53,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/store/use-websocket-data", () => ({
+vi.mock("@yyc3-deepstack/store/use-websocket-data", () => ({
   useWebSocketData: () => ({
     data: null,
     connected: false,
@@ -64,11 +64,11 @@ vi.mock("@yyc3/store/use-websocket-data", () => ({
   }),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: {},
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
@@ -127,7 +127,7 @@ let mockAddFn: ReturnType<typeof vi.fn>;
 let mockUpdateFn: ReturnType<typeof vi.fn>;
 let mockRemoveFn: ReturnType<typeof vi.fn>;
 
-vi.mock("@yyc3/store/global-store", () => ({
+vi.mock("@yyc3-deepstack/store/global-store", () => ({
   useAlerts: () => ({
     followUps: mockGlobalFollowUps,
     addFollowUp: mockAddFn,

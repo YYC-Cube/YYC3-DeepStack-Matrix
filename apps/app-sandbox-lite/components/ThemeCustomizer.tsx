@@ -19,7 +19,7 @@ import {
   THEME_PRESETS, DEFAULT_COLORS, DEFAULT_TYPOGRAPHY, DEFAULT_SHADOW, DEFAULT_BRANDING,
   type ThemeColors, type ThemeTypography, type ThemeShadow, type BrandingConfig, type ThemePreset,
 } from "./theme/theme-presets";
-import { ViewContext } from "@yyc3/core/view-context";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 
 // ── Section Accordion ───────────────────────────────
 function Section({ title, icon: Icon, children, defaultOpen = false }: {

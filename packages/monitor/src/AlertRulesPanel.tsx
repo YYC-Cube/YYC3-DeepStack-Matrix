@@ -16,11 +16,11 @@ import {
   CheckCircle2, XCircle, Clock, TrendingUp,
   Filter, Zap, Settings, ArrowUpRight, Pencil, Wifi,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import { useI18n } from "@yyc3/core/i18n";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { useAlertRules } from "./hooks/useAlertRules";
-import type { AlertSeverity, AlertRule, AlertEvent } from "@yyc3/core/types";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
+import type { AlertSeverity, AlertRule, AlertEvent } from "@yyc3-deepstack/core/types";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
 import { CreateRuleModal } from "./CreateRuleModal";
 
 // ============================================================

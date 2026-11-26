@@ -3,7 +3,7 @@
  * 管理端下发指标(订房/点餐×人员×目标数×起止)→完成度实时聚合;ARTIST 仅看本人任务
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'

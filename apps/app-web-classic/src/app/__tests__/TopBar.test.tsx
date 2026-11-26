@@ -16,10 +16,10 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { BrowserRouter } from "react-router";
 import { TopBar } from "@yyc3/shell/top-bar";
-import { isGhostMode } from "@yyc3/core/supabaseClient";
+import { isGhostMode } from "@yyc3-deepstack/core/supabaseClient";
 import type { ConnectionState } from "../types";
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -31,7 +31,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo">YYC3 Logo</div>,
 }));
 
@@ -43,7 +43,7 @@ vi.mock("@yyc3/shell/language-switcher", () => ({
   LanguageSwitcher: () => <div data-testid="language-switcher">Language</div>,
 }));
 
-vi.mock("@yyc3/core/supabaseClient", () => ({
+vi.mock("@yyc3-deepstack/core/supabaseClient", () => ({
   isGhostMode: vi.fn(() => false),
 }));
 

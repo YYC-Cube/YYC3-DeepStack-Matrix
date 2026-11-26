@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ServiceConnectionTest } from "@yyc3/ops/service-connection-test";
 
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     addProvider: vi.fn(),
@@ -26,7 +26,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/env-config", () => ({
+vi.mock("@yyc3-deepstack/core/env-config", () => ({
   env: vi.fn((key: string) => {
     const envMap: Record<string, string> = {
       OLLAMA_BASE_URL: "http://localhost:11434",
@@ -36,7 +36,7 @@ vi.mock("@yyc3/core/env-config", () => ({
   }),
 }));
 
-vi.mock("@yyc3/core/ollama-url", () => ({
+vi.mock("@yyc3-deepstack/core/ollama-url", () => ({
   getOllamaEndpointInfo: vi.fn(() => ({
     mode: "proxy",
     chatUrl: "/api/v1/llm/ollama/chat",
@@ -55,13 +55,13 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, ...props }: any) => (
     <div className={className} {...props}>{children}</div>
   ),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

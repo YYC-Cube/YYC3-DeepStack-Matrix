@@ -57,15 +57,15 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
-import { useI18n } from "@yyc3/core/i18n";
-import { ViewContext, WebSocketContext } from "@yyc3/core/view-context";
-import { useAppSlice } from "@yyc3/store/app-slice";
-import { useMetricsSlice } from "@yyc3/store/metrics-slice";
-import { useNodeSlice } from "@yyc3/store/node-slice";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import type { NodeData } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { ViewContext, WebSocketContext } from "@yyc3-deepstack/core/view-context";
+import { useAppSlice } from "@yyc3-deepstack/store/app-slice";
+import { useMetricsSlice } from "@yyc3-deepstack/store/metrics-slice";
+import { useNodeSlice } from "@yyc3-deepstack/store/node-slice";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import type { NodeData } from "@yyc3-deepstack/core/types";
 import { AlertBanner } from "./AlertBanner";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { NodeDetailModal } from "./NodeDetailModal";
 
 // ============================================================

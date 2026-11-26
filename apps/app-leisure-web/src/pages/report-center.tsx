@@ -3,7 +3,7 @@
  * 4 张含包厢房号/类型维度(需求全集 §8.3);导出走 report:export(CSV+UTF-8 BOM,Excel 直开)
  */
 import { useCallback, useState } from 'react'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'

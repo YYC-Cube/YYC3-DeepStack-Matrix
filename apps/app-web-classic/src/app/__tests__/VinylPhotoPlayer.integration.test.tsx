@@ -70,7 +70,7 @@ class MockAudioContext {
 
 vi.stubGlobal("AudioContext", MockAudioContext);
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -78,7 +78,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/core/dmusic-resources", () => ({
+vi.mock("@yyc3-deepstack/core/dmusic-resources", () => ({
   DMUSIC_PHOTOS: [
     { id: "photo-1", title: "董小姐照片1", url: "/D-Music/D-98/Music-1978.jpg", category: "portrait" },
     { id: "photo-2", title: "董小姐照片2", url: "/D-Music/D-98/Music-1979.jpg", category: "portrait" },

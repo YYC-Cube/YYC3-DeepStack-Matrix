@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ErrorBoundary } from "@yyc3/shell/error-boundary";
 
-vi.mock("@yyc3/core/error-handler", () => ({
+vi.mock("@yyc3-deepstack/core/error-handler", () => ({
   captureError: vi.fn((error, options) => ({
     id: "test-error-id",
     category: options?.category || "RUNTIME",
@@ -26,11 +26,11 @@ vi.mock("@yyc3/core/error-handler", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/figma-error-filter", () => ({
+vi.mock("@yyc3-deepstack/core/figma-error-filter", () => ({
   isFigmaPlatformError: vi.fn(() => false),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3LogoSvg: () => React.createElement("div", { "data-testid": "yyc3-logo" }),
 }));
 

@@ -50,7 +50,7 @@ vi.mock("react-router", () => ({
   useNavigate: vi.fn(() => vi.fn()),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   WebSocketContext: React.createContext({
     state: "connected",
     data: null,
@@ -79,7 +79,7 @@ vi.mock("@yyc3/core/view-context", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -87,8 +87,8 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("@yyc3/store/global-store", () => {
-  const actual = vi.importActual("@yyc3/store/global-store");
+vi.mock("@yyc3-deepstack/store/global-store", () => {
+  const actual = vi.importActual("@yyc3-deepstack/store/global-store");
   return {
     ...actual,
     useAlerts: vi.fn(() => ({
@@ -101,7 +101,7 @@ vi.mock("@yyc3/monitor/alert-banner", () => ({
   AlertBanner: () => null,
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => (
     <div data-testid="glass-card" className={className}>
       {children}

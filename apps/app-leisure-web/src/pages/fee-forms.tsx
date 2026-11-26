@@ -3,7 +3,7 @@
  * A8 红线:备注必填;金额≥阈值(默认500)→ 202+41201 转审批(非报错语义,引导查看审批单)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, idemKey, toastError } from '@/lib/api'
 import { fmtMoney } from '@/lib/format'

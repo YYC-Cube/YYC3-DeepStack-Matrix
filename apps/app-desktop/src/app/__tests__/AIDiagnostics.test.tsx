@@ -14,16 +14,16 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import React from "react";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { AIDiagnostics } from "@yyc3/ai/aidiagnostics";
-import { useI18n } from "@yyc3/core/i18n";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
 
-vi.mock("@yyc3/core/i18n");
-vi.mock("@yyc3/store/use-websocket-data");
-vi.mock("@yyc3/store/use-ai-diagnostics", () => ({
+vi.mock("@yyc3-deepstack/core/i18n");
+vi.mock("@yyc3-deepstack/store/use-websocket-data");
+vi.mock("@yyc3-deepstack/store/use-ai-diagnostics", () => ({
   useAIDiagnostics: vi.fn(),
 }));
 
-import { useAIDiagnostics } from "@yyc3/store/use-ai-diagnostics";
+import { useAIDiagnostics } from "@yyc3-deepstack/store/use-ai-diagnostics";
 import type { DiagnosticSession } from "../types";
 
 const mockT = vi.fn((key: string) => key);

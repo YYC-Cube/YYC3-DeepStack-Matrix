@@ -3,7 +3,7 @@
  * 数据源:/reports/dispatch-rotation
  */
 import { useEffect, useState } from 'react'
-import { Card } from '@yyc3/ui'
+import { Card } from '@yyc3-deepstack/ui'
 import { req, toastError } from '@/lib/api'
 import { PageHeader, StatCard } from '@/components/kit'
 import { MiniBars } from '@/components/mini-chart'

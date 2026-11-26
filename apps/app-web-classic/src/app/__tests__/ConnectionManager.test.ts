@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { connectionManager } from "@yyc3/core/database/ConnectionManager";
-import type { DatabaseConfig, ConnectionPoolConfig } from "@yyc3/core/database/types";
+import { connectionManager } from "@yyc3-deepstack/core/database/ConnectionManager";
+import type { DatabaseConfig, ConnectionPoolConfig } from "@yyc3-deepstack/core/database/types";
 
 describe("ConnectionManager", () => {
   beforeEach(() => {

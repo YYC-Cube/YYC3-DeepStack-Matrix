@@ -49,15 +49,15 @@ import {
   Zap
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCopyFeedback } from "@yyc3/core/use-copy-feedback";
-import { useSettingsStore } from "@yyc3/store/use-settings-store";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
-import { runFullSystemDiagnostic, testAIConnection, type AIConnectionConfig, type SystemDiagnosticResult } from "@yyc3/core/connection-test-engine";
-import { useNodeSlice } from "@yyc3/store/node-slice";
-import { useProviderSlice } from "@yyc3/store/provider-slice";
-import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
-import type { ChatMessage, CommandCategory } from "@yyc3/core/types";
-import { YYC3LogoSvg } from "@yyc3/ui";
+import { useCopyFeedback } from "@yyc3-deepstack/core/use-copy-feedback";
+import { useSettingsStore } from "@yyc3-deepstack/store/use-settings-store";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
+import { runFullSystemDiagnostic, testAIConnection, type AIConnectionConfig, type SystemDiagnosticResult } from "@yyc3-deepstack/core/connection-test-engine";
+import { useNodeSlice } from "@yyc3-deepstack/store/node-slice";
+import { useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
+import { useUIPrefsSlice } from "@yyc3-deepstack/store/ui-prefs-slice";
+import type { ChatMessage, CommandCategory } from "@yyc3-deepstack/core/types";
+import { YYC3LogoSvg } from "@yyc3-deepstack/ui";
 
 // ============================================================
 // Types (local to AIAssistant)

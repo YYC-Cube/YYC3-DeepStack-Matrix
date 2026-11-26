@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
 
 class MockWebSocket {
   static OPEN = 1;
@@ -54,7 +54,7 @@ class MockWebSocket {
 
 let mockWSInstance: MockWebSocket | null = null;
 
-vi.mock("@yyc3/core/api-config", () => ({
+vi.mock("@yyc3-deepstack/core/api-config", () => ({
   getAPIConfig: () => ({
     wsEndpoint: "ws://localhost:3113/ws",
   }),

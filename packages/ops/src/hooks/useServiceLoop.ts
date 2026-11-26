@@ -23,7 +23,7 @@
 
 import { useState, useCallback, useMemo, useRef } from "react";
 import { toast } from "sonner";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
 import type {
   LoopStage,
   StageStatus,
@@ -32,7 +32,7 @@ import type {
   DataFlowEdge,
   StageMeta,
   DataFlowNode,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // RF-011: Re-export 已移除 — 所有类型统一从 types/index.ts 导入
 

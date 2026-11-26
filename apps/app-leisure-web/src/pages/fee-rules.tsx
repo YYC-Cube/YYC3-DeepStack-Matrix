@@ -3,7 +3,7 @@
  * 计费模式 HOURLY 下 amount 语义 = 计时单价(元/小时),需求全集 §6
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { fmtMoney, num } from '@/lib/format'

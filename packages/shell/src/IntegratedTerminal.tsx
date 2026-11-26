@@ -30,10 +30,10 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { useTerminal } from "@yyc3/ide/hooks/use-terminal";
-import { ViewContext } from "@yyc3/core/view-context";
-import { AuthContext } from "@yyc3/core/authContext";
-import { isGhostMode } from "@yyc3/core/supabaseClient";
-import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { AuthContext } from "@yyc3-deepstack/core/authContext";
+import { isGhostMode } from "@yyc3-deepstack/core/supabaseClient";
+import { useUIPrefsSlice } from "@yyc3-deepstack/store/ui-prefs-slice";
 
 /* ── 常量 ─────────────────────────────── */
 const MIN_HEIGHT = 180;

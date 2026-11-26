@@ -14,11 +14,11 @@ import {
   Wifi, WifiOff, HardDrive, RefreshCw, Trash2,
   Download, CheckCircle, XCircle, Loader2, Shield, Database,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { usePWAManager } from "./hooks/usePWAManager";
-import { useI18n } from "@yyc3/core/i18n";
-import { ViewContext } from "@yyc3/core/view-context";
-import type { SWStatus } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import type { SWStatus } from "@yyc3-deepstack/core/types";
 
 const swStatusConfig: Record<SWStatus, { color: string; icon: React.ElementType }> = {
   idle:        { color: "rgba(0,212,255,0.4)",  icon: Shield },

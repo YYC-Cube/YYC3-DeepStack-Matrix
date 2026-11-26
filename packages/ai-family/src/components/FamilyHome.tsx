@@ -10,7 +10,7 @@
  */
 
 import React from "react";
-import { useClock } from "@yyc3/core/useClock";
+import { useClock } from "@yyc3-deepstack/core/useClock";
 import {
   Heart, Users, MessageCircle, BookOpen, Music, TrendingUp,
   Coffee, Sun, Moon, Cloud,
@@ -18,7 +18,7 @@ import {
   Smile, FileText, HandHeart, Phone, Gamepad2, Trophy,
   Volume2, Server, Radio, Database, Settings2,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FadeIn } from "./FadeIn";
 import { useNavigate } from "react-router";
 import { useFamilyMemberSlice } from "../store";

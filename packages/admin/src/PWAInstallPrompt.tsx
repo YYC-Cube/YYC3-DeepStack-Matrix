@@ -12,7 +12,7 @@
 import React from "react";
 import { Download, X } from "lucide-react";
 import { useInstallPrompt } from "./hooks/useInstallPrompt";
-import { YYC3Logo } from "@yyc3/ui";
+import { YYC3Logo } from "@yyc3-deepstack/ui";
 
 export function PWAInstallPrompt() {
   const { isInstalled, canInstall, promptInstall, dismiss } = useInstallPrompt();

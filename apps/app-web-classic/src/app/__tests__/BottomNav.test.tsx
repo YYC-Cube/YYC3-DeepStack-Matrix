@@ -44,7 +44,7 @@ const mockT = (key: string) => {
   return translations[key] || key;
 };
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({ t: mockT }),
 }));
 

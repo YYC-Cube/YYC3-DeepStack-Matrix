@@ -11,8 +11,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { X, ChevronDown, ChevronUp, Loader2, Server, Key, Cpu, RefreshCw } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
-import type { ModelProviderId, ModelProviderDef, OllamaModel } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import type { ModelProviderId, ModelProviderDef, OllamaModel } from "@yyc3-deepstack/core/types";
 
 interface AddModelModalProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 /**
  * @file: index.ts
- * @description: @yyc3/core barrel — 数据/横切能力单源统一出口（Phase 3）
+ * @description: @yyc3-deepstack/core barrel — 数据/横切能力单源统一出口（Phase 3）
  * @author: YanYuCloudCube Team
  * @version: v0.1.0
  * @created: 2026-10-10

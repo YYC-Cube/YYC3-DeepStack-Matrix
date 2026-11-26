@@ -15,8 +15,8 @@ import {
   Undo2, ChevronDown, ChevronUp, Trash2, CheckSquare, Square,
 } from "lucide-react";
 import { toast } from "sonner";
-import { idbGetAll, idbPut, idbClear as idbClearStore } from "@yyc3/core/yyc3-storage";
-import type { EditableCellChange, CommittedChange } from "@yyc3/core/types";
+import { idbGetAll, idbPut, idbClear as idbClearStore } from "@yyc3-deepstack/core/yyc3-storage";
+import type { EditableCellChange, CommittedChange } from "@yyc3-deepstack/core/types";
 
 // RF-011: Re-export 已移除
 

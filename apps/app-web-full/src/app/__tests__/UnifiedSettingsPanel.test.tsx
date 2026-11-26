@@ -15,15 +15,15 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { UnifiedSettingsPanel } from "../modules/admin/UnifiedSettingsPanel";
-import { exportStoreData } from "@yyc3/store/global-store";
+import { exportStoreData } from "@yyc3-deepstack/store/global-store";
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
   })),
 }));
 
-vi.mock("@yyc3/core/use-copy-feedback", () => ({
+vi.mock("@yyc3-deepstack/core/use-copy-feedback", () => ({
   useCopyFeedback: vi.fn(() => [false, vi.fn()]),
 }));
 
@@ -53,7 +53,7 @@ vi.mock("../store", () => ({
   })),
 }));
 
-vi.mock("@yyc3/store/global-store", () => ({
+vi.mock("@yyc3-deepstack/store/global-store", () => ({
   exportStoreData: vi.fn(() => JSON.stringify({ test: "data" })),
   importStoreData: vi.fn(() => true),
   useAlerts: vi.fn(() => ({
@@ -64,12 +64,12 @@ vi.mock("@yyc3/store/global-store", () => ({
   })),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: { children: React.ReactNode; className?: string }) =>
     React.createElement("div", { className, "data-testid": "glass-card" }, children),
 }));
 
-vi.mock("@yyc3/ui/alert-dialog", () => {
+vi.mock("@yyc3-deepstack/ui/alert-dialog", () => {
   const createElement = React.createElement;
   return {
     AlertDialog: ({ children }: { children: React.ReactNode }) =>
@@ -93,7 +93,7 @@ vi.mock("@yyc3/ui/alert-dialog", () => {
   };
 });
 
-vi.mock("@yyc3/ui/progress", () => ({
+vi.mock("@yyc3-deepstack/ui/progress", () => ({
   Progress: ({ value, className }: { value: number; className?: string }) =>
     React.createElement("div", { className, "data-testid": "progress", "aria-valuenow": value }),
 }));

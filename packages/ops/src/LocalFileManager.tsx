@@ -14,15 +14,15 @@ import {
   FolderOpen, Download, HardDrive, Trash2, Keyboard,
   Save, X, FileEdit,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FileBrowser } from "@yyc3/ops/file-browser";
 import { LogViewer } from "@yyc3/ops/log-viewer";
 import { ReportGenerator } from "@yyc3/ops/report-generator";
 import { CodeEditor, getLanguageLabel } from "@yyc3/ide/code-editor";
 import { useLocalFileSystem } from "@yyc3/ops/hooks/use-local-file-system";
-import { useI18n } from "@yyc3/core/i18n";
-import { useLogSlice } from "@yyc3/store/log-slice";
-import { ViewContext } from "@yyc3/core/view-context";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useLogSlice } from "@yyc3-deepstack/store/log-slice";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 
 type ActiveTab = "files" | "logs" | "reports";
 

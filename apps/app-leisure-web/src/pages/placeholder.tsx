@@ -2,7 +2,7 @@
  * II 期/IV 期占位页(A6/A12-A15/A21-A25):明确里程碑归属,不留死链
  */
 import { useParams } from 'react-router'
-import { Card } from '@yyc3/ui'
+import { Card } from '@yyc3-deepstack/ui'
 import { PageHeader } from '@/components/kit'
 
 const TITLES: Record<string, { title: string; milestone: string; reason: string }> = {

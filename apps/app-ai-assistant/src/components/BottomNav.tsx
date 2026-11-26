@@ -226,7 +226,8 @@ export function BottomNav() {
               );
             })}
 
-            {/* ── 更多 Tab ── */}
+            {/* ── 更多 Tab(自适应:无抽屉内容则隐藏,不留死按钮) ── */}
+            {MORE_CATEGORIES.length > 0 && (
             <button
               onClick={() => setMoreOpen((v) => !v)}
               data-testid="bottom-nav-more-btn"
@@ -263,6 +264,7 @@ export function BottomNav() {
                 {t("common.more") || "更多"}
               </span>
             </button>
+            )}
           </div>
 
           {/* iOS 安全区域占位 */}

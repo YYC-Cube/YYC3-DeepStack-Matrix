@@ -178,7 +178,12 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
     bootQp.get("tab") === "pages" ? "pages" : "chat",
   );
   // 页面内嵌视图:null=卡片列表;否则 iframe 渲染对应系统页(浮窗独控)
-  const [pageView, setPageView] = useState<AppPageEntry | null>(null);
+  // URL 引导:&page=<子路径> 直达内嵌(如 page=settings → /settings?embed=1)
+  const [pageView, setPageView] = useState<AppPageEntry | null>(() => {
+    const bootPage = bootQp.get("page");
+    if (!bootPage) return null;
+    return APP_PAGES.find(p => p.path === "/" + bootPage) ?? null;
+  });
   const maximizeBeforePage = useRef(false);
 
   const openPageView = useCallback((page: AppPageEntry) => {
@@ -440,6 +445,28 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
             </button>
           ))}
         </div>
+
+        {/* ========= 页面快捷导航行(红框诉求:常用页一级直达;嵌入态由顶栏接管故隐藏) ========= */}
+        {pageView === null && (
+          <div className="shrink-0 flex items-center gap-1 px-3 py-1.5 overflow-x-auto border-b border-[rgba(0,180,255,0.06)] bg-[rgba(0,30,60,0.14)]">
+            {APP_PAGES.map(page => (
+              <button
+                key={page.path}
+                onClick={() => openPageView(page)}
+                className="flex items-center gap-1 px-2 py-1 rounded-md whitespace-nowrap border transition-all"
+                style={{
+                  fontSize: "0.6rem",
+                  color: page.color,
+                  borderColor: `${page.color}30`,
+                  background: `${page.color}0d`,
+                }}
+              >
+                <page.icon className="w-3 h-3" />
+                {page.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ========= Content ========= */}
         <div className="flex-1 overflow-hidden flex flex-col">

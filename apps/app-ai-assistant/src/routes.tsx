@@ -102,10 +102,11 @@ function LoginGate(): React.JSX.Element {
 export const router = createHashRouter([
   { path: "/login", element: <LoginGate /> },
   {
+    // 首页 = AI Family 时钟环(背景页);系统功能经底栏/浮窗进入
     path: "/",
     element: (
       <Protected>
-        <ModelProviderPanel />
+        <AIFamilyPage />
       </Protected>
     ),
   },

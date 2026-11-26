@@ -2,7 +2,7 @@
  * 包厢房号管理(需求全集 §5):房号店内唯一(40907);房态流转;OCCUPIED 由上下钟驱动
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ROOM_STATUS_LABEL } from '@/lib/format'

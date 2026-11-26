@@ -36,7 +36,7 @@ type OnChangeFn = (modelId: string, model: ConfiguredModel) => void;
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
@@ -102,7 +102,7 @@ const mockModels: ConfiguredModel[] = [
 
 let mockProvidersReturn: any;
 
-vi.mock("@yyc3/store/provider-slice", () => ({
+vi.mock("@yyc3-deepstack/store/provider-slice", () => ({
   useProviderSlice: (_selector?: any) => mockProvidersReturn,
   BUILTIN_PROVIDERS: [
     { id: "zhipu", label: "Z.ai" },

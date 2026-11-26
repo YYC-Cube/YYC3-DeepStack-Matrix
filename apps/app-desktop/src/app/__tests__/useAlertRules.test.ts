@@ -15,7 +15,7 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAlertRules } from "@yyc3/monitor/hooks/use-alert-rules";
 import type { AlertRule, AlertEvent } from "../types";
 
-vi.mock("@yyc3/core/use-persisted-state", () => ({
+vi.mock("@yyc3-deepstack/core/use-persisted-state", () => ({
   usePersistedList: vi.fn((storeName, defaultData) => {
     const [items, setItems] = React.useState(defaultData);
     const [loaded, setLoaded] = React.useState(true);

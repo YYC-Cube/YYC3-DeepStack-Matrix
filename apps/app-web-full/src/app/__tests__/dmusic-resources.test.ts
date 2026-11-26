@@ -18,7 +18,7 @@ import {
   getTracksByEmotion,
   MUSIC_LIBRARY,
   type MusicTrack,
-} from "@yyc3/core/dmusic-resources";
+} from "@yyc3-deepstack/core/dmusic-resources";
 
 describe("dmusic-resources", () => {
   describe("MUSIC_LIBRARY", () => {

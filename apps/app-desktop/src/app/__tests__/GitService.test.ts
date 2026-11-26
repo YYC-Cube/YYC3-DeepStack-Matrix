@@ -15,14 +15,14 @@ import {
   GitService,
   getGitService,
   createGitService,
-} from "@yyc3/core/GitService";
+} from "@yyc3-deepstack/core/GitService";
 import type {
   GitFileChange,
   GitCommitInfo,
   GitBranchInfo,
   GitStatus,
   GitServiceConfig,
-} from "@yyc3/core/GitService";
+} from "@yyc3-deepstack/core/GitService";
 
 describe("GitService", () => {
   let gitService: GitService;

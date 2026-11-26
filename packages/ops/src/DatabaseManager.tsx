@@ -36,10 +36,10 @@ import {
 } from "lucide-react";
 import { useCallback, useContext, useState } from "react";
 import { useLocalDatabase } from "@yyc3/ops/hooks/use-local-database";
-import { ViewContext } from "@yyc3/core/view-context";
-import type { DatabaseType } from "@yyc3/core/types";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import type { DatabaseType } from "@yyc3-deepstack/core/types";
 import { SQLEditor } from "@yyc3/ide/code-editor";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { InlineEditableTable } from "./InlineEditableTable";
 
 // ── 样式常量 ──

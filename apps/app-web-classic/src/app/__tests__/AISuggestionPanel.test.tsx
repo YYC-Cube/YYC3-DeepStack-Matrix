@@ -57,7 +57,7 @@ vi.mock("@yyc3/monitor/action-recommender", () => ({
   default: () => React.createElement("div", { "data-testid": "action-recommender" }, "Action Recommender Mock"),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
@@ -65,7 +65,7 @@ vi.mock("@yyc3/shell/layout", () => ({
   ViewContext: React.createContext({ isMobile: false, theme: "dark" as const }),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string, params?: Record<string, unknown>) => {
       const translations: Record<string, string> = {

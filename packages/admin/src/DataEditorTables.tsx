@@ -15,8 +15,8 @@ import {
   ArrowUpDown, ChevronUp, ChevronDown,
   CheckSquare, Square,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import type { Model, NodeStatusRecord, Agent, NodeStatusType } from "@yyc3/core/types";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import type { Model, NodeStatusRecord, Agent, NodeStatusType } from "@yyc3-deepstack/core/types";
 
 const _toastStyle = {
   background: "rgba(8, 25, 55, 0.95)",

@@ -9,10 +9,10 @@
  * @tags: [component]
  */
 
-import type { TestStatus, WifiAutoReconnectSettings } from "@yyc3/core/types";
-import { useNetworkConfig } from "@yyc3/core/useNetworkConfig";
-import { useNetworkSlice } from "@yyc3/store/network-slice";
-import { GlassCard } from "@yyc3/ui";
+import type { TestStatus, WifiAutoReconnectSettings } from "@yyc3-deepstack/core/types";
+import { useNetworkConfig } from "@yyc3-deepstack/core/useNetworkConfig";
+import { useNetworkSlice } from "@yyc3-deepstack/store/network-slice";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   AlertTriangle,
   Check,

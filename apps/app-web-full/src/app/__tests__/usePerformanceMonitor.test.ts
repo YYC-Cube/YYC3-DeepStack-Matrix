@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { usePerformanceMonitor } from "../hooks/usePerformanceMonitor";
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",

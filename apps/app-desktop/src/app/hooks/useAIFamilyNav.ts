@@ -28,7 +28,7 @@ import {
   searchKnowledge,
   type DevKnowledgeCategory,
   type KnowledgeSearchResult,
-} from "@yyc3/core/local-knowledge-base";
+} from "@yyc3-deepstack/core/local-knowledge-base";
 
 // ============================================================
 //  类型定义

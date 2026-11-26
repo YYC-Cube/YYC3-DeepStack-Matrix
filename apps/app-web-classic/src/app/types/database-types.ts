@@ -1,6 +1,6 @@
 /**
  * @file: database-types.ts
- * @description: 类型桥（整件翻正）— 类型单源 @yyc3/core/types + 双向值转换（P5 第三轮）
+ * @description: 类型桥（整件翻正）— 类型单源 @yyc3-deepstack/core/types + 双向值转换（P5 第三轮）
  * @author: YanYuCloudCube Team
  * @version: v3.0.0
  * @updated: 2026-10-10
@@ -8,12 +8,12 @@
  * @tags: [types],[bridge]
  */
 
-import type { ConnectionInfo, ConnectionStatus as InfraConnectionStatus } from "@yyc3/core/database/types";
-import type { DBConnection, DBConnectionStatus } from "@yyc3/core/types";
+import type { ConnectionInfo, ConnectionStatus as InfraConnectionStatus } from "@yyc3-deepstack/core/database/types";
+import type { DBConnection, DBConnectionStatus } from "@yyc3-deepstack/core/types";
 
 export type {
   ChangeType, CommittedChange, DatabaseType, DBBackup, DBColumn, DBConnection, DBConnectionStatus, DBTable, EditableCellChange, QueryResult, SQLTemplate
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // 桥接映射函数 — UI 层 ↔ 基础设施层

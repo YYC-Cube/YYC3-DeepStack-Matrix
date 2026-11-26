@@ -25,17 +25,17 @@ import {
 } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useModelProvider } from "@yyc3/store/use-model-provider";
-import { useSettingsStore } from "@yyc3/store/use-settings-store";
+import { useModelProvider } from "@yyc3-deepstack/store/use-model-provider";
+import { useSettingsStore } from "@yyc3-deepstack/store/use-settings-store";
 import {
   exportDbData, importDbData,
   resetDbAgents,
   resetDbModels,
   resetDbNodes,
-} from "@yyc3/core/db-queries";
-import { exportEnvConfig, importEnvConfig, resetEnvConfig } from "@yyc3/core/env-config";
+} from "@yyc3-deepstack/core/db-queries";
+import { exportEnvConfig, importEnvConfig, resetEnvConfig } from "@yyc3-deepstack/core/env-config";
 import { exportFullBackup, importFullBackup } from "./full-backup";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 // ── 样式常量 ──
 const toastStyle = {

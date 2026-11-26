@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ConfigExportCenter } from "@yyc3/ops/config-export-center";
 
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     configuredModels: [],
@@ -25,7 +25,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   })),
 }));
 
-vi.mock("@yyc3/store/use-settings-store", () => ({
+vi.mock("@yyc3-deepstack/store/use-settings-store", () => ({
   useSettingsStore: vi.fn(() => ({
     settings: {
       theme: "dark",
@@ -39,7 +39,7 @@ vi.mock("@yyc3/store/use-settings-store", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/db-queries", () => ({
+vi.mock("@yyc3-deepstack/core/db-queries", () => ({
   exportDbData: vi.fn(() => "{}"),
   importDbData: vi.fn(() => true),
   resetDbModels: vi.fn(),
@@ -47,7 +47,7 @@ vi.mock("@yyc3/core/db-queries", () => ({
   resetDbNodes: vi.fn(),
 }));
 
-vi.mock("@yyc3/core/env-config", () => ({
+vi.mock("@yyc3-deepstack/core/env-config", () => ({
   exportEnvConfig: vi.fn(() => "{}"),
   importEnvConfig: vi.fn(() => true),
   resetEnvConfig: vi.fn(),

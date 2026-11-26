@@ -3,7 +3,7 @@
  * 数据源:/stage-fee/txns?businessDateFrom/To&pageSize=500 前端按日聚合
  */
 import { useEffect, useState } from 'react'
-import { Card } from '@yyc3/ui'
+import { Card } from '@yyc3-deepstack/ui'
 import { req, toastError } from '@/lib/api'
 import { PageHeader, StatCard } from '@/components/kit'
 import { MiniBars, MiniSpark } from '@/components/mini-chart'

@@ -19,8 +19,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { toast } from 'sonner';
-import type { DetectedPattern, AIRecommendation } from '@yyc3/core/types';
-import { migrateKey } from '@yyc3/core/migrate-storage';
+import type { DetectedPattern, AIRecommendation } from '@yyc3-deepstack/core/types';
+import { migrateKey } from '@yyc3-deepstack/core/migrate-storage';
 
 // ============================================================
 // 默认种子数据

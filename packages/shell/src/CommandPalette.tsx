@@ -38,8 +38,8 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useI18n } from "@yyc3/core/i18n";
-import { SHORTCUT_LIST } from "@yyc3/core/useKeyboardShortcuts";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { SHORTCUT_LIST } from "@yyc3-deepstack/core/useKeyboardShortcuts";
 
 const iconMap: Record<string, React.ElementType> = {
   Activity, Bell, Shield, Wrench, FolderOpen, Terminal,

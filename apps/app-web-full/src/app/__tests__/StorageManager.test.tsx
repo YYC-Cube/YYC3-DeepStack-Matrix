@@ -40,7 +40,7 @@ let mockSaveConfig = vi.fn((cfg: StorageConfig) => { mockConfig = cfg; });
 let mockTriggerSync = vi.fn(async () => {});
 let mockGetConfig = vi.fn(() => mockConfig);
 
-vi.mock("@yyc3/core/storageManager", () => ({
+vi.mock("@yyc3-deepstack/core/storageManager", () => ({
   storageManager: {
     getConfig: () => mockGetConfig(),
     saveConfig: (cfg: StorageConfig) => mockSaveConfig(cfg),
@@ -60,7 +60,7 @@ vi.mock("@yyc3/core/storageManager", () => ({
 // Mock: PageHeader
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/ui/page-header", () => ({
+vi.mock("@yyc3-deepstack/ui/page-header", () => ({
   PageHeader: ({ title, description }: { title: string; description: string }) =>
     React.createElement("div", { "data-testid": "yyc3-page-header" },
       React.createElement("h1", { "data-testid": "yyc3-page-title" }, title),
@@ -135,7 +135,7 @@ vi.mock("@yyc3/admin/storage-config-panel", () => ({
 // Mock: useI18n（按组件实际调用的 t key 填充中文 map）
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string, _vars?: Record<string, string | number>) => {
       const map: Record<string, string> = {

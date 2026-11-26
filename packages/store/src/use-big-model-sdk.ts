@@ -10,8 +10,8 @@
  */
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { getOllamaChatUrl, getOllamaUrl } from "@yyc3/core/ollama-url";
-import { useSDKSessionSlice } from "@yyc3/store/sdk-session-slice";
+import { getOllamaChatUrl, getOllamaUrl } from "@yyc3-deepstack/core/ollama-url";
+import { useSDKSessionSlice } from "@yyc3-deepstack/store/sdk-session-slice";
 import type {
   ChatMessage,
   ChatRole,
@@ -23,7 +23,7 @@ import type {
   SDKConnectionStatus,
   SDKProviderCapabilities,
   SDKUsageStats,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // 常量

@@ -10,7 +10,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import type { BeforeInstallPromptEvent } from "@yyc3/core/types";
+import type { BeforeInstallPromptEvent } from "@yyc3-deepstack/core/types";
 
 export function useInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =

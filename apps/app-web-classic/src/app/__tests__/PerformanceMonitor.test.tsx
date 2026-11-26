@@ -51,11 +51,11 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/env-config", () => ({
+vi.mock("@yyc3-deepstack/core/env-config", () => ({
   env: {},
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",

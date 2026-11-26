@@ -4,7 +4,7 @@
  * (不在 AppLayout)所有 toast 全部静默丢弃=新员工首登改密「点击提交无反应」根因。移至全局单实例。
  */
 import { RouterProvider } from 'react-router'
-import { Toaster } from '@yyc3/ui'
+import { Toaster } from '@yyc3-deepstack/ui'
 import { router } from './routes'
 
 export default function App() {

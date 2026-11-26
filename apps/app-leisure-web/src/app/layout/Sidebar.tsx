@@ -16,7 +16,7 @@ import {
   Settings,
   Users,
 } from 'lucide-react'
-import { Button } from '@yyc3/ui'
+import { Button } from '@yyc3-deepstack/ui'
 import { useAuthStore } from '@/stores/auth'
 import { YYC3LogoSvg } from '@/components/ai-assistant/YYC3LogoSvg'
 

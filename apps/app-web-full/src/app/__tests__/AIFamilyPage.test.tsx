@@ -30,7 +30,7 @@ import { Ear, Brain, Eye, Star, Network, Shield, Scale, Lightbulb } from "lucide
 // ============================================================
 //  Mock: useI18n
 // ============================================================
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => {
       const map: Record<string, string> = {
@@ -48,7 +48,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 // ============================================================
 //  Mock: useClockMinutes — 返回固定时间对象
 // ============================================================
-vi.mock("@yyc3/core/useClock", () => ({
+vi.mock("@yyc3-deepstack/core/useClock", () => ({
   useClockMinutes: vi.fn(() => new Date("2026-04-08T09:00:00")),
 }));
 

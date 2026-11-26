@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Button, Card, Input, Label } from '@yyc3/ui'
+import { Button, Card, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { KeyRound, ShieldCheck, Store, UserCircle2, CalendarDays, BadgeCheck, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'

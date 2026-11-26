@@ -24,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@yyc3/ui'
+} from '@yyc3-deepstack/ui'
 import { fmtMoney, num } from '@/lib/format'
 
 /* ── 页头 ── */

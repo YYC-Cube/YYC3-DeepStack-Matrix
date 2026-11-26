@@ -17,7 +17,7 @@ import { OfflineIndicator } from "@yyc3/shell/offline-indicator";
 
 const mockUseOfflineMode = vi.fn();
 
-vi.mock("@yyc3/store/useOfflineMode", () => ({
+vi.mock("@yyc3-deepstack/store/useOfflineMode", () => ({
   useOfflineMode: () => mockUseOfflineMode(),
 }));
 

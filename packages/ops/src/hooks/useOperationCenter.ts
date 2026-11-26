@@ -29,8 +29,8 @@ import type {
   OperationLogEntry,
   OperationStatus,
   OperationTemplateItem,
-} from "@yyc3/core/types";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
+} from "@yyc3-deepstack/core/types";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 

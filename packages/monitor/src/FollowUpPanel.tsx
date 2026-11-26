@@ -20,14 +20,14 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useI18n } from "@yyc3/core/i18n";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
-import { ViewContext } from "@yyc3/core/view-context";
-import { useAlerts } from "@yyc3/store/global-store";
-import type { FollowUpItem, FollowUpStatus } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { useAlerts } from "@yyc3-deepstack/store/global-store";
+import type { FollowUpItem, FollowUpStatus } from "@yyc3-deepstack/core/types";
 import { FollowUpCard } from "./FollowUpCard";
 import { FollowUpDrawer } from "./FollowUpDrawer";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 const DEFAULT_FOLLOW_UPS: FollowUpItem[] = [
   {

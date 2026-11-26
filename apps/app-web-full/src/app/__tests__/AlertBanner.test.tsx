@@ -20,7 +20,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock("@yyc3/store/global-store", () => ({
+vi.mock("@yyc3-deepstack/store/global-store", () => ({
   useAlerts: () => ({
     followUps: [
       {

@@ -1,5 +1,5 @@
 {
-  "name": "@yyc3/store",
+  "name": "@yyc3-deepstack/store",
   "version": "0.1.0",
   "private": true,
   "description": "YYC³ 四端统一状态库 — Zustand Slices 单源（主文档 Phase 4 M4-3）",
@@ -39,7 +39,7 @@
     "zustand": "^5"
   },
   "dependencies": {
-    "@yyc3/core": "workspace:*"
+    "@yyc3-deepstack/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

@@ -17,7 +17,7 @@ import {
   getModelStats,
   getNodesStatus,
   getActiveAgents,
-} from "@yyc3/core/db-queries";
+} from "@yyc3-deepstack/core/db-queries";
 
 describe("db-queries", () => {
   // ----------------------------------------------------------

@@ -15,9 +15,9 @@ import {
   GraduationCap, ChevronRight, Activity, Zap, Shield, Star,
   Phone, Coffee, UtensilsCrossed, Sparkles, Heart,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FadeIn } from "./FadeIn";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";
 
 import { AIFamilyHotelManager } from "@yyc3/business/hotel-engines/ai-family-hotel-manager";

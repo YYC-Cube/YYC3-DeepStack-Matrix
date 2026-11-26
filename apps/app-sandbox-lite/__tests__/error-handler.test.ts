@@ -24,7 +24,7 @@ import {
   getErrorStats,
   trySafe,
   trySafeSync,
-} from "@yyc3/core/error-handler";
+} from "@yyc3-deepstack/core/error-handler";
 
 // Mock localStorage
 const localStorageMock = (() => {

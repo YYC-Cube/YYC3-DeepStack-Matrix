@@ -391,26 +391,26 @@ describe("UI 组件公共类型", () => {
 
 describe("向后兼容 Re-export", () => {
   it("useWebSocketData 模块应 re-export 核心类型", async () => {
-    const mod = await import("@yyc3/store/use-websocket-data");
+    const mod = await import("@yyc3-deepstack/store/use-websocket-data");
     // These are re-exported types - at runtime they are undefined
     // but the import should not throw
     expect(mod.useWebSocketData).toBeDefined();
   });
 
   it("useMobileView 模块应导出 hook", async () => {
-    const mod = await import("@yyc3/core/useMobileView");
+    const mod = await import("@yyc3-deepstack/core/useMobileView");
     expect(mod.useMobileView).toBeDefined();
   });
 
   it("network-utils 模块应导出常量和函数", async () => {
-    const mod = await import("@yyc3/core/network-utils");
+    const mod = await import("@yyc3-deepstack/core/network-utils");
     expect(mod.DEFAULT_NETWORK_CONFIG).toBeDefined();
     expect(typeof mod.generateWsUrl).toBe("function");
     expect(typeof mod.loadNetworkConfig).toBe("function");
   });
 
   it("db-queries 模块应导出查询函数", async () => {
-    const mod = await import("@yyc3/core/db-queries");
+    const mod = await import("@yyc3-deepstack/core/db-queries");
     expect(typeof mod.getActiveModels).toBe("function");
     expect(typeof mod.getNodesStatus).toBe("function");
     expect(typeof mod.getRecentLogs).toBe("function");
@@ -419,7 +419,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("error-handler 模块应导出错误处理函数", async () => {
-    const mod = await import("@yyc3/core/error-handler");
+    const mod = await import("@yyc3-deepstack/core/error-handler");
     expect(typeof mod.captureError).toBe("function");
     expect(typeof mod.captureNetworkError).toBe("function");
     expect(typeof mod.captureWSError).toBe("function");
@@ -433,7 +433,7 @@ describe("向后兼容 Re-export", () => {
   });
 
   it("backgroundSync 模块应导出队列操作函数", async () => {
-    const mod = await import("@yyc3/core/backgroundSync");
+    const mod = await import("@yyc3-deepstack/core/backgroundSync");
     expect(typeof mod.addToSyncQueue).toBe("function");
     expect(typeof mod.getSyncQueue).toBe("function");
     expect(typeof mod.clearSyncQueue).toBe("function");

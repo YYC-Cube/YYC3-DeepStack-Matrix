@@ -28,7 +28,7 @@ const mockGetNetworkInterfaces = vi.fn(() =>
 );
 const mockGetLocalIP = vi.fn(() => Promise.resolve("127.0.0.1"));
 
-vi.mock("@yyc3/core/network-utils", () => ({
+vi.mock("@yyc3-deepstack/core/network-utils", () => ({
   loadNetworkConfig: () => ({
     serverAddress: "localhost",
     port: "3113",
@@ -43,7 +43,7 @@ vi.mock("@yyc3/core/network-utils", () => ({
   testWebSocketConnection: (url: string, timeout: number) => mockTestWebSocketConnection(url, timeout),
 }));
 
-import { useNetworkConfig } from "@yyc3/core/useNetworkConfig";
+import { useNetworkConfig } from "@yyc3-deepstack/core/useNetworkConfig";
 
 describe("useNetworkConfig", () => {
   beforeEach(() => {

@@ -17,7 +17,7 @@ import { LanguageSwitcher } from "@yyc3/shell/language-switcher";
 
 const mockSetLocale = vi.fn();
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     locale: "zh-CN",
     setLocale: mockSetLocale,

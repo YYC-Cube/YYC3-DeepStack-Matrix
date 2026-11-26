@@ -15,7 +15,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { IDEStatusBar } from "@yyc3/ide/ide-status-bar";
 import type { OpenTab } from "@yyc3/ide/ide-types";
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string, params?: Record<string, unknown>) => {
       if (key === "ide.lineCol") {

@@ -1,6 +1,6 @@
 /**
  * @file: index.ts
- * @description: @yyc3/ui barrel — 深路径导入（@yyc3/ui/button）为首选；barrel 仅供新代码便捷聚合
+ * @description: @yyc3-deepstack/ui barrel — 深路径导入（@yyc3-deepstack/ui/button）为首选；barrel 仅供新代码便捷聚合
  * @author: YanYuCloudCube Team
  * @version: v0.1.0
  * @created: 2026-10-10

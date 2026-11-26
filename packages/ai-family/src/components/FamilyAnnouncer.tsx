@@ -16,7 +16,7 @@ import { useFamilyMemberSlice } from "../store";
 import type { UnifiedFamilyMember } from "../types";
 import { voiceProfileManager, type VoiceProfile } from "../lib/VoiceProfileManager";
 import { musicEventBus } from "../lib/MusicEventBus";
-import { Button } from "@yyc3/ui/button";
+import { Button } from "@yyc3-deepstack/ui/button";
 
 export type AnnouncementType =
   | "greeting"

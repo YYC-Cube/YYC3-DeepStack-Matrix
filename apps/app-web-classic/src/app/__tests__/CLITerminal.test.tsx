@@ -25,7 +25,7 @@ vi.mock("lucide-react", () => ({
   ChevronRight: () => React.createElement("span", { "data-testid": "icon-chevron" }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
@@ -47,7 +47,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {

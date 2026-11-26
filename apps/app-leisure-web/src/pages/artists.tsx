@@ -3,7 +3,7 @@
  * 业务规则:审核通过才对外展示;删除有流水禁删(40906 引导停用);腰牌号唯一(40901 含软删档案)
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Card, Checkbox, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import QRCode from 'qrcode'
 import { req, toastError } from '@/lib/api'

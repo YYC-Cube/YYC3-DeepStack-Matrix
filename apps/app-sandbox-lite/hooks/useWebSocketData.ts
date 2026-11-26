@@ -35,7 +35,7 @@ import type {
   WebSocketDataState,
 } from "../types";
 
-import { getAPIConfig } from "@yyc3/core/api-config";
+import { getAPIConfig } from "@yyc3-deepstack/core/api-config";
 import { nodeStore } from "../stores/dashboard-stores";
 
 // ============================================================

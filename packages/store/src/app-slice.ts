@@ -18,7 +18,7 @@
  */
 
 import { create } from 'zustand';
-import type { AlertData } from '@yyc3/core/types';
+import type { AlertData } from '@yyc3-deepstack/core/types';
 
 export interface RecentOpEntry {
   id: string;

@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useNetworkSlice } from '@yyc3/store/network-slice';
+import { useNetworkSlice } from '@yyc3-deepstack/store/network-slice';
 import type { WifiNetwork, WifiAutoReconnectSettings } from '../../types';
 
 describe('useNetworkSlice', () => {

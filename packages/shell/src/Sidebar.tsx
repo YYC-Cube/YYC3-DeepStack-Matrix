@@ -54,8 +54,8 @@ import {
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { useI18n } from "@yyc3/core/i18n";
-import { YYC3Logo } from "@yyc3/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { YYC3Logo } from "@yyc3-deepstack/ui";
 
 /* ── 导航数据结构 ──────────────────────────────── */
 interface NavChild {

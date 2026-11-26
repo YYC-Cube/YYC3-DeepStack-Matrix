@@ -3,7 +3,7 @@
  * 覆盖「等级×房型」基础单价;命中规则:房型+星期+日期段+时刻窗(支持跨零点);同命中取优先级最高
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input, Label } from '@yyc3/ui'
+import { Button, Card, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, PageHeader } from '@/components/kit'

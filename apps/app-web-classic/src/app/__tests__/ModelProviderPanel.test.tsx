@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { ModelProviderPanel } from "@yyc3/ai/model-provider-panel";
 
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     configuredModels: [],
@@ -42,7 +42,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -50,7 +50,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({
     isMobile: false,
     isTablet: false,

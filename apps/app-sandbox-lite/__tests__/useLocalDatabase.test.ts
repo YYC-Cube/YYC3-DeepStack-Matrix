@@ -48,7 +48,7 @@ vi.mock("sonner", () => ({
   toast: mockToast,
 }));
 
-vi.mock("@yyc3/core/yyc3-storage", () => ({
+vi.mock("@yyc3-deepstack/core/yyc3-storage", () => ({
   idbGetAll: vi.fn().mockResolvedValue([]),
   idbPut: vi.fn().mockResolvedValue(undefined),
   idbPutMany: vi.fn().mockResolvedValue(undefined),
@@ -56,7 +56,7 @@ vi.mock("@yyc3/core/yyc3-storage", () => ({
   idbClear: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("@yyc3/core/api-config", () => ({
+vi.mock("@yyc3-deepstack/core/api-config", () => ({
   getAPIConfig: mockGetAPIConfig,
 }));
 

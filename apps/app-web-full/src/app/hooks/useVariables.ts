@@ -22,7 +22,7 @@ import {
   type VariableCategory,
   type VariableDefinition,
   type VariableValue,
-} from "@yyc3/core/variable-center";
+} from "@yyc3-deepstack/core/variable-center";
 
 export interface UseVariablesOptions {
   category?: VariableCategory;

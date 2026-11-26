@@ -6,7 +6,7 @@
  * 权限:读全员开放(GET /goods);写仅 setting:manage(与桌面 MENU 同码;后端另守 ADMIN scope)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'

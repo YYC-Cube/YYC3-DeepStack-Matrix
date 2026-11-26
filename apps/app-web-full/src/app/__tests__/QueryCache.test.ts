@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { QueryCache } from "@yyc3/core/database/QueryCache";
-import type { QueryResult } from "@yyc3/core/database/types";
+import { QueryCache } from "@yyc3-deepstack/core/database/QueryCache";
+import type { QueryResult } from "@yyc3-deepstack/core/database/types";
 
 describe("QueryCache", () => {
   let cache: QueryCache;

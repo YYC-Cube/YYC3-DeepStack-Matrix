@@ -1,6 +1,6 @@
 /**
  * @file: operation-types.ts
- * @description: 类型桥（整件翻正）— 单源 @yyc3/core/types（P5 第三轮 types 收敛）
+ * @description: 类型桥（整件翻正）— 单源 @yyc3-deepstack/core/types（P5 第三轮 types 收敛）
  * @author: YanYuCloudCube Team
  * @version: v3.0.0
  * @updated: 2026-10-10
@@ -16,4 +16,4 @@ export type {
   OperationTemplateItem,
   OperationLogEntry,
   LogFilterType,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";

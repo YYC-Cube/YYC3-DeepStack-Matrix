@@ -12,7 +12,7 @@
 import * as React from "react";
 import { useState, useCallback } from "react";
 import { X, RotateCcw } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { useIDESettingsSlice } from "./ide-settings-slice";
 import type { IDESettings } from "./ide-types";
 

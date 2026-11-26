@@ -14,7 +14,7 @@ import {
   TrendingUp, TrendingDown, Minus, AlertTriangle,
   X, Clock, Repeat,
 } from "lucide-react";
-import type { DetectedPattern, PatternSeverity } from "@yyc3/core/types";
+import type { DetectedPattern, PatternSeverity } from "@yyc3-deepstack/core/types";
 
 const severityConfig: Record<PatternSeverity, { color: string; bg: string; label: string }> = {
   critical: { color: "#ff0044", bg: "rgba(255,0,68,0.08)", label: "严重" },

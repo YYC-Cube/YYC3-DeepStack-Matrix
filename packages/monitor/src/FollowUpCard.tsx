@@ -14,10 +14,10 @@ import {
   AlertTriangle, AlertCircle, Info, XCircle, ChevronDown, ChevronUp,
   Clock, User, Tag, ExternalLink,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { OperationChain } from "@yyc3/ops/operation-chain";
 import { QuickActionGroup } from "./QuickActionGroup";
-import type { FollowUpItem, FollowUpSeverity, FollowUpStatus } from "@yyc3/core/types";
+import type { FollowUpItem, FollowUpSeverity, FollowUpStatus } from "@yyc3-deepstack/core/types";
 
 interface FollowUpCardProps {
   item: FollowUpItem;

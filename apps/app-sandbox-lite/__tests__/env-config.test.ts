@@ -31,7 +31,7 @@ const localStorageMock = {
 // 每次测试前重置模块 (因为 _envConfig 是单例缓存)
 async function freshImport() {
   vi.resetModules();
-  return import("@yyc3/core/env-config");
+  return import("@yyc3-deepstack/core/env-config");
 }
 
 describe("env-config", () => {

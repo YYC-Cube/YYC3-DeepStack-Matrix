@@ -10,17 +10,17 @@
  */
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3/ui/card";
-import { Button } from "@yyc3/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3/ui/select";
-import { Label } from "@yyc3/ui/label";
-import { Switch } from "@yyc3/ui/switch";
-import { Slider } from "@yyc3/ui/slider";
-import { Alert, AlertDescription } from "@yyc3/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@yyc3-deepstack/ui/card";
+import { Button } from "@yyc3-deepstack/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@yyc3-deepstack/ui/select";
+import { Label } from "@yyc3-deepstack/ui/label";
+import { Switch } from "@yyc3-deepstack/ui/switch";
+import { Slider } from "@yyc3-deepstack/ui/slider";
+import { Alert, AlertDescription } from "@yyc3-deepstack/ui/alert";
 import { DatabaseConnectionPanel } from "@yyc3/ops/database-connection-panel";
-import { useI18n } from "@yyc3/core/i18n";
-import type { StorageConfig, StorageType } from "@yyc3/core/types";
-import type { DatabaseConfig } from "@yyc3/core/database/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import type { StorageConfig, StorageType } from "@yyc3-deepstack/core/types";
+import type { DatabaseConfig } from "@yyc3-deepstack/core/database/types";
 
 interface StorageConfigPanelProps {
   config: StorageConfig;

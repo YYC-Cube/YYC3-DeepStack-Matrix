@@ -22,7 +22,7 @@ import { ActionRecommender } from "./ActionRecommender";
 import { SDKChatPanel } from "./SDKChatPanel";
 import { useAISuggestion } from "../hooks/useAISuggestion";
 import { useI18n } from "../hooks/useI18n";
-import { ViewContext } from "@yyc3/core/view-context";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 
 type AITab = "analysis" | "chat";
 

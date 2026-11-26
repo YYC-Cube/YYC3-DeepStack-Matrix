@@ -141,7 +141,7 @@ vi.mock("../lib/supabaseClient", () => ({
 }));
 
 // AuthContext mock
-vi.mock("@yyc3/core/authContext", () => ({
+vi.mock("@yyc3-deepstack/core/authContext", () => ({
   AuthContext: React.createContext({
     logout: vi.fn(),
     userEmail: "test@yyc3.local",
@@ -151,13 +151,13 @@ vi.mock("@yyc3/core/authContext", () => ({
 }));
 
 // Mock view-context
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "xl", isTouch: false }),
   WebSocketContext: React.createContext(null),
 }));
 
 import { Layout } from "../components/Layout";
-import { WebSocketContext, ViewContext } from "@yyc3/core/view-context";
+import { WebSocketContext, ViewContext } from "@yyc3-deepstack/core/view-context";
 
 describe("Layout", () => {
   beforeEach(() => {

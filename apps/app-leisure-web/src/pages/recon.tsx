@@ -4,7 +4,7 @@
  * 自算指标由日切 job 自动快照(PENDING_LEGACY 待录对侧),也可手工触发
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, toastError } from '@/lib/api'
 import { PageHeader, StatusBadge } from '@/components/kit'

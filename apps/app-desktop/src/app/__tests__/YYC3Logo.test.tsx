@@ -28,7 +28,7 @@ import { axe } from "vitest-axe";
 // 无需 mock：真实 YYC3LogoSvg 在测试环境走 IS_TEST 占位图分支，
 // 且 img 带 data-testid="yyc3-logo-img"，直接测真实组件链
 
-import { YYC3Logo } from "@yyc3/ui";
+import { YYC3Logo } from "@yyc3-deepstack/ui";
 
 // ============================================================
 //  YYC3Logo 包装组件测试

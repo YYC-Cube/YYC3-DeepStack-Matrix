@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useDbConnSlice } from '@yyc3/store/db-conn-slice';
+import { useDbConnSlice } from '@yyc3-deepstack/store/db-conn-slice';
 import type { DBConnection } from '../../types';
 
 beforeEach(() => {

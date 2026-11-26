@@ -24,11 +24,11 @@ import {
   BarChart3,
   List,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import { ViewContext } from "@yyc3/core/view-context";
-import { connectionManager } from "@yyc3/core/database/ConnectionManager";
-import type { ConnectionInfo, HealthCheckResult, PoolStats } from "@yyc3/core/database/types";
-import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { connectionManager } from "@yyc3-deepstack/core/database/ConnectionManager";
+import type { ConnectionInfo, HealthCheckResult, PoolStats } from "@yyc3-deepstack/core/database/types";
+import { useDbConnSlice } from "@yyc3-deepstack/store/db-conn-slice";
 
 interface ConnectionMonitorProps {
   connectionId?: string;

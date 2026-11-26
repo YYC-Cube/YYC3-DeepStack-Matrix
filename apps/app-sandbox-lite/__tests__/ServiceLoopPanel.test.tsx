@@ -33,7 +33,7 @@ vi.mock("../hooks/useI18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
@@ -54,7 +54,7 @@ vi.mock("../components/DataFlowDiagram", () => ({
 }));
 
 // Mock View context
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false, isTablet: false, isDesktop: true, width: 1200, breakpoint: "lg", isTouch: false }),
 }));
 

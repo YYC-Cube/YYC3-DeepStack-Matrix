@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, idemKey, toastError } from '@/lib/api'
 import { fmtMoney, fmtTime, TXN_TYPE_LABEL, today } from '@/lib/format'

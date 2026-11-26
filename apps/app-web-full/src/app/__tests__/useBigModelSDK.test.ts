@@ -26,12 +26,12 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, cleanup, waitFor } from "@testing-library/react";
-import { useBigModelSDK } from "@yyc3/store/use-big-model-sdk";
-import { useSDKSessionSlice } from "@yyc3/store/sdk-session-slice";
+import { useBigModelSDK } from "@yyc3-deepstack/store/use-big-model-sdk";
+import { useSDKSessionSlice } from "@yyc3-deepstack/store/sdk-session-slice";
 import type { ConfiguredModel, SDKCapability } from "../types";
 
 // Mock ollama-url to avoid environment-dependent code
-vi.mock("@yyc3/core/ollama-url", () => ({
+vi.mock("@yyc3-deepstack/core/ollama-url", () => ({
   getOllamaChatUrl: vi.fn(() => "http://localhost:11434/api/chat"),
   getOllamaUrl: vi.fn((path: string) => `http://localhost:11434/${path}`),
 }));

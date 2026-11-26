@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Button, Card, Input, Tabs, TabsContent, TabsList, TabsTrigger } from '@yyc3/ui'
+import { Button, Card, Input, Tabs, TabsContent, TabsList, TabsTrigger } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, idemKey, req, toastError } from '@/lib/api'
 import { fmtMoney } from '@/lib/format'

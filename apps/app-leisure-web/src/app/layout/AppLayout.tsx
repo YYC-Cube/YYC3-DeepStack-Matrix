@@ -1,11 +1,11 @@
 /**
  * 应用布局:Sidebar + 顶栏(用户/安装/登出)+ Outlet + Toaster + 移动断点 BottomNav + ⌘K 命令面板 + AI 助手浮窗
- * <768px:@yyc3/ui useIsMobile → 隐藏 Sidebar,底部五 Tab(阶段4)
+ * <768px:@yyc3-deepstack/ui useIsMobile → 隐藏 Sidebar,底部五 Tab(阶段4)
  */
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import { Download, LogOut } from 'lucide-react'
-import { Button } from '@yyc3/ui'
+import { Button } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth'
 import { useIsMobile, usePWAInstall, useOnlineStatus } from '@/lib/pwa'

@@ -18,10 +18,10 @@ import {
   Globe, HardDrive, Trash2, Download,
   Upload, RefreshCw, Lock,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import { useI18n } from "@yyc3/core/i18n";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { useSecurityMonitor } from "./hooks/useSecurityMonitor";
-import type { SecurityTab, RiskLevel, VitalRating } from "@yyc3/core/types";
+import type { SecurityTab, RiskLevel, VitalRating } from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // Helpers

@@ -17,11 +17,11 @@ import * as React from "react";
 
 // ─── Mocks ─────────────────────────────────────────────────
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3LogoSvg: ({ size, showText }: { size: number; showText: boolean }) => (
     <div data-testid="yyc3-logo" data-size={size} data-show-text={showText} />
   ),

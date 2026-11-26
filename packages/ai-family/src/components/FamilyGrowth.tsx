@@ -14,7 +14,7 @@ import {
   TrendingUp, Award, Star, Target, Flame,
   Users, CheckCircle2, ArrowUpRight,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 import { useFamilyMemberSlice } from "../store";

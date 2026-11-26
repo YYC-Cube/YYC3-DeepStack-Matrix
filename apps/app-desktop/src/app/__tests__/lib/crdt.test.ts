@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { GCounter, LWWRegister, mergeState } from "@yyc3/core/crdt";
+import { GCounter, LWWRegister, mergeState } from "@yyc3-deepstack/core/crdt";
 
 describe("LWWRegister", () => {
   it("should initialize with value", () => {

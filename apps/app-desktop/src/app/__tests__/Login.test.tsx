@@ -14,9 +14,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { Login } from "@yyc3/shell/login";
-import { supabase } from "@yyc3/core/supabaseClient";
+import { supabase } from "@yyc3-deepstack/core/supabaseClient";
 
-vi.mock("@yyc3/core/supabaseClient", () => ({
+vi.mock("@yyc3-deepstack/core/supabaseClient", () => ({
   supabase: {
     auth: {
       signInWithPassword: vi.fn(),
@@ -24,7 +24,7 @@ vi.mock("@yyc3/core/supabaseClient", () => ({
   },
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3Logo: () => <div data-testid="yyc3-logo">YYC3 Logo</div>,
 }));
 

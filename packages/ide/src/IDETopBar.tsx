@@ -15,9 +15,9 @@ import {
   FolderOpen, Bell, Settings, GitBranch, Share2, Rocket,
   Zap, ChevronDown, Bot, Circle,
 } from "lucide-react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { AI_MODELS } from "./ide-mock-data";
-import { YYC3LogoSvg } from "@yyc3/ui";
+import { YYC3LogoSvg } from "@yyc3-deepstack/ui";
 
 interface IDETopBarProps {
   projectName: string;

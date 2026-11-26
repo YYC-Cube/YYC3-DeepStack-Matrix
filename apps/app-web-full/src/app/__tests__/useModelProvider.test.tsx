@@ -16,11 +16,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock dependencies before imports ──────────────────────────
 
-vi.mock("@yyc3/core/ollama-url", () => ({
+vi.mock("@yyc3-deepstack/core/ollama-url", () => ({
   getOllamaTagsUrl: vi.fn(() => "http://localhost:11434/api/tags"),
 }));
 
-vi.mock("@yyc3/core/connection-test-engine", () => ({
+vi.mock("@yyc3-deepstack/core/connection-test-engine", () => ({
   testAIConnection: vi.fn(async () => ({
     overallStatus: "pass",
     steps: [],
@@ -32,10 +32,10 @@ vi.mock("@yyc3/core/connection-test-engine", () => ({
 global.fetch = vi.fn(() => { throw new Error("Network error"); }) as any;
 
 // Reset the Zustand store state between tests
-import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "@yyc3/store/provider-slice";
+import { BUILTIN_PROVIDERS as SLICE_BUILTIN, useProviderSlice } from "@yyc3-deepstack/store/provider-slice";
 
 // Import hook after mocks
-import { MODEL_PROVIDERS, useModelProvider } from "@yyc3/store/use-model-provider";
+import { MODEL_PROVIDERS, useModelProvider } from "@yyc3-deepstack/store/use-model-provider";
 
 describe("useModelProvider", () => {
   beforeEach(() => {

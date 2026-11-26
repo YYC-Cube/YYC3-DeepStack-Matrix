@@ -11,7 +11,7 @@
 
 import { AlertTriangle, Info, Plus, ShieldAlert, Trash2, X } from "lucide-react";
 import React, { useCallback, useState } from "react";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import type {
   AlertCondition,
   AlertMetric,
@@ -20,7 +20,7 @@ import type {
   AlertThreshold,
   EscalationLevel,
   EscalationPolicy,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // Available Options

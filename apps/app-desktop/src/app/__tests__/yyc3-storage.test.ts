@@ -27,9 +27,9 @@ import {
   clearAllLocalStorage,
   clearAllStorage,
   onStorageChange,
-} from "@yyc3/core/yyc3-storage";
+} from "@yyc3-deepstack/core/yyc3-storage";
 
-vi.mock("@yyc3/core/broadcast-channel", () => ({
+vi.mock("@yyc3-deepstack/core/broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => ({
     postMessage: vi.fn(),
     onmessage: null,

@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Wifi, WifiOff, RefreshCw, CloudOff } from "lucide-react";
-import { useOfflineMode } from "@yyc3/store/useOfflineMode";
+import { useOfflineMode } from "@yyc3-deepstack/store/useOfflineMode";
 
 export function OfflineIndicator() {
   const { isOnline, lastSyncTime, pendingSync } = useOfflineMode();

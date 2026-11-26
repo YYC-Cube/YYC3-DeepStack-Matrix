@@ -27,7 +27,7 @@ vi.mock("../hooks/useI18n", () => ({
   }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   __esModule: true,
   GlassCard: ({ children, className }: { children?: React.ReactNode; className?: string }) => <div className={className}>{children}</div>,
   default: ({ children, className }: { children?: React.ReactNode; className?: string }) => <div className={className}>{children}</div>,
@@ -51,7 +51,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/api-config", () => ({
+vi.mock("@yyc3-deepstack/core/api-config", () => ({
   getAPIConfig: () => ({
     enableBackend: false,
     timeout: 15000,

@@ -3,7 +3,7 @@
  * 红线:评价只增不改不删;统计按营业日区间(默认近 7 天)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input, Label } from '@yyc3/ui'
+import { Button, Card, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, idemKey, toastError } from '@/lib/api'
 import { DataTable, PageHeader, SelectBox, StatCard, StatusBadge } from '@/components/kit'

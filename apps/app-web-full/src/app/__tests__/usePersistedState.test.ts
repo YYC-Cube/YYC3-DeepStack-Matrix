@@ -12,7 +12,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
 
 const mockIdbGetAll = vi.fn();
 const mockIdbPut = vi.fn();
@@ -21,7 +21,7 @@ const mockIdbDelete = vi.fn();
 const mockIdbClear = vi.fn();
 const mockOnStorageChange = vi.fn();
 
-vi.mock("@yyc3/core/yyc3-storage", () => ({
+vi.mock("@yyc3-deepstack/core/yyc3-storage", () => ({
   idbGetAll: () => mockIdbGetAll(),
   idbPut: (...args: unknown[]) => mockIdbPut(...args),
   idbPutMany: (...args: unknown[]) => mockIdbPutMany(...args),

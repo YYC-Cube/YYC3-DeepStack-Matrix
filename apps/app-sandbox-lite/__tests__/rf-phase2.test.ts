@@ -61,15 +61,15 @@ describe("RF-011: 404 通配路由", () => {
 
 describe("RF-004: ALL_STORES 常量去重", () => {
   it("ALL_STORES 导出且包含 24 个 store", async () => {
-    const { ALL_STORES } = await import("@yyc3/core/yyc3-storage");
+    const { ALL_STORES } = await import("@yyc3-deepstack/core/yyc3-storage");
     expect(ALL_STORES).toBeDefined();
     expect(Array.isArray(ALL_STORES)).toBe(true);
-    // @yyc3/core 契约：14 运维/监控 + 10 AI family/推理/音乐/通讯（M3-P2 对齐补漏）
+    // @yyc3-deepstack/core 契约：14 运维/监控 + 10 AI family/推理/音乐/通讯（M3-P2 对齐补漏）
     expect(ALL_STORES).toHaveLength(24);
   });
 
   it("ALL_STORES 包含所有预期的 store 名称", async () => {
-    const { ALL_STORES } = await import("@yyc3/core/yyc3-storage");
+    const { ALL_STORES } = await import("@yyc3-deepstack/core/yyc3-storage");
     const expected: StoreName[] = [
       "alertRules", "alertEvents", "patrolHistory", "loopHistory",
       "operationTemplates", "operationLogs", "diagnosisHistory",
@@ -82,14 +82,14 @@ describe("RF-004: ALL_STORES 常量去重", () => {
   });
 
   it("ALL_STORES 无重复项", async () => {
-    const { ALL_STORES } = await import("@yyc3/core/yyc3-storage");
+    const { ALL_STORES } = await import("@yyc3-deepstack/core/yyc3-storage");
     const unique = new Set(ALL_STORES);
     expect(unique.size).toBe(ALL_STORES.length);
   });
 
   it("openDB / exportAllData / getStorageStats / clearAllStorage 都使用 ALL_STORES", async () => {
     // 结构验证: ALL_STORES 被导出意味着内部函数引用同一数组
-    const mod = await import("@yyc3/core/yyc3-storage");
+    const mod = await import("@yyc3-deepstack/core/yyc3-storage");
     expect(mod.ALL_STORES).toBeDefined();
     // 确保导出的工具函数依赖同一数组
     expect(typeof mod.exportAllData).toBe("function");
@@ -177,7 +177,7 @@ describe("RF-005: Severity 类型统一", () => {
 
 describe("RF-006: API_BASE 硬编码消除", () => {
   it("api-config 导出 getAPIConfig 函数", async () => {
-    const { getAPIConfig } = await import("@yyc3/core/api-config");
+    const { getAPIConfig } = await import("@yyc3-deepstack/core/api-config");
     expect(typeof getAPIConfig).toBe("function");
     const config = getAPIConfig();
     expect(config.fsBase).toBeDefined();
@@ -185,25 +185,25 @@ describe("RF-006: API_BASE 硬编码消除", () => {
   });
 
   it("api-config 默认 fsBase 为 /api/fs", async () => {
-    const { getAPIConfig } = await import("@yyc3/core/api-config");
+    const { getAPIConfig } = await import("@yyc3-deepstack/core/api-config");
     const config = getAPIConfig();
     expect(config.fsBase).toBe("/api/fs");
   });
 
   it("api-config 默认 dbBase 为 /api/db", async () => {
-    const { getAPIConfig } = await import("@yyc3/core/api-config");
+    const { getAPIConfig } = await import("@yyc3-deepstack/core/api-config");
     const config = getAPIConfig();
     expect(config.dbBase).toBe("/api/db");
   });
 
   it("api-config enableBackend 默认为 false (前端 Mock 模式)", async () => {
-    const { getAPIConfig } = await import("@yyc3/core/api-config");
+    const { getAPIConfig } = await import("@yyc3-deepstack/core/api-config");
     const config = getAPIConfig();
     expect(config.enableBackend).toBe(false);
   });
 
   it("api-config maxRetries 默认为 2", async () => {
-    const { getAPIConfig } = await import("@yyc3/core/api-config");
+    const { getAPIConfig } = await import("@yyc3-deepstack/core/api-config");
     const config = getAPIConfig();
     expect(config.maxRetries).toBe(2);
   });
@@ -258,7 +258,7 @@ describe("RF-007: useAlertRules 复用 usePersistedList", () => {
       const source = await import("../hooks/useAlertRules?raw") as any;
       if (typeof source.default === "string") {
         // 验证不包含直接的 idbGetAll/idbPut 导入
-        expect(source.default).not.toContain("from \"@yyc3/core/yyc3-storage\"");
+        expect(source.default).not.toContain("from \"@yyc3-deepstack/core/yyc3-storage\"");
         // 验证确实导入了 usePersistedList
         expect(source.default).toContain("usePersistedList");
       }
@@ -276,8 +276,8 @@ describe("Phase 2 综合验证", () => {
   it("所有 Phase 2 模块可正确导入 (无编译错误)", async () => {
     const results = await Promise.allSettled([
       import("../components/NotFound"),
-      import("@yyc3/core/yyc3-storage"),
-      import("@yyc3/core/api-config"),
+      import("@yyc3-deepstack/core/yyc3-storage"),
+      import("@yyc3-deepstack/core/api-config"),
       import("../hooks/useAlertRules"),
       import("../hooks/useHostFileSystem"),
       import("../hooks/usePersistedState"),
@@ -302,7 +302,7 @@ describe("Phase 2 综合验证", () => {
   });
 
   it("ENDPOINT_META 包含所有 8 个端点描述", async () => {
-    const { ENDPOINT_META } = await import("@yyc3/core/api-config");
+    const { ENDPOINT_META } = await import("@yyc3-deepstack/core/api-config");
     expect(ENDPOINT_META).toBeDefined();
     expect(Array.isArray(ENDPOINT_META)).toBe(true);
     expect(ENDPOINT_META).toHaveLength(8);

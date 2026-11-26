@@ -10,12 +10,12 @@
  */
 
 import { useState } from "react";
-import { PageHeader } from "@yyc3/ui/page-header";
+import { PageHeader } from "@yyc3-deepstack/ui/page-header";
 import { StorageConfigPanel } from "./StorageConfigPanel";
 import { StorageSyncStatus } from "./StorageSyncStatus";
-import { useI18n } from "@yyc3/core/i18n";
-import { storageManager } from "@yyc3/core/storageManager";
-import type { StorageConfig } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { storageManager } from "@yyc3-deepstack/core/storageManager";
+import type { StorageConfig } from "@yyc3-deepstack/core/types";
 
 export function StorageManager() {
   const { t } = useI18n();

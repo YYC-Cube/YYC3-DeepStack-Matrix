@@ -17,9 +17,9 @@ import {
   Activity, Eye, BarChart3, ChevronRight,
   Cpu, MemoryStick, Wifi,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import { useI18n } from "@yyc3/core/i18n";
-import { useAIDiagnostics } from "@yyc3/store/use-ai-diagnostics";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useAIDiagnostics } from "@yyc3-deepstack/store/use-ai-diagnostics";
 import type {
   PatternType,
   ConfidenceLevel,
@@ -28,8 +28,8 @@ import type {
   AnomalyRecord,
   SuggestedAction,
   PredictiveForecast,
-} from "@yyc3/core/types";
-import { useWebSocketData } from "@yyc3/store/use-websocket-data";
+} from "@yyc3-deepstack/core/types";
+import { useWebSocketData } from "@yyc3-deepstack/store/use-websocket-data";
 
 // ============================================================
 // Helpers

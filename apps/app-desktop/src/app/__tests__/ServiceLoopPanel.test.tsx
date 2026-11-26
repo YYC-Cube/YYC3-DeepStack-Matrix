@@ -46,7 +46,7 @@ vi.mock("@yyc3/ops/hooks/use-service-loop", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -56,7 +56,7 @@ vi.mock("@yyc3/core/i18n", () => ({
 
 // async factory：避免 hoisting 后 factory 先于 React 模块初始化执行
 // （vi.mock factory 内引用顶层 import 的 React 会触发 "Cannot access before initialization"）
-vi.mock("@yyc3/core/view-context", async () => {
+vi.mock("@yyc3-deepstack/core/view-context", async () => {
   const { createContext } = await import("react");
   return {
     ViewContext: createContext({

@@ -3,7 +3,7 @@
  * 投放→进行中(可结束/批量结束);同销售经理同目标去重
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Checkbox, Input } from '@yyc3/ui'
+import { Button, Card, Checkbox, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, req, toastError } from '@/lib/api'
 import { ConfirmButton, EmptyState, PageHeader, StatusBadge } from '@/components/kit'

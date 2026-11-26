@@ -3,7 +3,7 @@
  * 生成冻结金额(不随后续流水变化);确认后归档
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { DataTable, Field, PageHeader, StatusBadge, type Column } from '@/components/kit'

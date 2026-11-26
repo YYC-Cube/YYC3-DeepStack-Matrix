@@ -18,7 +18,7 @@ import {
   getOllamaTagsUrl,
   getOllamaUrl,
   getOllamaEndpointInfo,
-} from "@yyc3/core/ollama-url";
+} from "@yyc3-deepstack/core/ollama-url";
 
 describe("ollama-url", () => {
   const originalLocation = window.location;

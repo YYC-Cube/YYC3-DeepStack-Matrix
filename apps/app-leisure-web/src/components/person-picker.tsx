@@ -5,7 +5,7 @@
  * - 数据源:/artists?line=…&pageSize=200 + /attendance/realtime(排除在房)
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input } from '@yyc3-deepstack/ui'
 import { req, toastError } from '@/lib/api'
 import { pinyin } from 'pinyin-pro'
 

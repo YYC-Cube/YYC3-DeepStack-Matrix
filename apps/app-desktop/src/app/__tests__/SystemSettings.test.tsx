@@ -16,7 +16,7 @@ import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { SystemSettings } from "../components/SystemSettings";
 
-vi.mock("@yyc3/core/api-config", () => ({
+vi.mock("@yyc3-deepstack/core/api-config", () => ({
   getAPIConfig: vi.fn(() => ({
     apiBaseUrl: "http://localhost:3000/api",
     wsEndpoint: "ws://localhost:3000/ws",
@@ -35,7 +35,7 @@ vi.mock("@yyc3/core/api-config", () => ({
   DEFAULT_WS_ENDPOINT: "ws://localhost:3113/ws",
 }));
 
-vi.mock("@yyc3/store/use-model-provider", () => ({
+vi.mock("@yyc3-deepstack/store/use-model-provider", () => ({
   useModelProvider: vi.fn(() => ({
     providers: [],
     configuredModels: [],
@@ -46,7 +46,7 @@ vi.mock("@yyc3/store/use-model-provider", () => ({
   })),
 }));
 
-vi.mock("@yyc3/store/use-settings-store", () => ({
+vi.mock("@yyc3-deepstack/store/use-settings-store", () => ({
   useSettingsStore: vi.fn(() => ({
     settings: {
       darkMode: true,
@@ -132,7 +132,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -144,7 +144,7 @@ vi.mock("@yyc3/admin/network-config", () => ({
   NetworkConfig: () => React.createElement("div", { "data-testid": "network-config-mock" }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   YYC3Logo: () => React.createElement("div", { "data-testid": "yyc3-logo-mock" }),
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),

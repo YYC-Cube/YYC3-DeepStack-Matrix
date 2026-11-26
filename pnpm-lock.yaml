@@ -482,6 +482,15 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../../packages/store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@yyc3/admin':
         specifier: workspace:*
         version: link:../../packages/admin
@@ -494,9 +503,6 @@ importers:
       '@yyc3/business':
         specifier: workspace:*
         version: link:../../packages/business
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@yyc3/ide':
         specifier: workspace:*
         version: link:../../packages/ide
@@ -509,15 +515,9 @@ importers:
       '@yyc3/shell':
         specifier: workspace:*
         version: link:../../packages/shell
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../../packages/store
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -735,15 +735,15 @@ importers:
 
   apps/app-leisure-web:
     dependencies:
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@yyc3/leisure-core':
         specifier: workspace:*
         version: link:../../packages/leisure-core
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1007,15 +1007,15 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@yyc3/ai-family':
         specifier: workspace:*
         version: link:../../packages/ai-family
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1257,6 +1257,15 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../../packages/store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@yyc3/admin':
         specifier: workspace:*
         version: link:../../packages/admin
@@ -1269,9 +1278,6 @@ importers:
       '@yyc3/business':
         specifier: workspace:*
         version: link:../../packages/business
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@yyc3/ide':
         specifier: workspace:*
         version: link:../../packages/ide
@@ -1284,15 +1290,9 @@ importers:
       '@yyc3/shell':
         specifier: workspace:*
         version: link:../../packages/shell
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../../packages/store
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1639,6 +1639,15 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../../packages/store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@yyc3/admin':
         specifier: workspace:*
         version: link:../../packages/admin
@@ -1651,9 +1660,6 @@ importers:
       '@yyc3/business':
         specifier: workspace:*
         version: link:../../packages/business
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@yyc3/ide':
         specifier: workspace:*
         version: link:../../packages/ide
@@ -1666,15 +1672,9 @@ importers:
       '@yyc3/shell':
         specifier: workspace:*
         version: link:../../packages/shell
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../../packages/store
       '@yyc3/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1892,18 +1892,18 @@ importers:
 
   packages/admin:
     dependencies:
-      '@yyc3/core':
+      '@yyc3-deepstack/core':
         specifier: workspace:*
         version: link:../core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../ops
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../store
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -1932,13 +1932,13 @@ importers:
 
   packages/ai:
     dependencies:
-      '@yyc3/core':
+      '@yyc3-deepstack/core':
         specifier: workspace:*
         version: link:../core
-      '@yyc3/store':
+      '@yyc3-deepstack/store':
         specifier: workspace:*
         version: link:../store
-      '@yyc3/ui':
+      '@yyc3-deepstack/ui':
         specifier: workspace:*
         version: link:../ui
     devDependencies:
@@ -1960,18 +1960,18 @@ importers:
 
   packages/ai-family:
     dependencies:
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@yyc3/business':
         specifier: workspace:*
         version: link:../business
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../core
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../store
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@mlc-ai/web-llm':
         specifier: ^0.2.82
@@ -2006,10 +2006,10 @@ importers:
 
   packages/business:
     dependencies:
-      '@yyc3/core':
+      '@yyc3-deepstack/core':
         specifier: workspace:*
         version: link:../core
-      '@yyc3/ui':
+      '@yyc3-deepstack/ui':
         specifier: workspace:*
         version: link:../ui
     devDependencies:
@@ -2062,13 +2062,13 @@ importers:
 
   packages/ide:
     dependencies:
-      '@yyc3/core':
+      '@yyc3-deepstack/core':
         specifier: workspace:*
         version: link:../core
-      '@yyc3/store':
+      '@yyc3-deepstack/store':
         specifier: workspace:*
         version: link:../store
-      '@yyc3/ui':
+      '@yyc3-deepstack/ui':
         specifier: workspace:*
         version: link:../ui
     devDependencies:
@@ -2156,21 +2156,21 @@ importers:
 
   packages/monitor:
     dependencies:
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@yyc3/ai-family':
         specifier: workspace:*
         version: link:../ai-family
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../core
       '@yyc3/ops':
         specifier: workspace:*
         version: link:../ops
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../store
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -2211,18 +2211,18 @@ importers:
 
   packages/ops:
     dependencies:
-      '@yyc3/core':
+      '@yyc3-deepstack/core':
         specifier: workspace:*
         version: link:../core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@yyc3/ide':
         specifier: workspace:*
         version: link:../ide
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../store
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -2248,21 +2248,21 @@ importers:
 
   packages/shell:
     dependencies:
+      '@yyc3-deepstack/core':
+        specifier: workspace:*
+        version: link:../core
+      '@yyc3-deepstack/store':
+        specifier: workspace:*
+        version: link:../store
+      '@yyc3-deepstack/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@yyc3/admin':
         specifier: workspace:*
         version: link:../admin
-      '@yyc3/core':
-        specifier: workspace:*
-        version: link:../core
       '@yyc3/ide':
         specifier: workspace:*
         version: link:../ide
-      '@yyc3/store':
-        specifier: workspace:*
-        version: link:../store
-      '@yyc3/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -2291,7 +2291,7 @@ importers:
 
   packages/store:
     dependencies:
-      '@yyc3/core':
+      '@yyc3-deepstack/core':
         specifier: workspace:*
         version: link:../core
       react:

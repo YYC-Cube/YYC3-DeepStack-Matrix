@@ -3,7 +3,7 @@
  * 新 CALLED 自动朗读「请{艺名}到{房号}包厢」;叫钟/接钟/完成按钮
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, toastError } from '@/lib/api'
 import { PageHeader } from '@/components/kit'

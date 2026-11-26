@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useUserMgmtSlice } from '@yyc3/store/user-mgmt-slice';
+import { useUserMgmtSlice } from '@yyc3-deepstack/store/user-mgmt-slice';
 import type { UserRecord } from '../../types';
 
 describe('useUserMgmtSlice', () => {

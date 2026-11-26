@@ -16,9 +16,9 @@ import {
   Shield, ArrowUpRight, ArrowDownRight, Clock,
   Radio, Plug, Network, ChevronRight, Cloud,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FadeIn } from "./FadeIn";
-import { useI18n } from "@yyc3/core/i18n";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { NEON_CYAN, NEON_PINK, hexToRgb } from "./shared";
 
 import { YYC3ClusterManager } from "../lib/yyc3-cluster-manager";

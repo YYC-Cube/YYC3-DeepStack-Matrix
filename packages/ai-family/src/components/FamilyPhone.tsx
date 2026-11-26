@@ -23,7 +23,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFamilyMemberSlice } from "../store";
 import type { UnifiedFamilyMember } from "../types";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { FadeIn } from "./FadeIn";
 import { FamilyPageHeader } from "./FamilyPageHeader";
 

@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-/** 移动断点(768):@yyc3/ui/use-mobile 的 .ts 子路径导出 Rolldown 无法解析,故本地实现(同口径) */
+/** 移动断点(768):@yyc3-deepstack/ui/use-mobile 的 .ts 子路径导出 Rolldown 无法解析,故本地实现(同口径) */
 const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile(): boolean {

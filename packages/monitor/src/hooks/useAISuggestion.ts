@@ -20,8 +20,8 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { useAISuggestionSlice } from '@yyc3/store/ai-suggestion-slice';
-import type { PatternSeverity } from '@yyc3/core/types';
+import { useAISuggestionSlice } from '@yyc3-deepstack/store/ai-suggestion-slice';
+import type { PatternSeverity } from '@yyc3-deepstack/core/types';
 
 export function useAISuggestion() {
   const patterns = useAISuggestionSlice((s) => s.patterns);

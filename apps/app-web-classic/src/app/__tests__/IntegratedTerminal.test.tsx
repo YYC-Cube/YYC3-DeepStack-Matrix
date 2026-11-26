@@ -31,15 +31,15 @@ vi.mock("@yyc3/ide/hooks/use-terminal", () => ({
   }),
 }));
 
-vi.mock("@yyc3/core/view-context", () => ({
+vi.mock("@yyc3-deepstack/core/view-context", () => ({
   ViewContext: React.createContext({ isMobile: false }),
 }));
 
-vi.mock("@yyc3/core/authContext", () => ({
+vi.mock("@yyc3-deepstack/core/authContext", () => ({
   AuthContext: React.createContext({ userEmail: "admin@yyc3.com" }),
 }));
 
-vi.mock("@yyc3/core/supabaseClient", () => ({
+vi.mock("@yyc3-deepstack/core/supabaseClient", () => ({
   isGhostMode: () => false,
 }));
 
@@ -51,7 +51,7 @@ vi.mock("motion/react", () => ({
 }));
 
 // ── Import the Zustand store after mocks ───────────────────────
-import { useUIPrefsSlice } from "@yyc3/store/ui-prefs-slice";
+import { useUIPrefsSlice } from "@yyc3-deepstack/store/ui-prefs-slice";
 
 describe("IntegratedTerminal", () => {
   const mockOnClose = vi.fn();

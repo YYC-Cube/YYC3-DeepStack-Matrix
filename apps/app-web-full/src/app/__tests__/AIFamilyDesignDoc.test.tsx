@@ -44,12 +44,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (k: string) => k,
     locale: "zh-CN",

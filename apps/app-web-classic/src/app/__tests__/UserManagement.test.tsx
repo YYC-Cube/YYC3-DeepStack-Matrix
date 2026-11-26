@@ -15,7 +15,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as React from "react";
 import { UserManagement } from "@yyc3/admin/user-management";
-import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
+import { useUserMgmtSlice } from "@yyc3-deepstack/store/user-mgmt-slice";
 import { toast } from "sonner";
 
 vi.mock("sonner", () => ({
@@ -26,7 +26,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",

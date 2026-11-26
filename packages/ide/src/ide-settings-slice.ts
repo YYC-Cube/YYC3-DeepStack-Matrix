@@ -20,7 +20,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { IDELayoutMode, IDESettings } from './ide-types';
 import type { LayoutConfig } from './ide-layout-types';
-import { migrateRawString, migrateKeyWithMerge, migrateKey } from '@yyc3/core/migrate-storage';
+import { migrateRawString, migrateKeyWithMerge, migrateKey } from '@yyc3-deepstack/core/migrate-storage';
 
 // ============================================================
 // 默认值

@@ -13,7 +13,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 
-vi.mock("@yyc3/core/use-persisted-state", () => ({
+vi.mock("@yyc3-deepstack/core/use-persisted-state", () => ({
   usePersistedList: () => ({
     items: [],
     prepend: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock("@yyc3/core/use-persisted-state", () => ({
   }),
 }));
 
-import { useAIDiagnostics } from "@yyc3/store/use-ai-diagnostics";
+import { useAIDiagnostics } from "@yyc3-deepstack/store/use-ai-diagnostics";
 
 describe("useAIDiagnostics", () => {
   beforeEach(() => {

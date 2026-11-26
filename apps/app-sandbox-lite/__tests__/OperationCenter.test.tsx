@@ -19,7 +19,7 @@ vi.mock("lucide-react", () => ({
   Zap: () => React.createElement("span", { "data-testid": "icon-zap" }),
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className }: any) => <div className={className}>{children}</div>,
   default: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));

@@ -44,10 +44,10 @@ import {
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useI18n } from "@yyc3/core/i18n";
-import { useModelProvider } from "@yyc3/store/use-model-provider";
-import type { SettingsToggles, SettingsValues } from "@yyc3/store/use-settings-store";
-import { useSettingsStore } from "@yyc3/store/use-settings-store";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useModelProvider } from "@yyc3-deepstack/store/use-model-provider";
+import type { SettingsToggles, SettingsValues } from "@yyc3-deepstack/store/use-settings-store";
+import { useSettingsStore } from "@yyc3-deepstack/store/use-settings-store";
 import {
   ENDPOINT_META,
   getAPIConfig,
@@ -55,14 +55,14 @@ import {
   resetAPIConfig as resetAPIConfigDefaults,
   setAPIConfig,
   type APIEndpoints,
-} from "@yyc3/core/api-config";
-import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "@yyc3/core/connection-test-engine";
+} from "@yyc3-deepstack/core/api-config";
+import { testAIConnection, type AIConnectionConfig, type ConnectionTestResult } from "@yyc3-deepstack/core/connection-test-engine";
 import { DesignSystemPage } from "../dev/design-system/DesignSystemPage";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { NetworkConfig } from "@yyc3/admin/network-config";
 import { ThemeCustomizer } from "../dev/ThemeCustomizer";
 import { UnifiedModelManager } from "@yyc3/admin/unified-model-manager";
-import { YYC3Logo } from "@yyc3/ui";
+import { YYC3Logo } from "@yyc3-deepstack/ui";
 
 // ============================================================
 // Settings sections config

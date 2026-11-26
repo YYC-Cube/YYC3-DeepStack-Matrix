@@ -9,10 +9,10 @@
  * @tags: [tag1],[tag2],[tag3]
  */
 
-import { useI18n } from "@yyc3/core/i18n";
-import type { StoredLogEntry } from "@yyc3/core/types";
-import { useLogSlice } from "@yyc3/store/log-slice";
-import { GlassCard } from "@yyc3/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import type { StoredLogEntry } from "@yyc3-deepstack/core/types";
+import { useLogSlice } from "@yyc3-deepstack/store/log-slice";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   Activity,
   AlertTriangle,

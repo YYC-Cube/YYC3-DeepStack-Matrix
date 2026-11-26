@@ -17,7 +17,7 @@ import {
   resetAPIConfig,
   onAPIConfigChange,
   ENDPOINT_META,
-} from "@yyc3/core/api-config";
+} from "@yyc3-deepstack/core/api-config";
 import type { APIEndpoints } from "../types";
 
 let mockChannel: {
@@ -27,7 +27,7 @@ let mockChannel: {
   messageHandlers: Array<(event: MessageEvent) => void>;
 } | null = null;
 
-vi.mock("@yyc3/core/broadcast-channel", () => ({
+vi.mock("@yyc3-deepstack/core/broadcast-channel", () => ({
   getSharedChannel: vi.fn(() => {
     if (!mockChannel) {
       mockChannel = {

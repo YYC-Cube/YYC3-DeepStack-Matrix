@@ -18,8 +18,8 @@
  * - 单例模式: getInferenceEngine() / resetInferenceEngine()
  */
 
-import { getEnvConfig } from "@yyc3/core/env-config";
-import { getOllamaChatUrl } from "@yyc3/core/ollama-url";
+import { getEnvConfig } from "@yyc3-deepstack/core/env-config";
+import { getOllamaChatUrl } from "@yyc3-deepstack/core/ollama-url";
 import type {
   ChatRole,
   GPUDeviceInfo,
@@ -29,7 +29,7 @@ import type {
   ModelLoadProgress,
   SDKChatResponse,
   WebGPUPreset,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // 预置 WebGPU 模型

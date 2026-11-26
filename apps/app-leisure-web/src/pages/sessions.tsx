@@ -3,7 +3,7 @@
  * 代下钟 = finish(强制下钟同规计费,§6.6);权限 session:finish
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input } from '@yyc3/ui'
+import { Button, Card, Input } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { client, toastError } from '@/lib/api'
 import { fmtMoney, fmtTime, today } from '@/lib/format'

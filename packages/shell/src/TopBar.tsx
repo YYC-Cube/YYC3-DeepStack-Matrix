@@ -56,12 +56,12 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { useI18n } from "@yyc3/core/i18n";
-import { isGhostMode } from "@yyc3/core/supabaseClient";
-import type { ConnectionState } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { isGhostMode } from "@yyc3-deepstack/core/supabaseClient";
+import type { ConnectionState } from "@yyc3-deepstack/core/types";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { YYC3Logo } from "@yyc3/ui";
+import { YYC3Logo } from "@yyc3-deepstack/ui";
 
 /* ── 移动端导航分类 ── */
 interface MobileNavChild {

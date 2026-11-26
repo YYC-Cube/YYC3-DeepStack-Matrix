@@ -16,8 +16,8 @@ import {
   Check, Clock, AlertCircle, ChevronRight,
   HardDrive, Terminal, MonitorSmartphone, Layers,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
-import { useI18n } from "@yyc3/core/i18n";
+import { GlassCard } from "@yyc3-deepstack/ui";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { ViewContext } from "../lib/view-context";
 
 /* ============================================================

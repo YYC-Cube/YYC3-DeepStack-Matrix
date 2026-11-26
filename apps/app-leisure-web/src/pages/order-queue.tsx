@@ -5,7 +5,7 @@
  * 口径:送达/取消端点现成(POST /self-orders/:id/deliver|cancel);房账消费聚合已含 PLACED(两态同算)
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Card } from '@yyc3/ui'
+import { Button, Card } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { client } from '@/lib/api'

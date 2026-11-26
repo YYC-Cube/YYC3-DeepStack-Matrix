@@ -9,7 +9,7 @@
  * @tags: [hook]
  */
 
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // ============================================================
@@ -21,7 +21,7 @@ import type {
   AlertRule,
   AlertRulesOptions,
   AlertSeverity,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // RF-011: Re-export 已移除
 

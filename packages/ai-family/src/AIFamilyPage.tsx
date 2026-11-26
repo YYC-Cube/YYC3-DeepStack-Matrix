@@ -20,8 +20,8 @@ import {
   Zap,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useClockMinutes } from "@yyc3/core/useClock";
-import { useI18n } from "@yyc3/core/i18n";
+import { useClockMinutes } from "@yyc3-deepstack/core/useClock";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
 import { useFamilyMemberSlice } from "./store";
 import type { UnifiedFamilyMember } from "./types";
 

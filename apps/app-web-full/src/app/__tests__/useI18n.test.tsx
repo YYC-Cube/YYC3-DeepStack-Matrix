@@ -41,7 +41,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { renderHook, act, cleanup } from "@testing-library/react";
-import { useI18nProvider, SUPPORTED_LOCALES } from "@yyc3/core/i18n";
+import { useI18nProvider, SUPPORTED_LOCALES } from "@yyc3-deepstack/core/i18n";
 
 // Mock localStorage
 const storage: Record<string, string> = {};

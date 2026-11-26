@@ -18,7 +18,7 @@ import {
   broadcastNodeRemove,
   getTabId,
   destroyCrossTabSync,
-} from "@yyc3/core/cross-tab-sync";
+} from "@yyc3-deepstack/core/cross-tab-sync";
 
 describe("cross-tab-sync", () => {
   afterEach(() => {

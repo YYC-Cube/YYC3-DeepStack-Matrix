@@ -18,7 +18,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { migrateKey, migrateRawString } from '@yyc3/core/migrate-storage';
+import { migrateKey, migrateRawString } from '@yyc3-deepstack/core/migrate-storage';
 
 // ============================================================
 // 类型定义

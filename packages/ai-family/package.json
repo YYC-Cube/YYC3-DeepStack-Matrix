@@ -104,9 +104,9 @@
   },
   "dependencies": {
     "@yyc3/business": "workspace:*",
-    "@yyc3/core": "workspace:*",
-    "@yyc3/store": "workspace:*",
-    "@yyc3/ui": "workspace:*"
+    "@yyc3-deepstack/core": "workspace:*",
+    "@yyc3-deepstack/store": "workspace:*",
+    "@yyc3-deepstack/ui": "workspace:*"
   },
   "devDependencies": {
     "@mlc-ai/web-llm": "^0.2.82",

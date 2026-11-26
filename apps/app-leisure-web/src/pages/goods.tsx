@@ -3,7 +3,7 @@
  * 端点:GET/POST /goods + PUT /goods/:id + POST /goods/:id/delete(守卫 ADMIN 于 Controller)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, PageHeader, StatusBadge } from '@/components/kit'

@@ -2,12 +2,12 @@
  * ⌘K 全局命令面板
  * 条目 = MENU 扁平化(权限过滤同 Sidebar)+ 固定操作区(退出登录)
  * ⌘K / Ctrl+K 开关:window 级 keydown 在组件内部注册(输入框聚焦时仍生效)
- * 原语用 @yyc3/ui 的 Command(cmdk 为 @yyc3/ui 既有依赖,不新增);过滤自实现(shouldFilter=false),
+ * 原语用 @yyc3-deepstack/ui 的 Command(cmdk 为 @yyc3-deepstack/ui 既有依赖,不新增);过滤自实现(shouldFilter=false),
  * 对 label/path 做不区分大小写包含匹配(中文直接匹配,不引模糊库)
  */
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@yyc3/ui'
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@yyc3-deepstack/ui'
 import { useAuthStore } from '@/stores/auth'
 import { buildPaletteCommands, type PaletteCommand } from './registry'
 

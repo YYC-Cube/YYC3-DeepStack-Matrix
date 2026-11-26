@@ -10,7 +10,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { usePersistedList } from "@yyc3/core/use-persisted-state";
+import { usePersistedList } from "@yyc3-deepstack/core/use-persisted-state";
 
 // ============================================================
 // Types — centralized in types/index.ts
@@ -20,7 +20,7 @@ import type {
   ExportReportType, ExportFormat, TimeRange,
   PerformanceSnapshot, SecuritySnapshot,
   ReportData, ReportHistoryEntry,
-} from "@yyc3/core/types";
+} from "@yyc3-deepstack/core/types";
 
 // RF-011: Re-export 已移除
 

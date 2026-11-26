@@ -15,8 +15,8 @@ import { render, screen, fireEvent, cleanup, within } from "@testing-library/rea
 import * as React from "react";
 import { CommandPalette } from "@yyc3/shell/command-palette";
 
-import { useI18n } from "@yyc3/core/i18n";
-import { useKeyboardShortcuts } from "@yyc3/core/useKeyboardShortcuts";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useKeyboardShortcuts } from "@yyc3-deepstack/core/useKeyboardShortcuts";
 
 const mockNavigate = vi.fn();
 const mockTriggerShortcut = vi.fn();
@@ -25,7 +25,7 @@ vi.mock("react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: vi.fn(() => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -33,7 +33,7 @@ vi.mock("@yyc3/core/i18n", () => ({
   })),
 }));
 
-vi.mock("@yyc3/core/useKeyboardShortcuts", () => ({
+vi.mock("@yyc3-deepstack/core/useKeyboardShortcuts", () => ({
   useKeyboardShortcuts: vi.fn(() => ({
     shortcutKeys: "Ctrl+K",
     triggerShortcut: mockTriggerShortcut,

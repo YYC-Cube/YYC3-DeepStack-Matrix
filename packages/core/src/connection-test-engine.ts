@@ -233,7 +233,7 @@ async function testOllamaModelConnection(
   let ollamaTagsUrl: string;
   let ollamaChatUrl: string;
   try {
-    const ollamaModule = await import("@yyc3/core/ollama-url");
+    const ollamaModule = await import("@yyc3-deepstack/core/ollama-url");
     ollamaTagsUrl = ollamaModule.getOllamaTagsUrl();
     ollamaChatUrl = ollamaModule.getOllamaChatUrl();
   } catch {

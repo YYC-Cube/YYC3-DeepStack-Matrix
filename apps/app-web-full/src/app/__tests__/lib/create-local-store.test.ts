@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { createLocalStore } from "@yyc3/core/create-local-store";
+import { createLocalStore } from "@yyc3-deepstack/core/create-local-store";
 
 interface TestItem {
   id: string;

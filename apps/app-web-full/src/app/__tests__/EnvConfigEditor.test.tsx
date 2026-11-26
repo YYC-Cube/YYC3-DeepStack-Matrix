@@ -42,7 +42,7 @@ const mockConfig = {
   ENABLE_ELECTRON_IPC: false,
 };
 
-vi.mock("@yyc3/core/env-config", () => ({
+vi.mock("@yyc3-deepstack/core/env-config", () => ({
   getEnvConfig: vi.fn(() => mockConfig),
   setEnvConfig: vi.fn((updates) => ({ ...mockConfig, ...updates })),
   resetEnvConfig: vi.fn(() => mockConfig),

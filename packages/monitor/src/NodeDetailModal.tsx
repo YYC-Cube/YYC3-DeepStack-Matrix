@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import { X, Cpu, Thermometer, HardDrive, Activity, Clock, Server, Check, AlertTriangle, FileText, RotateCcw, Trash2 } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { toast } from "sonner";
-import type { NodeData } from "@yyc3/core/types";
+import type { NodeData } from "@yyc3-deepstack/core/types";
 
 interface NodeDetailModalProps {
   node: NodeData;

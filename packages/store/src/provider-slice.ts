@@ -18,16 +18,16 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { testAIConnection, type AIConnectionConfig } from '@yyc3/core/connection-test-engine';
-import { env } from '@yyc3/core/env-config';
-import { getOllamaTagsUrl } from '@yyc3/core/ollama-url';
+import { testAIConnection, type AIConnectionConfig } from '@yyc3-deepstack/core/connection-test-engine';
+import { env } from '@yyc3-deepstack/core/env-config';
+import { getOllamaTagsUrl } from '@yyc3-deepstack/core/ollama-url';
 import type {
   ConfiguredModel,
   ModelProviderDef,
   ModelProviderId,
   OllamaModel,
   OllamaTagsResponse,
-} from '@yyc3/core/types';
+} from '@yyc3-deepstack/core/types';
 
 // ============================================================
 // 内置服务商定义（规范来源）

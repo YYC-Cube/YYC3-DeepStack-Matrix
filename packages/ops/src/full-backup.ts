@@ -17,8 +17,8 @@
  * - 恢复时逐层还原，支持版本兼容迁移
  */
 
-import { exportStoreData, importStoreData } from "@yyc3/store/global-store";
-import { exportAllData, importAllData } from "@yyc3/core/yyc3-storage";
+import { exportStoreData, importStoreData } from "@yyc3-deepstack/store/global-store";
+import { exportAllData, importAllData } from "@yyc3-deepstack/core/yyc3-storage";
 
 // ============================================================
 // 类型定义
@@ -154,7 +154,7 @@ export async function importFullBackup(json: string): Promise<{ success: boolean
 
     // 4. 广播全量同步
     try {
-      const { broadcastSyncMessage } = await import("@yyc3/core/broadcast-channel");
+      const { broadcastSyncMessage } = await import("@yyc3-deepstack/core/broadcast-channel");
       broadcastSyncMessage({ domain: "global-store", action: "reset" });
     } catch { /* ignore */ }
 

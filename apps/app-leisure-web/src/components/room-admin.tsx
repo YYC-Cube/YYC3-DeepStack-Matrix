@@ -3,7 +3,7 @@
  * 与 pages/rooms.tsx 同源端点(/store/rooms CRUD);本面板为看盘内嵌精简版(列表+编辑弹窗+启停/维修/停用)
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { ConfirmButton, StatusBadge } from '@/components/kit'

@@ -16,7 +16,7 @@ import {
   Package, RefreshCw, Search, Activity, BarChart3, Zap,
   Radar, PieChart, ScrollText,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { ConfigExportCenter } from "@yyc3/ops/config-export-center";
 import {
   getActiveModels, getNodesStatus, getAllAgents,
@@ -24,11 +24,11 @@ import {
   addDbNode, updateDbNode, deleteDbNode,
   addDbAgent, updateDbAgent, deleteDbAgent,
   resetDbModels, resetDbAgents, resetDbNodes,
-} from "@yyc3/core/db-queries";
+} from "@yyc3-deepstack/core/db-queries";
 import { useValidation, validateRange, validateModelName } from "@yyc3/admin/hooks/use-validation";
-import { ViewContext } from "@yyc3/core/view-context";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
 import { toast } from "sonner";
-import type { Model, NodeStatusRecord, Agent, NodeStatusType, LogLevel } from "@yyc3/core/types";
+import type { Model, NodeStatusRecord, Agent, NodeStatusType, LogLevel } from "@yyc3-deepstack/core/types";
 
 interface RecentOpEntry {
   id: string;
@@ -38,11 +38,11 @@ interface RecentOpEntry {
   time: string;
   status: "pending" | "success" | "error" | "warning" | "running";
 }
-import type { RadarEntry, ModelDistEntry, StoredLogEntry } from "@yyc3/core/types";
-import { useNodeSlice } from "@yyc3/store/node-slice";
-import { useMetricsSlice } from "@yyc3/store/metrics-slice";
-import { useAppSlice } from "@yyc3/store/app-slice";
-import { useLogSlice } from "@yyc3/store/log-slice";
+import type { RadarEntry, ModelDistEntry, StoredLogEntry } from "@yyc3-deepstack/core/types";
+import { useNodeSlice } from "@yyc3-deepstack/store/node-slice";
+import { useMetricsSlice } from "@yyc3-deepstack/store/metrics-slice";
+import { useAppSlice } from "@yyc3-deepstack/store/app-slice";
+import { useLogSlice } from "@yyc3-deepstack/store/log-slice";
 
 // ── 样式常量 ──
 const toastStyle = {

@@ -37,7 +37,7 @@ import {
 // Mock
 // ──────────────────────────────────────────────────────────────────
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, ...rest }: any) =>
     React.createElement("div", { "data-testid": "yyc3-glass-card", className, ...rest }, children),
 }));

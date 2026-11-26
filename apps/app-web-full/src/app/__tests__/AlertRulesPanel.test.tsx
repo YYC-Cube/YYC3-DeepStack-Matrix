@@ -120,7 +120,7 @@ vi.mock("@yyc3/monitor/hooks/use-alert-rules", () => ({
   useAlertRules: () => mockAlertRulesState,
 }));
 
-vi.mock("@yyc3/store/use-websocket-data", () => ({
+vi.mock("@yyc3-deepstack/store/use-websocket-data", () => ({
   useWebSocketData: () => ({
     nodes: [],
     liveLatency: 0,
@@ -128,7 +128,7 @@ vi.mock("@yyc3/store/use-websocket-data", () => ({
   }),
 }));
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",
@@ -148,7 +148,7 @@ vi.mock("@yyc3/monitor/create-rule-modal", () => ({
   },
 }));
 
-vi.mock("@yyc3/ui", () => ({
+vi.mock("@yyc3-deepstack/ui", () => ({
   GlassCard: ({ children, className, onClick, ...props }: any) => (
     <div className={className} onClick={onClick} data-testid="glass-card" {...props}>
       {children}

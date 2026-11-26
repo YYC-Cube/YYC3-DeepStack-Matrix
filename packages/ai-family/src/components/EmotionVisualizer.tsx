@@ -14,7 +14,7 @@ import {
   Smile, Frown, AlertTriangle, HelpCircle, Angry,
   Sparkles, Heart, Zap, Moon, Sun, TrendingUp,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { useEmotionMusic } from "../hooks/useEmotionMusic";
 import {
   EMOTION_MUSIC_MAPPINGS,

@@ -1,6 +1,6 @@
 /**
  * @file: node-types.ts
- * @description: 类型桥（整件翻正）— 类型单源 @yyc3/core/types + toNodeData 值转换（P5 第三轮）
+ * @description: 类型桥（整件翻正）— 类型单源 @yyc3-deepstack/core/types + toNodeData 值转换（P5 第三轮）
  * @author: YanYuCloudCube Team
  * @version: v3.0.0
  * @updated: 2026-10-10
@@ -8,9 +8,9 @@
  * @tags: [types],[bridge]
  */
 
-import type { NodeStatusRecord, NodeData } from "@yyc3/core/types";
+import type { NodeStatusRecord, NodeData } from "@yyc3-deepstack/core/types";
 
-export type { NodeStatusType, NodeData, NodeStatusRecord } from "@yyc3/core/types";
+export type { NodeStatusType, NodeData, NodeStatusRecord } from "@yyc3-deepstack/core/types";
 
 /** NodeStatusRecord → NodeData 转换 */
 export function toNodeData(record: NodeStatusRecord): NodeData {

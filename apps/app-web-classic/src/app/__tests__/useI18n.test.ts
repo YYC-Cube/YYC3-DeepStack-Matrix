@@ -18,7 +18,7 @@ import {
   useI18n,
   I18nContext,
   SUPPORTED_LOCALES,
-} from "@yyc3/core/i18n";
+} from "@yyc3-deepstack/core/i18n";
 
 describe("SUPPORTED_LOCALES", () => {
   it("should have zh-CN locale", () => {

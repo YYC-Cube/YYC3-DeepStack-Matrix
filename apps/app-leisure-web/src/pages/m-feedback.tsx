@@ -3,7 +3,7 @@
  * 提交→Owner 收 notice 回馈→回复拟定(状态 OPEN/PLANNED/DONE/REJECTED);产品需求收集通道
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3/ui'
+import { Button, Card, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@yyc3-deepstack/ui'
 import { toast } from 'sonner'
 import { req, toastError } from '@/lib/api'
 import { PageHeader, StatusBadge } from '@/components/kit'

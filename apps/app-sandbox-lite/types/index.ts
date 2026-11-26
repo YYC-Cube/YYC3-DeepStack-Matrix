@@ -208,7 +208,7 @@ export type WSMessage =
 export interface WebSocketDataState {
   // 连接状态
   connectionState: ConnectionState;
-  // 是否处于模拟连接（对齐 @yyc3/core/types 契约，M3-P2 补）
+  // 是否处于模拟连接（对齐 @yyc3-deepstack/core/types 契约，M3-P2 补）
   isSimulated: boolean;
   reconnectCount: number;
   lastSyncTime: string;

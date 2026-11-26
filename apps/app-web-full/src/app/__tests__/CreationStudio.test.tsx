@@ -13,7 +13,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import React from "react";
 import { CreationStudio } from "@yyc3/ai-family/creation-studio";
-import type { MusicTrack } from "@yyc3/core/dmusic-resources";
+import type { MusicTrack } from "@yyc3-deepstack/core/dmusic-resources";
 
 const mockPlaylist: MusicTrack[] = [
   {
@@ -46,7 +46,7 @@ const defaultProps = {
   currentTrackIndex: 0,
 };
 
-vi.mock("@yyc3/core/i18n", () => ({
+vi.mock("@yyc3-deepstack/core/i18n", () => ({
   useI18n: () => ({
     t: (key: string) => key,
     locale: "zh-CN",

@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useMemo } from "react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import {
   AlertTriangle, ShieldAlert, Globe, Layers, Code,
   ChevronDown, ChevronRight, CheckCircle2, AlertCircle,

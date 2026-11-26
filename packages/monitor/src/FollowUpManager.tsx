@@ -25,12 +25,12 @@ import {
   User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useI18n } from "@yyc3/core/i18n";
-import { useFollowUpSlice } from "@yyc3/store/follow-up-slice";
-import { useUserMgmtSlice } from "@yyc3/store/user-mgmt-slice";
-import type { FollowUpRecord } from "@yyc3/core/types";
+import { useI18n } from "@yyc3-deepstack/core/i18n";
+import { useFollowUpSlice } from "@yyc3-deepstack/store/follow-up-slice";
+import { useUserMgmtSlice } from "@yyc3-deepstack/store/user-mgmt-slice";
+import type { FollowUpRecord } from "@yyc3-deepstack/core/types";
 import { FollowUpEditDialog } from "./FollowUpEditDialog";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 
 export function FollowUpManager() {
   const { t } = useI18n();

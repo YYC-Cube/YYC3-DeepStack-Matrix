@@ -11,7 +11,7 @@
 
 import React from "react";
 import { Wifi, WifiOff, RefreshCw, Radio, Zap } from "lucide-react";
-import type { ConnectionState } from "@yyc3/core/types";
+import type { ConnectionState } from "@yyc3-deepstack/core/types";
 
 interface ConnectionStatusProps {
   state: ConnectionState;

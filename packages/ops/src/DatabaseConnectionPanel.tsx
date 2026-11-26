@@ -15,13 +15,13 @@ import {
   Loader2, CheckCircle2, XCircle, Server,
   Settings2, Play, Clock, Layers,
 } from "lucide-react";
-import { GlassCard } from "@yyc3/ui";
+import { GlassCard } from "@yyc3-deepstack/ui";
 import { SQLEditor } from "@yyc3/ide/code-editor";
-import { ViewContext } from "@yyc3/core/view-context";
-import { useDbConnSlice } from "@yyc3/store/db-conn-slice";
-import type { PoolConfig } from "@yyc3/store/db-conn-slice";
-import type { DBConnection } from "@yyc3/core/types";
-import { env } from "@yyc3/core/env-config";
+import { ViewContext } from "@yyc3-deepstack/core/view-context";
+import { useDbConnSlice } from "@yyc3-deepstack/store/db-conn-slice";
+import type { PoolConfig } from "@yyc3-deepstack/store/db-conn-slice";
+import type { DBConnection } from "@yyc3-deepstack/core/types";
+import { env } from "@yyc3-deepstack/core/env-config";
 import { toast } from "sonner";
 
 const toastStyle = {

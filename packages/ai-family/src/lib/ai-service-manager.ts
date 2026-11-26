@@ -9,7 +9,7 @@
  * @tags: [lib]
  */
 
-import type { ChatRole, ConfiguredModel, SDKChatResponse } from "@yyc3/core/types";
+import type { ChatRole, ConfiguredModel, SDKChatResponse } from "@yyc3-deepstack/core/types";
 
 // ============================================================
 // Types

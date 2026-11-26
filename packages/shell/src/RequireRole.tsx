@@ -15,7 +15,7 @@
 
 import { Lock } from "lucide-react";
 import { useContext, type ReactNode } from "react";
-import { AuthContext } from "@yyc3/core/authContext";
+import { AuthContext } from "@yyc3-deepstack/core/authContext";
 
 interface RequireRoleProps {
   /** 允许访问的角色（默认仅 admin） */

@@ -29,16 +29,16 @@ import {
   saveVariableValues,
   validateVariable,
   type VariableValue,
-} from '@yyc3/core/variable-center';
+} from '@yyc3-deepstack/core/variable-center';
 import {
   DEFAULT_WS_ENDPOINT,
   getAPIConfig,
   onAPIConfigChange,
   resetAPIConfig as resetAPIEndpoints, setAPIConfig,
   type APIEndpoints
-} from '@yyc3/core/api-config';
-import { onEnvConfigChange } from '@yyc3/core/env-config';
-import { captureError } from '@yyc3/core/error-handler';
+} from '@yyc3-deepstack/core/api-config';
+import { onEnvConfigChange } from '@yyc3-deepstack/core/env-config';
+import { captureError } from '@yyc3-deepstack/core/error-handler';
 
 let _apiConfigUnsubscribe: (() => void) | null = null;
 let _envConfigUnsubscribe: (() => void) | null = null;

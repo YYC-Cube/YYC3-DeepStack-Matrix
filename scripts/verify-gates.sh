@@ -12,7 +12,7 @@ check() { if [ "$1" -ne 0 ]; then echo "❌ $2"; FAIL=1; else echo "✅ $2"; fi 
 
 # ── 门禁名单(单一声明处;G7 元门禁以目录实测比对) ──
 PKGS=(theme core store ui business ai ops admin monitor ai-family ide shell leisure-core)
-APPS=(app-web-full app-desktop app-web-classic app-sandbox-lite app-leisure-web app-mp-artist)
+APPS=(app-web-full app-desktop app-web-classic app-sandbox-lite app-leisure-web app-mp-artist app-ai-assistant)
 # 构建命令映射(默认 pnpm build;异构端在此登记)
 BUILD_CMD() {
   case "$1" in
@@ -28,20 +28,20 @@ for pkg in "${PKGS[@]}"; do
 done
 check $P "十三包 tsc 全 0"
 
-step "G2 六端 tsc"
+step "G2 七端 tsc"
 P=0
 for app in "${APPS[@]}"; do
   (cd "apps/$app" && pnpm exec tsc --noEmit > /dev/null 2>&1) || { echo "❌ $app tsc"; P=1; }
 done
-check $P "六端 tsc 全 0"
+check $P "七端 tsc 全 0"
 
 if [ "${1:-}" != "--skip-build" ]; then
-  step "G3 六端 build"
+  step "G3 七端 build"
   P=0
   for app in "${APPS[@]}"; do
     (cd "apps/$app" && eval "$(BUILD_CMD "$app")" > /dev/null 2>&1) || { echo "❌ $app build"; P=1; }
   done
-  check $P "六端 build 全绿"
+  check $P "七端 build 全绿"
 fi
 
 step "G4 失效 vi.mock 扫描(有测试目录的应用全覆盖)"
@@ -55,7 +55,7 @@ node scripts/mock-audit.mjs "${MOCK_DIRS[@]}" > /tmp/gate-mock.log 2>&1
 check $? "vi.mock STALE=0（$(head -1 /tmp/gate-mock.log)，扫描 ${#MOCK_DIRS[@]} 目录）"
 
 step "G5 i18n 裸键扫描"
-node scripts/i18n-bare-key-scan.mjs apps/app-web-full/src/app apps/app-desktop/src/app apps/app-web-classic/src/app apps/app-leisure-web/src apps/app-mp-artist/src packages/shell/src packages/monitor/src packages/ops/src packages/admin/src packages/business/src packages/ai/src packages/ai-family/src packages/ide/src > /tmp/gate-i18n.log 2>&1
+node scripts/i18n-bare-key-scan.mjs apps/app-web-full/src/app apps/app-desktop/src/app apps/app-web-classic/src/app apps/app-leisure-web/src apps/app-mp-artist/src apps/app-ai-assistant/src packages/shell/src packages/monitor/src packages/ops/src packages/admin/src packages/business/src packages/ai/src packages/ai-family/src packages/ide/src > /tmp/gate-i18n.log 2>&1
 g5=$?
 if [ $g5 -eq 0 ]; then echo "✅ i18n 裸键 0";
 elif [ $g5 -eq 1 ]; then echo "⚠️ $(grep BARE_KEY_COUNT /tmp/gate-i18n.log | head -1)（存量登记待清，不阻断；清单见 /tmp/gate-i18n.log）";

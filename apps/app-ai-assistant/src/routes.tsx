@@ -1,0 +1,115 @@
+/**
+ * routes.tsx — app-ai-assistant 独立应用路由
+ * /login → 登录门(表单/ghost);/models /settings → 系统管理页(壳内);
+ * 登录态 = 模块级 store(localStorage 持久 + 订阅通知),LoginGate 与
+ * Protected 共享同一份。注意:AppShell 只由 Protected 提供,路由 element
+ * 里不得再包一层(否则双 header/双底栏/双浮窗)。
+ */
+import { useEffect, useState, type ReactNode } from "react";
+import { createHashRouter, Navigate } from "react-router";
+
+import { Login } from "./components/Login";
+import { ModelProviderPanel } from "./components/ModelProviderPanel";
+import { SystemSettings } from "./components/SystemSettings";
+import { BottomNav } from "./components/BottomNav";
+import { AIAssistant } from "./components/AIAssistant";
+import { YYC3Logo } from "./components/YYC3Logo";
+import { Toaster } from "sonner";
+
+// ── 登录态迷你 store(模块级单源) ──
+const AUTH_KEY = "aad_authed";
+let authedFlag = localStorage.getItem(AUTH_KEY) === "1";
+const authListeners = new Set<() => void>();
+
+function loginAction(): void {
+  authedFlag = true;
+  localStorage.setItem(AUTH_KEY, "1");
+  authListeners.forEach((l) => l());
+}
+
+function useAuthed(): boolean {
+  const [v, setV] = useState(authedFlag);
+  useEffect(() => {
+    const l = (): void => setV(authedFlag);
+    authListeners.add(l);
+    return () => { authListeners.delete(l); };
+  }, []);
+  return v;
+}
+
+/** 应用壳:轻头部(logo/标题)+ 页面 + 自适应底部导航 + AI 浮窗 */
+function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
+  return (
+    <div
+      className="h-screen w-screen flex flex-col overflow-hidden"
+      style={{ background: "linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)" }}
+    >
+      <header className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-[rgba(0,180,255,0.1)] bg-[rgba(0,40,80,0.12)]">
+        <YYC3Logo />
+        <div>
+          <div className="text-[#e0f0ff] font-medium" style={{ fontSize: "0.86rem" }}>
+            YYC³ AI 浮窗
+          </div>
+          <div className="text-[rgba(0,212,255,0.4)]" style={{ fontSize: "0.6rem" }}>
+            可插拔 AI 助理 · 系统管理
+          </div>
+        </div>
+      </header>
+      <main className="flex-1 overflow-auto p-4 pb-[76px]">{children}</main>
+      <BottomNav />
+      {/* AI 浮窗:全页可用,独有系统模块 */}
+      <AIAssistant isMobile={window.innerWidth < 768} />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "rgba(8, 25, 55, 0.95)",
+            border: "1px solid rgba(0, 180, 255, 0.2)",
+            color: "#e0f0ff",
+            backdropFilter: "blur(10px)",
+          },
+        }}
+      />
+    </div>
+  );
+}
+
+function Protected({ children }: { children: ReactNode }): React.JSX.Element {
+  if (!useAuthed()) return <Navigate to="/login" replace />;
+  return <AppShell>{children}</AppShell>;
+}
+
+function LoginGate(): React.JSX.Element {
+  const authed = useAuthed();
+  if (authed) return <Navigate to="/models" replace />;
+  return <Login onLoginSuccess={loginAction} onGhostLogin={loginAction} />;
+}
+
+export const router = createHashRouter([
+  { path: "/login", element: <LoginGate /> },
+  {
+    path: "/",
+    element: (
+      <Protected>
+        <ModelProviderPanel />
+      </Protected>
+    ),
+  },
+  {
+    path: "/models",
+    element: (
+      <Protected>
+        <ModelProviderPanel />
+      </Protected>
+    ),
+  },
+  {
+    path: "/settings",
+    element: (
+      <Protected>
+        <SystemSettings />
+      </Protected>
+    ),
+  },
+  { path: "*", element: <Navigate to="/" replace /> },
+]);

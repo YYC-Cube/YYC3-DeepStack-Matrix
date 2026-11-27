@@ -174,27 +174,38 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
   const bootQp = new URLSearchParams(window.location.hash.split("?")[1] ?? "");
   const [isOpen, setIsOpen] = useState(() => bootQp.get("widget") === "1");
   const [isMaximized, setIsMaximized] = useState(false);
-  const [activeTab, setActiveTab] = useState<"chat" | "pages" | "commands" | "prompts" | "settings">(
-    bootQp.get("tab") === "pages" ? "pages" : "chat",
+  // 页面页签(红框诉求:页面与主签同级,样式一致)激活键 = "page:<path>"
+  const [activeTab, setActiveTab] = useState<string>(
+    bootQp.get("page") ? `page:/${bootQp.get("page")}` : bootQp.get("tab") === "pages" ? "pages" : "chat",
   );
   // 页面内嵌视图:null=卡片列表;否则 iframe 渲染对应系统页(浮窗独控)
-  // URL 引导:&page=<子路径> 直达内嵌(如 page=settings → /settings?embed=1)
-  const [pageView, setPageView] = useState<AppPageEntry | null>(() => {
+  // URL 引导(&page=music)经 mount 后 useEffect 派发:setter 必达,不受
+  // FastRefresh 状态保留/init 时机影响
+  const [pageView, setPageView] = useState<AppPageEntry | null>(null);
+  useEffect(() => {
     const bootPage = bootQp.get("page");
-    if (!bootPage) return null;
-    return APP_PAGES.find(p => p.path === "/" + bootPage) ?? null;
-  });
+    if (!bootPage) return;
+    const hit = APP_PAGES.find(p => p.path === "/" + bootPage || p.path.endsWith("/" + bootPage));
+    if (hit) {
+      setPageView(hit);
+      setActiveTab(`page:${hit.path}`);
+      setIsMaximized(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const maximizeBeforePage = useRef(false);
 
   const openPageView = useCallback((page: AppPageEntry) => {
     maximizeBeforePage.current = isMaximized;
     setPageView(page);
+    setActiveTab(`page:${page.path}`);
     // 页面按桌面布局设计:自动近全屏,返回列表时还原
     setIsMaximized(true);
   }, [isMaximized]);
 
   const closePageView = useCallback(() => {
     setPageView(null);
+    setActiveTab("pages");
     setIsMaximized(maximizeBeforePage.current);
   }, []);
 
@@ -422,19 +433,19 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
           </div>
         </div>
 
-        {/* ========= Tab Bar ========= */}
-        <div className="shrink-0 flex items-center gap-0.5 px-3 py-2 border-b border-[rgba(0,180,255,0.08)] bg-[rgba(0,40,80,0.1)]">
+        {/* ========= Tab Bar(主签 + 页面签;页面签与主签同款样式,红框诉求) ========= */}
+        <div className="shrink-0 flex items-center gap-0.5 px-3 py-2 overflow-x-auto border-b border-[rgba(0,180,255,0.08)] bg-[rgba(0,40,80,0.1)]">
           {([
-            { key: "chat" as const, icon: MessageSquare, label: "对话" },
-            { key: "pages" as const, icon: Users, label: "页面" },
-            { key: "commands" as const, icon: Command, label: "命令" },
-            { key: "prompts" as const, icon: BookOpen, label: "提示词" },
-            { key: "settings" as const, icon: Sliders, label: "配置" },
-          ]).map(tab => (
+            { key: "chat", icon: MessageSquare, label: "对话" },
+            { key: "pages", icon: Users, label: "页面" },
+            { key: "commands", icon: Command, label: "命令" },
+            { key: "prompts", icon: BookOpen, label: "提示词" },
+            { key: "settings", icon: Sliders, label: "配置" },
+          ] as Array<{ key: string; icon: typeof Zap; label: string }>).map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${activeTab === tab.key
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${activeTab === tab.key
                 ? "bg-[rgba(0,212,255,0.12)] text-[#00d4ff] border border-[rgba(0,212,255,0.25)]"
                 : "text-[rgba(0,212,255,0.4)] hover:text-[#00d4ff] border border-transparent"
                 }`}
@@ -444,9 +455,33 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
               {tab.label}
             </button>
           ))}
+
+          {/* ── 分隔线 ── */}
+          <div className="shrink-0 w-px h-5 mx-1 bg-[rgba(0,180,255,0.15)]" />
+
+          {/* ── 页面签(与主签同款样式;点击=浮窗内嵌该页,主屏零感知) ── */}
+          {APP_PAGES.map(page => {
+            const key = `page:${page.path}`;
+            const Icon = page.icon;
+            const isActive = activeTab === key && pageView?.path === page.path;
+            return (
+              <button
+                key={key}
+                onClick={() => openPageView(page)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${isActive
+                  ? "bg-[rgba(0,212,255,0.12)] text-[#00d4ff] border border-[rgba(0,212,255,0.25)]"
+                  : "text-[rgba(0,212,255,0.4)] hover:text-[#00d4ff] border border-transparent"
+                  }`}
+                style={{ fontSize: "0.72rem" }}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {page.name}
+              </button>
+            );
+          })}
         </div>
 
-        {/* ========= 页面快捷导航行(红框诉求:常用页一级直达;嵌入态由顶栏接管故隐藏) ========= */}
+        {/* ========= 页面快捷导航行(嵌入态由顶栏接管故隐藏) ========= */}
         {pageView === null && (
           <div className="shrink-0 flex items-center gap-1 px-3 py-1.5 overflow-x-auto border-b border-[rgba(0,180,255,0.06)] bg-[rgba(0,30,60,0.14)]">
             {APP_PAGES.map(page => (
@@ -551,7 +586,7 @@ export function AIAssistant({ isMobile }: AIAssistantProps) {
           )}
 
           {/* === Pages Tab(系统页内嵌 iframe 独控:浮窗独有,主屏零感知) === */}
-          {activeTab === "pages" && (
+          {(activeTab === "pages" || activeTab.startsWith("page:")) && (
             pageView !== null ? (
               <div className="flex-1 overflow-hidden flex flex-col">
                 {/* 嵌入态顶栏:返回 + 页名 + 独立实例徽标 */}

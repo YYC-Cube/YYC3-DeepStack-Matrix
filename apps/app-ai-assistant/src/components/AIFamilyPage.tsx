@@ -237,7 +237,7 @@ export function AIFamilyPage() {
       ref={containerRef}
       className="relative w-full h-full overflow-hidden flex items-center justify-center"
       style={{
-        background: "radial-gradient(ellipse at center, rgba(10,15,40,0.95) 0%, rgba(4,8,20,1) 60%, #020510 100%)",
+        background: "radial-gradient(ellipse at center, rgba(18,26,64,0.95) 0%, rgba(12,20,42,1) 60%, #081230 100%)",
         minHeight: "400px",
       }}
     >

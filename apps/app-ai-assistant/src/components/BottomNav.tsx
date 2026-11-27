@@ -37,7 +37,7 @@ import { useI18n } from "../hooks/useI18n";
 
 /* ── 底部核心 Tab(app-ai-assistant 应用域:模型管理/系统设置) ── */
 const PRIMARY_TABS = [
-  { i18nKey: "bottomNav.models",         path: "/models",   icon: Cpu },
+  { i18nKey: "bottomNav.aiFamily",       path: "/",         icon: Sparkles },
   { i18nKey: "bottomNav.systemSettings", path: "/settings", icon: Settings },
 ];
 

@@ -112,6 +112,7 @@ const enUS: TranslationKeys = {
     settings: "Settings",
     models: "Model Mgmt",
     systemSettings: "System Settings",
+    aiFamily: "AI Family",
   },
 
   // ======== Data Monitoring ========

@@ -125,7 +125,7 @@ const APP_PAGES: AppPageEntry[] = [
   { path: "/ai-family/comm", icon: Network, name: "通讯中心", desc: "公告/警报/消息 · 本地持久化", color: "#0088ff" },
   { path: "/ai-family/phone", icon: Phone, name: "家人热线", desc: "专属号码 · 一个电话的温暖", color: "#00ff66" },
   { path: "/ai-family/settings", icon: Sliders, name: "Family 设置", desc: "生态控制中心 · 13 模块测通", color: "#ff9900" },
-  { path: "/models", icon: Cpu, name: "模型管理", desc: "服务商注册表 · 已配置模型", color: "#aa55ff" },
+  { path: "/models-panel", icon: Cpu, name: "模型管理", desc: "服务商注册表 · 已配置模型", color: "#aa55ff" },
   { path: "/settings", icon: Sliders, name: "系统设置", desc: "13 项配置 · 网络连接 · 安全", color: "#ff9900" },
 ];
 

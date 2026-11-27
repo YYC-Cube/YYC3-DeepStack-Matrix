@@ -111,7 +111,17 @@ export const router = createHashRouter([
     ),
   },
   {
+    // 主屏模型管理位 → AI Family 页(Owner 指令);模型管理本体保留于
+    // /models-panel 供浮窗内嵌 iframe 使用(可插拔隔离)
     path: "/models",
+    element: (
+      <Protected>
+        <AIFamilyPage />
+      </Protected>
+    ),
+  },
+  {
+    path: "/models-panel",
     element: (
       <Protected>
         <ModelProviderPanel />

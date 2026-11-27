@@ -111,6 +111,7 @@ const zhCN = {
     // app-ai-assistant 应用域抽屉项(抽取适配)
     models: "模型管理",
     systemSettings: "系统设置",
+    aiFamily: "AI Family",
   },
 
   // ======== 数据监控 ========

@@ -134,3 +134,31 @@ describe('ColorPicker', () => {
     expect(screen.getByTitle('G 通道值')).toHaveValue(0);
   });
 });
+
+describe('ColorPicker 分支清扫（batch C3）', () => {
+  it('顶部 HEX 输入（大写标题）Enter 提交', () => {
+    const onChange = vi.fn();
+    vi.useFakeTimers();
+    render(<ColorPicker value="#00d4ff" onChange={onChange} onClose={() => {}} />);
+    act(() => { vi.advanceTimersByTime(0); });
+    const topInput = screen.getByTitle('HEX 颜色值');
+    fireEvent.change(topInput, { target: { value: 'abcdef' } });
+    fireEvent.keyDown(topInput, { key: 'Enter' });
+    expect(onChange).toHaveBeenLastCalledWith('#abcdef');
+    vi.useRealTimers();
+  });
+
+  it('SV 拖拽：mousedown 后 window mousemove 持续拾取（svDragging 分支）', () => {
+    const onChange = vi.fn();
+    render(<ColorPicker value="#00d4ff" onChange={onChange} onClose={() => {}} />);
+    const canvases = document.querySelectorAll('canvas');
+    fireEvent.mouseDown(canvases[0]); // svDragging = true
+    const before = onChange.mock.calls.length;
+    fireEvent.mouseMove(window);
+    expect(onChange.mock.calls.length).toBeGreaterThan(before);
+    fireEvent.mouseUp(window);
+    const after = onChange.mock.calls.length;
+    fireEvent.mouseMove(window);
+    expect(onChange.mock.calls.length).toBe(after);
+  });
+});

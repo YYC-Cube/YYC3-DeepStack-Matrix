@@ -138,3 +138,55 @@ describe('IDELayout 三种布局模式', () => {
     expect(() => fireEvent.click(screen.getByTitle('ide.fullscreen'))).not.toThrow();
   });
 });
+
+describe('IDELayout 分支清扫（batch C3）', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useIDESettingsSlice.getState().resetSettings();
+    useIDESettingsSlice.getState().setLayoutMode('edit');
+    navigateSpy.mockClear();
+  });
+
+  it('全屏切换：已在全屏 → exitFullscreen 分支', () => {
+    const exitSpy = vi.fn().mockResolvedValue(undefined);
+    const requestSpy = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(document, 'fullscreenElement', { value: {}, configurable: true });
+    Object.defineProperty(document.documentElement, 'requestFullscreen', { value: requestSpy, configurable: true });
+    Object.defineProperty(document, 'exitFullscreen', { value: exitSpy, configurable: true });
+    render(<IDELayout />);
+    fireEvent.click(screen.getByTitle('ide.fullscreen'));
+    expect(exitSpy).toHaveBeenCalled();
+    expect(requestSpy).not.toHaveBeenCalled();
+    // 清理（避免污染其它测试）
+    delete (document as { fullscreenElement?: unknown }).fullscreenElement;
+  });
+
+  it('全屏切换：非全屏 → requestFullscreen 分支', () => {
+    const requestSpy = vi.fn().mockRejectedValue(new Error('denied'));
+    Object.defineProperty(document.documentElement, 'requestFullscreen', { value: requestSpy, configurable: true });
+    render(<IDELayout />);
+    expect(() => fireEvent.click(screen.getByTitle('ide.fullscreen'))).not.toThrow();
+    expect(requestSpy).toHaveBeenCalled();
+  });
+
+  it('重复选中已打开文件 → 仅激活不重复建 tab（existing 分支）', () => {
+    render(<IDELayout />);
+    fireEvent.click(screen.getAllByText('App.tsx')[0]);
+    expect(screen.getByText('src/App.tsx')).toBeInTheDocument();
+    fireEvent.click(screen.getAllByText('App.tsx')[0]);
+    expect(document.querySelectorAll('span.p-0\\.5').length).toBe(1);
+    expect(screen.getByText('src/App.tsx')).toBeInTheDocument();
+  });
+
+  it('文件选中第二个 → 两 tab；关闭激活 tab → 激活回落到最后一个', () => {
+    render(<IDELayout />);
+    fireEvent.click(screen.getByText('App.tsx'));
+    fireEvent.click(screen.getByText('Sidebar.tsx'));
+    expect(document.querySelectorAll('span.p-0\\.5').length).toBe(2);
+    // 关闭激活的 Sidebar.tsx（第二个 tab 的 X）
+    const closeSpans = document.querySelectorAll('span.p-0\\.5');
+    fireEvent.click(closeSpans[1]);
+    // 回落 → App.tsx 仍打开
+    expect(screen.getByText('src/App.tsx')).toBeInTheDocument();
+  });
+});

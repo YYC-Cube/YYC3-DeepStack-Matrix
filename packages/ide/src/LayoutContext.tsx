@@ -4,7 +4,7 @@
  * @author: YanYuCloudCube Team
  * @version: v1.0.0
  * @created: 2026-03-23
- * @updated: 2026-03-23
+ * @updated: 2026-11-28
  * @status: active
  * @tags: [ide],[layout],[context]
  */
@@ -339,7 +339,8 @@ function layoutReducer(state: LayoutState, action: LayoutAction): LayoutState {
       const { panelId, tab } = action.payload;
       const newTab: Tab = {
         ...tab,
-        id: `tab-${Date.now()}`,
+        // 修复登记 #5：同毫秒连开 tab 时 Date.now() 碰撞 → id 重复（删一删双/双激活），追加随机后缀
+        id: `tab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         isActive: true,
       };
 

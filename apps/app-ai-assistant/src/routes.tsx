@@ -69,13 +69,13 @@ function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
           </div>
         </div>
       </header>
-      {/* 家族/时钟环页自适应铺满(零内边距);系统页保留留白 */}
+      {/* 家族/时钟环页自适应铺满(零内边距,背景延至底栏后方无缝);系统页保留留白 */}
       <main
         className={`flex-1 overflow-auto ${
           location.pathname === "/" || location.pathname.startsWith("/ai-family")
             ? "p-0"
-            : "p-4"
-        } pb-[64px]`}
+            : "p-4 pb-[64px]"
+        }`}
       >
         {children}
       </main>

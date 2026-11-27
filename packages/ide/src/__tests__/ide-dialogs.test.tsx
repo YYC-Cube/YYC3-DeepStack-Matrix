@@ -191,3 +191,40 @@ describe('CodePreviewPanel（CodeMirror 桩）', () => {
     expect(spies.onTabSelect).not.toHaveBeenCalled();
   });
 });
+
+describe('DeployDialog 修复锁（#2 interval 泄漏）', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('构建中关闭 → interval 被清除：长时间推进无新日志且无崩溃', () => {
+    const onClose = vi.fn();
+    const { container } = render(<DeployDialog isOpen onClose={onClose} />);
+    fireEvent.click(screen.getByText('ide.deployStart'));
+    fireEvent.click(container.querySelector('.fixed.inset-0')!); // handleClose 清 interval
+    const bodyAtClose = document.body.textContent ?? '';
+    // 修复前：interval 泄漏 → 日志继续累积 + updater 读可变 i 越界崩溃
+    act(() => { vi.advanceTimersByTime(60000); });
+    expect(screen.getByText('ide.deployStart')).toBeInTheDocument(); // 仍 idle
+    expect(document.body.textContent).toBe(bodyAtClose); // 日志未增长
+    expect(screen.queryByText(/Deploy succeeded!/)).not.toBeInTheDocument();
+  });
+
+  it('重复 Deploy：旧 interval 被新部署清除（双 interval 不叠加）', () => {
+    render(<DeployDialog isOpen onClose={() => {}} />);
+    fireEvent.click(screen.getByText('ide.deployStart'));
+    // building 态下 start 按钮隐藏 → 无法重复部署（旧 interval 叠加场景在 UI 层不可达，句柄清理由 close/unmount 锁定）
+    expect(screen.getByText('ide.deployBuilding')).toBeInTheDocument();
+    expect(screen.queryByText('ide.deployStart')).not.toBeInTheDocument();
+  });
+
+  it('卸载兜底：构建中卸载组件 → interval 清理不崩（unmount cleanup）', () => {
+    const { unmount } = render(<DeployDialog isOpen onClose={() => {}} />);
+    fireEvent.click(screen.getByText('ide.deployStart'));
+    expect(() => unmount()).not.toThrow();
+    act(() => { vi.advanceTimersByTime(60000); }); // 无消费者，不崩即过
+  });
+});

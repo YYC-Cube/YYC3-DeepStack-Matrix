@@ -4,7 +4,7 @@
  * @author: YanYuCloudCube Team
  * @version: v1.0.0
  * @created: 2026-04-08
- * @updated: 2026-04-08
+ * @updated: 2026-11-28
  * @status: active
  * @tags: [component]
  */
@@ -44,29 +44,42 @@ export function DeployDialog({ isOpen, onClose }: DeployDialogProps) {
   const [status, setStatus] = useState<DeployStatus>("idle");
   const [logs, setLogs] = useState<string[]>([]);
   const logEndRef = useRef<HTMLDivElement>(null);
+  // 修复登记 #2：构建 interval 句柄入 ref —— 关闭/卸载时清理，防定时器泄漏
+  const buildIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
+
+  // 卸载清理（关闭对话框不卸载组件实例，卸载路径必须独立兜底）
+  useEffect(() => () => {
+    if (buildIntervalRef.current) { clearInterval(buildIntervalRef.current); }
+  }, []);
 
   if (!isOpen) {return null;}
 
   const handleDeploy = () => {
     setStatus("building");
     setLogs([]);
+    if (buildIntervalRef.current) { clearInterval(buildIntervalRef.current); }
     let i = 0;
-    const interval = setInterval(() => {
+    buildIntervalRef.current = setInterval(() => {
       if (i < BUILD_LOG_LINES.length) {
         setLogs((prev) => [...prev, `[${BUILD_LOG_LINES[i].time}] ${BUILD_LOG_LINES[i].text}`]);
         i++;
       } else {
-        clearInterval(interval);
+        clearInterval(buildIntervalRef.current!);
+        buildIntervalRef.current = null;
         setStatus("success");
       }
     }, 400);
   };
 
   const handleClose = () => {
+    if (buildIntervalRef.current) {
+      clearInterval(buildIntervalRef.current);
+      buildIntervalRef.current = null;
+    }
     setStatus("idle");
     setLogs([]);
     onClose();

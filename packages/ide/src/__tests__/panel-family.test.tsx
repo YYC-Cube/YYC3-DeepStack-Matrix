@@ -414,3 +414,103 @@ describe('Workspace', () => {
     expect(container.querySelectorAll('.panel-container')).toHaveLength(0);
   });
 });
+
+describe('外点关闭/拖拽分支清扫（batch C3）', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('PanelToolbar 添加菜单：文档 mousedown 外点关闭', () => {
+    const box: { current: Ctx | null } = { current: null };
+    render(
+      <LayoutProvider>
+        <Probe box={box} />
+        <PanelToolbar />
+      </LayoutProvider>,
+    );
+    fireEvent.click(screen.getByText('添加面板'));
+    expect(screen.getByText('代码编辑器')).toBeInTheDocument(); // 菜单开
+    fireEvent.mouseDown(document.body); // 外点
+    expect(screen.queryByText('代码编辑器')).not.toBeInTheDocument(); // 菜单关
+  });
+
+  it('Panel 无回调 props：minimize/maximize/close 点击守卫分支不抛错', () => {
+    render(
+      <LayoutProvider>
+        <Panel
+          panel={makePanel()}
+          isActive={false}
+          onMouseDown={undefined as never}
+          onMinimize={undefined as never}
+          onMaximize={undefined as never}
+          onClose={undefined as never}
+        />
+      </LayoutProvider>,
+    );
+    expect(() => {
+      fireEvent.click(screen.getByTitle('Minimize'));
+      fireEvent.click(screen.getByTitle('Maximize'));
+      fireEvent.click(screen.getByTitle('Close'));
+      fireEvent.mouseDown(screen.getByText('代码面板'));
+    }).not.toThrow();
+  });
+
+  it('TabBar 关闭钮 hover 进出样式切换分支', () => {
+    const { container } = render(
+      <LayoutProvider>
+        <TabBar panel={makePanel({ tabs: [makeTab('t1', 'A', { isActive: true })], activeTabId: 't1' })} />
+      </LayoutProvider>,
+    );
+    const close = container.querySelector('.tab-close') as HTMLElement;
+    fireEvent.mouseEnter(close);
+    expect(close.style.opacity).toBe('1');
+    fireEvent.mouseLeave(close);
+    expect(close.style.opacity).toBe('0.6');
+  });
+
+  it('PanelResizeHandle 拖拽态 mousemove（preventDefault 分支）+ 卸载清理', () => {
+    const { unmount } = render(<PanelResizeHandle direction="e" onMouseDown={noop} />);
+    const handle = document.querySelector('.panel-resize-handle')!;
+    fireEvent.mouseDown(handle);
+    // 拖拽态：isResizing=true → preventDefault 分支
+    const evt = new window.Event('mousemove', { cancelable: true });
+    const spy = vi.spyOn(evt, 'preventDefault');
+    window.dispatchEvent(evt);
+    expect(spy).toHaveBeenCalled();
+    // mouseup 结束拖拽
+    fireEvent.mouseUp(window);
+    const evt2 = new window.Event('mousemove', { cancelable: true });
+    const spy2 = vi.spyOn(evt2, 'preventDefault');
+    window.dispatchEvent(evt2);
+    expect(spy2).not.toHaveBeenCalled();
+    // 卸载清理分支
+    expect(() => unmount()).not.toThrow();
+    spy.mockRestore();
+    spy2.mockRestore();
+  });
+
+  it('PanelContainer 缩放手柄 mousedown → startResize 联动 context', () => {
+    const box: { current: Ctx | null } = { current: null };
+    const { container } = render(
+      <LayoutProvider>
+        <Probe box={box} />
+        <CtxLastPanelContainer isActive />
+      </LayoutProvider>,
+    );
+    act(() => box.current!.addPanel({
+      type: 'code-editor', title: '代码面板',
+      position: { x: 10, y: 10, w: 0, h: 0 },
+      size: { width: 300, height: 300 },
+      minSize: { width: 100, height: 100 },
+      maxSize: { width: 800, height: 600 },
+      isLocked: false, isMinimized: false, isMaximized: false,
+      isClosable: true, isResizable: true,
+    }));
+    const handles = container.querySelectorAll('.panel-resize-handle');
+    expect(handles.length).toBe(3);
+    fireEvent.mouseDown(handles[0]); // direction e
+    const id = box.current!.panels[box.current!.panels.length - 1].id;
+    expect(box.current?.state.resizing.panelId).toBe(id);
+    expect(box.current?.state.resizing.direction).toBe('e');
+  });
+});

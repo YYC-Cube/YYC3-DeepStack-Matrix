@@ -1,62 +1,262 @@
 {
   "name": "@yyc3-deepstack/core",
   "version": "0.1.0",
-  "private": true,
   "description": "YYC³ 四端统一逻辑核心库 — 数据/横切能力单源（主文档 Phase 3）",
   "author": "YanYuCloudCube Team <admin@0379.email>",
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./types": "./src/types.ts",
-    "./db-adapter": "./src/db-adapter/index.ts",
-    "./data-bus": "./src/data-bus.ts",
-    "./crdt": "./src/crdt.ts",
-    "./yyc3-storage": "./src/yyc3-storage.ts",
-    "./create-local-store": "./src/create-local-store.ts",
-    "./broadcast-channel": "./src/broadcast-channel.ts",
-    "./cross-tab-sync": "./src/cross-tab-sync.ts",
-    "./db-queries": "./src/db-queries.ts",
-    "./supabaseClient": "./src/supabaseClient.ts",
-    "./supabaseClientReal": "./src/supabaseClientReal.ts",
-    "./error-handler": "./src/error-handler.ts",
-    "./figma-error-filter": "./src/figma-error-filter.ts",
-    "./env-config": "./src/env-config.ts",
-    "./validators": "./src/validators.ts",
-    "./config-validator": "./src/config-validator.ts",
-    "./ollama-url": "./src/ollama-url.ts",
-    "./GitService": "./src/GitService.ts",
-    "./migrate-storage": "./src/migrate-storage.ts",
-    "./music-storage": "./src/music-storage.ts",
-    "./api-config": "./src/api-config.ts",
-    "./dmusic-resources": "./src/dmusic-resources.ts",
-    "./i18n": "./src/i18n/index.ts",
-    "./i18n/zh-CN": "./src/i18n/zh-CN.ts",
-    "./i18n/en-US": "./src/i18n/en-US.ts",
-    "./connection-test-engine": "./src/connection-test-engine.ts",
-    "./variable-center": "./src/variable-center.ts",
-    "./use-persisted-state": "./src/use-persisted-state.ts",
-    "./use-copy-feedback": "./src/use-copy-feedback.ts",
-    "./database/ConnectionManager": "./src/database/ConnectionManager.ts",
-    "./database/ConnectionMonitor": "./src/database/ConnectionMonitor.ts",
-    "./database/ConnectionPool": "./src/database/ConnectionPool.ts",
-    "./database/DatabaseAdapter": "./src/database/DatabaseAdapter.ts",
-    "./database/IndexManager": "./src/database/IndexManager.ts",
-    "./database/QueryAnalyzer": "./src/database/QueryAnalyzer.ts",
-    "./database/QueryCache": "./src/database/QueryCache.ts",
-    "./database/SlowQueryMonitor": "./src/database/SlowQueryMonitor.ts",
-    "./database/types": "./src/database/types.ts",
-    "./view-context": "./src/view-context.ts",
-    "./authContext": "./src/authContext.ts",
-    "./backgroundSync": "./src/backgroundSync.ts",
-    "./local-knowledge-base": "./src/local-knowledge-base.ts",
-    "./network-utils": "./src/network-utils.ts",
-    "./yyc3-icons": "./src/yyc3-icons.ts",
-    "./useClock": "./src/useClock.ts",
-    "./useMobileView": "./src/useMobileView.ts",
-    "./useKeyboardShortcuts": "./src/useKeyboardShortcuts.ts",
-    "./useNetworkConfig": "./src/useNetworkConfig.ts",
-    "./storageManager": "./src/storageManager.ts"
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
+    },
+    "./db-adapter": {
+      "types": "./dist/db-adapter/index.d.ts",
+      "import": "./dist/db-adapter/index.js",
+      "require": "./dist/db-adapter/index.cjs"
+    },
+    "./data-bus": {
+      "types": "./dist/data-bus.d.ts",
+      "import": "./dist/data-bus.js",
+      "require": "./dist/data-bus.cjs"
+    },
+    "./crdt": {
+      "types": "./dist/crdt.d.ts",
+      "import": "./dist/crdt.js",
+      "require": "./dist/crdt.cjs"
+    },
+    "./yyc3-storage": {
+      "types": "./dist/yyc3-storage.d.ts",
+      "import": "./dist/yyc3-storage.js",
+      "require": "./dist/yyc3-storage.cjs"
+    },
+    "./create-local-store": {
+      "types": "./dist/create-local-store.d.ts",
+      "import": "./dist/create-local-store.js",
+      "require": "./dist/create-local-store.cjs"
+    },
+    "./broadcast-channel": {
+      "types": "./dist/broadcast-channel.d.ts",
+      "import": "./dist/broadcast-channel.js",
+      "require": "./dist/broadcast-channel.cjs"
+    },
+    "./cross-tab-sync": {
+      "types": "./dist/cross-tab-sync.d.ts",
+      "import": "./dist/cross-tab-sync.js",
+      "require": "./dist/cross-tab-sync.cjs"
+    },
+    "./db-queries": {
+      "types": "./dist/db-queries.d.ts",
+      "import": "./dist/db-queries.js",
+      "require": "./dist/db-queries.cjs"
+    },
+    "./supabaseClient": {
+      "types": "./dist/supabaseClient.d.ts",
+      "import": "./dist/supabaseClient.js",
+      "require": "./dist/supabaseClient.cjs"
+    },
+    "./supabaseClientReal": {
+      "types": "./dist/supabaseClientReal.d.ts",
+      "import": "./dist/supabaseClientReal.js",
+      "require": "./dist/supabaseClientReal.cjs"
+    },
+    "./error-handler": {
+      "types": "./dist/error-handler.d.ts",
+      "import": "./dist/error-handler.js",
+      "require": "./dist/error-handler.cjs"
+    },
+    "./figma-error-filter": {
+      "types": "./dist/figma-error-filter.d.ts",
+      "import": "./dist/figma-error-filter.js",
+      "require": "./dist/figma-error-filter.cjs"
+    },
+    "./env-config": {
+      "types": "./dist/env-config.d.ts",
+      "import": "./dist/env-config.js",
+      "require": "./dist/env-config.cjs"
+    },
+    "./validators": {
+      "types": "./dist/validators.d.ts",
+      "import": "./dist/validators.js",
+      "require": "./dist/validators.cjs"
+    },
+    "./config-validator": {
+      "types": "./dist/config-validator.d.ts",
+      "import": "./dist/config-validator.js",
+      "require": "./dist/config-validator.cjs"
+    },
+    "./ollama-url": {
+      "types": "./dist/ollama-url.d.ts",
+      "import": "./dist/ollama-url.js",
+      "require": "./dist/ollama-url.cjs"
+    },
+    "./GitService": {
+      "types": "./dist/GitService.d.ts",
+      "import": "./dist/GitService.js",
+      "require": "./dist/GitService.cjs"
+    },
+    "./migrate-storage": {
+      "types": "./dist/migrate-storage.d.ts",
+      "import": "./dist/migrate-storage.js",
+      "require": "./dist/migrate-storage.cjs"
+    },
+    "./music-storage": {
+      "types": "./dist/music-storage.d.ts",
+      "import": "./dist/music-storage.js",
+      "require": "./dist/music-storage.cjs"
+    },
+    "./api-config": {
+      "types": "./dist/api-config.d.ts",
+      "import": "./dist/api-config.js",
+      "require": "./dist/api-config.cjs"
+    },
+    "./dmusic-resources": {
+      "types": "./dist/dmusic-resources.d.ts",
+      "import": "./dist/dmusic-resources.js",
+      "require": "./dist/dmusic-resources.cjs"
+    },
+    "./i18n": {
+      "types": "./dist/i18n/index.d.ts",
+      "import": "./dist/i18n/index.js",
+      "require": "./dist/i18n/index.cjs"
+    },
+    "./i18n/zh-CN": {
+      "types": "./dist/i18n/zh-CN.d.ts",
+      "import": "./dist/i18n/zh-CN.js",
+      "require": "./dist/i18n/zh-CN.cjs"
+    },
+    "./i18n/en-US": {
+      "types": "./dist/i18n/en-US.d.ts",
+      "import": "./dist/i18n/en-US.js",
+      "require": "./dist/i18n/en-US.cjs"
+    },
+    "./connection-test-engine": {
+      "types": "./dist/connection-test-engine.d.ts",
+      "import": "./dist/connection-test-engine.js",
+      "require": "./dist/connection-test-engine.cjs"
+    },
+    "./variable-center": {
+      "types": "./dist/variable-center.d.ts",
+      "import": "./dist/variable-center.js",
+      "require": "./dist/variable-center.cjs"
+    },
+    "./use-persisted-state": {
+      "types": "./dist/use-persisted-state.d.ts",
+      "import": "./dist/use-persisted-state.js",
+      "require": "./dist/use-persisted-state.cjs"
+    },
+    "./use-copy-feedback": {
+      "types": "./dist/use-copy-feedback.d.ts",
+      "import": "./dist/use-copy-feedback.js",
+      "require": "./dist/use-copy-feedback.cjs"
+    },
+    "./database/ConnectionManager": {
+      "types": "./dist/database/ConnectionManager.d.ts",
+      "import": "./dist/database/ConnectionManager.js",
+      "require": "./dist/database/ConnectionManager.cjs"
+    },
+    "./database/ConnectionMonitor": {
+      "types": "./dist/database/ConnectionMonitor.d.ts",
+      "import": "./dist/database/ConnectionMonitor.js",
+      "require": "./dist/database/ConnectionMonitor.cjs"
+    },
+    "./database/ConnectionPool": {
+      "types": "./dist/database/ConnectionPool.d.ts",
+      "import": "./dist/database/ConnectionPool.js",
+      "require": "./dist/database/ConnectionPool.cjs"
+    },
+    "./database/DatabaseAdapter": {
+      "types": "./dist/database/DatabaseAdapter.d.ts",
+      "import": "./dist/database/DatabaseAdapter.js",
+      "require": "./dist/database/DatabaseAdapter.cjs"
+    },
+    "./database/IndexManager": {
+      "types": "./dist/database/IndexManager.d.ts",
+      "import": "./dist/database/IndexManager.js",
+      "require": "./dist/database/IndexManager.cjs"
+    },
+    "./database/QueryAnalyzer": {
+      "types": "./dist/database/QueryAnalyzer.d.ts",
+      "import": "./dist/database/QueryAnalyzer.js",
+      "require": "./dist/database/QueryAnalyzer.cjs"
+    },
+    "./database/QueryCache": {
+      "types": "./dist/database/QueryCache.d.ts",
+      "import": "./dist/database/QueryCache.js",
+      "require": "./dist/database/QueryCache.cjs"
+    },
+    "./database/SlowQueryMonitor": {
+      "types": "./dist/database/SlowQueryMonitor.d.ts",
+      "import": "./dist/database/SlowQueryMonitor.js",
+      "require": "./dist/database/SlowQueryMonitor.cjs"
+    },
+    "./database/types": {
+      "types": "./dist/database/types.d.ts",
+      "import": "./dist/database/types.js",
+      "require": "./dist/database/types.cjs"
+    },
+    "./view-context": {
+      "types": "./dist/view-context.d.ts",
+      "import": "./dist/view-context.js",
+      "require": "./dist/view-context.cjs"
+    },
+    "./authContext": {
+      "types": "./dist/authContext.d.ts",
+      "import": "./dist/authContext.js",
+      "require": "./dist/authContext.cjs"
+    },
+    "./backgroundSync": {
+      "types": "./dist/backgroundSync.d.ts",
+      "import": "./dist/backgroundSync.js",
+      "require": "./dist/backgroundSync.cjs"
+    },
+    "./local-knowledge-base": {
+      "types": "./dist/local-knowledge-base.d.ts",
+      "import": "./dist/local-knowledge-base.js",
+      "require": "./dist/local-knowledge-base.cjs"
+    },
+    "./network-utils": {
+      "types": "./dist/network-utils.d.ts",
+      "import": "./dist/network-utils.js",
+      "require": "./dist/network-utils.cjs"
+    },
+    "./yyc3-icons": {
+      "types": "./dist/yyc3-icons.d.ts",
+      "import": "./dist/yyc3-icons.js",
+      "require": "./dist/yyc3-icons.cjs"
+    },
+    "./useClock": {
+      "types": "./dist/useClock.d.ts",
+      "import": "./dist/useClock.js",
+      "require": "./dist/useClock.cjs"
+    },
+    "./useMobileView": {
+      "types": "./dist/useMobileView.d.ts",
+      "import": "./dist/useMobileView.js",
+      "require": "./dist/useMobileView.cjs"
+    },
+    "./useKeyboardShortcuts": {
+      "types": "./dist/useKeyboardShortcuts.d.ts",
+      "import": "./dist/useKeyboardShortcuts.js",
+      "require": "./dist/useKeyboardShortcuts.cjs"
+    },
+    "./useNetworkConfig": {
+      "types": "./dist/useNetworkConfig.d.ts",
+      "import": "./dist/useNetworkConfig.js",
+      "require": "./dist/useNetworkConfig.cjs"
+    },
+    "./storageManager": {
+      "types": "./dist/storageManager.d.ts",
+      "import": "./dist/storageManager.js",
+      "require": "./dist/storageManager.cjs"
+    }
   },
   "peerDependencies": {
     "react": "^18 || ^19",
@@ -68,10 +268,65 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.10.0",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
+    "@vitest/coverage-istanbul": "5.0.4",
+    "fake-indexeddb": "^6.2.8",
+    "jsdom": "^29.1.1",
     "react-router": "^7.1.1",
     "sonner": "^2.0.7",
-    "typescript": "^5.9.3"
-  }
+    "tsup": "^9.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "5.0.4"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run clean && pnpm run build && pnpm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/issues"
+  },
+  "homepage": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/tree/main/packages/core#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "yyc3",
+    "deepstack",
+    "core",
+    "cross-tab",
+    "crdt",
+    "storage",
+    "indexeddb",
+    "broadcast-channel",
+    "error-handling",
+    "i18n",
+    "validators",
+    "database",
+    "typescript"
+  ]
 }

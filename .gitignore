@@ -2,6 +2,7 @@
 # 依赖与产物
 node_modules/
 dist/
+coverage/
 dist-electron/
 release/
 build/

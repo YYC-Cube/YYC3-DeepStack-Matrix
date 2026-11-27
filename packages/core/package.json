@@ -1,7 +1,6 @@
 {
   "name": "@yyc3-deepstack/core",
   "version": "0.1.0",
-  "private": true,
   "description": "YYC³ 四端统一逻辑核心库 — 数据/横切能力单源（主文档 Phase 3）",
   "author": "YanYuCloudCube Team <admin@0379.email>",
   "license": "MIT",
@@ -269,12 +268,18 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.10.0",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
+    "@vitest/coverage-istanbul": "5.0.4",
+    "fake-indexeddb": "^6.2.8",
+    "jsdom": "^29.1.1",
     "react-router": "^7.1.1",
     "sonner": "^2.0.7",
     "tsup": "^9.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "5.0.4"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -292,5 +297,36 @@
     "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist",
     "prepublishOnly": "pnpm run clean && pnpm run build && pnpm run test"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/issues"
+  },
+  "homepage": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/tree/main/packages/core#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "yyc3",
+    "deepstack",
+    "core",
+    "cross-tab",
+    "crdt",
+    "storage",
+    "indexeddb",
+    "broadcast-channel",
+    "error-handling",
+    "i18n",
+    "validators",
+    "database",
+    "typescript"
+  ]
 }

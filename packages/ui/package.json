@@ -1,8 +1,7 @@
 {
   "name": "@yyc3-deepstack/ui",
   "version": "0.1.0",
-  "private": true,
-  "description": "YYC³ 四端统一 UI 基础件库（shadcn/radix 同源 49 件 + brand 件）— internal package 源码直出",
+  "description": "YYC³ 四端统一 UI 基础件库（shadcn/radix 同源 49 件 + brand 件）— cjs/esm/dts 三格式产物",
   "author": "YanYuCloudCube Team <admin@0379.email>",
   "license": "MIT",
   "type": "module",
@@ -83,10 +82,44 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.10.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-istanbul": "5.0.4",
+    "jsdom": "^29.1.1",
     "tsup": "^9.0.0",
-    "typescript": "^5.9.3"
-  }
+    "typescript": "^5.9.3",
+    "vitest": "5.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix.git",
+    "directory": "packages/ui"
+  },
+  "bugs": {
+    "url": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/issues"
+  },
+  "homepage": "https://github.com/YYC-Cube/YYC3-DeepStack-Matrix/tree/main/packages/ui#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "yyc3",
+    "deepstack",
+    "ui",
+    "shadcn",
+    "radix-ui",
+    "components",
+    "react",
+    "tailwind",
+    "design-system",
+    "typescript"
+  ]
 }

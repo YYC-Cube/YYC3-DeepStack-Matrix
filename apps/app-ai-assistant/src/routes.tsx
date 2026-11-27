@@ -47,7 +47,7 @@ function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
     return (
       <div
         className="h-screen w-screen overflow-auto"
-        style={{ background: "linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)" }}
+        style={{ background: "linear-gradient(135deg, #0c1830 0%, #101e38 30%, #0e1c3e 60%, #0a142c 100%)" }}
       >
         {children}
       </div>
@@ -56,7 +56,7 @@ function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
   return (
     <div
       className="h-screen w-screen flex flex-col overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #060e1f 0%, #0a1628 30%, #081430 60%, #040c1a 100%)" }}
+      style={{ background: "linear-gradient(135deg, #0c1830 0%, #101e38 30%, #0e1c3e 60%, #0a142c 100%)" }}
     >
       <header className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-[rgba(0,180,255,0.1)] bg-[rgba(0,40,80,0.12)]">
         <YYC3Logo />
@@ -69,7 +69,16 @@ function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
           </div>
         </div>
       </header>
-      <main className="flex-1 overflow-auto p-4 pb-[76px]">{children}</main>
+      {/* 家族/时钟环页自适应铺满(零内边距);系统页保留留白 */}
+      <main
+        className={`flex-1 overflow-auto ${
+          location.pathname === "/" || location.pathname.startsWith("/ai-family")
+            ? "p-0"
+            : "p-4"
+        } pb-[64px]`}
+      >
+        {children}
+      </main>
       <BottomNav />
       {/* AI 浮窗:全页可用,独有系统模块 */}
       <AIAssistant isMobile={window.innerWidth < 768} />

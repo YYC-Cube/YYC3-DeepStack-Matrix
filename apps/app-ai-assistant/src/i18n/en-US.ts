@@ -46,6 +46,7 @@ const enUS: TranslationKeys = {
 
   // ======== Navigation ========
   nav: {
+    configCenter: "Config Center",
     dataMonitor: "Monitoring",
     followUp: "Follow-up",
     followUpManager: "Follow-up Tasks",

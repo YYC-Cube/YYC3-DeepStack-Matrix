@@ -49,7 +49,22 @@ interface MoreCategory {
 }
 
 const MORE_CATEGORIES: MoreCategory[] = [
-  // 应用域抽取:监控/运维时代分类已裁剪,「更多」抽屉随空数组自然隐藏
+  // 系统管理类(抽取批次 8 纳入)
+  {
+    labelKey: "nav.catAdmin", icon: ShieldCheck,
+    items: [
+      { key: "nav.configCenter", path: "/config-center", icon: Database },
+      { key: "nav.userMgmt",     path: "/users",         icon: Users },
+    ],
+  },
+  // AI 协作类
+  {
+    labelKey: "nav.catAI", icon: Brain,
+    items: [
+      { key: "nav.aiDecision",    path: "/ai-assistant", icon: Sparkles },
+      { key: "nav.aiDiagnostics", path: "/ai-diagnosis", icon: BrainCircuit },
+    ],
+  },
 ];
 
 const ALL_MORE_PATHS = MORE_CATEGORIES.flatMap((c) => c.items.map((i) => i.path));

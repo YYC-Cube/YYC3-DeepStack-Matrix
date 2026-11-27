@@ -44,6 +44,7 @@ const zhCN = {
 
   // ======== 导航 ========
   nav: {
+    configCenter: "配置中心",
     dataMonitor: "数据监控",
     followUp: "一键跟进",
     followUpManager: "跟进任务管理",

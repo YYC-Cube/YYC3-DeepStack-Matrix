@@ -13,6 +13,12 @@ import { ModelProviderPanel } from "./components/ModelProviderPanel";
 import { SystemSettings } from "./components/SystemSettings";
 import { AIFamilyPage } from "./components/AIFamilyPage";
 import { AIFamilyRouter } from "./components/ai-family/AIFamilyRouter";
+import { AISuggestionPanel } from "./components/AISuggestionPanel";
+import { AIDiagnostics } from "./components/AIDiagnostics";
+import { ConfigCenter } from "./components/ConfigCenter";
+import { UserManagement } from "./components/UserManagement";
+import { CommandPalette } from "./components/CommandPalette";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { BottomNav } from "./components/BottomNav";
 import { AIAssistant } from "./components/AIAssistant";
 import { YYC3Logo } from "./components/YYC3Logo";
@@ -43,6 +49,13 @@ function useAuthed(): boolean {
  *  embed 态(AI 浮窗 iframe 内嵌,?embed=1)只渲染页面本体,壳/底栏/浮窗全隐藏 */
 function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
   const isEmbed = new URLSearchParams(useLocation().search).get("embed") === "1";
+  // ⌘K 全局命令面板(嵌入态禁用,避免 iframe 内重复挂载)
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  useKeyboardShortcuts({
+    enabled: !isEmbed,
+    onEscape: () => setPaletteOpen(false),
+    onSearch: () => setPaletteOpen(true),
+  });
   if (isEmbed) {
     return (
       <div
@@ -82,6 +95,8 @@ function AppShell({ children }: { children: ReactNode }): React.JSX.Element {
       <BottomNav />
       {/* AI 浮窗:全页可用,独有系统模块 */}
       <AIAssistant isMobile={window.innerWidth < 768} />
+      {/* ⌘K 全局命令面板 */}
+      <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
       <Toaster
         position="top-right"
         toastOptions={{
@@ -159,6 +174,39 @@ export const router = createHashRouter([
     element: (
       <Protected>
         <AIFamilyRouter />
+      </Protected>
+    ),
+  },
+  {
+    // 纳入批次 8:AI 协作 + 系统管理四件
+    path: "/ai-assistant",
+    element: (
+      <Protected>
+        <AISuggestionPanel />
+      </Protected>
+    ),
+  },
+  {
+    path: "/ai-diagnosis",
+    element: (
+      <Protected>
+        <AIDiagnostics />
+      </Protected>
+    ),
+  },
+  {
+    path: "/config-center",
+    element: (
+      <Protected>
+        <ConfigCenter />
+      </Protected>
+    ),
+  },
+  {
+    path: "/users",
+    element: (
+      <Protected>
+        <UserManagement />
       </Protected>
     ),
   },

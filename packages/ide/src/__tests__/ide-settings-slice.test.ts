@@ -45,6 +45,15 @@ describe('ide-settings-slice 默认态与操作', () => {
     expect(s.tabSize).toBe(DEFAULT_IDE_SETTINGS.tabSize);
   });
 
+  it('setSettings 整体替换 settings 对象', () => {
+    const replaced = { ...DEFAULT_IDE_SETTINGS, fontSize: 22, minimap: false, theme: 'light' as const };
+    slice().setSettings(replaced);
+    expect(slice().settings).toEqual(replaced);
+    expect(slice().settings).not.toBe(DEFAULT_IDE_SETTINGS);
+    slice().resetSettings();
+    expect(slice().settings).toEqual(DEFAULT_IDE_SETTINGS);
+  });
+
   it('resetSettings 回滚到默认值', () => {
     slice().updateSetting('wordWrap', false);
     slice().updateSetting('minimap', false);

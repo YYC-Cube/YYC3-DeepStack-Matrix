@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # 版本读取根 package.json 的 packageManager（pnpm@12），与本地生成环境一致
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -43,7 +43,7 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: 22

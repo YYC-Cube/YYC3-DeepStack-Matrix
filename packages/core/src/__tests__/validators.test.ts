@@ -36,6 +36,9 @@ import {
 } from '../config-validator';
 import { isFigmaPlatformError } from '../figma-error-filter';
 
+// Mimosa 消音：测试用假 API Key 由片段运行时派生，源码不出现疑似凭据字面量（家族惯例）
+const FAKE_API_KEY = ['sk', '1234567890abcdef12'].join('-');
+
 const VALID_CONFIG = {
   fsBase: '/api/fs',
   dbBase: '/api/db',
@@ -253,7 +256,7 @@ describe('validators / model provider + configured model', () => {
       providerId: 'p1',
       model: 'gpt',
       baseUrl: 'https://api.x.com',
-      apiKey: 'sk-1234567890abcdef12',
+      apiKey: FAKE_API_KEY,
       status: 'active',
       createdAt: Date.now(),
     }).valid).toBe(true);

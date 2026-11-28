@@ -78,7 +78,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: 构建并推送（apps/app-desktop/Dockerfile，context=仓库根）
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: apps/app-desktop/Dockerfile

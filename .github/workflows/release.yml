@@ -13,7 +13,7 @@ jobs:
   gates:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # 版本读取根 package.json 的 packageManager（pnpm@12），与本地生成环境一致
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
@@ -42,7 +42,7 @@ jobs:
       # CI 无签名证书：禁用自动发现，出未签名产物（正式发布另配 CSC_LINK/APPLE_ID secrets）
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -70,7 +70,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:

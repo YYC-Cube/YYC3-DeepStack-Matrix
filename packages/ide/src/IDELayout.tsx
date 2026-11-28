@@ -188,6 +188,8 @@ export function IDELayout() {
   }, [navigate]);
 
   const handleFullscreen = useCallback(() => {
+    // 全屏 API 可用性守卫（旧浏览器/jsdom 等环境方法不存在——调用即 TypeError，catch 兜不住）
+    if (!document.documentElement.requestFullscreen) return;
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => { /* 全屏退出失败时忽略 */ });
     } else {

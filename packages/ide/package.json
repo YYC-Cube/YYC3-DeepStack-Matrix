@@ -1,5 +1,5 @@
 {
-  "name": "@yyc3/ide",
+  "name": "@yyc3-deepstack/ide",
   "version": "0.1.0",
   "description": "YYC³ 四端统一 IDE 开发者域组件库 — IDE 面板系统 + 终端/代码编辑器 + 主题预设引擎（主文档 Phase 4 M4-7）",
   "author": "YanYuCloudCube Team <admin@0379.email>",
